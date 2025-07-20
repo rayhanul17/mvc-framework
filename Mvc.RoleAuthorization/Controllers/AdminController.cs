@@ -70,7 +70,50 @@ namespace Mvc.RoleAuthorization.Controllers
 			return View(viewModel);
 		}
 
-		[Authorize("Authorization")]
+        [Authorize("Authorization")]
+        public async Task<IActionResult> Menus()
+        {
+            var roleViewModel = new List<RoleViewModel>();
+            var roles = await _roleManager.Roles.ToListAsync();
+            foreach (var item in roles)
+            {
+                roleViewModel.Add(new RoleViewModel()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                });
+            }
+
+            return View(roleViewModel);
+        }
+
+        [Authorize("Menus")]
+        public IActionResult CreateMenu()
+        {
+            return View(new NavigationMenuViewModel());
+        }
+
+        [HttpPost]
+        [Authorize("Menus")]
+        public async Task<IActionResult> CreateMenu(NavigationMenuViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _roleManager.CreateAsync(new IdentityRole() { Name = viewModel.Name });
+                if (result.Succeeded)
+                {
+                    return RedirectToAction(nameof(Menus));
+                }
+                else
+                {
+                    ModelState.AddModelError("Name", string.Join(",", result.Errors));
+                }
+            }
+
+            return View(viewModel);
+        }
+
+        [Authorize("Authorization")]
 		public async Task<IActionResult> Users()
 		{
 			var userViewModel = new List<UserViewModel>();

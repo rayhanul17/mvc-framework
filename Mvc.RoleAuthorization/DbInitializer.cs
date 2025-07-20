@@ -222,7 +222,27 @@ namespace Mvc.RoleAuthorization
 					DisplayOrder=3,
 					Visible = false,
 				},
-			};
+                new NavigationMenu()
+                {
+                    Id = new Guid("C816D967-0641-41C8-8153-EB16882BB21B"),
+                    Name = "Menus",
+                    ControllerName = "Admin",
+                    ActionName = "Menus",
+                    ParentMenuId = new Guid("13e2f21a-4283-4ff8-bb7a-096e7b89e0f0"),
+                    DisplayOrder=3,
+                    Visible = true,
+                },
+                new NavigationMenu()
+                {
+                    Id = new Guid("A3B29407-392C-4A6E-B094-CD9C8B958999"),
+                    Name = "Create Menu",
+                    ControllerName = "Admin",
+                    ActionName = "CreateMenu",
+                    ParentMenuId = new Guid("13e2f21a-4283-4ff8-bb7a-096e7b89e0f0"),
+                    DisplayOrder=3,
+                    Visible = true,
+                }
+            };
 		}
 	}
 }
