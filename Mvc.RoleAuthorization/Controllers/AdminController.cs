@@ -1,33 +1,39 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Mvc.RoleAuthorization.Data;
 using Mvc.RoleAuthorization.Models;
 using Mvc.RoleAuthorization.Services;
+using System.Reflection;
 
 namespace Mvc.RoleAuthorization.Controllers
 {
-	[Authorize]
+    [Authorize]
 	public class AdminController : Controller
 	{
 		private readonly ILogger<AdminController> _logger;
 		private readonly IDataAccessService _dataAccessService;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
 
-		public AdminController(
+        public AdminController(
 				UserManager<IdentityUser> userManager,
 				RoleManager<IdentityRole> roleManager,
 				IDataAccessService dataAccessService,
-				ILogger<AdminController> logger)
+				ILogger<AdminController> logger,
+                ApplicationDbContext context)
 		{
-			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-			_roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-			_dataAccessService = dataAccessService ?? throw new ArgumentNullException(nameof(dataAccessService));
-		}
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+            _dataAccessService = dataAccessService ?? throw new ArgumentNullException(nameof(dataAccessService));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
-		[Authorize("Authorization")]
+        [Authorize("Authorization")]
 		public async Task<IActionResult> Roles()
 		{
 			var roleViewModel = new List<RoleViewModel>();
@@ -99,17 +105,19 @@ namespace Mvc.RoleAuthorization.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _roleManager.CreateAsync(new IdentityRole() { Name = viewModel.Name });
-                if (result.Succeeded)
+                var menu = new NavigationMenu
                 {
-                    return RedirectToAction(nameof(Menus));
-                }
-                else
-                {
-                    ModelState.AddModelError("Name", string.Join(",", result.Errors));
-                }
+                    Name = viewModel.Name,
+                    Area = viewModel.Area,
+                    ControllerName = viewModel.ControllerName,
+                    ActionName = viewModel.ActionName,
+                    DisplayOrder = viewModel.DisplayOrder,
+                    Visible = true
+                };
+                _context.NavigationMenu.Add(menu);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Menus));
             }
-
             return View(viewModel);
         }
 
@@ -198,5 +206,56 @@ namespace Mvc.RoleAuthorization.Controllers
 
 			return View(viewModel);
 		}
-	}
+
+        [HttpGet]
+        public IActionResult GetAreas()
+        {
+            var areas = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(type => typeof(Controller).IsAssignableFrom(type) && !type.IsAbstract)
+                .Select(type => type.GetCustomAttribute<AreaAttribute>()?.RouteValue)
+                .Distinct()
+                .Where(a => !string.IsNullOrEmpty(a))
+                .ToList();
+            return Json(areas);
+        }
+
+        [HttpGet]
+        public IActionResult GetControllers(string area)
+        {
+            var controllers = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(type => typeof(Controller).IsAssignableFrom(type) && !type.IsAbstract)
+                .Where(type => (type.GetCustomAttribute<AreaAttribute>()?.RouteValue ?? "") == (area ?? ""))
+                .Select(type => type.Name.Replace("Controller", ""))
+                .Distinct()
+                .ToList();
+            return Json(controllers);
+        }
+
+		[HttpGet]
+		public IActionResult GetActions(string area, string controller)
+		{
+			var controllerType = Assembly.GetExecutingAssembly()
+									.GetTypes()
+									.FirstOrDefault(type =>
+										typeof(Controller).IsAssignableFrom(type) &&
+										!type.IsAbstract &&
+										type.Name.Equals(controller + "Controller", StringComparison.OrdinalIgnoreCase) &&
+										(
+											(type.GetCustomAttribute<AreaAttribute>()?.RouteValue ?? "") == (area ?? "")
+											|| type.Namespace?.Contains($".Areas.{area}.Controllers", StringComparison.OrdinalIgnoreCase) == true
+										)
+									);
+
+			if (controllerType == null)
+				return Json(new List<string>());
+			var actions = controllerType.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly)
+				.Where(m => m.IsPublic && !m.IsDefined(typeof(NonActionAttribute)))
+				.Select(m => m.Name)
+				.Distinct()
+				.ToList();
+			return Json(actions);
+		}
+    }
 }
