@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using mvc.framework.Data;
 using mvc.framework.Models;
@@ -96,8 +97,21 @@ namespace mvc.framework.Controllers
         [Authorize("Menus")]
         public IActionResult CreateMenu()
         {
-            return View(new NavigationMenuViewModel());
+			var viewModel = new NavigationMenuViewModel();
+            // Before returning the view:
+            viewModel.ParentMenuList = _context.NavigationMenu
+                .Where(m => m.ParentMenuId == null)
+                .OrderBy(m => m.DisplayOrder)
+                .Select(m => new SelectListItem
+                {
+                    Value = m.Id.ToString(),
+                    Text = m.Name
+                }).ToList();
+
+
+            return View(viewModel);
         }
+
 
         [HttpPost]
         [Authorize("Menus")]
@@ -105,21 +119,42 @@ namespace mvc.framework.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (viewModel.ParentMenuId != null)
+                {
+                    var parentMenu = await _context.NavigationMenu.FindAsync(viewModel.ParentMenuId);
+                    if (parentMenu == null)
+                        throw new InvalidOperationException("Parent menu not found.");
+                }
+
                 var menu = new NavigationMenu
                 {
                     Name = viewModel.Name,
                     Area = viewModel.Area,
                     ControllerName = viewModel.ControllerName,
                     ActionName = viewModel.ActionName,
+                    ParentMenuId = viewModel.ParentMenuId,
                     DisplayOrder = viewModel.DisplayOrder,
                     Visible = true
                 };
+
                 _context.NavigationMenu.Add(menu);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Menus));
             }
+
+            // Repopulate Parent Menu dropdown on error
+            viewModel.ParentMenuList = _context.NavigationMenu
+                .Where(m => m.ParentMenuId == null)
+                .OrderBy(m => m.DisplayOrder)
+                .Select(m => new SelectListItem
+                {
+                    Value = m.Id.ToString(),
+                    Text = m.Name
+                }).ToList();
+
             return View(viewModel);
         }
+
 
         [Authorize("Authorization")]
 		public async Task<IActionResult> Users()

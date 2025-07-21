@@ -1,4 +1,6 @@
-﻿namespace mvc.framework.Models
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace mvc.framework.Models
 {
 	public class NavigationMenuViewModel
 	{
@@ -23,5 +25,7 @@
 		public int DisplayOrder { get; set; }
 
 		public bool Visible { get; set; }
-	}
+        public List<SelectListItem>? ParentMenuList { get; set; }
+
+    }
 }
