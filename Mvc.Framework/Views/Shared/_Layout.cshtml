@@ -6,6 +6,7 @@
 	<title>@ViewData["Title"] - mvc.framework</title>
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/css/site.css" />
+	@await RenderSectionAsync("Styles", required: false)
 	<style>
 		input[type=checkbox] {
 			-ms-transform: scale(2);
@@ -20,7 +21,7 @@
 <body>
 	<header>
 		<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-			@await Component.InvokeAsync("NavigationMenu")
+			@await Component.InvokeAsync("DefaultNavigationMenu")
 		</nav>
 	</header>
 	<br />
@@ -32,12 +33,12 @@
 	</div>
 	<footer class="border-top footer text-muted">
 		<div class="container">
-			&copy; 2020 - Dynamic MVC Frameowrk - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+			@await Component.InvokeAsync("FooterNavigationMenu")
 		</div>
 	</footer>
 	<script src="~/lib/jquery/dist/jquery.min.js"></script>
 	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="~/js/site.js" asp-append-version="true"></script>
-	@RenderSection("Scripts", required: false)
+	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

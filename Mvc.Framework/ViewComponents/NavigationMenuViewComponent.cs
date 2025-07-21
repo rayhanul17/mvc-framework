@@ -1,22 +1,56 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using mvc.framework.Services;
 
-namespace mvc.framework.ViewComponents
+namespace mvc.framework.ViewComponents;
+
+public class DefaultNavigationMenuViewComponent : ViewComponent
 {
-	public class NavigationMenuViewComponent : ViewComponent
+	private readonly IDataAccessService _dataAccessService;
+
+	public DefaultNavigationMenuViewComponent(IDataAccessService dataAccessService)
 	{
-		private readonly IDataAccessService _dataAccessService;
+		_dataAccessService = dataAccessService;
+	}
 
-		public NavigationMenuViewComponent(IDataAccessService dataAccessService)
-		{
-			_dataAccessService = dataAccessService;
-		}
+	public async Task<IViewComponentResult> InvokeAsync()
+	{
+		var items = await _dataAccessService.GetMenuItemsAsync(HttpContext.User);
 
-		public async Task<IViewComponentResult> InvokeAsync()
-		{
-			var items = await _dataAccessService.GetMenuItemsAsync(HttpContext.User);
-
-			return View(items);
-		}
+		return View(items);
 	}
 }
+
+public class LeftNavigationMenuViewComponent : ViewComponent
+{
+    private readonly IDataAccessService _dataAccessService;
+
+    public LeftNavigationMenuViewComponent(IDataAccessService dataAccessService)
+    {
+        _dataAccessService = dataAccessService;
+    }
+
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        var items = await _dataAccessService.GetMenuItemsAsync(HttpContext.User);
+
+        return View(items);
+    }
+}
+
+public class FooterNavigationMenuViewComponent : ViewComponent
+{
+    private readonly IDataAccessService _dataAccessService;
+
+    public FooterNavigationMenuViewComponent(IDataAccessService dataAccessService)
+    {
+        _dataAccessService = dataAccessService;
+    }
+
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        var items = await _dataAccessService.GetMenuItemsAsync(HttpContext.User);
+
+        return View(items);
+    }
+}
+

@@ -1,0 +1,64 @@
+@model List<mvc.framework.Models.NavigationMenuViewModel>
+@{
+	ViewData["Title"] = "DefaultNavigationMenuViewComponent";
+}
+<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Dynamic MVC Frameowrk</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+	<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarsExampleDefault">
+	<ul class="navbar-nav mr-auto">
+		<li class="nav-item">
+			<a class="nav-link text" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link text" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+		</li>
+		@*Menu Items from the database*@
+		@foreach (var item in Model.Where(x => x.ParentMenuId == null && x.Visible).OrderBy(x => x.DisplayOrder))
+		{
+			var children = Model.Where(x => x.ParentMenuId == item.Id && x.Visible).OrderBy(x => x.DisplayOrder).ToList();
+
+			// Only show dropdown if there are children
+			if (children.Any())
+			{
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="dropdown-@item.Id" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						@item.Name
+					</a>
+					<div class="dropdown-menu" aria-labelledby="dropdown-@item.Id">
+						@foreach (var child in children)
+						{
+							if (child.IsExternal && !string.IsNullOrWhiteSpace(child.ExternalUrl))
+							{
+								<a target="_blank" class="dropdown-item" href="@child.ExternalUrl">@child.Name</a>
+							}
+							else
+							{
+								<a class="dropdown-item" asp-area="@child.Area" asp-controller="@child.ControllerName" asp-action="@child.ActionName">@child.Name</a>
+							}
+						}
+					</div>
+				</li>
+			}
+			else
+			{
+				// No children, show as single menu
+				if (item.IsExternal && !string.IsNullOrWhiteSpace(item.ExternalUrl))
+				{
+					<li class="nav-item">
+						<a target="_blank" class="nav-link text" href="@item.ExternalUrl">@item.Name</a>
+					</li>
+				}
+				else
+				{
+					<li class="nav-item">
+						<a class="nav-link text" asp-area="@item.Area" asp-controller="@item.ControllerName" asp-action="@item.ActionName">@item.Name</a>
+					</li>
+				}
+			}
+		}
+
+	</ul>
+	<partial name="_LoginPartial" />
+</div>
