@@ -1,64 +1,93 @@
 ﻿@model List<mvc.framework.Models.NavigationMenuViewModel>
+@inject Microsoft.AspNetCore.Mvc.Rendering.IHtmlHelper HtmlHelper
+
 @{
-	ViewData["Title"] = "LeftNavigationMenu";
+    string currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    string currentArea = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Dynamic MVC Frameowrk</a>
-<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-	<span class="navbar-toggler-icon"></span>
-</button>
-<div class="collapse navbar-collapse" id="navbarsExampleDefault">
-	<ul class="navbar-nav mr-auto">
-		<li class="nav-item">
-			<a class="nav-link text" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-		</li>
-		<li class="nav-item">
-			<a class="nav-link text" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
-		</li>
-		@*Menu Items from the database*@
-		@foreach (var item in Model.Where(x => x.ParentMenuId == null && x.Visible).OrderBy(x => x.DisplayOrder))
-		{
-			var children = Model.Where(x => x.ParentMenuId == item.Id && x.Visible).OrderBy(x => x.DisplayOrder).ToList();
 
-			// Only show dropdown if there are children
-			if (children.Any())
-			{
-				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#" id="dropdown-@item.Id" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						@item.Name
-					</a>
-					<div class="dropdown-menu" aria-labelledby="dropdown-@item.Id">
-						@foreach (var child in children)
-						{
-							if (child.IsExternal && !string.IsNullOrWhiteSpace(child.ExternalUrl))
-							{
-								<a target="_blank" class="dropdown-item" href="@child.ExternalUrl">@child.Name</a>
-							}
-							else
-							{
-								<a class="dropdown-item" asp-area="@child.Area" asp-controller="@child.ControllerName" asp-action="@child.ActionName">@child.Name</a>
-							}
-						}
-					</div>
-				</li>
-			}
-			else
-			{
-				// No children, show as single menu
-				if (item.IsExternal && !string.IsNullOrWhiteSpace(item.ExternalUrl))
-				{
-					<li class="nav-item">
-						<a target="_blank" class="nav-link text" href="@item.ExternalUrl">@item.Name</a>
-					</li>
-				}
-				else
-				{
-					<li class="nav-item">
-						<a class="nav-link text" asp-area="@item.Area" asp-controller="@item.ControllerName" asp-action="@item.ActionName">@item.Name</a>
-					</li>
-				}
-			}
-		}
+<!-- Responsive Left Navigation Menu -->
+<div class="collapse d-md-block position-fixed vh-100 bg-light border-end m-0" id="leftNav" style="z-index: 1040; width: 250px;">
+    <div class="d-flex flex-column h-100 p-3">
+        <a class="navbar-brand mb-4" asp-area="" asp-controller="Home" asp-action="Index">
+            Dynamic MVC Framework
+        </a>
 
-	</ul>
-	<partial name="_LoginPartial" />
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a>
+            </li>
+
+            @foreach (var item in Model.Where(x => x.ParentMenuId == null && x.Visible).OrderBy(x => x.DisplayOrder))
+            {
+                var children = Model.Where(x => x.ParentMenuId == item.Id && x.Visible).OrderBy(x => x.DisplayOrder).ToList();
+
+                if (children.Any())
+                {
+                    string collapseId = $"collapse-{item.Id}";
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex justify-content-between align-items-center"
+                           data-toggle="collapse" href="#@collapseId" role="button" aria-expanded="false" aria-controls="@collapseId">
+                            @item.Name <span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="@collapseId">
+                            <ul class="nav flex-column ml-3">
+                                @foreach (var child in children)
+                                {
+                                    bool isChildActive = child.ControllerName == currentController &&
+                                    child.ActionName == currentAction &&
+                                    (child.Area ?? "") == (currentArea ?? "");
+
+                                    if (child.IsExternal && !string.IsNullOrWhiteSpace(child.ExternalUrl))
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link dropdown-item @(isChildActive ? "active bg-primary text-white" : "")"
+                                               target="_blank" href="@child.ExternalUrl">@child.Name</a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link dropdown-item @(isChildActive ? "active bg-primary text-white" : "")"
+                                               asp-area="@child.Area" asp-controller="@child.ControllerName" asp-action="@child.ActionName">
+                                                @child.Name
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    bool isActive = item.ControllerName == currentController &&
+                    item.ActionName == currentAction &&
+                    (item.Area ?? "") == (currentArea ?? "");
+
+                    if (item.IsExternal && !string.IsNullOrWhiteSpace(item.ExternalUrl))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text" target="_blank" href="@item.ExternalUrl">@item.Name</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text @(isActive ? "active bg-primary text-white" : "")"
+                               asp-area="@item.Area" asp-controller="@item.ControllerName" asp-action="@item.ActionName">
+                                @item.Name
+                            </a>
+                        </li>
+                    }
+                }
+            }
+            <partial name="_LoginPartial" />
+        </ul>
+    </div>
 </div>

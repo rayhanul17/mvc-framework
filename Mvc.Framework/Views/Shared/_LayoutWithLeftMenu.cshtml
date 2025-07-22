@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - mvc.framework</title>
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" />
+	@await RenderSectionAsync("Styles", required: false)
+	<style>
+		input[type=checkbox] {
+			transform: scale(2);
+			padding: 10px;
+		}
+
+		.nav-link.active {
+			background-color: #0d6efd !important;
+			color: #fff !important;
+		}
+
+	</style>
+</head>
+<body>
+	<header>
+		<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+			<!-- Toggle button for Left Navigation (visible on small devices only) -->
+			<button class="navbar-toggler d-md-none" type="button" data-toggle="collapse" data-target="#leftNav"
+					aria-controls="leftNav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<!-- Optional: Add brand or header title here -->
+			<span class="navbar-brand ms-2">mvc.framework</span>
+		</nav>
+	</header>
+
+	<div class="container-fluid mt-0">
+		<!-- offset for fixed-top navbar -->
+		<div class="row">
+			<div class="col-md-3 p-0">
+				<!-- Left Navigation View Component -->
+				<div class="collapse d-md-block" id="leftNav">
+					@await Component.InvokeAsync("LeftNavigationMenu")
+				</div>
+			</div>
+			<div class="col-md-9">
+				<main role="main" class="pb-3">
+					@RenderBody()
+				</main>
+			</div>
+		</div>
+	</div>
+
+	<footer class="border-top footer text-muted mt-4">
+		<div class="container">
+			@await Component.InvokeAsync("FooterNavigationMenu")
+		</div>
+	</footer>
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
