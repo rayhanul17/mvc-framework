@@ -44,6 +44,10 @@ internal class Program
         builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
 
+        // Book Area DI
+        builder.Services.AddScoped<mvc.framework.Areas.Book.Data.CategoryRepository>();
+        builder.Services.AddScoped<mvc.framework.Areas.Book.Services.CategoryService>();
+
         //when we use single policy it needs to register like this
         //services.AddAuthorization(options =>
         //{

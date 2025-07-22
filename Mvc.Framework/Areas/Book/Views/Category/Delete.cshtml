@@ -1,0 +1,18 @@
+@model mvc.framework.Areas.Book.Models.ViewModel.CategoryViewModel
+@{
+    ViewData["Title"] = "Delete Category";
+}
+<h2>Delete Category</h2>
+<div class="mb-3">
+    <label>Name:</label>
+    <span>@Model.Name</span>
+</div>
+<div class="mb-3">
+    <label>Description:</label>
+    <span>@Model.Description</span>
+</div>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

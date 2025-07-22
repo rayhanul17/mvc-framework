@@ -1,0 +1,23 @@
+@model mvc.framework.Areas.Book.Models.Entity.Category
+@{
+    ViewData["Title"] = "Category Details";
+}
+<h2>Category Details</h2>
+<div class="mb-3">
+    <label>Name:</label>
+    <span>@Model.Name</span>
+</div>
+<div class="mb-3">
+    <label>Description:</label>
+    <span>@Model.Description</span>
+</div>
+<div class="mb-3">
+    <label>Created:</label>
+    <span>@Model.CreatedDate.ToString("g") by @Model.CreatedBy</span>
+</div>
+<div class="mb-3">
+    <label>Modified:</label>
+    <span>@Model.ModifiedDate?.ToString("g") by @Model.ModifiedBy</span>
+</div>
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

@@ -11,30 +11,30 @@ using System.Reflection;
 
 namespace mvc.framework.Controllers
 {
-    [Authorize]
+	[Authorize]
 	public class AdminController : Controller
 	{
 		private readonly ILogger<AdminController> _logger;
 		private readonly IDataAccessService _dataAccessService;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ApplicationDbContext _context;
+		private readonly ApplicationDbContext _context;
 
-        public AdminController(
+		public AdminController(
 				UserManager<IdentityUser> userManager,
 				RoleManager<IdentityRole> roleManager,
 				IDataAccessService dataAccessService,
 				ILogger<AdminController> logger,
-                ApplicationDbContext context)
+				ApplicationDbContext context)
 		{
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-            _dataAccessService = dataAccessService ?? throw new ArgumentNullException(nameof(dataAccessService));
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+			_logger = logger ?? throw new ArgumentNullException(nameof(logger));
+			_userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			_roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+			_dataAccessService = dataAccessService ?? throw new ArgumentNullException(nameof(dataAccessService));
+			_context = context ?? throw new ArgumentNullException(nameof(context));
+		}
 
-        [Authorize("Authorization")]
+		[Authorize("Authorization")]
 		public async Task<IActionResult> Roles()
 		{
 			var roleViewModel = new List<RoleViewModel>();
@@ -77,86 +77,86 @@ namespace mvc.framework.Controllers
 			return View(viewModel);
 		}
 
-        [Authorize("Authorization")]
-        public async Task<IActionResult> Menus()
-        {
-            var roleViewModel = new List<RoleViewModel>();
-            var roles = await _roleManager.Roles.ToListAsync();
-            foreach (var item in roles)
-            {
-                roleViewModel.Add(new RoleViewModel()
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                });
-            }
+		[Authorize("Authorization")]
+		public async Task<IActionResult> Menus()
+		{
+			var roleViewModel = new List<RoleViewModel>();
+			var roles = await _roleManager.Roles.ToListAsync();
+			foreach (var item in roles)
+			{
+				roleViewModel.Add(new RoleViewModel()
+				{
+					Id = item.Id,
+					Name = item.Name,
+				});
+			}
 
-            return View(roleViewModel);
-        }
+			return View(roleViewModel);
+		}
 
-        [Authorize("Menus")]
-        public IActionResult CreateMenu()
-        {
+		[Authorize("Menus")]
+		public IActionResult CreateMenu()
+		{
 			var viewModel = new NavigationMenuViewModel();
-            // Before returning the view:
-            viewModel.ParentMenuList = _context.NavigationMenu
-                .Where(m => m.ParentMenuId == null)
-                .OrderBy(m => m.DisplayOrder)
-                .Select(m => new SelectListItem
-                {
-                    Value = m.Id.ToString(),
-                    Text = m.Name
-                }).ToList();
+			// Before returning the view:
+			viewModel.ParentMenuList = _context.NavigationMenu
+				.Where(m => m.ParentMenuId == null)
+				.OrderBy(m => m.DisplayOrder)
+				.Select(m => new SelectListItem
+				{
+					Value = m.Id.ToString(),
+					Text = m.Name
+				}).ToList();
 
 
-            return View(viewModel);
-        }
+			return View(viewModel);
+		}
 
 
-        [HttpPost]
-        [Authorize("Menus")]
-        public async Task<IActionResult> CreateMenu(NavigationMenuViewModel viewModel)
-        {
-            if (ModelState.IsValid)
-            {
-                if (viewModel.ParentMenuId != null)
-                {
-                    var parentMenu = await _context.NavigationMenu.FindAsync(viewModel.ParentMenuId);
-                    if (parentMenu == null)
-                        throw new InvalidOperationException("Parent menu not found.");
-                }
+		[HttpPost]
+		[Authorize("Menus")]
+		public async Task<IActionResult> CreateMenu(NavigationMenuViewModel viewModel)
+		{
+			if (ModelState.IsValid)
+			{
+				if (viewModel.ParentMenuId != null)
+				{
+					var parentMenu = await _context.NavigationMenu.FindAsync(viewModel.ParentMenuId);
+					if (parentMenu == null)
+						throw new InvalidOperationException("Parent menu not found.");
+				}
 
-                var menu = new NavigationMenu
-                {
-                    Name = viewModel.Name,
-                    Area = viewModel.Area,
-                    ControllerName = viewModel.ControllerName,
-                    ActionName = viewModel.ActionName,
-                    ParentMenuId = viewModel.ParentMenuId,
-                    DisplayOrder = viewModel.DisplayOrder,
-                    Visible = true
-                };
+				var menu = new NavigationMenu
+				{
+					Name = viewModel.Name,
+					Area = viewModel.Area,
+					ControllerName = viewModel.ControllerName,
+					ActionName = viewModel.ActionName,
+					ParentMenuId = viewModel.ParentMenuId,
+					DisplayOrder = viewModel.DisplayOrder,
+					Visible = true
+				};
 
-                _context.NavigationMenu.Add(menu);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Menus));
-            }
+				_context.NavigationMenu.Add(menu);
+				await _context.SaveChangesAsync();
+				return RedirectToAction(nameof(Menus));
+			}
 
-            // Repopulate Parent Menu dropdown on error
-            viewModel.ParentMenuList = _context.NavigationMenu
-                .Where(m => m.ParentMenuId == null)
-                .OrderBy(m => m.DisplayOrder)
-                .Select(m => new SelectListItem
-                {
-                    Value = m.Id.ToString(),
-                    Text = m.Name
-                }).ToList();
+			// Repopulate Parent Menu dropdown on error
+			viewModel.ParentMenuList = _context.NavigationMenu
+				.Where(m => m.ParentMenuId == null)
+				.OrderBy(m => m.DisplayOrder)
+				.Select(m => new SelectListItem
+				{
+					Value = m.Id.ToString(),
+					Text = m.Name
+				}).ToList();
 
-            return View(viewModel);
-        }
+			return View(viewModel);
+		}
 
 
-        [Authorize("Authorization")]
+		[Authorize("Authorization")]
 		public async Task<IActionResult> Users()
 		{
 			var userViewModel = new List<UserViewModel>();
@@ -242,34 +242,34 @@ namespace mvc.framework.Controllers
 			return View(viewModel);
 		}
 
-        [HttpGet]
-        public IActionResult GetAreas()
-        {
-            var areas = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(type => typeof(Controller).IsAssignableFrom(type) && !type.IsAbstract)
-                .Select(type => type.GetCustomAttribute<AreaAttribute>()?.RouteValue)
-                .Distinct()
-                .Where(a => !string.IsNullOrEmpty(a))
-                .ToList();
-            return Json(areas);
-        }
-
-        [HttpGet]
-        public IActionResult GetControllers(string area)
-        {
-            var controllers = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(type => typeof(Controller).IsAssignableFrom(type) && !type.IsAbstract)
-                .Where(type => (type.GetCustomAttribute<AreaAttribute>()?.RouteValue ?? "") == (area ?? ""))
-                .Select(type => type.Name.Replace("Controller", ""))
-                .Distinct()
-                .ToList();
-            return Json(controllers);
-        }
+		[HttpGet]
+		public IActionResult GetAreas()
+		{
+			var areas = Assembly.GetExecutingAssembly()
+				.GetTypes()
+				.Where(type => typeof(Controller).IsAssignableFrom(type) && !type.IsAbstract)
+				.Select(type => type.GetCustomAttribute<AreaAttribute>()?.RouteValue)
+				.Distinct()
+				.Where(a => !string.IsNullOrEmpty(a))
+				.ToList();
+			return Json(areas);
+		}
 
 		[HttpGet]
-        public IActionResult GetActions(string area, string controller2)
+		public IActionResult GetControllers(string area)
+		{
+			var controllers = Assembly.GetExecutingAssembly()
+				.GetTypes()
+				.Where(type => typeof(Controller).IsAssignableFrom(type) && !type.IsAbstract)
+				.Where(type => (type.GetCustomAttribute<AreaAttribute>()?.RouteValue ?? "") == (area ?? ""))
+				.Select(type => type.Name.Replace("Controller", ""))
+				.Distinct()
+				.ToList();
+			return Json(controllers);
+		}
+
+		[HttpGet]
+		public IActionResult GetActions(string area, string controller2)
 		{
 			var controllerType = Assembly.GetExecutingAssembly()
 									.GetTypes()
@@ -285,12 +285,12 @@ namespace mvc.framework.Controllers
 
 			if (controllerType == null)
 				return Json(new List<string>());
-			var actions = controllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+			var actions = controllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public)
 				.Where(m => m.IsPublic && !m.IsDefined(typeof(NonActionAttribute)))
 				.Select(m => m.Name)
 				.Distinct()
 				.ToList();
 			return Json(actions);
 		}
-    }
+	}
 }

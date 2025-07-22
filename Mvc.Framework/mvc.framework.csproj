@@ -19,8 +19,6 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<Folder Include="Areas\Book\Data\" />
-		<Folder Include="Areas\Book\Models\" />
 		<Folder Include="Migrations\" />
 	</ItemGroup>
 

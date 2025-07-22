@@ -12,6 +12,7 @@ namespace mvc.framework.Data
 
 		public DbSet<NavigationMenu> NavigationMenu { get; set; }
 		public DbSet<RoleMenuPermission> RoleMenuPermission { get; set; }
+		public DbSet<Areas.Book.Models.Entity.Category> Categories { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
