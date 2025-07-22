@@ -74,19 +74,17 @@ internal class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseEndpoints(endpoints =>
-        {
-            endpoints.MapControllerRoute(
-                name: "areaRoute",
-                pattern: "{area:exists}/{controller}/{action}",
-                defaults: new { action = "Index" });
 
-            endpoints.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+        app.MapControllerRoute(
+            name: "areaRoute",
+            pattern: "{area:exists}/{controller}/{action}",
+            defaults: new { action = "Index" });
 
-            endpoints.MapRazorPages();
-        });
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        app.MapRazorPages();
 
         app.Run();
     }
