@@ -24,7 +24,7 @@ internal class Program
                 builder.Configuration.GetConnectionString("DefaultConnection"),
                 new MySqlServerVersion(new Version(8, 0, 36))));
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+        builder.Services.AddDefaultIdentity<mvc.framework.Models.ApplicationUser>(options =>
         {
             options.SignIn.RequireConfirmedAccount = true;
             options.Password.RequireDigit = true;

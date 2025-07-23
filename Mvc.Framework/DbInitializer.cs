@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using mvc.framework.Data;
+using mvc.framework.Models;
 
 namespace mvc.framework
 {
@@ -14,12 +15,12 @@ namespace mvc.framework
 				{
 					context.Database.EnsureCreated();
 
-					var _userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-					var _roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                    var _userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                    var _roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
 					if (!context.Users.Any(usr => usr.UserName == "admin@test.com"))
 					{
-						var user = new IdentityUser()
+						var user = new ApplicationUser()
 						{
 							UserName = "admin@test.com",
 							Email = "admin@test.com",
@@ -31,7 +32,7 @@ namespace mvc.framework
 
 					if (!context.Users.Any(usr => usr.UserName == "manager@test.com"))
 					{
-						var user = new IdentityUser()
+						var user = new ApplicationUser()
 						{
 							UserName = "manager@test.com",
 							Email = "manager@test.com",
@@ -43,7 +44,7 @@ namespace mvc.framework
 
 					if (!context.Users.Any(usr => usr.UserName == "employee@test.com"))
 					{
-						var user = new IdentityUser()
+						var user = new ApplicationUser()
 						{
 							UserName = "employee@test.com",
 							Email = "employee@test.com",

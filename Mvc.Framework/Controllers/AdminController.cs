@@ -16,12 +16,12 @@ namespace mvc.framework.Controllers
 	{
 		private readonly ILogger<AdminController> _logger;
 		private readonly IDataAccessService _dataAccessService;
-		private readonly UserManager<IdentityUser> _userManager;
+		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly RoleManager<IdentityRole> _roleManager;
 		private readonly ApplicationDbContext _context;
 
 		public AdminController(
-				UserManager<IdentityUser> userManager,
+				UserManager<ApplicationUser> userManager,
 				RoleManager<IdentityRole> roleManager,
 				IDataAccessService dataAccessService,
 				ILogger<AdminController> logger,
@@ -174,47 +174,67 @@ namespace mvc.framework.Controllers
 			return View(userViewModel);
 		}
 
-		[Authorize("Users")]
-		public async Task<IActionResult> EditUser(string id)
-		{
-			var viewModel = new UserViewModel();
-			if (!string.IsNullOrWhiteSpace(id))
-			{
-				var user = await _userManager.FindByIdAsync(id);
-				var userRoles = await _userManager.GetRolesAsync(user);
+	   [Authorize("Users")]
+	   public async Task<IActionResult> EditUser(string id)
+	   {
+		   var viewModel = new UserViewModel();
+		   if (!string.IsNullOrWhiteSpace(id))
+		   {
+			   var user = await _userManager.FindByIdAsync(id);
+			   if (user != null)
+			   {
+				   var userRoles = await _userManager.GetRolesAsync(user);
+				   viewModel.Id = user.Id;
+				   viewModel.Email = user.Email;
+				   viewModel.UserName = user.UserName;
+				   viewModel.Name = user.Name;
+				   viewModel.Image = user.Image;
+				   viewModel.BirthOfDate = user.BirthOfDate;
 
-				viewModel.Email = user?.Email;
-				viewModel.UserName = user?.UserName;
+				   var allRoles = await _roleManager.Roles.ToListAsync();
+				   viewModel.Roles = allRoles.Select(x => new RoleViewModel()
+				   {
+					   Id = x.Id,
+					   Name = x.Name,
+					   Selected = userRoles.Contains(x.Name)
+				   }).ToArray();
+			   }
+		   }
+		   return View(viewModel);
+	   }
 
-				var allRoles = await _roleManager.Roles.ToListAsync();
-				viewModel.Roles = allRoles.Select(x => new RoleViewModel()
-				{
-					Id = x.Id,
-					Name = x.Name,
-					Selected = userRoles.Contains(x.Name)
-				}).ToArray();
+	   [HttpPost, Authorize("Users")]
+	   public async Task<IActionResult> EditUser(UserViewModel viewModel)
+	   {
+		   if (ModelState.IsValid)
+		   {
+			   var user = await _userManager.FindByIdAsync(viewModel.Id);
+			   if (user != null)
+			   {
+				   user.UserName = viewModel.UserName;
+				   user.Email = viewModel.Email;
+				   user.Name = viewModel.Name;
+				   user.Image = viewModel.Image;
+				   user.BirthOfDate = viewModel.BirthOfDate;
 
-			}
+				   var updateResult = await _userManager.UpdateAsync(user);
+				   if (!updateResult.Succeeded)
+				   {
+					   foreach (var error in updateResult.Errors)
+					   {
+						   ModelState.AddModelError(string.Empty, error.Description);
+					   }
+					   return View(viewModel);
+				   }
 
-			return View(viewModel);
-		}
-
-		[HttpPost, Authorize("Users")]
-		public async Task<IActionResult> EditUser(UserViewModel viewModel)
-		{
-			if (ModelState.IsValid)
-			{
-				var user = await _userManager.FindByIdAsync(viewModel.Id);
-				var userRoles = await _userManager.GetRolesAsync(user);
-
-				await _userManager.RemoveFromRolesAsync(user, userRoles);
-				await _userManager.AddToRolesAsync(user, viewModel.Roles?.Where(x => x.Selected).Select(x => x.Name));
-
-				return RedirectToAction(nameof(Users));
-			}
-
-			return View(viewModel);
-		}
+				   var userRoles = await _userManager.GetRolesAsync(user);
+				   await _userManager.RemoveFromRolesAsync(user, userRoles);
+				   await _userManager.AddToRolesAsync(user, viewModel.Roles?.Where(x => x.Selected).Select(x => x.Name));
+			   }
+			   return RedirectToAction(nameof(Users));
+		   }
+		   return View(viewModel);
+	   }
 
 		[Authorize("Authorization")]
 		public async Task<IActionResult> EditRolePermission(string id)

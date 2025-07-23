@@ -18,23 +18,45 @@
 				<span asp-validation-for="UserName" class="text-danger"></span>
 			</div>
 			<div class="form-group">
+				<label asp-for="Name" class="control-label"></label>
+				<input asp-for="Name" class="form-control" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+			<div class="form-group">
 				<label asp-for="Email" class="control-label"></label>
 				<input asp-for="Email" class="form-control" />
 				<span asp-validation-for="Email" class="text-danger"></span>
 			</div>
 			<div class="form-group">
-				<ul style="list-style-type: none;">
-					@for (var i = 0; i < Model.Roles.Length; i++)
-					{
-						<li>
-							<input type="checkbox" asp-for="@Model.Roles[i].Selected" />
-							<label style="margin-left:10px;" asp-for="@Model.Roles[i].Selected">@Model.Roles[i].Name</label>
-							<input type="hidden" asp-for="@Model.Roles[i].Id" />
-							<input type="hidden" asp-for="@Model.Roles[i].Name" />
-						</li>
-					}
-				</ul>
+				<label asp-for="Image" class="control-label"></label>
+				<input asp-for="Image" class="form-control" placeholder="Image URL or path" />
+				<span asp-validation-for="Image" class="text-danger"></span>
 			</div>
+			<div class="form-group">
+				<label asp-for="BirthOfDate" class="control-label"></label>
+				<input asp-for="BirthOfDate" class="form-control" type="date" />
+				<span asp-validation-for="BirthOfDate" class="text-danger"></span>
+			</div>
+		   <div class="form-group">
+			   <ul style="list-style-type: none;">
+				   @if (Model.Roles != null && Model.Roles.Length > 0)
+				   {
+					   for (var i = 0; i < Model.Roles.Length; i++)
+					   {
+						   <li>
+							   <input type="checkbox" asp-for="@Model.Roles[i].Selected" />
+							   <label style="margin-left:10px;" asp-for="@Model.Roles[i].Selected">@Model.Roles[i].Name</label>
+							   <input type="hidden" asp-for="@Model.Roles[i].Id" />
+							   <input type="hidden" asp-for="@Model.Roles[i].Name" />
+						   </li>
+					   }
+				   }
+				   else
+				   {
+					   <li><em>No roles available.</em></li>
+				   }
+			   </ul>
+		   </div>
 			<div class="form-group">
 				<input type="submit" value="Save" class="btn btn-primary" />
 			</div>

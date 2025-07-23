@@ -7,12 +7,21 @@
 <table class="table">
 	<thead>
 		<tr>
-			<th>
-				@Html.DisplayNameFor(model => model.UserName)
-			</th>
-			<th>
-				@Html.DisplayNameFor(model => model.Email)
-			</th>
+<th>
+	@Html.DisplayNameFor(model => model.UserName)
+</th>
+<th>
+	@Html.DisplayNameFor(model => model.Name)
+</th>
+<th>
+	@Html.DisplayNameFor(model => model.Email)
+</th>
+<th>
+   @Html.DisplayNameFor(model => model.Image)
+</th>
+<th>
+   @Html.DisplayNameFor(model => model.BirthOfDate)
+</th>
 			<th>
 
 			</th>
@@ -23,11 +32,27 @@
 		{
 			<tr>
 				<td>
-					@Html.DisplayFor(modelItem => item.UserName)
-				</td>
-				<td>
-					@Html.DisplayFor(modelItem => item.Email)
-				</td>
+@Html.DisplayFor(modelItem => item.UserName)
+</td>
+<td>
+	@Html.DisplayFor(modelItem => item.Name)
+</td>
+<td>
+	@Html.DisplayFor(modelItem => item.Email)
+</td>
+<td>
+   @if (!string.IsNullOrEmpty(item.Image))
+   {
+	   <img src="@item.Image" alt="User Image" style="max-width:40px;max-height:40px;border-radius:50%;" />
+   }
+   else
+   {
+	   <span>-</span>
+   }
+</td>
+<td>
+   @(item.BirthOfDate.HasValue ? item.BirthOfDate.Value.ToString("yyyy-MM-dd") : "-")
+</td>
 				<td>
 					<a asp-action="EditUser" asp-controller="Admin" asp-route-id="@item.Id">Edit</a>
 				</td>
