@@ -1,0 +1,185 @@
+@model DynamicRoleMenuSystem.Core.Common.AppSettings
+
+<style id="dynamic-theme-styles">
+:root {
+    /* Brand Colors */
+    --bs-primary: @Model.Theme.Colors.Primary;
+    --bs-secondary: @Model.Theme.Colors.Secondary;
+    --bs-success: @Model.Theme.Colors.Success;
+    --bs-danger: @Model.Theme.Colors.Danger;
+    --bs-warning: @Model.Theme.Colors.Warning;
+    --bs-info: @Model.Theme.Colors.Info;
+    --bs-light: @Model.Theme.Colors.Light;
+    --bs-dark: @Model.Theme.Colors.Dark;
+    
+    /* Custom Theme Variables */
+    --app-bg: @Model.Theme.Colors.Background;
+    --app-surface: @Model.Theme.Colors.Surface;
+    --app-on-primary: @Model.Theme.Colors.OnPrimary;
+    --app-on-secondary: @Model.Theme.Colors.OnSecondary;
+    --app-on-background: @Model.Theme.Colors.OnBackground;
+    --app-on-surface: @Model.Theme.Colors.OnSurface;
+    
+    /* Typography */
+    --app-font-family: @Model.Theme.Typography.FontFamily;
+    --app-heading-font-family: @Model.Theme.Typography.HeadingFontFamily;
+    --app-monospace-font-family: @Model.Theme.Typography.MonospaceFontFamily;
+    --app-base-font-size: @Model.Theme.Typography.BaseFontSize;
+    --app-line-height: @Model.Theme.Typography.LineHeight;
+    
+    /* Layout */
+    --sidebar-width: @Model.Layout.Sidebar.Width;
+    --sidebar-collapsed-width: @Model.Layout.Sidebar.CollapsedWidth;
+    --header-height: @Model.Layout.Header.Height;
+    --content-max-width: @Model.Layout.Content.MaxWidth;
+    --content-padding: @Model.Layout.Content.Padding;
+}
+
+/* Apply custom theme */
+body {
+    font-family: var(--app-font-family);
+    font-size: var(--app-base-font-size);
+    line-height: var(--app-line-height);
+    background-color: var(--app-bg);
+    color: var(--app-on-background);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--app-heading-font-family);
+}
+
+code, pre {
+    font-family: var(--app-monospace-font-family);
+}
+
+/* Bootstrap overrides */
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+    background-color: color-mix(in srgb, var(--bs-primary) 85%, black);
+    border-color: color-mix(in srgb, var(--bs-primary) 85%, black);
+}
+
+.text-primary {
+    color: var(--bs-primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+.border-primary {
+    border-color: var(--bs-primary) !important;
+}
+
+/* App-specific styles */
+.app-brand-full .text-primary,
+.app-brand-compact .text-primary {
+    color: var(--bs-primary) !important;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--app-surface);
+    border-right: 1px solid var(--bs-light);
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.main-header {
+    height: var(--header-height);
+    background-color: var(--app-surface);
+    border-bottom: 1px solid var(--bs-light);
+}
+
+.main-content {
+    max-width: var(--content-max-width);
+    padding: var(--content-padding);
+    background-color: var(--app-bg);
+}
+
+/* Card styles */
+.card {
+    background-color: var(--app-surface);
+    border-color: var(--bs-light);
+}
+
+.card-header {
+    background-color: color-mix(in srgb, var(--app-surface) 95%, var(--bs-primary));
+    border-bottom-color: var(--bs-light);
+}
+
+/* Table styles */
+.table {
+    --bs-table-bg: var(--app-surface);
+    color: var(--app-on-surface);
+}
+
+.table-dark {
+    --bs-table-bg: var(--bs-dark);
+    --bs-table-color: var(--app-on-primary);
+}
+
+/* Form controls */
+.form-control, .form-select {
+    background-color: var(--app-bg);
+    border-color: var(--bs-light);
+    color: var(--app-on-background);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--bs-primary) 25%, transparent);
+}
+
+/* Navigation */
+.nav-link {
+    color: var(--app-on-surface);
+}
+
+.nav-link:hover {
+    color: var(--bs-primary);
+}
+
+.nav-link.active {
+    color: var(--bs-primary);
+    background-color: color-mix(in srgb, var(--bs-primary) 10%, transparent);
+}
+
+/* Alerts */
+.alert-primary {
+    background-color: color-mix(in srgb, var(--bs-primary) 15%, transparent);
+    border-color: color-mix(in srgb, var(--bs-primary) 30%, transparent);
+    color: color-mix(in srgb, var(--bs-primary) 80%, black);
+}
+
+/* Badges */
+.badge.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+/* Responsive adjustments */
+@@media (max-width: 768px) {
+    .sidebar {
+        width: var(--sidebar-collapsed-width);
+    }
+    
+    .main-content {
+        padding: calc(var(--content-padding) / 2);
+    }
+}
+
+/* Animation for smooth transitions */
+.sidebar,
+.main-content,
+.btn,
+.form-control,
+.card {
+    transition: all 0.3s ease-in-out;
+}
+</style>

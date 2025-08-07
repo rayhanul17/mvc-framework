@@ -1,3 +1,4 @@
+using DynamicRoleMenuSystem.Core.Common;
 using DynamicRoleMenuSystem.Infrastructure.Extensions;
 using DynamicRoleMenuSystem.Web.Middleware;
 
@@ -5,6 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Configure AppSettings
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
 // Add Infrastructure and Application services
 builder.Services.AddInfrastructure(builder.Configuration);

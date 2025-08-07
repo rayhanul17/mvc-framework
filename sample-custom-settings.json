@@ -1,0 +1,132 @@
+{
+  "AppSettings": {
+    "Branding": {
+      "OrganizationName": "TechCorp Solutions",
+      "ShortName": "TCS",
+      "Slogan": "Innovation Through Technology",
+      "Description": "Leading enterprise solutions provider specializing in digital transformation",
+      "LogoPath": "/images/techcorp-logo.png",
+      "FaviconPath": "/favicon-techcorp.ico",
+      "Version": "3.1.2",
+      "Contact": {
+        "Email": "contact@techcorp.com",
+        "Phone": "+1-800-TECH-CORP",
+        "Address": "456 Innovation Drive, Tech Valley, CA 94000",
+        "Website": "https://techcorp.com",
+        "SocialMedia": {
+          "GitHub": "https://github.com/techcorp",
+          "LinkedIn": "https://linkedin.com/company/techcorp-solutions",
+          "Twitter": "https://twitter.com/techcorpsolutions",
+          "Instagram": "https://instagram.com/techcorp"
+        }
+      }
+    },
+    "Theme": {
+      "Colors": {
+        "Primary": "#6366f1",
+        "Secondary": "#8b5cf6",
+        "Success": "#10b981",
+        "Danger": "#ef4444",
+        "Warning": "#f59e0b",
+        "Info": "#06b6d4",
+        "Light": "#f1f5f9",
+        "Dark": "#1e293b",
+        "Background": "#ffffff",
+        "Surface": "#f8fafc",
+        "OnPrimary": "#ffffff",
+        "OnSecondary": "#ffffff",
+        "OnBackground": "#0f172a",
+        "OnSurface": "#334155"
+      },
+      "DefaultTheme": "light",
+      "AllowUserThemeSelection": true,
+      "Typography": {
+        "FontFamily": "'Poppins', 'Inter', sans-serif",
+        "HeadingFontFamily": "'Poppins', 'Inter', sans-serif",
+        "MonospaceFontFamily": "'JetBrains Mono', 'Fira Code', monospace",
+        "BaseFontSize": "1rem",
+        "LineHeight": "1.7"
+      }
+    },
+    "Layout": {
+      "Sidebar": {
+        "IsCollapsible": true,
+        "DefaultCollapsed": false,
+        "Width": "320px",
+        "CollapsedWidth": "90px",
+        "ShowIcons": true,
+        "ShowTooltips": true
+      },
+      "Header": {
+        "ShowBreadcrumbs": true,
+        "ShowUserProfile": true,
+        "ShowNotifications": true,
+        "ShowThemeToggle": true,
+        "ShowSearch": true,
+        "Height": "72px"
+      },
+      "Footer": {
+        "Show": true,
+        "CopyrightText": "© {year} {organizationName}. Empowering businesses worldwide.",
+        "ShowVersion": true,
+        "ShowLinks": true,
+        "Links": [
+          {
+            "Text": "Privacy Policy",
+            "Url": "/legal/privacy",
+            "OpenInNewTab": false
+          },
+          {
+            "Text": "Terms & Conditions",
+            "Url": "/legal/terms",
+            "OpenInNewTab": false
+          },
+          {
+            "Text": "API Documentation",
+            "Url": "/docs/api",
+            "OpenInNewTab": true
+          },
+          {
+            "Text": "24/7 Support",
+            "Url": "/support",
+            "OpenInNewTab": false
+          },
+          {
+            "Text": "Status Page",
+            "Url": "https://status.techcorp.com",
+            "OpenInNewTab": true
+          }
+        ]
+      },
+      "Content": {
+        "MaxWidth": "1600px",
+        "Padding": "32px",
+        "ShowPageTitle": true,
+        "ShowBreadcrumbs": true
+      }
+    },
+    "Security": {
+      "RequireHttps": true,
+      "EnableTwoFactor": true,
+      "SessionTimeoutMinutes": 120,
+      "PasswordExpiryDays": 180,
+      "RequirePasswordChange": true
+    },
+    "Features": {
+      "EnableUserRegistration": false,
+      "EnablePasswordReset": true,
+      "EnableEmailConfirmation": true,
+      "EnableAuditLog": true,
+      "EnableCaching": true,
+      "EnableCompression": true,
+      "EnableRateLimiting": true,
+      "Dashboard": {
+        "ShowWelcomeMessage": true,
+        "ShowStatistics": true,
+        "ShowRecentActivity": true,
+        "ShowQuickActions": true,
+        "RecentActivityCount": 25
+      }
+    }
+  }
+}

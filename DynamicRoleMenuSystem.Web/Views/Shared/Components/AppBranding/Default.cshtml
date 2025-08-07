@@ -1,0 +1,66 @@
+@model DynamicRoleMenuSystem.Web.ViewComponents.AppBrandingViewModel
+
+@switch (Model.Type.ToLower())
+{
+    case "logo-only":
+        if (!string.IsNullOrEmpty(Model.Settings.Branding.LogoPath))
+        {
+            <img src="@Model.Settings.Branding.LogoPath" alt="@Model.Settings.Branding.OrganizationName" class="app-logo" style="height: 40px;" />
+        }
+        else
+        {
+            <div class="app-logo-placeholder">
+                <i class="fas fa-cube fa-2x text-primary"></i>
+            </div>
+        }
+        break;
+        
+    case "text-only":
+        <div class="app-brand-text">
+            <span class="app-name">@Model.Settings.Branding.ShortName</span>
+        </div>
+        break;
+        
+    case "compact":
+        <div class="d-flex align-items-center app-brand-compact">
+            @if (!string.IsNullOrEmpty(Model.Settings.Branding.LogoPath))
+            {
+                <img src="@Model.Settings.Branding.LogoPath" alt="@Model.Settings.Branding.OrganizationName" class="app-logo me-2" style="height: 32px;" />
+            }
+            <span class="app-name fw-bold">@Model.Settings.Branding.ShortName</span>
+        </div>
+        break;
+        
+    case "sidebar":
+        <div class="sidebar-brand d-flex align-items-center">
+            @if (!string.IsNullOrEmpty(Model.Settings.Branding.LogoPath))
+            {
+                <img src="@Model.Settings.Branding.LogoPath" alt="@Model.Settings.Branding.OrganizationName" class="app-logo me-3" style="height: 40px;" />
+            }
+            <div class="brand-text">
+                <h5 class="mb-0 fw-bold text-primary">@Model.Settings.Branding.ShortName</h5>
+                <small class="text-muted d-block lh-1">@Model.Settings.Branding.Slogan</small>
+            </div>
+        </div>
+        break;
+        
+    default: // "full"
+        <div class="app-brand-full d-flex align-items-center">
+            @if (!string.IsNullOrEmpty(Model.Settings.Branding.LogoPath))
+            {
+                <img src="@Model.Settings.Branding.LogoPath" alt="@Model.Settings.Branding.OrganizationName" class="app-logo me-3" style="height: 48px;" />
+            }
+            else
+            {
+                <div class="app-logo-placeholder me-3">
+                    <i class="fas fa-cube fa-3x text-primary"></i>
+                </div>
+            }
+            <div class="brand-info">
+                <h4 class="mb-1 fw-bold text-primary">@Model.Settings.Branding.OrganizationName</h4>
+                <p class="mb-0 text-muted">@Model.Settings.Branding.Slogan</p>
+                <small class="text-muted">v@Model.Settings.Branding.Version</small>
+            </div>
+        </div>
+        break;
+}
