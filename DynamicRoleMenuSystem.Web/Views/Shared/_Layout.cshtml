@@ -1,87 +1,341 @@
-﻿<!DOCTYPE html>
+@inject Microsoft.Extensions.Options.IOptions<DynamicRoleMenuSystem.Core.Common.AppSettings> AppSettingsOptions
+@{
+    var appSettings = AppSettingsOptions.Value;
+    var pageTitle = ViewData["Title"]?.ToString();
+    var fullTitle = !string.IsNullOrEmpty(pageTitle) ? $"{pageTitle} - {appSettings.Branding.OrganizationName}" : appSettings.Branding.OrganizationName;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DynamicRoleMenuSystem.Web</title>
-    <script type="importmap"></script>
+    <title>@fullTitle</title>
+    <meta name="description" content="@appSettings.Branding.Description" />
+    <meta name="author" content="@appSettings.Branding.OrganizationName" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="@appSettings.Branding.FaviconPath" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Bootstrap -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Dynamic Theme Styles -->
+    @await Component.InvokeAsync("ThemeStyles")
+    
+    <!-- Site Styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DynamicRoleMenuSystem.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <header class="main-header">
+        <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DynamicRoleMenuSystem.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <!-- Brand -->
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    @await Component.InvokeAsync("AppBranding", new { type = "compact" })
+                </a>
+                
+                <!-- Mobile toggle -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                
+                <!-- Navigation -->
+                <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i> Home
+                            </a>
                         </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             @await Component.InvokeAsync("DynamicMenu")
                         }
                     </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated == true)
+                    
+                    <!-- Right side navigation -->
+                    <ul class="navbar-nav ms-auto">
+                        @if (appSettings.Layout.Header.ShowSearch && User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">Hello, @User.Identity.Name!</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                            <li class="nav-item me-3">
+                                <form class="d-flex" role="search">
+                                    <div class="input-group input-group-sm">
+                                        <input class="form-control" type="search" placeholder="Search..." aria-label="Search" style="width: 200px;">
+                                        <button class="btn btn-outline-secondary" type="submit">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
                                 </form>
                             </li>
                         }
+                        
+                        @if (appSettings.Theme.AllowUserThemeSelection && appSettings.Layout.Header.ShowThemeToggle)
+                        {
+                            <li class="nav-item me-2">
+                                <button class="btn btn-outline-secondary btn-sm" id="theme-toggle" title="Toggle Theme">
+                                    <i class="fas fa-moon" id="theme-icon"></i>
+                                </button>
+                            </li>
+                        }
+                        
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (appSettings.Layout.Header.ShowNotifications)
+                            {
+                                <li class="nav-item dropdown me-2">
+                                    <a class="nav-link dropdown-toggle position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-bell"></i>
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em;">
+                                            3
+                                            <span class="visually-hidden">unread notifications</span>
+                                        </span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><h6 class="dropdown-header">Notifications</h6></li>
+                                        <li><a class="dropdown-item" href="#"><small class="text-muted">New user registered</small></a></li>
+                                        <li><a class="dropdown-item" href="#"><small class="text-muted">System update available</small></a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-center" href="#"><small>View all</small></a></li>
+                                    </ul>
+                                </li>
+                            }
+                            
+                            @if (appSettings.Layout.Header.ShowUserProfile)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 14px;">
+                                            @User.Identity.Name?.FirstOrDefault()
+                                        </div>
+                                        <span>@User.Identity.Name</span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><h6 class="dropdown-header">@User.Identity.Name</h6></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+                        }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                            <li class="nav-item me-2">
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Login
+                                </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-                            </li>
+                            @if (appSettings.Features.EnableUserRegistration)
+                            {
+                                <li class="nav-item">
+                                    <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Register">
+                                        <i class="fas fa-user-plus me-1"></i>Register
+                                    </a>
+                                </li>
+                            }
                         }
                     </ul>
                 </div>
             </div>
         </nav>
+        
+        @if (appSettings.Layout.Header.ShowBreadcrumbs && User.Identity?.IsAuthenticated == true)
+        {
+            <nav aria-label="breadcrumb" class="bg-light border-top px-3 py-2">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    @if (ViewData["Title"] != null)
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                    }
+                </ol>
+            </nav>
+        }
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="container-fluid">
+        <main role="main" class="main-content mx-auto">
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    @TempData["SuccessMessage"]
+                    <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
             @if (TempData["ErrorMessage"] != null)
             {
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    @TempData["ErrorMessage"]
+                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
+            @if (TempData["InfoMessage"] != null)
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>@TempData["InfoMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["WarningMessage"] != null)
+            {
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>@TempData["WarningMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            
+            @if (appSettings.Layout.Content.ShowPageTitle && ViewData["Title"] != null)
+            {
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">@ViewData["Title"]</h1>
+                    @if (ViewData["PageActions"] != null)
+                    {
+                        <div>
+                            @Html.Raw(ViewData["PageActions"])
+                        </div>
+                    }
+                </div>
+            }
+            
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - DynamicRoleMenuSystem.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @if (appSettings.Layout.Footer.Show)
+    {
+        <footer class="border-top footer text-muted mt-auto">
+            <div class="container-fluid">
+                <div class="row align-items-center py-3">
+                    <div class="col-md-6">
+                        <span>
+                            @{
+                                var copyrightText = appSettings.Layout.Footer.CopyrightText
+                                    .Replace("{year}", DateTime.Now.Year.ToString())
+                                    .Replace("{organizationName}", appSettings.Branding.OrganizationName);
+                            }
+                            @copyrightText
+                        </span>
+                        @if (appSettings.Layout.Footer.ShowVersion)
+                        {
+                            <span class="ms-2">
+                                <small class="text-muted">v@appSettings.Branding.Version</small>
+                            </span>
+                        }
+                    </div>
+                    @if (appSettings.Layout.Footer.ShowLinks && appSettings.Layout.Footer.Links.Any())
+                    {
+                        <div class="col-md-6 text-end">
+                            @foreach (var link in appSettings.Layout.Footer.Links)
+                            {
+                                <a href="@link.Url" class="text-decoration-none me-3" @(link.OpenInNewTab ? "target='_blank'" : "")>
+                                    @link.Text
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+                
+                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.GitHub) || 
+                     !string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.LinkedIn) || 
+                     !string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.Twitter))
+                {
+                    <div class="row">
+                        <div class="col-12 text-center border-top pt-3">
+                            <div class="social-links">
+                                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.GitHub))
+                                {
+                                    <a href="@appSettings.Branding.Contact.SocialMedia.GitHub" target="_blank" class="text-muted me-3" title="GitHub">
+                                        <i class="fab fa-github fa-lg"></i>
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.LinkedIn))
+                                {
+                                    <a href="@appSettings.Branding.Contact.SocialMedia.LinkedIn" target="_blank" class="text-muted me-3" title="LinkedIn">
+                                        <i class="fab fa-linkedin fa-lg"></i>
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.Twitter))
+                                {
+                                    <a href="@appSettings.Branding.Contact.SocialMedia.Twitter" target="_blank" class="text-muted me-3" title="Twitter">
+                                        <i class="fab fa-twitter fa-lg"></i>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </footer>
+    }
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @if (appSettings.Theme.AllowUserThemeSelection)
+    {
+        <script>
+            // Theme toggle functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                const themeToggle = document.getElementById('theme-toggle');
+                const themeIcon = document.getElementById('theme-icon');
+                const body = document.body;
+                
+                // Get saved theme or default to light
+                const currentTheme = localStorage.getItem('theme') || '@appSettings.Theme.DefaultTheme';
+                
+                // Apply theme on load
+                applyTheme(currentTheme);
+                
+                // Theme toggle click handler
+                if (themeToggle) {
+                    themeToggle.addEventListener('click', function() {
+                        const isDark = body.classList.contains('dark-theme');
+                        const newTheme = isDark ? 'light' : 'dark';
+                        applyTheme(newTheme);
+                        localStorage.setItem('theme', newTheme);
+                    });
+                }
+                
+                function applyTheme(theme) {
+                    if (theme === 'dark') {
+                        body.classList.add('dark-theme');
+                        if (themeIcon) themeIcon.className = 'fas fa-sun';
+                        // Update CSS custom properties for dark theme
+                        document.documentElement.style.setProperty('--app-bg', '#1a1a1a');
+                        document.documentElement.style.setProperty('--app-surface', '#2d2d2d');
+                        document.documentElement.style.setProperty('--app-on-background', '#ffffff');
+                        document.documentElement.style.setProperty('--app-on-surface', '#ffffff');
+                        document.documentElement.style.setProperty('--bs-light', '#404040');
+                    } else {
+                        body.classList.remove('dark-theme');
+                        if (themeIcon) themeIcon.className = 'fas fa-moon';
+                        // Reset to light theme colors
+                        document.documentElement.style.setProperty('--app-bg', '@appSettings.Theme.Colors.Background');
+                        document.documentElement.style.setProperty('--app-surface', '@appSettings.Theme.Colors.Surface');
+                        document.documentElement.style.setProperty('--app-on-background', '@appSettings.Theme.Colors.OnBackground');
+                        document.documentElement.style.setProperty('--app-on-surface', '@appSettings.Theme.Colors.OnSurface');
+                        document.documentElement.style.setProperty('--bs-light', '@appSettings.Theme.Colors.Light');
+                    }
+                }
+            });
+        </script>
+    }
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
