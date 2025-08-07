@@ -61,6 +61,9 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     await DynamicRoleMenuSystem.Infrastructure.Data.DbInitializer.InitializeAsync(scope.ServiceProvider);
+    
+    // Ensure Site Settings menu exists and is assigned to SuperAdmin
+    await DynamicRoleMenuSystem.Web.Data.EnsureSiteSettingsMenu.EnsureMenuExistsAsync(scope.ServiceProvider);
 }
 
 app.Run();

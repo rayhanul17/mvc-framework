@@ -1,0 +1,201 @@
+@model DynamicRoleMenuSystem.Web.Models.ViewModels.EditSiteSettingViewModel
+@{
+    ViewData["Title"] = "Edit Site Setting";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Edit Setting: @Model.Key</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input asp-for="Id" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Key" class="form-label"></label>
+                        <input asp-for="Key" class="form-control" readonly />
+                        <span asp-validation-for="Key" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Value" class="form-label"></label>
+                        @if (Model.Type == SettingType.Boolean)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="Value" value="true" @(Model.Value.ToLower() == "true" ? "checked" : "") />
+                                <input type="hidden" name="Value" value="false" />
+                                <label class="form-check-label">Enable/Disable</label>
+                            </div>
+                        }
+                        else if (Model.Type == SettingType.TextArea)
+                        {
+                            <textarea asp-for="Value" class="form-control" rows="4"></textarea>
+                        }
+                        else if (Model.Type == SettingType.Color)
+                        {
+                            <input asp-for="Value" class="form-control" type="color" />
+                        }
+                        else if (Model.Type == SettingType.Number)
+                        {
+                            <input asp-for="Value" class="form-control" type="number" />
+                        }
+                        else if (Model.Type == SettingType.Email)
+                        {
+                            <input asp-for="Value" class="form-control" type="email" />
+                        }
+                        else if (Model.Type == SettingType.Url)
+                        {
+                            <input asp-for="Value" class="form-control" type="url" />
+                        }
+                        else if (Model.Type == SettingType.Select && !string.IsNullOrEmpty(Model.ValidValues))
+                        {
+                            <select asp-for="Value" class="form-select">
+                                @{
+                                    try
+                                    {
+                                        var options = System.Text.Json.JsonSerializer.Deserialize<string[]>(Model.ValidValues);
+                                        if (options != null)
+                                        {
+                                            foreach (var option in options)
+                                            {
+                                                <option value="@option" selected="@(Model.Value == option)">@option</option>
+                                            }
+                                        }
+                                    }
+                                    catch { }
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <input asp-for="Value" class="form-control" />
+                        }
+                        <span asp-validation-for="Value" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Category" class="form-label"></label>
+                                <select asp-for="Category" class="form-select" asp-items="Html.GetEnumSelectList<SettingCategory>()">
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Type" class="form-label"></label>
+                                <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<SettingType>()" disabled>
+                                </select>
+                                <input asp-for="Type" type="hidden" />
+                                <small class="form-text text-muted">Type cannot be changed after creation</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (Model.Type == SettingType.Select)
+                    {
+                        <div class="mb-3">
+                            <label asp-for="ValidValues" class="form-label"></label>
+                            <textarea asp-for="ValidValues" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="ValidValues" class="text-danger"></span>
+                            <small class="form-text text-muted">Provide options as JSON array</small>
+                        </div>
+                    }
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Order" class="form-label"></label>
+                                <input asp-for="Order" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="Order" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mb-3 mt-4">
+                                <input asp-for="IsRequired" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsRequired" class="form-check-label"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mb-3 mt-4">
+                                @if (User.IsInRole("SuperAdmin"))
+                                {
+                                    <input asp-for="IsSystemSetting" class="form-check-input" type="checkbox" />
+                                }
+                                else
+                                {
+                                    <input asp-for="IsSystemSetting" class="form-check-input" type="checkbox" disabled />
+                                    <input asp-for="IsSystemSetting" type="hidden" />
+                                }
+                                <label asp-for="IsSystemSetting" class="form-check-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Setting Information</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-sm-5">Created:</dt>
+                    <dd class="col-sm-7">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</dd>
+                    
+                    @if (!string.IsNullOrEmpty(Model.CreatedBy))
+                    {
+                        <dt class="col-sm-5">Created By:</dt>
+                        <dd class="col-sm-7">@Model.CreatedBy</dd>
+                    }
+                    
+                    <dt class="col-sm-5">Type:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-info">@Model.Type</span>
+                    </dd>
+                    
+                    <dt class="col-sm-5">Category:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-secondary">@Model.Category</span>
+                    </dd>
+                    
+                    @if (Model.IsSystemSetting)
+                    {
+                        <dt class="col-sm-5">Status:</dt>
+                        <dd class="col-sm-7">
+                            <span class="badge bg-danger">System Setting</span>
+                        </dd>
+                    }
+                </dl>
+                
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <hr />
+                    <h6>Description:</h6>
+                    <p class="small text-muted">@Model.Description</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

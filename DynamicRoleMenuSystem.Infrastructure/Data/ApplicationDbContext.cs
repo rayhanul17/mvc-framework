@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<RoleMenu> RoleMenus { get; set; }
     public DbSet<BlogCategory> BlogCategories { get; set; }
     public DbSet<BlogPost> BlogPosts { get; set; }
+    public DbSet<SiteSetting> SiteSettings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -153,6 +154,29 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.PublishedDate);
             entity.HasIndex(e => e.IsPublished);
         });
+
+        builder.Entity<SiteSetting>(entity =>
+        {
+            entity.ToTable("SiteSettings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Key).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Value).HasMaxLength(2000).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Category).IsRequired().HasConversion<string>();
+            entity.Property(e => e.Type).IsRequired().HasConversion<string>();
+            entity.Property(e => e.ValidValues).HasMaxLength(1000);
+            entity.Property(e => e.IsRequired).IsRequired();
+            entity.Property(e => e.IsSystemSetting).IsRequired();
+            entity.Property(e => e.Order).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt);
+            entity.Property(e => e.CreatedBy).HasMaxLength(256);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(256);
+            
+            entity.HasIndex(e => e.Key).IsUnique();
+            entity.HasIndex(e => e.Category);
+            entity.HasIndex(e => e.Order);
+        });
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -160,7 +184,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         var entries = ChangeTracker.Entries()
             .Where(e => e.Entity is ApplicationUser || e.Entity is ApplicationRole || 
                        e.Entity is Menu || e.Entity is RoleMenu || 
-                       e.Entity is BlogCategory || e.Entity is BlogPost);
+                       e.Entity is BlogCategory || e.Entity is BlogPost || 
+                       e.Entity is SiteSetting);
 
         foreach (var entry in entries)
         {
@@ -179,6 +204,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                         category.CreatedAt = DateTime.UtcNow;
                     else if (entry.Entity is BlogPost post)
                         post.CreatedAt = DateTime.UtcNow;
+                    else if (entry.Entity is SiteSetting setting)
+                        setting.CreatedAt = DateTime.UtcNow;
                     break;
                 case EntityState.Modified:
                     if (entry.Entity is ApplicationUser modUser)
@@ -193,6 +220,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                         modCategory.UpdatedAt = DateTime.UtcNow;
                     else if (entry.Entity is BlogPost modPost)
                         modPost.UpdatedAt = DateTime.UtcNow;
+                    else if (entry.Entity is SiteSetting modSetting)
+                        modSetting.UpdatedAt = DateTime.UtcNow;
                     break;
             }
         }

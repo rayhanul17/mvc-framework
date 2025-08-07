@@ -14,7 +14,9 @@
       "Bash(dotnet ef database update:*)",
       "Bash(dotnet ef dbcontext:*)",
       "Bash(dotnet ef database drop:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet build:*)"
     ],
     "deny": []
   }

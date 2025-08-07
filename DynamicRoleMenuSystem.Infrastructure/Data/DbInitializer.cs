@@ -28,6 +28,9 @@ public static class DbInitializer
         
         // Seed blog categories
         await SeedBlogCategoriesAsync(context);
+        
+        // Seed site settings
+        await SeedSiteSettingsAsync(context);
     }
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
@@ -201,6 +204,18 @@ public static class DbInitializer
                         Order = 3,
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Name = "Site Settings",
+                        DisplayName = "Site Settings",
+                        Controller = "SiteSetting",
+                        Action = "Index",
+                        Icon = "fas fa-cog",
+                        ParentId = 5,
+                        Order = 4,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
                     }
                 };
 
@@ -326,6 +341,330 @@ public static class DbInitializer
             };
 
             await context.BlogCategories.AddRangeAsync(categories);
+            await context.SaveChangesAsync();
+        }
+    }
+    
+    private static async Task SeedSiteSettingsAsync(ApplicationDbContext context)
+    {
+        if (!await context.SiteSettings.AnyAsync())
+        {
+            var settings = new List<SiteSetting>
+            {
+                // Branding Settings
+                new SiteSetting
+                {
+                    Key = "Site.Name",
+                    Value = "Dynamic Role Menu System",
+                    Description = "The main site/application name",
+                    Category = SettingCategory.Branding,
+                    Type = SettingType.Text,
+                    IsRequired = true,
+                    IsSystemSetting = false,
+                    Order = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Site.Description",
+                    Value = "A comprehensive role-based menu management system built with ASP.NET Core",
+                    Description = "Site description or slogan",
+                    Category = SettingCategory.Branding,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 2,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Organization.Name",
+                    Value = "Your Organization",
+                    Description = "Organization or company name",
+                    Category = SettingCategory.Branding,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 3,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Site.Logo",
+                    Value = "/images/logo.png",
+                    Description = "Path to the site logo image",
+                    Category = SettingCategory.Branding,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 4,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Site.Favicon",
+                    Value = "/favicon.ico",
+                    Description = "Path to the site favicon",
+                    Category = SettingCategory.Branding,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 5,
+                    CreatedAt = DateTime.UtcNow
+                },
+                
+                // Theme Settings
+                new SiteSetting
+                {
+                    Key = "Theme.PrimaryColor",
+                    Value = "#0d6efd",
+                    Description = "Primary theme color (Bootstrap primary)",
+                    Category = SettingCategory.Theme,
+                    Type = SettingType.Color,
+                    IsRequired = true,
+                    IsSystemSetting = false,
+                    Order = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Theme.SecondaryColor",
+                    Value = "#6c757d",
+                    Description = "Secondary theme color",
+                    Category = SettingCategory.Theme,
+                    Type = SettingType.Color,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 2,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Theme.SuccessColor",
+                    Value = "#198754",
+                    Description = "Success theme color",
+                    Category = SettingCategory.Theme,
+                    Type = SettingType.Color,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 3,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Theme.DangerColor",
+                    Value = "#dc3545",
+                    Description = "Danger/error theme color",
+                    Category = SettingCategory.Theme,
+                    Type = SettingType.Color,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 4,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Theme.WarningColor",
+                    Value = "#ffc107",
+                    Description = "Warning theme color",
+                    Category = SettingCategory.Theme,
+                    Type = SettingType.Color,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 5,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Theme.DarkMode",
+                    Value = "false",
+                    Description = "Enable dark mode by default",
+                    Category = SettingCategory.Theme,
+                    Type = SettingType.Boolean,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 6,
+                    CreatedAt = DateTime.UtcNow
+                },
+                
+                // Layout Settings (Footer)
+                new SiteSetting
+                {
+                    Key = "Footer.CompanyName",
+                    Value = "Dynamic Role Menu System",
+                    Description = "Company name displayed in footer",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Footer.CopyrightYear",
+                    Value = DateTime.UtcNow.Year.ToString(),
+                    Description = "Copyright year displayed in footer",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 2,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Footer.ShowPoweredBy",
+                    Value = "true",
+                    Description = "Show 'Powered by' text in footer",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.Boolean,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 3,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Footer.CustomText",
+                    Value = "",
+                    Description = "Additional custom text to display in footer",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 4,
+                    CreatedAt = DateTime.UtcNow
+                },
+                
+                // Contact Settings
+                new SiteSetting
+                {
+                    Key = "Contact.Email",
+                    Value = "admin@example.com",
+                    Description = "Primary contact email address",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Email,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Contact.Phone",
+                    Value = "+1-555-0123",
+                    Description = "Primary contact phone number",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 2,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Contact.Address",
+                    Value = "123 Main Street, City, State 12345",
+                    Description = "Physical address",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.TextArea,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 3,
+                    CreatedAt = DateTime.UtcNow
+                },
+                
+                // Advanced Settings (SEO)
+                new SiteSetting
+                {
+                    Key = "SEO.MetaTitle",
+                    Value = "Dynamic Role Menu System",
+                    Description = "Default meta title for pages",
+                    Category = SettingCategory.Advanced,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "SEO.MetaDescription",
+                    Value = "A comprehensive role-based menu management system built with ASP.NET Core MVC framework",
+                    Description = "Default meta description for pages",
+                    Category = SettingCategory.Advanced,
+                    Type = SettingType.TextArea,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 2,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "SEO.MetaKeywords",
+                    Value = "role management, menu system, asp.net core, mvc, authorization",
+                    Description = "Default meta keywords for pages",
+                    Category = SettingCategory.Advanced,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 3,
+                    CreatedAt = DateTime.UtcNow
+                },
+                
+                // Security Settings
+                new SiteSetting
+                {
+                    Key = "System.Version",
+                    Value = "1.0.0",
+                    Description = "Current system version",
+                    Category = SettingCategory.Security,
+                    Type = SettingType.Text,
+                    IsRequired = true,
+                    IsSystemSetting = true,
+                    Order = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "System.MaintenanceMode",
+                    Value = "false",
+                    Description = "Enable maintenance mode",
+                    Category = SettingCategory.Security,
+                    Type = SettingType.Boolean,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 2,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "System.AllowRegistration",
+                    Value = "false",
+                    Description = "Allow user registration",
+                    Category = SettingCategory.Security,
+                    Type = SettingType.Boolean,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 3,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "System.DefaultUserRole",
+                    Value = "User",
+                    Description = "Default role assigned to new users",
+                    Category = SettingCategory.Security,
+                    Type = SettingType.Text,
+                    IsRequired = true,
+                    IsSystemSetting = false,
+                    Order = 4,
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            await context.SiteSettings.AddRangeAsync(settings);
             await context.SaveChangesAsync();
         }
     }
