@@ -1,0 +1,169 @@
+@model DynamicRoleMenuSystem.Web.Models.ViewModels.CreateSiteSettingViewModel
+@{
+    ViewData["Title"] = "Create Site Setting";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Create New Setting</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Key" class="form-label"></label>
+                        <input asp-for="Key" class="form-control" placeholder="e.g., Site.NewSetting" />
+                        <span asp-validation-for="Key" class="text-danger"></span>
+                        <small class="form-text text-muted">Use dot notation for organization (e.g., Category.SettingName)</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Value" class="form-label"></label>
+                        <input asp-for="Value" class="form-control" id="settingValue" />
+                        <span asp-validation-for="Value" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Category" class="form-label"></label>
+                                <select asp-for="Category" class="form-select" asp-items="Html.GetEnumSelectList<SettingCategory>()">
+                                    <option value="">Select Category</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Type" class="form-label"></label>
+                                <select asp-for="Type" class="form-select" id="settingType" asp-items="Html.GetEnumSelectList<SettingType>()">
+                                    <option value="">Select Type</option>
+                                </select>
+                                <span asp-validation-for="Type" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="validValuesGroup" style="display: none;">
+                        <label asp-for="ValidValues" class="form-label"></label>
+                        <textarea asp-for="ValidValues" class="form-control" rows="3" placeholder='["Option 1", "Option 2", "Option 3"]'></textarea>
+                        <span asp-validation-for="ValidValues" class="text-danger"></span>
+                        <small class="form-text text-muted">For Select type, provide options as JSON array</small>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Order" class="form-label"></label>
+                                <input asp-for="Order" class="form-control" type="number" min="0" />
+                                <span asp-validation-for="Order" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mb-3 mt-4">
+                                <input asp-for="IsRequired" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsRequired" class="form-check-label"></label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mb-3 mt-4">
+                                <input asp-for="IsSystemSetting" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsSystemSetting" class="form-check-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Setting</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <h6>Setting Types:</h6>
+                <ul class="small">
+                    <li><strong>Text:</strong> Single-line text input</li>
+                    <li><strong>TextArea:</strong> Multi-line text input</li>
+                    <li><strong>Number:</strong> Numeric values only</li>
+                    <li><strong>Boolean:</strong> True/False toggle</li>
+                    <li><strong>Color:</strong> Color picker</li>
+                    <li><strong>Email:</strong> Email address validation</li>
+                    <li><strong>Url:</strong> URL validation</li>
+                    <li><strong>Select:</strong> Dropdown with options</li>
+                    <li><strong>Json:</strong> JSON data</li>
+                </ul>
+                
+                <h6 class="mt-3">Categories:</h6>
+                <ul class="small">
+                    <li><strong>Branding:</strong> Logo, name, etc.</li>
+                    <li><strong>Theme:</strong> Colors, fonts</li>
+                    <li><strong>Layout:</strong> UI configuration</li>
+                    <li><strong>Security:</strong> System settings</li>
+                    <li><strong>Features:</strong> Feature toggles</li>
+                    <li><strong>Contact:</strong> Contact info</li>
+                    <li><strong>Social:</strong> Social media</li>
+                    <li><strong>Advanced:</strong> SEO, etc.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('settingType');
+            const validValuesGroup = document.getElementById('validValuesGroup');
+            const valueInput = document.getElementById('settingValue');
+            
+            typeSelect.addEventListener('change', function() {
+                const selectedType = this.options[this.selectedIndex].text;
+                
+                // Show/hide valid values field for Select type
+                if (selectedType === 'Select') {
+                    validValuesGroup.style.display = 'block';
+                } else {
+                    validValuesGroup.style.display = 'none';
+                }
+                
+                // Update value input type based on selection
+                switch(selectedType) {
+                    case 'Boolean':
+                        valueInput.type = 'checkbox';
+                        break;
+                    case 'Number':
+                        valueInput.type = 'number';
+                        break;
+                    case 'Color':
+                        valueInput.type = 'color';
+                        break;
+                    case 'Email':
+                        valueInput.type = 'email';
+                        break;
+                    case 'Url':
+                        valueInput.type = 'url';
+                        break;
+                    default:
+                        valueInput.type = 'text';
+                }
+            });
+        });
+    </script>
+}

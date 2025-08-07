@@ -1,8 +1,8 @@
-@inject Microsoft.Extensions.Options.IOptions<DynamicRoleMenuSystem.Core.Common.AppSettings> AppSettingsOptions
+@inject DynamicRoleMenuSystem.Application.Services.ISiteSettingHelperService SiteSettings
 @{
-    var appSettings = AppSettingsOptions.Value;
+    var settings = await SiteSettings.GetAllSettingsAsync();
     var pageTitle = ViewData["Title"]?.ToString();
-    var fullTitle = !string.IsNullOrEmpty(pageTitle) ? $"{pageTitle} - {appSettings.Branding.OrganizationName}" : appSettings.Branding.OrganizationName;
+    var fullTitle = settings.GetFullTitle(pageTitle);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -10,11 +10,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@fullTitle</title>
-    <meta name="description" content="@appSettings.Branding.Description" />
-    <meta name="author" content="@appSettings.Branding.OrganizationName" />
+    <meta name="description" content="@settings.MetaDescription" />
+    <meta name="author" content="@settings.OrganizationName" />
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="@appSettings.Branding.FaviconPath" />
+    <link rel="icon" type="image/x-icon" href="@settings.FaviconPath" />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,7 +64,7 @@
                     
                     <!-- Right side navigation -->
                     <ul class="navbar-nav ms-auto">
-                        @if (appSettings.Layout.Header.ShowSearch && User.Identity?.IsAuthenticated == true)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item me-3">
                                 <form class="d-flex" role="search">
@@ -78,7 +78,8 @@
                             </li>
                         }
                         
-                        @if (appSettings.Theme.AllowUserThemeSelection && appSettings.Layout.Header.ShowThemeToggle)
+                        @* Theme toggle - always show for now *@
+                        @if (true)
                         {
                             <li class="nav-item me-2">
                                 <button class="btn btn-outline-secondary btn-sm" id="theme-toggle" title="Toggle Theme">
@@ -89,7 +90,8 @@
                         
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            @if (appSettings.Layout.Header.ShowNotifications)
+                            @* Show notifications - always show for now *@
+                            @if (true)
                             {
                                 <li class="nav-item dropdown me-2">
                                     <a class="nav-link dropdown-toggle position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -109,7 +111,8 @@
                                 </li>
                             }
                             
-                            @if (appSettings.Layout.Header.ShowUserProfile)
+                            @* Show user profile - always show for now *@
+                            @if (true)
                             {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -141,7 +144,7 @@
                                     <i class="fas fa-sign-in-alt me-1"></i>Login
                                 </a>
                             </li>
-                            @if (appSettings.Features.EnableUserRegistration)
+                            @if (settings.AllowRegistration)
                             {
                                 <li class="nav-item">
                                     <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Register">
@@ -155,7 +158,8 @@
             </div>
         </nav>
         
-        @if (appSettings.Layout.Header.ShowBreadcrumbs && User.Identity?.IsAuthenticated == true)
+        @* Show breadcrumbs - always show for authenticated users *@
+        @if (User.Identity?.IsAuthenticated == true)
         {
             <nav aria-label="breadcrumb" class="bg-light border-top px-3 py-2">
                 <ol class="breadcrumb mb-0">
@@ -199,7 +203,8 @@
                 </div>
             }
             
-            @if (appSettings.Layout.Content.ShowPageTitle && ViewData["Title"] != null)
+            @* Show page title - always show when available *@
+            @if (ViewData["Title"] != null)
             {
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1 class="h3 mb-0">@ViewData["Title"]</h1>
@@ -216,127 +221,88 @@
         </main>
     </div>
 
-    @if (appSettings.Layout.Footer.Show)
-    {
-        <footer class="border-top footer text-muted mt-auto py-3">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-12 col-md-6 mb-2 mb-md-0">
-                        <div class="footer-text">
-                            @{
-                                var copyrightText = appSettings.Layout.Footer.CopyrightText
-                                    .Replace("{year}", DateTime.Now.Year.ToString())
-                                    .Replace("{organizationName}", appSettings.Branding.OrganizationName);
-                            }
-                            <span class="copyright-text">@copyrightText</span>
-                            @if (appSettings.Layout.Footer.ShowVersion)
-                            {
-                                <span class="version-text ms-2">
-                                    <small class="text-muted">v@appSettings.Branding.Version</small>
-                                </span>
-                            }
-                        </div>
+    <footer class="border-top footer text-muted mt-auto py-3">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-12 col-md-6 mb-2 mb-md-0">
+                    <div class="footer-text">
+                        <span class="copyright-text">@settings.GetCopyrightText()</span>
+                        <span class="version-text ms-2">
+                            <small class="text-muted">v@settings.Version</small>
+                        </span>
+                        @if (!string.IsNullOrEmpty(settings.FooterCustomText))
+                        {
+                            <span class="ms-2">@settings.FooterCustomText</span>
+                        }
                     </div>
-                    @if (appSettings.Layout.Footer.ShowLinks && appSettings.Layout.Footer.Links.Any())
+                </div>
+                <div class="col-12 col-md-6 text-md-end text-center">
+                    @if (settings.FooterShowPoweredBy)
                     {
-                        <div class="col-12 col-md-6 text-md-end text-center">
-                            <div class="footer-links">
-                                @foreach (var link in appSettings.Layout.Footer.Links)
-                                {
-                                    <a href="@link.Url" class="text-decoration-none text-muted me-3 mb-1 d-inline-block" @(link.OpenInNewTab ? "target='_blank'" : "")>
-                                        @link.Text
-                                    </a>
-                                }
-                            </div>
-                        </div>
+                        <small class="text-muted">
+                            Powered by <strong>ASP.NET Core MVC</strong>
+                        </small>
                     }
                 </div>
-                
-                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.GitHub) || 
-                     !string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.LinkedIn) || 
-                     !string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.Twitter))
-                {
-                    <div class="row mt-3">
-                        <div class="col-12 text-center border-top pt-3">
-                            <div class="social-links">
-                                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.GitHub))
-                                {
-                                    <a href="@appSettings.Branding.Contact.SocialMedia.GitHub" target="_blank" class="text-muted me-3 social-link" title="GitHub">
-                                        <i class="fab fa-github fa-lg"></i>
-                                    </a>
-                                }
-                                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.LinkedIn))
-                                {
-                                    <a href="@appSettings.Branding.Contact.SocialMedia.LinkedIn" target="_blank" class="text-muted me-3 social-link" title="LinkedIn">
-                                        <i class="fab fa-linkedin fa-lg"></i>
-                                    </a>
-                                }
-                                @if (!string.IsNullOrEmpty(appSettings.Branding.Contact.SocialMedia.Twitter))
-                                {
-                                    <a href="@appSettings.Branding.Contact.SocialMedia.Twitter" target="_blank" class="text-muted me-3 social-link" title="Twitter">
-                                        <i class="fab fa-twitter fa-lg"></i>
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
             </div>
-        </footer>
-    }
+        </div>
+    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     
-    @if (appSettings.Theme.AllowUserThemeSelection)
-    {
-        <script>
-            // Theme toggle functionality
-            document.addEventListener('DOMContentLoaded', function() {
-                const themeToggle = document.getElementById('theme-toggle');
-                const themeIcon = document.getElementById('theme-icon');
-                const body = document.body;
-                
-                // Get saved theme or default to light
-                const currentTheme = localStorage.getItem('theme') || '@appSettings.Theme.DefaultTheme';
-                
-                // Apply theme on load
-                applyTheme(currentTheme);
-                
-                // Theme toggle click handler
-                if (themeToggle) {
-                    themeToggle.addEventListener('click', function() {
-                        const isDark = body.classList.contains('dark-theme');
-                        const newTheme = isDark ? 'light' : 'dark';
-                        applyTheme(newTheme);
-                        localStorage.setItem('theme', newTheme);
-                    });
+    <script>
+        // Theme toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const body = document.body;
+            
+            // Get saved theme or default to light
+            const currentTheme = localStorage.getItem('theme') || '@(settings.DarkMode ? "dark" : "light")';
+            
+            // Apply theme on load
+            applyTheme(currentTheme);
+            
+            // Theme toggle click handler
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    const isDark = body.classList.contains('dark-theme');
+                    const newTheme = isDark ? 'light' : 'dark';
+                    applyTheme(newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+            
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    body.classList.add('dark-theme');
+                    if (themeIcon) themeIcon.className = 'fas fa-sun';
+                    // Update CSS custom properties for dark theme
+                    document.documentElement.style.setProperty('--app-bg', '#1a1a1a');
+                    document.documentElement.style.setProperty('--app-surface', '#2d2d2d');
+                    document.documentElement.style.setProperty('--app-on-background', '#ffffff');
+                    document.documentElement.style.setProperty('--app-on-surface', '#ffffff');
+                    document.documentElement.style.setProperty('--bs-light', '#404040');
+                    document.documentElement.style.setProperty('--bs-primary', '@settings.PrimaryColor');
+                } else {
+                    body.classList.remove('dark-theme');
+                    if (themeIcon) themeIcon.className = 'fas fa-moon';
+                    // Reset to light theme colors
+                    document.documentElement.style.setProperty('--app-bg', '#ffffff');
+                    document.documentElement.style.setProperty('--app-surface', '#f8f9fa');
+                    document.documentElement.style.setProperty('--app-on-background', '#212529');
+                    document.documentElement.style.setProperty('--app-on-surface', '#212529');
+                    document.documentElement.style.setProperty('--bs-light', '#f8f9fa');
+                    document.documentElement.style.setProperty('--bs-primary', '@settings.PrimaryColor');
+                    document.documentElement.style.setProperty('--bs-secondary', '@settings.SecondaryColor');
+                    document.documentElement.style.setProperty('--bs-success', '@settings.SuccessColor');
+                    document.documentElement.style.setProperty('--bs-danger', '@settings.DangerColor');
+                    document.documentElement.style.setProperty('--bs-warning', '@settings.WarningColor');
                 }
-                
-                function applyTheme(theme) {
-                    if (theme === 'dark') {
-                        body.classList.add('dark-theme');
-                        if (themeIcon) themeIcon.className = 'fas fa-sun';
-                        // Update CSS custom properties for dark theme
-                        document.documentElement.style.setProperty('--app-bg', '#1a1a1a');
-                        document.documentElement.style.setProperty('--app-surface', '#2d2d2d');
-                        document.documentElement.style.setProperty('--app-on-background', '#ffffff');
-                        document.documentElement.style.setProperty('--app-on-surface', '#ffffff');
-                        document.documentElement.style.setProperty('--bs-light', '#404040');
-                    } else {
-                        body.classList.remove('dark-theme');
-                        if (themeIcon) themeIcon.className = 'fas fa-moon';
-                        // Reset to light theme colors
-                        document.documentElement.style.setProperty('--app-bg', '@appSettings.Theme.Colors.Background');
-                        document.documentElement.style.setProperty('--app-surface', '@appSettings.Theme.Colors.Surface');
-                        document.documentElement.style.setProperty('--app-on-background', '@appSettings.Theme.Colors.OnBackground');
-                        document.documentElement.style.setProperty('--app-on-surface', '@appSettings.Theme.Colors.OnSurface');
-                        document.documentElement.style.setProperty('--bs-light', '@appSettings.Theme.Colors.Light');
-                    }
-                }
-            });
-        </script>
-    }
+            }
+        });
+    </script>
     
     @await RenderSectionAsync("Scripts", required: false)
 </body>
