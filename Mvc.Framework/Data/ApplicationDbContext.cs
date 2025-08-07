@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using mvc.framework.Models;
 
 namespace mvc.framework.Data
 {
@@ -13,8 +14,9 @@ namespace mvc.framework.Data
 		public DbSet<NavigationMenu> NavigationMenu { get; set; }
 		public DbSet<RoleMenuPermission> RoleMenuPermission { get; set; }
 		public DbSet<Areas.Book.Models.Entity.Category> Categories { get; set; }
+		public DbSet<SampleEntity> SampleEntities { get; set; }
 
-		protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder builder)
 		{
 			builder.Entity<RoleMenuPermission>().HasKey(c => new { c.RoleId, c.NavigationMenuId});
 

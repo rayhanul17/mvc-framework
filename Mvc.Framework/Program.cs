@@ -6,6 +6,8 @@ using mvc.framework;
 using mvc.framework.Data;
 using mvc.framework.Handlers;
 using mvc.framework.Services;
+using mvc.framework.Extensions;
+using mvc.framework.Models;
 
 internal class Program
 {
@@ -40,9 +42,17 @@ internal class Program
         builder.Services.AddRazorPages();
         builder.Services.AddMemoryCache();
 
+        builder.Services.AddScoped<IGenericRepository<SampleEntity>, GenericRepository<SampleEntity>>();
+        builder.Services.AddScoped<IGenericService<SampleEntity>, GenericService<SampleEntity>>();
         builder.Services.AddScoped<IDataAccessService, DataAccessService>();
         builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+
+        // Register Generic Services
+        builder.Services.AddGenericServices();
+        
+        // Register specific entity services (example)
+        builder.Services.AddGenericService<mvc.framework.Models.SampleEntity>();
 
         // Book Area DI
         builder.Services.AddScoped<mvc.framework.Areas.Book.Data.CategoryRepository>();

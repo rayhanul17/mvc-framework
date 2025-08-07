@@ -1,0 +1,43 @@
+@model object
+@{
+    var isEdit = ViewBag.IsEdit ?? false;
+    var actionTitle = ViewBag.ActionTitle ?? "Form";
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+    var modelType = Model?.GetType().Name ?? "Item";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4>@actionTitle @modelType</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateOrEdit" asp-controller="@controllerName" method="post">
+                    @if (isEdit)
+                    {
+                        @* <input type="hidden" asp-for="Id" /> *@
+                    }
+                    
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    @* This is a generic template - override in specific views *@
+                    @RenderBody()
+                    
+                    <div class="form-group mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> @(isEdit ? "Update" : "Create")
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
