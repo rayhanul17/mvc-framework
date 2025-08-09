@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DynamicRoleMenuSystem.Core.Entities;
 
@@ -13,12 +14,14 @@ public class Log : BaseEntity
     [Required]
     [StringLength(50)]
     public string Action { get; set; } = string.Empty; // Create, Update, Delete
-    
+
+    [Column(TypeName = "TEXT")]
     public string? OldValues { get; set; } // JSON string of old values
-    
+
+    [Column(TypeName = "TEXT")]
     public string? NewValues { get; set; } // JSON string of new values
-    
-    [StringLength(500)]
+
+    [Column(TypeName = "TEXT")]
     public string? Changes { get; set; } // Summary of changes
     
     [StringLength(50)]
