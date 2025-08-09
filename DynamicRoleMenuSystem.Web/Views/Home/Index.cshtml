@@ -11,36 +11,21 @@
             <div class="card-body text-white p-4 p-md-5">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        @if (appSettings.Features.Dashboard.ShowWelcomeMessage)
-                        {
-                            <h1 class="display-5 fw-bold mb-3">
-                                Welcome to @appSettings.Branding.OrganizationName
-                            </h1>
-                            <p class="lead mb-4">
-                                @appSettings.Branding.Description
-                            </p>
-                            <p class="mb-0">
-                                <i class="fas fa-quote-left me-2"></i>
-                                <em>@appSettings.Branding.Slogan</em>
-                                <i class="fas fa-quote-right ms-2"></i>
-                            </p>
-                        }
-                        else
-                        {
-                            <h1 class="display-5 fw-bold mb-3">Dashboard</h1>
-                            <p class="lead mb-0">Manage your system efficiently</p>
-                        }
+                        <h1 class="display-5 fw-bold mb-3">
+                            Welcome to @appSettings.OrganizationName
+                        </h1>
+                        <p class="lead mb-4">
+                            Streamline your workflow with our comprehensive management system
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-quote-left me-2"></i>
+                            <em>Efficiency through intelligent automation</em>
+                            <i class="fas fa-quote-right ms-2"></i>
+                        </p>
                     </div>
                     <div class="col-md-4 text-center">
                         <div class="d-none d-md-block">
-                            @if (!string.IsNullOrEmpty(appSettings.Branding.LogoPath))
-                            {
-                                <img src="@appSettings.Branding.LogoPath" alt="@appSettings.Branding.OrganizationName" class="img-fluid" style="max-height: 120px; filter: brightness(0) invert(1);">
-                            }
-                            else
-                            {
-                                <i class="fas fa-cube fa-5x opacity-75"></i>
-                            }
+                            <i class="fas fa-cube fa-5x opacity-75"></i>
                         </div>
                     </div>
                 </div>
@@ -52,8 +37,7 @@
 @if (User.Identity?.IsAuthenticated == true)
 {
     <!-- Statistics Cards -->
-    @if (appSettings.Features.Dashboard.ShowStatistics)
-    {
+    @* Show Statistics - now always enabled *@
         <div class="row mb-4">
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card border-0 h-100">
@@ -118,8 +102,7 @@
 
     <div class="row">
         <!-- Quick Actions -->
-        @if (appSettings.Features.Dashboard.ShowQuickActions)
-        {
+        @* Quick Actions - now always enabled *@
             <div class="col-lg-6 mb-4">
                 <div class="card border-0 h-100">
                     <div class="card-header bg-transparent border-0 pb-0">
@@ -160,8 +143,7 @@
         }
 
         <!-- Recent Activity -->
-        @if (appSettings.Features.Dashboard.ShowRecentActivity)
-        {
+        @* Recent Activity - now always enabled *@
             <div class="col-lg-6 mb-4">
                 <div class="card border-0 h-100">
                     <div class="card-header bg-transparent border-0 pb-0">
@@ -246,7 +228,7 @@
                     <div class="row">
                         <div class="col-md-3 col-sm-6 mb-3">
                             <strong>Version:</strong><br>
-                            <span class="text-muted">@appSettings.Branding.Version</span>
+                            <span class="text-muted">v1.0.0</span>
                         </div>
                         <div class="col-md-3 col-sm-6 mb-3">
                             <strong>Environment:</strong><br>
@@ -276,18 +258,15 @@ else
                     <i class="fas fa-lock fa-3x text-muted mb-4"></i>
                     <h3 class="card-title">Access Required</h3>
                     <p class="card-text lead mb-4">
-                        Please sign in to access the @appSettings.Branding.OrganizationName management system.
+                        Please sign in to access the @appSettings.OrganizationName management system.
                     </p>
                     <div class="d-flex justify-content-center gap-3">
                         <a href="@Url.Action("Login", "Account")" class="btn btn-primary">
                             <i class="fas fa-sign-in-alt me-2"></i>Sign In
                         </a>
-                        @if (appSettings.Features.EnableUserRegistration)
-                        {
-                            <a href="@Url.Action("Register", "Account")" class="btn btn-outline-primary">
-                                <i class="fas fa-user-plus me-2"></i>Register
-                            </a>
-                        }
+                        <a href="@Url.Action("Register", "Account")" class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </a>
                     </div>
                 </div>
             </div>

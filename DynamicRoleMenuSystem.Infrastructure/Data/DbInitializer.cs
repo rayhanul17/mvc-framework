@@ -26,6 +26,9 @@ public static class DbInitializer
         // Seed menus
         await SeedMenusAsync(context, roleManager);
         
+        // Seed Audit Logs menu specifically
+        await SeedAuditLogsMenuAsync(context, roleManager);
+        
         // Seed Customer Support menus specifically
         await SeedCustomerSupportMenusAsync(context, roleManager);
         
@@ -360,6 +363,18 @@ public static class DbInitializer
                         Icon = "fas fa-cog",
                         ParentId = 5,
                         Order = 4,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Name = "Audit Logs",
+                        DisplayName = "Audit Logs",
+                        Controller = "Log",
+                        Action = "Index",
+                        Icon = "fas fa-history",
+                        ParentId = 5,
+                        Order = 5,
                         IsActive = true,
                         CreatedAt = DateTime.UtcNow
                     },
@@ -1716,5 +1731,58 @@ public static class DbInitializer
             .CountAsync();
         
         Console.WriteLine($"SuperAdmin role now has access to {assignedMenuCount} menus out of {allMenus.Count} total menus.");
+    }
+    
+    private static async Task SeedAuditLogsMenuAsync(ApplicationDbContext context, RoleManager<ApplicationRole> roleManager)
+    {
+        // Check if Audit Logs menu already exists
+        var existingAuditMenu = await context.Menus.FirstOrDefaultAsync(m => m.Name == "Audit Logs");
+        if (existingAuditMenu != null)
+        {
+            return; // Menu already exists
+        }
+        
+        // Get Administration parent menu
+        var adminMenu = await context.Menus.FirstOrDefaultAsync(m => m.Name == "Administration");
+        if (adminMenu == null)
+        {
+            return; // Can't add without parent
+        }
+        
+        // Create Audit Logs menu
+        var auditLogMenu = new Menu
+        {
+            Name = "Audit Logs",
+            DisplayName = "Audit Logs",
+            Controller = "Log",
+            Action = "Index",
+            Icon = "fas fa-history",
+            ParentId = adminMenu.Id,
+            Order = 5,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        await context.Menus.AddAsync(auditLogMenu);
+        await context.SaveChangesAsync();
+        
+        // Add permissions for SuperAdmin
+        var superAdminRole = await roleManager.FindByNameAsync("SuperAdmin");
+        if (superAdminRole != null)
+        {
+            var roleMenu = new RoleMenu
+            {
+                RoleId = superAdminRole.Id,
+                MenuId = auditLogMenu.Id,
+                CanView = true,
+                CanCreate = true,
+                CanEdit = true,
+                CanDelete = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            await context.RoleMenus.AddAsync(roleMenu);
+            await context.SaveChangesAsync();
+        }
     }
 }

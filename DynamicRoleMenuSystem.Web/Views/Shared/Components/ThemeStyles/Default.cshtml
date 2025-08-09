@@ -2,37 +2,37 @@
 
 <style id="dynamic-theme-styles">
 :root {
-    /* Brand Colors */
-    --bs-primary: @Model.Theme.Colors.Primary;
-    --bs-secondary: @Model.Theme.Colors.Secondary;
-    --bs-success: @Model.Theme.Colors.Success;
-    --bs-danger: @Model.Theme.Colors.Danger;
-    --bs-warning: @Model.Theme.Colors.Warning;
-    --bs-info: @Model.Theme.Colors.Info;
-    --bs-light: @Model.Theme.Colors.Light;
-    --bs-dark: @Model.Theme.Colors.Dark;
+    /* Brand Colors - Hardcoded default theme colors */
+    --bs-primary: #0d6efd;
+    --bs-secondary: #6c757d;
+    --bs-success: #198754;
+    --bs-danger: #dc3545;
+    --bs-warning: #ffc107;
+    --bs-info: #0dcaf0;
+    --bs-light: #f8f9fa;
+    --bs-dark: #212529;
     
     /* Custom Theme Variables */
-    --app-bg: @Model.Theme.Colors.Background;
-    --app-surface: @Model.Theme.Colors.Surface;
-    --app-on-primary: @Model.Theme.Colors.OnPrimary;
-    --app-on-secondary: @Model.Theme.Colors.OnSecondary;
-    --app-on-background: @Model.Theme.Colors.OnBackground;
-    --app-on-surface: @Model.Theme.Colors.OnSurface;
+    --app-bg: #ffffff;
+    --app-surface: #ffffff;
+    --app-on-primary: #ffffff;
+    --app-on-secondary: #ffffff;
+    --app-on-background: #212529;
+    --app-on-surface: #212529;
     
     /* Typography */
-    --app-font-family: @Model.Theme.Typography.FontFamily;
-    --app-heading-font-family: @Model.Theme.Typography.HeadingFontFamily;
-    --app-monospace-font-family: @Model.Theme.Typography.MonospaceFontFamily;
-    --app-base-font-size: @Model.Theme.Typography.BaseFontSize;
-    --app-line-height: @Model.Theme.Typography.LineHeight;
+    --app-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --app-heading-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --app-monospace-font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --app-base-font-size: 1rem;
+    --app-line-height: 1.5;
     
     /* Layout */
-    --sidebar-width: @Model.Layout.Sidebar.Width;
-    --sidebar-collapsed-width: @Model.Layout.Sidebar.CollapsedWidth;
-    --header-height: @Model.Layout.Header.Height;
-    --content-max-width: @Model.Layout.Content.MaxWidth;
-    --content-padding: @Model.Layout.Content.Padding;
+    --sidebar-width: 280px;
+    --sidebar-collapsed-width: 60px;
+    --header-height: 60px;
+    --content-max-width: 1200px;
+    --content-padding: 1.5rem;
 }
 
 /* Apply custom theme */

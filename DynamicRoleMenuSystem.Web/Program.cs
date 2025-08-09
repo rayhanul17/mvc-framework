@@ -22,6 +22,13 @@ builder.Services.AddApplicationServices();
 // Add area discovery service
 builder.Services.AddScoped<IAreaDiscoveryService, AreaDiscoveryService>();
 
+// Add Log Repository and Service
+builder.Services.AddScoped<DynamicRoleMenuSystem.Core.Interfaces.ILogRepository, DynamicRoleMenuSystem.Infrastructure.Repositories.LogRepository>();
+builder.Services.AddScoped<ILogService, LogService>();
+
+// Add Background Service for Log Archiving
+builder.Services.AddHostedService<DynamicRoleMenuSystem.Web.Services.LogArchiveBackgroundService>();
+
 // Configure cookie authentication
 builder.Services.ConfigureApplicationCookie(options =>
 {

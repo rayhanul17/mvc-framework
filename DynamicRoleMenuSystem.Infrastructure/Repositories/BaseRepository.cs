@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using DynamicRoleMenuSystem.Core.Interfaces;
 using DynamicRoleMenuSystem.Infrastructure.Data;
 using DynamicRoleMenuSystem.Core.Entities;
@@ -13,13 +15,15 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     protected readonly ApplicationDbContext _context;
     protected readonly DbSet<T> _dbSet;
     protected readonly IHttpContextAccessor _httpContextAccessor;
+    protected readonly IServiceProvider _serviceProvider;
     protected string? CurrentUserId => _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-    public BaseRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor = null!)
+    public BaseRepository(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor = null!, IServiceProvider serviceProvider = null!)
     {
         _context = context;
         _dbSet = context.Set<T>();
         _httpContextAccessor = httpContextAccessor;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task<T?> GetByIdAsync(object id)
@@ -52,6 +56,13 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         }
         
         await _dbSet.AddAsync(entity);
+        
+        // Log the creation if entity is BaseEntity and not a Log itself
+        if (entity is BaseEntity baseEntity2 && !(entity is Log) && !(entity is LogArchive))
+        {
+            await LogEntityChangeAsync("Create", null, entity, baseEntity2.Id);
+        }
+        
         return entity;
     }
 
@@ -74,14 +85,31 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public void Update(T entity)
     {
-        // Set ModifiedBy and UpdatedAt if entity inherits from BaseEntity
-        if (entity is BaseEntity baseEntity)
+        // Get original entity for logging
+        T? originalEntity = null;
+        if (entity is BaseEntity baseEntity && !(entity is Log) && !(entity is LogArchive))
         {
+            var entry = _context.Entry(entity);
+            if (entry.State == EntityState.Detached)
+            {
+                originalEntity = _dbSet.Find(baseEntity.Id);
+            }
+            else
+            {
+                originalEntity = (T)entry.OriginalValues.ToObject();
+            }
+            
             baseEntity.UpdatedAt = DateTime.UtcNow;
             baseEntity.ModifiedBy = CurrentUserId;
         }
         
         _dbSet.Update(entity);
+        
+        // Log the update if entity is BaseEntity and not a Log itself
+        if (entity is BaseEntity baseEntity2 && !(entity is Log) && !(entity is LogArchive) && originalEntity != null)
+        {
+            LogEntityChangeAsync("Update", originalEntity, entity, baseEntity2.Id).GetAwaiter().GetResult();
+        }
     }
 
     public void UpdateRange(IEnumerable<T> entities)
@@ -103,6 +131,12 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public void Remove(T entity)
     {
+        // Log the deletion if entity is BaseEntity and not a Log itself
+        if (entity is BaseEntity baseEntity && !(entity is Log) && !(entity is LogArchive))
+        {
+            LogEntityChangeAsync("Delete", entity, null, baseEntity.Id).GetAwaiter().GetResult();
+        }
+        
         _dbSet.Remove(entity);
     }
 
@@ -127,5 +161,73 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     public IQueryable<T> GetQueryable()
     {
         return _dbSet.AsQueryable();
+    }
+    
+    private async Task LogEntityChangeAsync(string action, T? oldEntity, T? newEntity, int entityId)
+    {
+        try
+        {
+            if (_serviceProvider == null) return;
+            
+            using var scope = _serviceProvider.CreateScope();
+            var logRepository = scope.ServiceProvider.GetService<ILogRepository>();
+            
+            if (logRepository == null) return;
+            
+            var tableName = typeof(T).Name;
+            string? oldValues = oldEntity != null ? JsonSerializer.Serialize(oldEntity) : null;
+            string? newValues = newEntity != null ? JsonSerializer.Serialize(newEntity) : null;
+            string? changes = GetChanges(oldEntity, newEntity);
+            
+            var httpContext = scope.ServiceProvider.GetService<IHttpContextAccessor>()?.HttpContext;
+            var log = new Log
+            {
+                TableName = tableName,
+                EntityId = entityId,
+                Action = action,
+                OldValues = oldValues,
+                NewValues = newValues,
+                Changes = changes,
+                IpAddress = httpContext?.Connection?.RemoteIpAddress?.ToString(),
+                UserAgent = httpContext?.Request?.Headers["User-Agent"].ToString(),
+                LoggedAt = DateTime.UtcNow,
+                UserId = CurrentUserId
+            };
+            
+            await logRepository.AddAsync(log);
+            var unitOfWork = scope.ServiceProvider.GetService<IUnitOfWork>();
+            if (unitOfWork != null)
+            {
+                await unitOfWork.SaveChangesAsync();
+            }
+        }
+        catch
+        {
+            // Silently fail logging to not interrupt the main operation
+        }
+    }
+    
+    private string? GetChanges(T? oldEntity, T? newEntity)
+    {
+        if (oldEntity == null || newEntity == null) return null;
+        
+        var changes = new List<string>();
+        var properties = typeof(T).GetProperties();
+        
+        foreach (var property in properties)
+        {
+            if (property.Name == "UpdatedAt" || property.Name == "ModifiedBy")
+                continue;
+                
+            var oldValue = property.GetValue(oldEntity);
+            var newValue = property.GetValue(newEntity);
+            
+            if (!Equals(oldValue, newValue))
+            {
+                changes.Add($"{property.Name}: {oldValue} -> {newValue}");
+            }
+        }
+        
+        return changes.Any() ? string.Join(", ", changes) : null;
     }
 }

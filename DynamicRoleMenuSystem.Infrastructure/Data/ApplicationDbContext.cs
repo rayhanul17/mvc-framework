@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using DynamicRoleMenuSystem.Core.Entities;
 
 namespace DynamicRoleMenuSystem.Infrastructure.Data;
@@ -11,9 +12,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>,
     Microsoft.AspNetCore.Identity.IdentityUserToken<string>>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    private readonly Microsoft.AspNetCore.Http.IHttpContextAccessor? _httpContextAccessor;
+    
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, Microsoft.AspNetCore.Http.IHttpContextAccessor? httpContextAccessor = null)
         : base(options)
     {
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public DbSet<Menu> Menus { get; set; }
@@ -28,6 +32,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<TicketAttachment> TicketAttachments { get; set; }
     public DbSet<TicketNotification> TicketNotifications { get; set; }
     public DbSet<TicketHistory> TicketHistories { get; set; }
+    
+    // Audit Log Entities
+    public DbSet<Log> Logs { get; set; }
+    public DbSet<LogArchive> LogArchives { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -314,55 +322,235 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.TicketId);
             entity.HasIndex(e => e.CreatedAt);
         });
+        
+        // Log Configuration
+        builder.Entity<Log>(entity =>
+        {
+            entity.ToTable("Logs");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TableName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Action).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Changes).HasMaxLength(500);
+            entity.Property(e => e.IpAddress).HasMaxLength(50);
+            entity.Property(e => e.UserAgent).HasMaxLength(500);
+            
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
+            entity.HasIndex(e => e.TableName);
+            entity.HasIndex(e => e.EntityId);
+            entity.HasIndex(e => e.LoggedAt);
+            entity.HasIndex(e => new { e.TableName, e.EntityId });
+        });
+        
+        // LogArchive Configuration
+        builder.Entity<LogArchive>(entity =>
+        {
+            entity.ToTable("LogArchives");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TableName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Action).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Changes).HasMaxLength(500);
+            entity.Property(e => e.IpAddress).HasMaxLength(50);
+            entity.Property(e => e.UserAgent).HasMaxLength(500);
+            
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+                
+            entity.HasIndex(e => e.TableName);
+            entity.HasIndex(e => e.EntityId);
+            entity.HasIndex(e => e.LoggedAt);
+            entity.HasIndex(e => e.ArchivedAt);
+            entity.HasIndex(e => new { e.TableName, e.EntityId });
+        });
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var entries = ChangeTracker.Entries()
-            .Where(e => e.Entity is ApplicationUser || e.Entity is ApplicationRole || 
-                       e.Entity is Menu || e.Entity is RoleMenu || 
-                       e.Entity is BlogCategory || e.Entity is BlogPost || 
-                       e.Entity is SiteSetting);
+        // Capture audit entries before saving
+        var auditEntries = new List<AuditEntry>();
+        
+        // Get HTTP context to access user information
+        var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var ipAddress = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+        var userAgent = _httpContextAccessor?.HttpContext?.Request?.Headers["User-Agent"].ToString();
 
-        foreach (var entry in entries)
+        foreach (var entry in ChangeTracker.Entries())
         {
-            switch (entry.State)
+            // Skip audit entities to prevent recursion
+            if (entry.Entity is Log || entry.Entity is LogArchive)
+                continue;
+                
+            // Only audit specific entities
+            if (!(entry.Entity is ApplicationUser || entry.Entity is ApplicationRole || 
+                 entry.Entity is Menu || entry.Entity is RoleMenu || 
+                 entry.Entity is BlogCategory || entry.Entity is BlogPost || 
+                 entry.Entity is SiteSetting || entry.Entity is Ticket || 
+                 entry.Entity is TicketComment))
+                continue;
+
+            // Update timestamps
+            UpdateTimestamps(entry);
+
+            // Create audit entries
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.State == EntityState.Deleted)
             {
-                case EntityState.Added:
-                    if (entry.Entity is ApplicationUser user)
-                        user.CreatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is ApplicationRole role)
-                        role.CreatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is Menu menu)
-                        menu.CreatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is RoleMenu roleMenu)
-                        roleMenu.CreatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is BlogCategory category)
-                        category.CreatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is BlogPost post)
-                        post.CreatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is SiteSetting setting)
-                        setting.CreatedAt = DateTime.UtcNow;
-                    break;
-                case EntityState.Modified:
-                    if (entry.Entity is ApplicationUser modUser)
-                        modUser.UpdatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is ApplicationRole modRole)
-                        modRole.UpdatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is Menu modMenu)
-                        modMenu.UpdatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is RoleMenu modRoleMenu)
-                        modRoleMenu.UpdatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is BlogCategory modCategory)
-                        modCategory.UpdatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is BlogPost modPost)
-                        modPost.UpdatedAt = DateTime.UtcNow;
-                    else if (entry.Entity is SiteSetting modSetting)
-                        modSetting.UpdatedAt = DateTime.UtcNow;
-                    break;
+                auditEntries.Add(CreateAuditEntry(entry, userId, ipAddress, userAgent));
             }
         }
 
-        return base.SaveChangesAsync(cancellationToken);
+        // Save the changes first
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        // Then save audit logs (after we have entity IDs for new entities)
+        if (auditEntries.Any())
+        {
+            foreach (var auditEntry in auditEntries)
+            {
+                // For Added entities, get the ID now that it's been assigned
+                if (auditEntry.Action == "Added" && auditEntry.EntityEntry != null)
+                {
+                    var keyName = auditEntry.EntityEntry.Metadata.FindPrimaryKey()?.Properties.FirstOrDefault()?.Name;
+                    if (keyName != null)
+                    {
+                        var keyValue = auditEntry.EntityEntry.Property(keyName).CurrentValue;
+                        if (keyValue != null)
+                        {
+                            auditEntry.EntityId = keyValue.ToString();
+                        }
+                    }
+                }
+                
+                var log = new Log
+                {
+                    TableName = auditEntry.TableName,
+                    EntityId = int.TryParse(auditEntry.EntityId, out var entityId) ? entityId : 0,
+                    Action = auditEntry.Action,
+                    OldValues = auditEntry.OldValues,
+                    NewValues = auditEntry.NewValues,
+                    Changes = auditEntry.Changes,
+                    UserId = auditEntry.UserId,
+                    IpAddress = auditEntry.IpAddress,
+                    UserAgent = auditEntry.UserAgent,
+                    LoggedAt = DateTime.UtcNow
+                };
+                
+                Logs.Add(log);
+            }
+            
+            // Save audit logs
+            await base.SaveChangesAsync(cancellationToken);
+        }
+
+        return result;
+    }
+
+    private void UpdateTimestamps(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+    {
+        switch (entry.State)
+        {
+            case EntityState.Added:
+                if (entry.Entity is ApplicationUser user)
+                    user.CreatedAt = DateTime.UtcNow;
+                else if (entry.Entity is ApplicationRole role)
+                    role.CreatedAt = DateTime.UtcNow;
+                else if (entry.Entity is Menu menu)
+                    menu.CreatedAt = DateTime.UtcNow;
+                else if (entry.Entity is RoleMenu roleMenu)
+                    roleMenu.CreatedAt = DateTime.UtcNow;
+                else if (entry.Entity is BlogCategory category)
+                    category.CreatedAt = DateTime.UtcNow;
+                else if (entry.Entity is BlogPost post)
+                    post.CreatedAt = DateTime.UtcNow;
+                else if (entry.Entity is SiteSetting setting)
+                    setting.CreatedAt = DateTime.UtcNow;
+                break;
+            case EntityState.Modified:
+                if (entry.Entity is ApplicationUser modUser)
+                    modUser.UpdatedAt = DateTime.UtcNow;
+                else if (entry.Entity is ApplicationRole modRole)
+                    modRole.UpdatedAt = DateTime.UtcNow;
+                else if (entry.Entity is Menu modMenu)
+                    modMenu.UpdatedAt = DateTime.UtcNow;
+                else if (entry.Entity is RoleMenu modRoleMenu)
+                    modRoleMenu.UpdatedAt = DateTime.UtcNow;
+                else if (entry.Entity is BlogCategory modCategory)
+                    modCategory.UpdatedAt = DateTime.UtcNow;
+                else if (entry.Entity is BlogPost modPost)
+                    modPost.UpdatedAt = DateTime.UtcNow;
+                else if (entry.Entity is SiteSetting modSetting)
+                    modSetting.UpdatedAt = DateTime.UtcNow;
+                break;
+        }
+    }
+
+    private AuditEntry CreateAuditEntry(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry, string? userId, string? ipAddress, string? userAgent)
+    {
+        var auditEntry = new AuditEntry
+        {
+            TableName = entry.Entity.GetType().Name,
+            Action = entry.State.ToString(),
+            UserId = userId,
+            IpAddress = ipAddress,
+            UserAgent = userAgent
+        };
+
+        // Get primary key value - for Added entities, we'll get this after SaveChanges
+        var keyName = entry.Metadata.FindPrimaryKey()?.Properties.FirstOrDefault()?.Name;
+        if (keyName != null)
+        {
+            var keyValue = entry.Property(keyName).CurrentValue;
+            if (keyValue != null && entry.State != EntityState.Added)
+            {
+                auditEntry.EntityId = keyValue.ToString();
+            }
+        }
+
+        // Capture changes
+        var changes = new List<string>();
+        var oldValues = new Dictionary<string, object?>();
+        var newValues = new Dictionary<string, object?>();
+
+        foreach (var property in entry.Properties)
+        {
+            var propertyName = property.Metadata.Name;
+            
+            if (entry.State == EntityState.Added)
+            {
+                newValues[propertyName] = property.CurrentValue;
+                if (property.CurrentValue != null)
+                {
+                    changes.Add($"{propertyName}: {property.CurrentValue}");
+                }
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                if (property.IsModified)
+                {
+                    oldValues[propertyName] = property.OriginalValue;
+                    newValues[propertyName] = property.CurrentValue;
+                    changes.Add($"{propertyName}: {property.OriginalValue} → {property.CurrentValue}");
+                }
+            }
+            else if (entry.State == EntityState.Deleted)
+            {
+                oldValues[propertyName] = property.OriginalValue;
+                if (property.OriginalValue != null)
+                {
+                    changes.Add($"{propertyName}: {property.OriginalValue}");
+                }
+            }
+        }
+
+        auditEntry.OldValues = oldValues.Any() ? System.Text.Json.JsonSerializer.Serialize(oldValues) : null;
+        auditEntry.NewValues = newValues.Any() ? System.Text.Json.JsonSerializer.Serialize(newValues) : null;
+        auditEntry.Changes = string.Join("; ", changes);
+        auditEntry.EntityEntry = entry;
+
+        return auditEntry;
     }
 }
