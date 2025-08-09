@@ -40,6 +40,14 @@
     <link rel="stylesheet" href="~/DynamicRoleMenuSystem.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <!-- Mobile Menu Toggle Button -->
+    <button class="btn btn-primary d-lg-none mobile-menu-btn" id="mobileMenuBtn" type="button">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    
     <div class="wrapper">
         <!-- Sidebar -->
         <nav id="sidebar" class="sidebar">
@@ -339,6 +347,57 @@
             if (e.key === 'Escape') {
                 this.value = '';
                 filterMenuItems();
+            }
+        });
+        
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const mobileSidebar = document.getElementById('sidebar');
+        
+        function openMobileMenu() {
+            mobileSidebar.classList.add('mobile-show');
+            mobileMenuOverlay.classList.add('show');
+            document.body.classList.add('mobile-menu-open');
+            
+            // Dispatch custom event for sidebar opened
+            document.dispatchEvent(new CustomEvent('sidebarOpened'));
+        }
+        
+        function closeMobileMenu() {
+            mobileSidebar.classList.remove('mobile-show');
+            mobileMenuOverlay.classList.remove('show');
+            document.body.classList.remove('mobile-menu-open');
+        }
+        
+        // Toggle mobile menu on button click
+        mobileMenuBtn?.addEventListener('click', function() {
+            if (mobileSidebar.classList.contains('mobile-show')) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        });
+        
+        // Close mobile menu on overlay click
+        mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+        
+        // Close mobile menu when clicking a menu link on mobile
+        if (window.innerWidth < 992) {
+            document.querySelectorAll('.sidebar-link:not(.sidebar-dropdown-toggle)').forEach(link => {
+                link.addEventListener('click', function() {
+                    // Only close if it's not a dropdown toggle
+                    if (!this.classList.contains('sidebar-dropdown-toggle')) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                closeMobileMenu();
             }
         });
     </script>
