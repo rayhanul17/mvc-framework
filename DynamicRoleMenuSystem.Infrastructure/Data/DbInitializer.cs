@@ -536,6 +536,128 @@ public static class DbInitializer
                     Order = 4,
                     CreatedAt = DateTime.UtcNow
                 },
+                new SiteSetting
+                {
+                    Key = "Footer.Text",
+                    Value = "Building innovative solutions for modern businesses. We are committed to delivering high-quality software that helps organizations streamline their operations and achieve their goals.",
+                    Description = "Main footer text/description",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.TextArea,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 5,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Footer.CopyrightText",
+                    Value = "",
+                    Description = "Custom copyright text (leave empty for auto-generated)",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 6,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Footer.ShowSocialLinks",
+                    Value = "true",
+                    Description = "Show social media links in footer",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.Boolean,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 7,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Footer.ShowMenu",
+                    Value = "true",
+                    Description = "Show footer menu/quick links",
+                    Category = SettingCategory.Layout,
+                    Type = SettingType.Boolean,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 8,
+                    CreatedAt = DateTime.UtcNow
+                },
+                
+                // Social Media Settings
+                new SiteSetting
+                {
+                    Key = "Social.Facebook",
+                    Value = "https://facebook.com/yourcompany",
+                    Description = "Facebook page URL",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 10,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Social.Twitter",
+                    Value = "https://twitter.com/yourcompany",
+                    Description = "Twitter/X profile URL",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 11,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Social.LinkedIn",
+                    Value = "https://linkedin.com/company/yourcompany",
+                    Description = "LinkedIn company page URL",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 12,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Social.Instagram",
+                    Value = "",
+                    Description = "Instagram profile URL",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 13,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Social.YouTube",
+                    Value = "",
+                    Description = "YouTube channel URL",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 14,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new SiteSetting
+                {
+                    Key = "Social.GitHub",
+                    Value = "https://github.com/yourcompany",
+                    Description = "GitHub organization/profile URL",
+                    Category = SettingCategory.Contact,
+                    Type = SettingType.Text,
+                    IsRequired = false,
+                    IsSystemSetting = false,
+                    Order = 15,
+                    CreatedAt = DateTime.UtcNow
+                },
                 
                 // Contact Settings
                 new SiteSetting
