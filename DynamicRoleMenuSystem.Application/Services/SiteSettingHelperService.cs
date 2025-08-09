@@ -92,11 +92,24 @@ public class SiteSettingHelperService : ISiteSettingHelperService
             model.FooterCopyrightYear = await GetSettingValueAsync("Footer.CopyrightYear", DateTime.UtcNow.Year.ToString());
             model.FooterShowPoweredBy = await GetBoolAsync("Footer.ShowPoweredBy", true);
             model.FooterCustomText = await GetSettingValueAsync("Footer.CustomText", "");
+            model.FooterText = await GetSettingValueAsync("Footer.Text", "Building innovative solutions for modern businesses.");
+            model.CopyrightText = await GetSettingValueAsync("Footer.CopyrightText", "");
+            model.ShowSocialLinks = await GetBoolAsync("Footer.ShowSocialLinks", true);
+            model.ShowFooterMenu = await GetBoolAsync("Footer.ShowMenu", true);
 
             // Contact settings
             model.ContactEmail = await GetSettingValueAsync("Contact.Email", "admin@example.com");
             model.ContactPhone = await GetSettingValueAsync("Contact.Phone", "");
             model.ContactAddress = await GetSettingValueAsync("Contact.Address", "");
+            model.Address = await GetSettingValueAsync("Contact.Address", "");
+            
+            // Social Media settings
+            model.FacebookUrl = await GetSettingValueAsync("Social.Facebook", "");
+            model.TwitterUrl = await GetSettingValueAsync("Social.Twitter", "");
+            model.LinkedInUrl = await GetSettingValueAsync("Social.LinkedIn", "");
+            model.InstagramUrl = await GetSettingValueAsync("Social.Instagram", "");
+            model.YouTubeUrl = await GetSettingValueAsync("Social.YouTube", "");
+            model.GitHubUrl = await GetSettingValueAsync("Social.GitHub", "");
 
             // SEO settings
             model.MetaTitle = await GetSettingValueAsync("SEO.MetaTitle", "Dynamic Role Menu System");
@@ -142,11 +155,24 @@ public class SiteSettingsDynamicModel
     public string FooterCopyrightYear { get; set; } = DateTime.UtcNow.Year.ToString();
     public bool FooterShowPoweredBy { get; set; } = true;
     public string FooterCustomText { get; set; } = "";
+    public string FooterText { get; set; } = "Building innovative solutions for modern businesses.";
+    public string CopyrightText { get; set; } = "";
+    public bool ShowSocialLinks { get; set; } = true;
+    public bool ShowFooterMenu { get; set; } = true;
 
     // Contact
     public string ContactEmail { get; set; } = "admin@example.com";
     public string ContactPhone { get; set; } = "";
     public string ContactAddress { get; set; } = "";
+    public string Address { get; set; } = "";
+    
+    // Social Media
+    public string FacebookUrl { get; set; } = "";
+    public string TwitterUrl { get; set; } = "";
+    public string LinkedInUrl { get; set; } = "";
+    public string InstagramUrl { get; set; } = "";
+    public string YouTubeUrl { get; set; } = "";
+    public string GitHubUrl { get; set; } = "";
 
     // SEO
     public string MetaTitle { get; set; } = "Dynamic Role Menu System";

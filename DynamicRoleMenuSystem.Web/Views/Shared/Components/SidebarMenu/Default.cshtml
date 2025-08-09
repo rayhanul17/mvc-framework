@@ -1,0 +1,98 @@
+@model DynamicRoleMenuSystem.Web.ViewComponents.SidebarMenuViewModel
+
+@foreach (var menu in Model.Menus.Where(m => m.ParentId == null).OrderBy(m => m.Order))
+{
+    if (menu.Children != null && menu.Children.Any())
+    {
+        <li class="sidebar-item sidebar-dropdown @(Model.HasActiveChild(menu) ? "active" : "")">
+            <a href="#" class="sidebar-link sidebar-dropdown-toggle">
+                @if (!string.IsNullOrEmpty(menu.Icon))
+                {
+                    <i class="@menu.Icon"></i>
+                }
+                else
+                {
+                    <i class="fas fa-folder"></i>
+                }
+                <span>@menu.Name</span>
+            </a>
+            <div class="sidebar-dropdown-menu">
+                @foreach (var child in menu.Children.OrderBy(c => c.Order))
+                {
+                    <a class="sidebar-dropdown-item @(Model.IsMenuActive(child) ? "active" : "")" 
+                       asp-controller="@child.Controller" 
+                       asp-action="@child.Action" 
+                       asp-area="@child.Area">
+                        @if (!string.IsNullOrEmpty(child.Icon))
+                        {
+                            <i class="@child.Icon me-2"></i>
+                        }
+                        @child.Name
+                    </a>
+                }
+            </div>
+        </li>
+    }
+    else
+    {
+        <li class="sidebar-item @(Model.IsMenuActive(menu) ? "active" : "")">
+            @if (!string.IsNullOrEmpty(menu.Url))
+            {
+                <a class="sidebar-link" href="@menu.Url">
+                    @if (!string.IsNullOrEmpty(menu.Icon))
+                    {
+                        <i class="@menu.Icon"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-link"></i>
+                    }
+                    <span>@menu.Name</span>
+                </a>
+            }
+            else
+            {
+                <a class="sidebar-link" asp-controller="@menu.Controller" asp-action="@menu.Action" asp-area="@menu.Area">
+                    @if (!string.IsNullOrEmpty(menu.Icon))
+                    {
+                        <i class="@menu.Icon"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-circle"></i>
+                    }
+                    <span>@menu.Name</span>
+                </a>
+            }
+        </li>
+    }
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle dropdown toggles
+        const dropdownToggles = document.querySelectorAll('.sidebar-dropdown-toggle');
+        
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const parent = this.closest('.sidebar-dropdown');
+                parent.classList.toggle('active');
+                
+                // Close other dropdowns
+                const allDropdowns = document.querySelectorAll('.sidebar-dropdown');
+                allDropdowns.forEach(dropdown => {
+                    if (dropdown !== parent && !parent.contains(dropdown)) {
+                        dropdown.classList.remove('active');
+                    }
+                });
+            });
+        });
+        
+        // Auto-open active dropdown
+        const activeDropdown = document.querySelector('.sidebar-dropdown.active');
+        if (activeDropdown) {
+            activeDropdown.classList.add('active');
+        }
+    });
+</script>
