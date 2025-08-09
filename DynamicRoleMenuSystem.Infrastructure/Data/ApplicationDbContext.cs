@@ -21,6 +21,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<BlogCategory> BlogCategories { get; set; }
     public DbSet<BlogPost> BlogPosts { get; set; }
     public DbSet<SiteSetting> SiteSettings { get; set; }
+    
+    // Customer Support Entities
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<TicketComment> TicketComments { get; set; }
+    public DbSet<TicketAttachment> TicketAttachments { get; set; }
+    public DbSet<TicketNotification> TicketNotifications { get; set; }
+    public DbSet<TicketHistory> TicketHistories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -176,6 +183,136 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.Key).IsUnique();
             entity.HasIndex(e => e.Category);
             entity.HasIndex(e => e.Order);
+        });
+
+        // Ticket Configuration
+        builder.Entity<Ticket>(entity =>
+        {
+            entity.ToTable("Tickets");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.TicketNumber).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Category).HasMaxLength(100);
+            entity.Property(e => e.ResolutionNotes).HasMaxLength(500);
+            entity.Property(e => e.Priority).HasConversion<string>();
+            entity.Property(e => e.Status).HasConversion<string>();
+
+            entity.HasOne(e => e.Customer)
+                .WithMany()
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.AssignedTo)
+                .WithMany()
+                .HasForeignKey(e => e.AssignedToId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.AssignedBy)
+                .WithMany()
+                .HasForeignKey(e => e.AssignedById)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.TicketNumber).IsUnique();
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.Priority);
+            entity.HasIndex(e => e.CreatedAt);
+        });
+
+        // TicketComment Configuration
+        builder.Entity<TicketComment>(entity =>
+        {
+            entity.ToTable("TicketComments");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Comment).IsRequired();
+            entity.Property(e => e.Type).HasConversion<string>();
+            entity.Property(e => e.OldStatus).HasConversion<string>();
+            entity.Property(e => e.NewStatus).HasConversion<string>();
+
+            entity.HasOne(e => e.Ticket)
+                .WithMany(t => t.Comments)
+                .HasForeignKey(e => e.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.TicketId);
+            entity.HasIndex(e => e.CreatedAt);
+        });
+
+        // TicketAttachment Configuration
+        builder.Entity<TicketAttachment>(entity =>
+        {
+            entity.ToTable("TicketAttachments");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FileName).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.FilePath).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.FileType).HasMaxLength(50);
+
+            entity.HasOne(e => e.Ticket)
+                .WithMany(t => t.Attachments)
+                .HasForeignKey(e => e.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Comment)
+                .WithMany(c => c.Attachments)
+                .HasForeignKey(e => e.CommentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.UploadedBy)
+                .WithMany()
+                .HasForeignKey(e => e.UploadedById)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // TicketNotification Configuration
+        builder.Entity<TicketNotification>(entity =>
+        {
+            entity.ToTable("TicketNotifications");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Message).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.Type).HasConversion<string>();
+
+            entity.HasOne(e => e.Ticket)
+                .WithMany(t => t.Notifications)
+                .HasForeignKey(e => e.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.UserId, e.IsRead });
+            entity.HasIndex(e => e.CreatedAt);
+        });
+
+        // TicketHistory Configuration
+        builder.Entity<TicketHistory>(entity =>
+        {
+            entity.ToTable("TicketHistory");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Action).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.OldValue).HasMaxLength(100);
+            entity.Property(e => e.NewValue).HasMaxLength(100);
+
+            entity.HasOne(e => e.Ticket)
+                .WithMany(t => t.History)
+                .HasForeignKey(e => e.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.TicketId);
+            entity.HasIndex(e => e.CreatedAt);
         });
     }
 

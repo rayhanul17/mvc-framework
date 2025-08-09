@@ -1,8 +1,7 @@
 namespace DynamicRoleMenuSystem.Core.Entities;
 
-public class SiteSetting
+public class SiteSetting : BaseEntity
 {
-    public int Id { get; set; }
     public string Key { get; set; } = string.Empty;
     public string Value { get; set; } = string.Empty;
     public string? Description { get; set; }
@@ -12,10 +11,7 @@ public class SiteSetting
     public bool IsRequired { get; set; } = false;
     public bool IsSystemSetting { get; set; } = false; // Cannot be deleted if true
     public int Order { get; set; } = 0;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
-    public string? CreatedBy { get; set; }
-    public string? UpdatedBy { get; set; }
+    public string? UpdatedBy { get; set; } // Keep for backward compatibility, will map to ModifiedBy
 }
 
 public enum SettingCategory

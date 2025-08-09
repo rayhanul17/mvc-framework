@@ -1,0 +1,289 @@
+@model DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Models.TicketDetailsViewModel
+@{
+    ViewData["Title"] = $"Ticket #{Model.Ticket.TicketNumber} - Manager View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            @if (Model.Ticket.AssignedToId == null)
+            {
+                <a asp-action="Assign" asp-route-id="@Model.Ticket.Id" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Assign
+                </a>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">@Model.Ticket.Title</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Status:</strong>
+                            <span class="badge bg-@GetStatusColor(Model.Ticket.Status)">
+                                @Model.Ticket.Status
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Priority:</strong>
+                            <span class="badge bg-@GetPriorityColor(Model.Ticket.Priority)">
+                                @Model.Ticket.Priority
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p class="mt-2">@Html.Raw(Model.Ticket.Description.Replace("\n", "<br />"))</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Ticket.ResolutionNotes))
+                    {
+                        <div class="alert alert-success">
+                            <h6>Resolution Notes:</h6>
+                            <p>@Model.Ticket.ResolutionNotes</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Comments & Internal Notes</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Comments.Any())
+                    {
+                        foreach (var comment in Model.Comments.OrderBy(c => c.CreatedAt))
+                        {
+                            <div class="comment-item mb-3 pb-3 border-bottom @(comment.IsInternal ? "bg-light p-2 rounded" : "")">
+                                <div class="d-flex justify-content-between">
+                                    <strong>
+                                        @comment.User?.FullName
+                                        @if (comment.IsInternal)
+                                        {
+                                            <span class="badge bg-warning">Internal</span>
+                                        }
+                                    </strong>
+                                    <small class="text-muted">@comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")</small>
+                                </div>
+                                @if (comment.Type != DynamicRoleMenuSystem.Core.Entities.CommentType.Comment)
+                                {
+                                    <span class="badge bg-info">@comment.Type</span>
+                                }
+                                <p class="mt-2 mb-0">@comment.Comment</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No comments yet.</p>
+                    }
+
+                    <form asp-action="AddComment" asp-controller="Ticket" method="post" class="mt-3">
+                        <input type="hidden" asp-for="@Model.Ticket.Id" name="ticketId" />
+                        <div class="mb-3">
+                            <label class="form-label">Add Comment</label>
+                            <textarea name="comment" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="isInternal" id="isInternal">
+                            <label class="form-check-label" for="isInternal">
+                                Internal note (not visible to customer)
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-comment"></i> Add Comment
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model.History.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Activity History</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            @foreach (var history in Model.History.OrderByDescending(h => h.CreatedAt))
+                            {
+                                <div class="timeline-item mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>@history.Action</strong>
+                                            @if (!string.IsNullOrEmpty(history.Description))
+                                            {
+                                                <span> - @history.Description</span>
+                                            }
+                                        </div>
+                                        <small class="text-muted">
+                                            @history.User?.FullName - @history.CreatedAt.ToString("MM/dd/yyyy HH:mm")
+                                        </small>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(history.OldValue) && !string.IsNullOrEmpty(history.NewValue))
+                                    {
+                                        <small class="text-muted">Changed from "@history.OldValue" to "@history.NewValue"</small>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Ticket Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Ticket #:</dt>
+                        <dd class="col-sm-7">@Model.Ticket.TicketNumber</dd>
+
+                        <dt class="col-sm-5">Category:</dt>
+                        <dd class="col-sm-7">@Model.Ticket.Category</dd>
+
+                        <dt class="col-sm-5">Created:</dt>
+                        <dd class="col-sm-7">@Model.Ticket.CreatedAt.ToString("MM/dd/yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-5">Customer:</dt>
+                        <dd class="col-sm-7">
+                            @Model.Ticket.Customer?.FullName
+                            <br>
+                            <small class="text-muted">@Model.Ticket.Customer?.Email</small>
+                        </dd>
+
+                        <dt class="col-sm-5">Assigned To:</dt>
+                        <dd class="col-sm-7">
+                            @if (Model.Ticket.AssignedTo != null)
+                            {
+                                @Model.Ticket.AssignedTo.FullName
+                            }
+                            else
+                            {
+                                <span class="text-muted">Unassigned</span>
+                            }
+                        </dd>
+
+                        @if (Model.Ticket.AssignedBy != null)
+                        {
+                            <dt class="col-sm-5">Assigned By:</dt>
+                            <dd class="col-sm-7">@Model.Ticket.AssignedBy.FullName</dd>
+                        }
+
+                        @if (Model.Ticket.ResponseTimeHours > 0)
+                        {
+                            <dt class="col-sm-5">Response Time:</dt>
+                            <dd class="col-sm-7">@Model.Ticket.ResponseTimeHours hours</dd>
+                        }
+
+                        @if (Model.Ticket.ResolutionTimeHours > 0)
+                        {
+                            <dt class="col-sm-5">Resolution Time:</dt>
+                            <dd class="col-sm-7">@Model.Ticket.ResolutionTimeHours hours</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Manager Actions</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Ticket.Status != DynamicRoleMenuSystem.Core.Entities.TicketStatus.Closed)
+                    {
+                        <form asp-action="UpdateStatus" method="post" class="mb-3">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket.Id" />
+                            <input type="hidden" name="ticketNumber" value="@Model.Ticket.TicketNumber" />
+                            <input type="hidden" name="currentStatus" value="@Model.Ticket.Status" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Change Status</label>
+                                <select name="newStatus" class="form-select">
+                                    @foreach (var status in Enum.GetValues<DynamicRoleMenuSystem.Core.Entities.TicketStatus>())
+                                    {
+                                        if (status != Model.Ticket.Status)
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Notes (optional)</label>
+                                <textarea name="notes" class="form-control" rows="2"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-sync"></i> Update Status
+                            </button>
+                        </form>
+                    }
+
+                    @if (Model.Ticket.Status == DynamicRoleMenuSystem.Core.Entities.TicketStatus.Resolved)
+                    {
+                        <form asp-action="Close" method="post">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket.Id" />
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check-circle"></i> Close Ticket
+                            </button>
+                        </form>
+                    }
+
+                    @if (Model.Ticket.AssignedToId != null && Model.Ticket.Status != DynamicRoleMenuSystem.Core.Entities.TicketStatus.Closed)
+                    {
+                        <a asp-action="Assign" asp-route-id="@Model.Ticket.Id" class="btn btn-warning w-100 mt-2">
+                            <i class="fas fa-user-edit"></i> Reassign Ticket
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusColor(DynamicRoleMenuSystem.Core.Entities.TicketStatus status)
+    {
+        return status switch
+        {
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.New => "primary",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Assigned => "info",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.InProgress => "warning",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Resolved => "success",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Closed => "secondary",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Reopened => "danger",
+            _ => "secondary"
+        };
+    }
+
+    string GetPriorityColor(DynamicRoleMenuSystem.Core.Entities.TicketPriority priority)
+    {
+        return priority switch
+        {
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Low => "success",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Medium => "warning",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.High => "danger",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Urgent => "dark",
+            _ => "secondary"
+        };
+    }
+}

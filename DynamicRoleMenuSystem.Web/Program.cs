@@ -1,5 +1,7 @@
 using DynamicRoleMenuSystem.Core.Common;
 using DynamicRoleMenuSystem.Infrastructure.Extensions;
+using DynamicRoleMenuSystem.Application.Interfaces;
+using DynamicRoleMenuSystem.Application.Services;
 using DynamicRoleMenuSystem.Web.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,12 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add HttpContextAccessor for accessing current user in repositories
+builder.Services.AddHttpContextAccessor();
+
 // Configure AppSettings
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
 // Add Infrastructure and Application services
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplicationServices();
+
+// Add area discovery service
+builder.Services.AddScoped<IAreaDiscoveryService, AreaDiscoveryService>();
 
 // Configure cookie authentication
 builder.Services.ConfigureApplicationCookie(options =>
@@ -52,6 +60,10 @@ app.UseAuthorization();
 
 // Add Permission Middleware
 app.UseMiddleware<PermissionMiddleware>();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

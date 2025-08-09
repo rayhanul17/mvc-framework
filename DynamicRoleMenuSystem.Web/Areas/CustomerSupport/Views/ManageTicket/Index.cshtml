@@ -1,0 +1,206 @@
+@model DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Models.TicketListViewModel
+@{
+    ViewData["Title"] = "Manage Tickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Unassigned" class="btn btn-warning">
+                <i class="fas fa-exclamation-triangle"></i> Unassigned Tickets
+            </a>
+            <a asp-action="Statistics" class="btn btn-info">
+                <i class="fas fa-chart-bar"></i> Statistics
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" placeholder="Search tickets...">
+                </div>
+                <div class="col-md-3">
+                    <select name="filterStatus" class="form-select">
+                        <option value="all">All Status</option>
+                        @foreach (var status in Enum.GetValues<DynamicRoleMenuSystem.Core.Entities.TicketStatus>())
+                        {
+                            <option value="@status" selected="@(Model.FilterStatus == status.ToString().ToLower())">@status</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="filterPriority" class="form-select">
+                        <option value="all">All Priority</option>
+                        @foreach (var priority in Enum.GetValues<DynamicRoleMenuSystem.Core.Entities.TicketPriority>())
+                        {
+                            <option value="@priority" selected="@(Model.FilterPriority == priority.ToString().ToLower())">@priority</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Tickets.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Ticket #</th>
+                        <th>Title</th>
+                        <th>Customer</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Assigned To</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model.Tickets)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@ticket.Id" class="text-decoration-none">
+                                    @ticket.TicketNumber
+                                </a>
+                            </td>
+                            <td>@ticket.Title</td>
+                            <td>@ticket.Customer?.FullName</td>
+                            <td>@ticket.Category</td>
+                            <td>
+                                <span class="badge bg-@GetPriorityColor(ticket.Priority)">
+                                    @ticket.Priority
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-@GetStatusColor(ticket.Status)">
+                                    @ticket.Status
+                                </span>
+                            </td>
+                            <td>@ticket.CreatedAt.ToString("MM/dd/yyyy HH:mm")</td>
+                            <td>
+                                @if (ticket.AssignedTo != null)
+                                {
+                                    <span>@ticket.AssignedTo.FullName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Unassigned</span>
+                                }
+                            </td>
+                            <td>
+                                @if (ticket.AssignedToId == null)
+                                {
+                                    <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-user-plus"></i> Assign
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                }
+                                @if (ticket.Status == DynamicRoleMenuSystem.Core.Entities.TicketStatus.Resolved)
+                                {
+                                    <button type="button" class="btn btn-sm btn-success" onclick="closeTicket(@ticket.Id)">
+                                        <i class="fas fa-check"></i> Close
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (Model.TotalCount > Model.PageSize)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    @for (int i = 1; i <= Math.Ceiling((double)Model.TotalCount / Model.PageSize); i++)
+                    {
+                        <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                            <a class="page-link" href="?pageNumber=@i&searchTerm=@Model.SearchTerm&filterStatus=@Model.FilterStatus&filterPriority=@Model.FilterPriority">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No tickets found.
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function closeTicket(ticketId) {
+            if (confirm('Are you sure you want to close this ticket?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("Close", "ManageTicket", new { area = "CustomerSupport" })';
+                
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = document.querySelector('[name="__RequestVerificationToken"]')?.value || '';
+                
+                const ticketInput = document.createElement('input');
+                ticketInput.type = 'hidden';
+                ticketInput.name = 'ticketId';
+                ticketInput.value = ticketId;
+                
+                form.appendChild(tokenInput);
+                form.appendChild(ticketInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+}
+
+@functions {
+    string GetStatusColor(DynamicRoleMenuSystem.Core.Entities.TicketStatus status)
+    {
+        return status switch
+        {
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.New => "primary",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Assigned => "info",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.InProgress => "warning",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Resolved => "success",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Closed => "secondary",
+            DynamicRoleMenuSystem.Core.Entities.TicketStatus.Reopened => "danger",
+            _ => "secondary"
+        };
+    }
+
+    string GetPriorityColor(DynamicRoleMenuSystem.Core.Entities.TicketPriority priority)
+    {
+        return priority switch
+        {
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Low => "success",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Medium => "warning",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.High => "danger",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Urgent => "dark",
+            _ => "secondary"
+        };
+    }
+}
