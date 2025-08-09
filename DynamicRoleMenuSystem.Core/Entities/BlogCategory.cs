@@ -2,10 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DynamicRoleMenuSystem.Core.Entities;
 
-public class BlogCategory
+public class BlogCategory : BaseEntity
 {
-    public int Id { get; set; }
-    
     [Required]
     [StringLength(100)]
     public string Name { get; set; } = string.Empty;
@@ -20,13 +18,7 @@ public class BlogCategory
     
     public bool IsActive { get; set; } = true;
     
-    public DateTime CreatedAt { get; set; }
-    
-    public DateTime? UpdatedAt { get; set; }
-    
-    public string? CreatedBy { get; set; }
-    
-    public string? UpdatedBy { get; set; }
+    public string? UpdatedBy { get; set; } // Keep for backward compatibility, will map to ModifiedBy
     
     public virtual ICollection<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
 }

@@ -4,6 +4,7 @@ using DynamicRoleMenuSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DynamicRoleMenuSystem.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250809092225_AddCustomerSupportTicketingSystem")]
+    partial class AddCustomerSupportTicketingSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,9 +174,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -220,9 +220,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("FeaturedImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
@@ -241,9 +238,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<string>("MetaTitle")
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<DateTime?>("PublishedDate")
                         .HasColumnType("datetime(6)");
@@ -313,9 +307,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("DisplayName")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -326,9 +317,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -380,14 +368,8 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<int>("MenuId")
                         .HasColumnType("int");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
@@ -439,9 +421,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -506,18 +485,12 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("CustomerId")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ModifiedBy")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Priority")
@@ -591,9 +564,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -611,9 +581,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<int?>("TicketId")
                         .HasColumnType("int");
@@ -651,14 +618,8 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<bool>("IsInternal")
                         .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("NewStatus")
                         .HasColumnType("longtext");
@@ -707,15 +668,9 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<string>("NewValue")
                         .HasMaxLength(100)
@@ -757,9 +712,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime?>("EmailSentAt")
                         .HasColumnType("datetime(6)");
 
@@ -773,9 +725,6 @@ namespace DynamicRoleMenuSystem.Web.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
 
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("datetime(6)");

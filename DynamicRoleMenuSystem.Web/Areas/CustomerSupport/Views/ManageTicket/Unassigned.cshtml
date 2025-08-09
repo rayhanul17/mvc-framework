@@ -1,0 +1,133 @@
+@model List<DynamicRoleMenuSystem.Core.Entities.Ticket>
+@{
+    ViewData["Title"] = "Unassigned Tickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>@ViewData["Title"]</h2>
+            <p class="text-muted">Tickets waiting for assignment to support staff</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to All Tickets
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="alert alert-warning mb-4">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>@Model.Count</strong> tickets need assignment
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Priority</th>
+                        <th>Ticket #</th>
+                        <th>Title</th>
+                        <th>Customer</th>
+                        <th>Category</th>
+                        <th>Created</th>
+                        <th>Wait Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in Model.OrderByDescending(t => t.Priority).ThenBy(t => t.CreatedAt))
+                    {
+                        var waitTime = DateTime.UtcNow - ticket.CreatedAt;
+                        var isOverdue = waitTime.TotalHours > 4; // 4 hours SLA for assignment
+                        
+                        <tr class="@(isOverdue ? "table-danger" : "")">
+                            <td>
+                                <span class="badge bg-@GetPriorityColor(ticket.Priority)">
+                                    @ticket.Priority
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@ticket.Id" class="text-decoration-none">
+                                    @ticket.TicketNumber
+                                </a>
+                            </td>
+                            <td>@ticket.Title</td>
+                            <td>@ticket.Customer?.FullName</td>
+                            <td>@ticket.Category</td>
+                            <td>@ticket.CreatedAt.ToString("MM/dd HH:mm")</td>
+                            <td>
+                                @if (waitTime.TotalDays >= 1)
+                                {
+                                    <span class="text-danger">@((int)waitTime.TotalDays)d @waitTime.Hours.ToString("00")h</span>
+                                }
+                                else if (waitTime.TotalHours >= 1)
+                                {
+                                    <span class="@(isOverdue ? "text-danger" : "text-warning")">@((int)waitTime.TotalHours)h @waitTime.Minutes.ToString("00")m</span>
+                                }
+                                else
+                                {
+                                    <span>@waitTime.Minutes min</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-user-plus"></i> Assign
+                                </a>
+                                <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Assignment</h5>
+            </div>
+            <div class="card-body">
+                <p>Bulk assign tickets to available support staff:</p>
+                <button class="btn btn-warning" onclick="autoAssign()">
+                    <i class="fas fa-magic"></i> Auto-Assign to Available Staff
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> All tickets have been assigned!
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function autoAssign() {
+            if (confirm('This will automatically distribute unassigned tickets to available support staff. Continue?')) {
+                // This would call an action to auto-assign tickets
+                alert('Auto-assignment feature coming soon!');
+            }
+        }
+    </script>
+}
+
+@functions {
+    string GetPriorityColor(DynamicRoleMenuSystem.Core.Entities.TicketPriority priority)
+    {
+        return priority switch
+        {
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Low => "success",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Medium => "warning",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.High => "danger",
+            DynamicRoleMenuSystem.Core.Entities.TicketPriority.Urgent => "dark",
+            _ => "secondary"
+        };
+    }
+}

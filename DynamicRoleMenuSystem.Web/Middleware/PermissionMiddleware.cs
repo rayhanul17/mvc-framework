@@ -66,6 +66,14 @@ public class PermissionMiddleware
 
     private async Task<bool> CheckUserPermissionAsync(ApplicationDbContext dbContext, string userId, string? area, string controller, string action)
     {
+        // Check if user is SuperAdmin - SuperAdmin has access to everything
+        var isSuperAdmin = await dbContext.UserRoles
+            .Join(dbContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
+            .AnyAsync(x => x.UserId == userId && x.Name == "SuperAdmin");
+        
+        if (isSuperAdmin)
+            return true; // SuperAdmin has access to everything
+        
         var userRoleIds = await dbContext.UserRoles
             .Where(ur => ur.UserId == userId)
             .Select(ur => ur.RoleId)
