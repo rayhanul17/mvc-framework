@@ -9,42 +9,23 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Database Seeding Tools</h5>
+                    <h5 class="card-title mb-0">Database Management</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <h6 class="card-title">Reseed SuperAdmin Menus</h6>
+                                    <h6 class="card-title">Reseed Database</h6>
                                     <p class="card-text">
-                                        This will ensure the SuperAdmin role has access to all menus in the system with full permissions.
-                                        Existing menu permissions will be updated if necessary.
-                                    </p>
-                                    <form asp-action="ReseedSuperAdminMenus" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-primary" 
-                                                onclick="return confirm('Are you sure you want to reseed SuperAdmin menus? This will grant full access to all menus.');">
-                                            <i class="fas fa-sync-alt"></i> Reseed SuperAdmin Menus
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="card mb-3">
-                                <div class="card-body">
-                                    <h6 class="card-title">Reseed All Database Data</h6>
-                                    <p class="card-text">
-                                        This will run the complete database initialization process, including roles, users, menus, 
+                                        This will run the database initialization process, including roles, users, menus, 
                                         and all initial data. Use with caution as it may affect existing data.
                                     </p>
-                                    <form asp-action="ReseedAllData" method="post">
+                                    <form asp-action="ReseedData" method="post">
                                         @Html.AntiForgeryToken()
                                         <button type="submit" class="btn btn-warning" 
-                                                onclick="return confirm('Are you sure you want to reseed all database data? This operation cannot be undone.');">
-                                            <i class="fas fa-database"></i> Reseed All Data
+                                                onclick="return confirm('Are you sure you want to reseed the database? This operation cannot be undone.');">
+                                            <i class="fas fa-database"></i> Reseed Database
                                         </button>
                                     </form>
                                 </div>
@@ -54,8 +35,8 @@
                     
                     <div class="alert alert-info mt-3">
                         <i class="fas fa-info-circle"></i> 
-                        <strong>Note:</strong> These operations are only available to users with the SuperAdmin role.
-                        Always backup your database before performing bulk seeding operations.
+                        <strong>Note:</strong> This operation is only available to users with SuperAdmin privileges.
+                        Always backup your database before performing seeding operations.
                     </div>
                 </div>
             </div>
@@ -75,7 +56,7 @@
                         <a asp-controller="User" asp-action="Index" class="list-group-item list-group-item-action">
                             <i class="fas fa-users"></i> User Management
                         </a>
-                        <a asp-controller="AuditLog" asp-action="Index" class="list-group-item list-group-item-action">
+                        <a asp-controller="Log" asp-action="Index" class="list-group-item list-group-item-action">
                             <i class="fas fa-history"></i> Audit Logs
                         </a>
                         <a asp-controller="SiteSetting" asp-action="Index" class="list-group-item list-group-item-action">
