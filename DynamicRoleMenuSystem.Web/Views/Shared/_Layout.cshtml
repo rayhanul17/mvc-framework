@@ -92,8 +92,8 @@
                 {
                     <div class="sidebar-search">
                         <div class="position-relative">
-                            <input class="form-control form-control-sm ps-3" type="text" id="menuSearchInput" placeholder="Search menu..." aria-label="Search menu">
-                            <i class="fas fa-search position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 0.875rem;"></i>
+                            <input class="form-control form-control-sm ps-4" type="text" id="menuSearchInput" placeholder="Search menu..." aria-label="Search menu">
+                            <i class="fas fa-search position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 0.875rem; pointer-events: none;"></i>
                         </div>
                     </div>
                 }
@@ -126,7 +126,7 @@
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="sidebar-footer">
-                    <div class="sidebar-footer-top">
+                    <div class="sidebar-footer-top d-none d-lg-flex">
                         <button class="btn btn-link theme-toggle-btn ms-auto" id="theme-toggle" title="Toggle Theme">
                             <i class="fas fa-moon" id="theme-icon"></i>
                             <span class="theme-text">Dark Mode</span>

@@ -351,6 +351,13 @@
     margin-bottom: 0.5rem;
 }
 
+/* Hide theme toggle from sidebar on mobile since it's in the header */
+@media (max-width: 991px) {
+    .sidebar-footer-top {
+        display: none !important;
+    }
+}
+
 .dark-theme .sidebar-footer {
     border-top-color: rgba(255, 255, 255, 0.1);
 }
