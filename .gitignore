@@ -23,10 +23,12 @@ bld/
 
 # Application log files (root level only)
 /Logs/
-/DynamicRoleMenuSystem.Web/Logs/
+/Nexora.Web/Logs/
+*.log
+*.txt
 
 # User uploaded files
-/DynamicRoleMenuSystem.Web/wwwroot/uploads/
+/Nexora.Web/wwwroot/uploads/
 /wwwroot/uploads/
 
 # .NET Core
