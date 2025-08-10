@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using DynamicRoleMenuSystem.Application.Interfaces;
 using DynamicRoleMenuSystem.Core.Entities;
 using DynamicRoleMenuSystem.Web.Models.ViewModels;
+using System.IO;
 
 namespace DynamicRoleMenuSystem.Web.Controllers;
 
@@ -178,6 +179,18 @@ public class MenuController : BaseController
         return Json(result.Data);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetControllersByArea(string? areaName)
+    {
+        var result = await _menuService.GetControllersByAreaAsync(areaName);
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return Json(result.Data);
+    }
+
     [HttpPost]
     public async Task<IActionResult> AssignPermission(MenuPermissionViewModel model)
     {
@@ -212,5 +225,16 @@ public class MenuController : BaseController
 
         ViewBag.Roles = rolesResult.Data ?? Enumerable.Empty<ApplicationRole>();
         ViewBag.Controllers = controllersResult.Data ?? new Dictionary<string, List<string>>();
+        
+        // Get all areas from the Areas folder
+        var areas = new List<string>();
+        var areasPath = Path.Combine(Directory.GetCurrentDirectory(), "Areas");
+        if (Directory.Exists(areasPath))
+        {
+            areas = Directory.GetDirectories(areasPath)
+                .Select(d => new DirectoryInfo(d).Name)
+                .ToList();
+        }
+        ViewBag.Areas = areas;
     }
 }

@@ -12,4 +12,5 @@ public interface IMenuService : IBaseService<Menu>
     Task<Result> AssignMenuToRoleAsync(int menuId, string roleId, bool canView = true, bool canCreate = false, bool canEdit = false, bool canDelete = false);
     Task<Result> RemoveMenuFromRoleAsync(int menuId, string roleId);
     Task<Result<Dictionary<string, List<string>>>> GetAllControllersAndActionsAsync();
+    Task<Result<Dictionary<string, List<string>>>> GetControllersByAreaAsync(string? areaName);
 }
