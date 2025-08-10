@@ -25,6 +25,10 @@ bld/
 /Logs/
 /DynamicRoleMenuSystem.Web/Logs/
 
+# User uploaded files
+/DynamicRoleMenuSystem.Web/wwwroot/uploads/
+/wwwroot/uploads/
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json
