@@ -3,6 +3,8 @@ using Nexora.Infrastructure.Extensions;
 using Nexora.Application.Interfaces;
 using Nexora.Application.Services;
 using Nexora.Web.Middleware;
+using Microsoft.EntityFrameworkCore;
+using Nexora.Infrastructure.Data;
 using Serilog;
 using Serilog.Events;
 
@@ -113,15 +115,48 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Initialize database
+// Initialize database and apply migrations
 using (var scope = app.Services.CreateScope())
 {
-    await Nexora.Infrastructure.Data.DbInitializer.InitializeAsync(scope.ServiceProvider);
+    var services = scope.ServiceProvider;
     
-    // Ensure Site Settings menu exists and is assigned to SuperAdmin
-    await Nexora.Web.Data.EnsureSiteSettingsMenu.EnsureMenuExistsAsync(scope.ServiceProvider);
-    
-    // Database initialization is handled by DbInitializer
+    try
+    {
+        // Get the database context
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        
+        // Apply any pending migrations automatically
+        Log.Information("Checking for pending database migrations...");
+        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+        
+        if (pendingMigrations.Any())
+        {
+            Log.Information($"Found {pendingMigrations.Count()} pending migration(s). Applying now...");
+            await context.Database.MigrateAsync();
+            Log.Information("Database migrations applied successfully");
+        }
+        else
+        {
+            Log.Information("Database is up to date - no pending migrations");
+        }
+        
+        // Initialize database with seed data
+        await Nexora.Infrastructure.Data.DbInitializer.InitializeAsync(services);
+        
+        // Ensure Site Settings menu exists and is assigned to SuperAdmin
+        await Nexora.Web.Data.EnsureSiteSettingsMenu.EnsureMenuExistsAsync(services);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "An error occurred while applying database migrations");
+        
+        // In development, you might want to throw to see the error
+        if (app.Environment.IsDevelopment())
+        {
+            throw;
+        }
+        // In production, log the error but continue (the app might still work with existing DB)
+    }
 }
 
     app.Run();

@@ -2,3 +2,10 @@
 2025-08-10 19:34:53.533 +06:00 [HEARTBEAT] Starting web application
 2025-08-10 19:34:53.552 +06:00 [HEARTBEAT] Application startup - This is a test warning to verify logging configuration
 2025-08-10 19:34:53.623 +06:00 [HEARTBEAT] Application terminated unexpectedly
+2025-08-10 19:38:48.926 +06:00 [HEARTBEAT] Starting web application
+2025-08-10 19:38:48.944 +06:00 [HEARTBEAT] Application startup - This is a test warning to verify logging configuration
+2025-08-10 19:38:49.181 +06:00 [HEARTBEAT] Checking for pending database migrations...
+2025-08-10 19:38:49.556 +06:00 [HEARTBEAT] Found 1 pending migration(s). Applying now...
+2025-08-10 19:38:51.349 +06:00 [HEARTBEAT] Database migrations applied successfully
+2025-08-10 19:38:52.263 +06:00 [HEARTBEAT] Log Archive Background Service started
+2025-08-10 19:38:52.271 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:03 | Memory: 227 MB | GC Memory: 50 MB | Threads: 47 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 13:38:52
