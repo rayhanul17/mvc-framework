@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using DynamicRoleMenuSystem.Application.Interfaces;
 using DynamicRoleMenuSystem.Core.Entities;
 using DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Models;
+using DynamicRoleMenuSystem.Web.Controllers;
 
 namespace DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Controllers;
 
 [Area("CustomerSupport")]
-[Authorize(Roles = "SupportManager,Admin")]
-public class ManageTicketController : Controller
+[Authorize]
+public class ManageTicketController : BaseController
 {
     private readonly ITicketService _ticketService;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -31,7 +32,7 @@ public class ManageTicketController : Controller
         var ticketsResult = await _ticketService.GetTicketsAsync();
         if (!ticketsResult.IsSuccess)
         {
-            TempData["Error"] = ticketsResult.ErrorMessage;
+            SetErrorMessage(ticketsResult.ErrorMessage);
             return View(new TicketListViewModel());
         }
 
@@ -69,7 +70,7 @@ public class ManageTicketController : Controller
         var ticketResult = await _ticketService.GetTicketByIdAsync(id);
         if (!ticketResult.IsSuccess)
         {
-            TempData["Error"] = ticketResult.ErrorMessage;
+            SetErrorMessage(ticketResult.ErrorMessage);
             return RedirectToAction(nameof(Index));
         }
 
@@ -97,16 +98,16 @@ public class ManageTicketController : Controller
             return View(model);
         }
 
-        var currentUserId = _userManager.GetUserId(User);
+        var currentUserId = GetCurrentUserId();
         var result = await _ticketService.AssignTicketAsync(model.TicketId, model.AssignToUserId, currentUserId);
 
         if (result.IsSuccess)
         {
-            TempData["Success"] = "Ticket assigned successfully.";
+            SetSuccessMessage("Ticket assigned successfully.");
             return RedirectToAction(nameof(Details), new { id = model.TicketId });
         }
 
-        TempData["Error"] = result.ErrorMessage;
+        SetErrorMessage(result.ErrorMessage);
         var staff = await _userManager.GetUsersInRoleAsync("Support");
         model.AvailableStaff = staff.ToList();
         return View(model);
@@ -117,7 +118,7 @@ public class ManageTicketController : Controller
         var ticketResult = await _ticketService.GetTicketByIdAsync(id);
         if (!ticketResult.IsSuccess)
         {
-            TempData["Error"] = ticketResult.ErrorMessage;
+            SetErrorMessage(ticketResult.ErrorMessage);
             return RedirectToAction(nameof(Index));
         }
 
@@ -150,7 +151,7 @@ public class ManageTicketController : Controller
             return RedirectToAction(nameof(Details), new { id = model.TicketId });
         }
 
-        var currentUserId = _userManager.GetUserId(User);
+        var currentUserId = GetCurrentUserId();
         var result = await _ticketService.UpdateTicketStatusAsync(
             model.TicketId, 
             model.NewStatus, 
@@ -160,11 +161,11 @@ public class ManageTicketController : Controller
 
         if (result.IsSuccess)
         {
-            TempData["Success"] = "Ticket status updated successfully.";
+            SetSuccessMessage("Ticket status updated successfully.");
         }
         else
         {
-            TempData["Error"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
         }
 
         return RedirectToAction(nameof(Details), new { id = model.TicketId });
@@ -174,16 +175,16 @@ public class ManageTicketController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Close(int ticketId)
     {
-        var currentUserId = _userManager.GetUserId(User);
+        var currentUserId = GetCurrentUserId();
         var result = await _ticketService.CloseTicketAsync(ticketId, currentUserId);
 
         if (result.IsSuccess)
         {
-            TempData["Success"] = "Ticket closed successfully.";
+            SetSuccessMessage("Ticket closed successfully.");
         }
         else
         {
-            TempData["Error"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
         }
 
         return RedirectToAction(nameof(Details), new { id = ticketId });
@@ -194,7 +195,7 @@ public class ManageTicketController : Controller
         var result = await _ticketService.GetUnassignedTicketsAsync();
         if (!result.IsSuccess)
         {
-            TempData["Error"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
             return View(new List<Ticket>());
         }
 

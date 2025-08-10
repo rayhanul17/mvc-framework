@@ -67,6 +67,10 @@
                                     <td>@Html.DisplayFor(modelItem => item.Email)</td>
                                     <td>@Html.DisplayFor(modelItem => item.PhoneNumber)</td>
                                     <td>
+                                        @if (item.IsSuperAdmin)
+                                        {
+                                            <span class="badge bg-danger me-1">SUPER ADMIN</span>
+                                        }
                                         @if (item.AssignedRoles.Any())
                                         {
                                             @foreach (var role in item.AssignedRoles)
@@ -74,7 +78,7 @@
                                                 <span class="badge bg-info me-1">@role</span>
                                             }
                                         }
-                                        else
+                                        else if (!item.IsSuperAdmin)
                                         {
                                             <span class="text-muted">No roles assigned</span>
                                         }

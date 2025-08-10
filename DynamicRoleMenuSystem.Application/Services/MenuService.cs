@@ -21,6 +21,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         {
             var menus = await _unitOfWork.Repository<Menu>()
                 .GetQueryable()
+                .AsNoTracking()
                 .Include(m => m.Children)
                 .Include(m => m.RoleMenus)
                 .Where(m => m.RoleMenus.Any(rm => rm.RoleId == roleId && rm.CanView))
@@ -41,6 +42,7 @@ public class MenuService : BaseService<Menu>, IMenuService
         {
             var menus = await _unitOfWork.Repository<Menu>()
                 .GetQueryable()
+                .AsNoTracking()
                 .Include(m => m.Children)
                 .Where(m => m.ParentId == null && m.IsActive)
                 .OrderBy(m => m.Order)
@@ -58,14 +60,38 @@ public class MenuService : BaseService<Menu>, IMenuService
     {
         try
         {
+            // Check if user is SuperAdmin - use AsNoTracking for fresh data
+            var user = await _unitOfWork.Repository<ApplicationUser>()
+                .GetQueryable()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == userId);
+            
+            if (user != null && user.IsSuperAdmin)
+            {
+                // SuperAdmin gets all active menus - use AsNoTracking for fresh data
+                var allMenus = await _unitOfWork.Repository<Menu>()
+                    .GetQueryable()
+                    .AsNoTracking()
+                    .Include(m => m.Children)
+                    .Where(m => m.IsActive)
+                    .OrderBy(m => m.Order)
+                    .ToListAsync();
+                
+                var allMenuHierarchy = BuildMenuHierarchy(allMenus);
+                return Result<IEnumerable<Menu>>.Success(allMenuHierarchy);
+            }
+            
+            // Regular users get menus based on their roles - use AsNoTracking for fresh data
             var userRoles = await _unitOfWork.Repository<UserRole>()
                 .GetQueryable()
+                .AsNoTracking()
                 .Where(ur => ur.UserId == userId)
                 .Select(ur => ur.RoleId)
                 .ToListAsync();
 
             var menus = await _unitOfWork.Repository<Menu>()
                 .GetQueryable()
+                .AsNoTracking()
                 .Include(m => m.Children)
                 .Include(m => m.RoleMenus)
                 .Where(m => m.RoleMenus.Any(rm => userRoles.Contains(rm.RoleId) && rm.CanView) && m.IsActive)

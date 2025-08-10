@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using DynamicRoleMenuSystem.Application.Interfaces;
 using DynamicRoleMenuSystem.Core.Entities;
 using DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Models;
+using DynamicRoleMenuSystem.Web.Controllers;
 
 namespace DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Controllers;
 
 [Area("CustomerSupport")]
 [Authorize]
-public class TicketController : Controller
+public class TicketController : BaseController
 {
     private readonly ITicketService _ticketService;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -31,12 +32,12 @@ public class TicketController : Controller
     // GET: CustomerSupport/Ticket
     public async Task<IActionResult> Index(string status = "all", string search = "")
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var result = await _ticketService.GetTicketsAsync(userId);
         
         if (!result.IsSuccess)
         {
-            TempData["ErrorMessage"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
             return View(new TicketListViewModel());
         }
 
@@ -82,7 +83,7 @@ public class TicketController : Controller
             return View(model);
         }
 
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var ticket = new Ticket
         {
             Title = model.Title,
@@ -97,7 +98,7 @@ public class TicketController : Controller
         
         if (!result.IsSuccess)
         {
-            ModelState.AddModelError("", result.ErrorMessage ?? "Error creating ticket");
+            AddErrorsToModelState(result);
             return View(model);
         }
 
@@ -126,7 +127,7 @@ public class TicketController : Controller
             }
         }
 
-        TempData["SuccessMessage"] = $"Ticket #{result.Data.TicketNumber} created successfully!";
+        SetSuccessMessage($"Ticket #{result.Data.TicketNumber} created successfully!");
         return RedirectToAction(nameof(Details), new { id = result.Data.Id });
     }
 
@@ -136,12 +137,12 @@ public class TicketController : Controller
         var ticketResult = await _ticketService.GetTicketByIdAsync(id);
         if (!ticketResult.IsSuccess)
         {
-            TempData["ErrorMessage"] = "Ticket not found";
+            SetErrorMessage("Ticket not found");
             return RedirectToAction(nameof(Index));
         }
 
         var ticket = ticketResult.Data;
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var user = await _userManager.GetUserAsync(User);
         var roles = await _userManager.GetRolesAsync(user!);
         
@@ -178,7 +179,7 @@ public class TicketController : Controller
             return RedirectToAction(nameof(Details), new { id = model.TicketId });
         }
 
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var comment = new TicketComment
         {
             TicketId = model.TicketId,
@@ -217,11 +218,11 @@ public class TicketController : Controller
                 }
             }
             
-            TempData["SuccessMessage"] = "Comment added successfully!";
+            SetSuccessMessage("Comment added successfully!");
         }
         else
         {
-            TempData["ErrorMessage"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
         }
 
         return RedirectToAction(nameof(Details), new { id = model.TicketId });
@@ -234,20 +235,20 @@ public class TicketController : Controller
     {
         if (string.IsNullOrEmpty(reason))
         {
-            TempData["ErrorMessage"] = "Please provide a reason for reopening the ticket";
+            SetErrorMessage("Please provide a reason for reopening the ticket");
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var result = await _ticketService.ReopenTicketAsync(id, reason, userId!);
         
         if (result.IsSuccess)
         {
-            TempData["SuccessMessage"] = "Ticket reopened successfully!";
+            SetSuccessMessage("Ticket reopened successfully!");
         }
         else
         {
-            TempData["ErrorMessage"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
         }
 
         return RedirectToAction(nameof(Details), new { id });
@@ -256,12 +257,12 @@ public class TicketController : Controller
     // GET: CustomerSupport/Ticket/Notifications
     public async Task<IActionResult> Notifications()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var result = await _ticketService.GetUserNotificationsAsync(userId!);
         
         if (!result.IsSuccess)
         {
-            TempData["ErrorMessage"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
             return View(new List<TicketNotification>());
         }
 
@@ -279,7 +280,7 @@ public class TicketController : Controller
     // GET: CustomerSupport/Ticket/GetUnreadCount
     public async Task<IActionResult> GetUnreadCount()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var result = await _ticketService.GetUnreadNotificationCountAsync(userId!);
         return Json(new { count = result.IsSuccess ? result.Data : 0 });
     }

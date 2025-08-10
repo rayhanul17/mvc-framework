@@ -78,7 +78,8 @@ public static class DbInitializer
                 Description = "Super administrator with full system access",
                 EmailConfirmed = true,
                 CreatedAt = DateTime.UtcNow,
-                IsActive = true
+                IsActive = true,
+                IsSuperAdmin = true
             };
 
             var result = await userManager.CreateAsync(superAdminUser, "SuperAdmin@123");
@@ -86,6 +87,15 @@ public static class DbInitializer
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(superAdminUser, "SuperAdmin");
+            }
+        }
+        else
+        {
+            // Update existing superadmin user to have IsSuperAdmin flag
+            if (!superAdminUser.IsSuperAdmin)
+            {
+                superAdminUser.IsSuperAdmin = true;
+                await userManager.UpdateAsync(superAdminUser);
             }
         }
 

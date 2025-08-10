@@ -108,6 +108,7 @@ public class DashboardViewModel
     public TicketStatistics Statistics { get; set; } = new();
     public List<Ticket> RecentTickets { get; set; } = new();
     public List<Ticket> MyTickets { get; set; } = new();
+    public List<Ticket> UnassignedTickets { get; set; } = new();
     public List<TicketNotification> RecentNotifications { get; set; } = new();
     public int UnreadNotificationCount { get; set; }
 }

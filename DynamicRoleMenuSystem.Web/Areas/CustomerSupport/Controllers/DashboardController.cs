@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using DynamicRoleMenuSystem.Application.Interfaces;
 using DynamicRoleMenuSystem.Core.Entities;
 using DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Models;
+using DynamicRoleMenuSystem.Web.Controllers;
 
 namespace DynamicRoleMenuSystem.Web.Areas.CustomerSupport.Controllers;
 
 [Area("CustomerSupport")]
 [Authorize]
-public class DashboardController : Controller
+public class DashboardController : BaseController
 {
     private readonly ITicketService _ticketService;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -27,7 +28,7 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var model = new DashboardViewModel();
 
         // Get statistics
@@ -37,40 +38,37 @@ public class DashboardController : Controller
             model.Statistics = statsResult.Data;
         }
 
-        // Get recent tickets based on role
-        if (User.IsInRole("Customer"))
+        // Get tickets visible to the user based on their permissions
+        // Try to get all tickets first (will be filtered by service based on permissions)
+        var allTicketsResult = await _ticketService.GetTicketsAsync();
+        if (allTicketsResult.IsSuccess && allTicketsResult.Data.Any())
         {
-            // Get customer's own tickets
-            var ticketsResult = await _ticketService.GetTicketsAsync(userId);
-            if (ticketsResult.IsSuccess)
+            model.RecentTickets = allTicketsResult.Data.Take(10).ToList();
+        }
+        
+        // Get user's assigned tickets
+        var assignedResult = await _ticketService.GetAssignedTicketsAsync(userId);
+        if (assignedResult.IsSuccess && assignedResult.Data.Any())
+        {
+            model.MyTickets = assignedResult.Data.Take(10).ToList();
+        }
+        
+        // If no assigned tickets, try to get user's own tickets
+        if (!model.MyTickets.Any())
+        {
+            var myTicketsResult = await _ticketService.GetTicketsAsync(userId);
+            if (myTicketsResult.IsSuccess)
             {
-                model.MyTickets = ticketsResult.Data.Take(10).ToList();
+                model.MyTickets = myTicketsResult.Data.Take(10).ToList();
             }
         }
-        else if (User.IsInRole("Support"))
+        
+        // Get unassigned tickets if user has permission
+        var unassignedResult = await _ticketService.GetUnassignedTicketsAsync();
+        if (unassignedResult.IsSuccess && unassignedResult.Data.Any())
         {
-            // Get assigned tickets
-            var assignedResult = await _ticketService.GetAssignedTicketsAsync(userId);
-            if (assignedResult.IsSuccess)
-            {
-                model.MyTickets = assignedResult.Data.Take(10).ToList();
-            }
-        }
-        else if (User.IsInRole("SupportManager"))
-        {
-            // Get all recent tickets
-            var allTicketsResult = await _ticketService.GetTicketsAsync();
-            if (allTicketsResult.IsSuccess)
-            {
-                model.RecentTickets = allTicketsResult.Data.Take(10).ToList();
-                
-                // Get unassigned tickets
-                var unassignedResult = await _ticketService.GetUnassignedTicketsAsync();
-                if (unassignedResult.IsSuccess)
-                {
-                    model.MyTickets = unassignedResult.Data.Take(10).ToList();
-                }
-            }
+            // Show unassigned tickets if user has access to them
+            model.UnassignedTickets = unassignedResult.Data.Take(5).ToList();
         }
 
         // Get notifications
@@ -99,12 +97,12 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Notifications()
     {
-        var userId = _userManager.GetUserId(User);
+        var userId = GetCurrentUserId();
         var result = await _ticketService.GetUserNotificationsAsync(userId);
         
         if (!result.IsSuccess)
         {
-            TempData["Error"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage);
             return View(new List<TicketNotification>());
         }
 

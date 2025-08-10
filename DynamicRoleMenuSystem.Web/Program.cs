@@ -83,6 +83,11 @@ using (var scope = app.Services.CreateScope())
     
     // Ensure Site Settings menu exists and is assigned to SuperAdmin
     await DynamicRoleMenuSystem.Web.Data.EnsureSiteSettingsMenu.EnsureMenuExistsAsync(scope.ServiceProvider);
+    
+    // Seed comprehensive menus for SuperAdmin with all permissions
+    var context = scope.ServiceProvider.GetRequiredService<DynamicRoleMenuSystem.Infrastructure.Data.ApplicationDbContext>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<DynamicRoleMenuSystem.Core.Entities.ApplicationRole>>();
+    await DynamicRoleMenuSystem.Infrastructure.Data.SuperAdminMenuSeeder.SeedAllMenusForSuperAdminAsync(context, roleManager);
 }
 
 app.Run();

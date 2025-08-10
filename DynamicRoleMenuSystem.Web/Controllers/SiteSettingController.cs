@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace DynamicRoleMenuSystem.Web.Controllers;
 
-[Authorize(Roles = "Administrator,SuperAdmin")]
+[Authorize]
 public class SiteSettingController : BaseController
 {
     private readonly ISiteSettingService _siteSettingService;
@@ -96,7 +96,7 @@ public class SiteSettingController : BaseController
     }
 
     [HttpGet]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public IActionResult Create()
     {
         ViewBag.Categories = Enum.GetValues<SettingCategory>();
@@ -106,7 +106,7 @@ public class SiteSettingController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public async Task<IActionResult> Create(CreateSiteSettingViewModel model)
     {
         if (!ModelState.IsValid)
@@ -256,7 +256,7 @@ public class SiteSettingController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _siteSettingService.DeleteSettingAsync(id);
@@ -328,7 +328,7 @@ public class SiteSettingController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public async Task<IActionResult> ResetToDefaults()
     {
         var result = await _siteSettingService.ResetToDefaultsAsync();
