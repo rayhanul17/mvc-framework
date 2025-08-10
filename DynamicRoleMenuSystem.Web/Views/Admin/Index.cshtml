@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Admin Tools";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">Admin Tools</h2>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Database Seeding Tools</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Reseed SuperAdmin Menus</h6>
+                                    <p class="card-text">
+                                        This will ensure the SuperAdmin role has access to all menus in the system with full permissions.
+                                        Existing menu permissions will be updated if necessary.
+                                    </p>
+                                    <form asp-action="ReseedSuperAdminMenus" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-primary" 
+                                                onclick="return confirm('Are you sure you want to reseed SuperAdmin menus? This will grant full access to all menus.');">
+                                            <i class="fas fa-sync-alt"></i> Reseed SuperAdmin Menus
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Reseed All Database Data</h6>
+                                    <p class="card-text">
+                                        This will run the complete database initialization process, including roles, users, menus, 
+                                        and all initial data. Use with caution as it may affect existing data.
+                                    </p>
+                                    <form asp-action="ReseedAllData" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-warning" 
+                                                onclick="return confirm('Are you sure you want to reseed all database data? This operation cannot be undone.');">
+                                            <i class="fas fa-database"></i> Reseed All Data
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Note:</strong> These operations are only available to users with the SuperAdmin role.
+                        Always backup your database before performing bulk seeding operations.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Links</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a asp-controller="Menu" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-bars"></i> Menu Management
+                        </a>
+                        <a asp-controller="Role" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-tag"></i> Role Management
+                        </a>
+                        <a asp-controller="User" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> User Management
+                        </a>
+                        <a asp-controller="AuditLog" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-history"></i> Audit Logs
+                        </a>
+                        <a asp-controller="SiteSetting" asp-action="Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-sliders-h"></i> Site Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Show success/error messages if any
+        $(document).ready(function() {
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                toastr.success('@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                toastr.error('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+    </script>
+}

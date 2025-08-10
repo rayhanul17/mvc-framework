@@ -27,6 +27,9 @@ public class UserViewModel
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
 
+    [Display(Name = "Super Admin")]
+    public bool IsSuperAdmin { get; set; } = false;
+
     [Display(Name = "Email Confirmed")]
     public bool EmailConfirmed { get; set; }
 
@@ -77,6 +80,9 @@ public class CreateUserViewModel
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
 
+    [Display(Name = "Super Admin")]
+    public bool IsSuperAdmin { get; set; } = false;
+
     public List<string> SelectedRoleIds { get; set; } = new List<string>();
 }
 
@@ -106,6 +112,9 @@ public class EditUserViewModel
     [Display(Name = "Active")]
     public bool IsActive { get; set; } = true;
 
+    [Display(Name = "Super Admin")]
+    public bool IsSuperAdmin { get; set; } = false;
+
     [Display(Name = "Email Confirmed")]
     public bool EmailConfirmed { get; set; }
 
@@ -124,6 +133,7 @@ public class UserDetailsViewModel
     public string? AvatarUrl { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
+    public bool IsSuperAdmin { get; set; }
     public bool EmailConfirmed { get; set; }
     public bool PhoneNumberConfirmed { get; set; }
     public DateTime CreatedAt { get; set; }

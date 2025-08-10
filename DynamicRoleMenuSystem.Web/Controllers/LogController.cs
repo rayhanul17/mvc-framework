@@ -87,7 +87,7 @@ public class LogController : Controller
     }
     
     [HttpPost]
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize]
     public async Task<IActionResult> ArchiveLogs()
     {
         var result = await _logService.ArchiveOldLogsAsync();
@@ -105,7 +105,7 @@ public class LogController : Controller
     }
     
     [HttpPost]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public async Task<IActionResult> CleanupArchives()
     {
         var result = await _logService.CleanupArchivedLogsAsync();

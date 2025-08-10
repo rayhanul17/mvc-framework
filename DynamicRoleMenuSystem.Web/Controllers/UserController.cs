@@ -46,6 +46,7 @@ public class UserController : BaseController
             AvatarUrl = user.AvatarUrl,
             Description = user.Description,
             IsActive = user.IsActive,
+            IsSuperAdmin = user.IsSuperAdmin,
             EmailConfirmed = user.EmailConfirmed,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             CreatedAt = user.CreatedAt,
@@ -81,6 +82,7 @@ public class UserController : BaseController
             AvatarUrl = user.AvatarUrl,
             Description = user.Description,
             IsActive = user.IsActive,
+            IsSuperAdmin = user.IsSuperAdmin,
             EmailConfirmed = user.EmailConfirmed,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             CreatedAt = user.CreatedAt,
@@ -116,6 +118,7 @@ public class UserController : BaseController
             AvatarUrl = model.AvatarUrl,
             Description = model.Description,
             IsActive = model.IsActive,
+            IsSuperAdmin = model.IsSuperAdmin,
             EmailConfirmed = true
         };
 
@@ -169,6 +172,7 @@ public class UserController : BaseController
             AvatarUrl = user.AvatarUrl,
             Description = user.Description,
             IsActive = user.IsActive,
+            IsSuperAdmin = user.IsSuperAdmin,
             EmailConfirmed = user.EmailConfirmed,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             SelectedRoleIds = allRoles.Where(r => userRoles.Contains(r.Name!)).Select(r => r.Id).ToList()
@@ -207,6 +211,7 @@ public class UserController : BaseController
         user.AvatarUrl = model.AvatarUrl;
         user.Description = model.Description;
         user.IsActive = model.IsActive;
+        user.IsSuperAdmin = model.IsSuperAdmin;
         user.EmailConfirmed = model.EmailConfirmed;
         user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
 

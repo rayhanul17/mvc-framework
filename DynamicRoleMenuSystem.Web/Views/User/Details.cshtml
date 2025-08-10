@@ -79,6 +79,10 @@
 
                                 <dt class="col-sm-4">Status:</dt>
                                 <dd class="col-sm-8">
+                                    @if (Model.IsSuperAdmin)
+                                    {
+                                        <span class="badge bg-danger">SUPER ADMIN</span>
+                                    }
                                     @if (Model.IsActive)
                                     {
                                         <span class="badge bg-success">Active</span>
