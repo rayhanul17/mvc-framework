@@ -7,7 +7,7 @@ using DynamicRoleMenuSystem.Web.Models;
 namespace DynamicRoleMenuSystem.Web.Controllers;
 
 [Authorize]
-public class LogController : Controller
+public class LogController : BaseController
 {
     private readonly ILogService _logService;
     
@@ -39,7 +39,7 @@ public class LogController : Controller
             
         if (!logsResult.IsSuccess)
         {
-            TempData["Error"] = logsResult.ErrorMessage;
+            SetErrorMessage(logsResult.ErrorMessage ?? "Failed to load logs");
             return View(new LogViewModel { Logs = new List<dynamic>() });
         }
         
@@ -72,7 +72,7 @@ public class LogController : Controller
             
         if (!logsResult.IsSuccess)
         {
-            TempData["Error"] = logsResult.ErrorMessage;
+            SetErrorMessage(logsResult.ErrorMessage ?? "Failed to load entity history");
             return View(new EntityHistoryViewModel { Logs = new List<dynamic>() });
         }
         
@@ -94,11 +94,11 @@ public class LogController : Controller
         
         if (result.IsSuccess)
         {
-            TempData["Success"] = "Logs archived successfully";
+            SetSuccessMessage("Logs archived successfully", showAfterRedirect: true);
         }
         else
         {
-            TempData["Error"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage ?? "Failed to archive logs", showAfterRedirect: true);
         }
         
         return RedirectToAction(nameof(Index));
@@ -112,11 +112,11 @@ public class LogController : Controller
         
         if (result.IsSuccess)
         {
-            TempData["Success"] = "Archived logs cleaned up successfully";
+            SetSuccessMessage("Archived logs cleaned up successfully", showAfterRedirect: true);
         }
         else
         {
-            TempData["Error"] = result.ErrorMessage;
+            SetErrorMessage(result.ErrorMessage ?? "Failed to cleanup archived logs", showAfterRedirect: true);
         }
         
         return RedirectToAction(nameof(Index));

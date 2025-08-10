@@ -9,20 +9,17 @@ using DynamicRoleMenuSystem.Web.Models.ViewModels;
 namespace DynamicRoleMenuSystem.Web.Controllers;
 
 [Authorize]
-public class ProfileController : Controller
+public class ProfileController : BaseController
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IFileUploadService _fileUploadService;
-    private readonly ILogger<ProfileController> _logger;
 
     public ProfileController(
         UserManager<ApplicationUser> userManager,
-        IFileUploadService fileUploadService,
-        ILogger<ProfileController> logger)
+        IFileUploadService fileUploadService)
     {
         _userManager = userManager;
         _fileUploadService = fileUploadService;
-        _logger = logger;
     }
 
     public IActionResult Index()
@@ -125,7 +122,7 @@ public class ProfileController : Controller
         var result = await _userManager.UpdateAsync(user);
         if (result.Succeeded)
         {
-            TempData["SuccessMessage"] = "Profile updated successfully!";
+            SetSuccessMessage("Profile updated successfully!", showAfterRedirect: true);
             return RedirectToAction(nameof(Update));
         }
 
@@ -144,7 +141,7 @@ public class ProfileController : Controller
     {
         if (!ModelState.IsValid)
         {
-            TempData["ErrorMessage"] = "Please check your password entries.";
+            SetErrorMessage("Please check your password entries.", showAfterRedirect: true);
             return RedirectToAction(nameof(Update));
         }
 
@@ -157,13 +154,13 @@ public class ProfileController : Controller
         var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
         if (result.Succeeded)
         {
-            TempData["SuccessMessage"] = "Password changed successfully!";
-            _logger.LogInformation("User {UserId} changed password successfully", user.Id);
+            SetSuccessMessage("Password changed successfully!", showAfterRedirect: true);
+            LogInformation("User {UserId} changed password successfully", user.Id);
         }
         else
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            TempData["ErrorMessage"] = $"Password change failed: {errors}";
+            SetErrorMessage($"Password change failed: {errors}", showAfterRedirect: true);
         }
 
         return RedirectToAction(nameof(Update));

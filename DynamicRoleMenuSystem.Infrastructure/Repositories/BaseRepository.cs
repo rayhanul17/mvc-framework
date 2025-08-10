@@ -224,10 +224,34 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             
             if (!Equals(oldValue, newValue))
             {
-                changes.Add($"{property.Name}: {oldValue} -> {newValue}");
+                // Convert values to string safely, handling nulls and complex types
+                var oldValueStr = ConvertToString(oldValue);
+                var newValueStr = ConvertToString(newValue);
+                changes.Add($"{property.Name}: {oldValueStr} -> {newValueStr}");
             }
         }
         
         return changes.Any() ? string.Join(", ", changes) : null;
+    }
+    
+    private string ConvertToString(object? value)
+    {
+        if (value == null)
+            return "null";
+            
+        // Handle dates specifically
+        if (value is DateTime dateTime)
+            return dateTime.ToString("yyyy-MM-dd HH:mm:ss");
+            
+        // Handle enums
+        if (value.GetType().IsEnum)
+            return value.ToString() ?? "null";
+            
+        // Handle simple types
+        if (value is string || value.GetType().IsPrimitive || value is decimal)
+            return value.ToString() ?? "null";
+            
+        // For complex types, just use the type name to avoid serialization issues
+        return $"[{value.GetType().Name}]";
     }
 }

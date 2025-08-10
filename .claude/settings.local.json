@@ -22,7 +22,9 @@
       "Bash(del D:mvc-frameworkDynamicRoleMenuSystem.WebTestMenus.cs)",
       "Bash(taskkill:*)",
       "Bash(rmdir:*)",
-      "Bash(del CheckMenus.cs)"
+      "Bash(del CheckMenus.cs)",
+      "Bash(del:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

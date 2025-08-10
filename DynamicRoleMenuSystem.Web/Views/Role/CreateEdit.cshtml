@@ -1,0 +1,102 @@
+@model DynamicRoleMenuSystem.Web.Models.ViewModels.RoleViewModel
+@{
+    ViewData["Title"] = Model.IsEditMode ? "Edit Role" : "Create Role";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@(Model.IsEditMode ? "Edit Role" : "Create New Role")</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Roles
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="CreateEdit" method="post">
+                        @if (Model.IsEditMode)
+                        {
+                            <input asp-for="Id" type="hidden" />
+                            <input asp-for="IsEditMode" type="hidden" />
+                        }
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional description for this role"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> @(Model.IsEditMode ? "Update Role" : "Create Role")
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            @if (Model.IsEditMode)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Role Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Role ID:</strong> @Model.Id</p>
+                        <p><strong>Status:</strong> 
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </p>
+                        @if (Model.CreatedAt.HasValue)
+                        {
+                            <p><strong>Created:</strong> @Model.CreatedAt.Value.ToString("MMM dd, yyyy")</p>
+                        }
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <p><strong>Last Updated:</strong> @Model.UpdatedAt.Value.ToString("MMM dd, yyyy")</p>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Guidelines</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-check text-success"></i> Role name is required and must be unique</li>
+                            <li><i class="fas fa-info text-info"></i> Description is optional but recommended</li>
+                            <li><i class="fas fa-info text-info"></i> Role names should be descriptive (e.g., "Administrator", "Editor")</li>
+                            <li><i class="fas fa-warning text-warning"></i> Choose names carefully - they're used for access control</li>
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
