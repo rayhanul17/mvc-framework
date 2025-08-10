@@ -95,25 +95,70 @@ public class SiteSettingController : BaseController
         return View(viewModel);
     }
 
-    [HttpGet]
-    [Authorize]
     public IActionResult Create()
     {
-        ViewBag.Categories = Enum.GetValues<SettingCategory>();
-        ViewBag.Types = Enum.GetValues<SettingType>();
-        return View(new CreateSiteSettingViewModel());
+        return RedirectToAction(nameof(CreateEdit));
+    }
+
+    public IActionResult Edit(int id)
+    {
+        return RedirectToAction(nameof(CreateEdit), new { id });
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> CreateEdit(int? id = null)
+    {
+        var isEditMode = id.HasValue && id.Value > 0;
+        
+        if (isEditMode)
+        {
+            var result = await _siteSettingService.GetByIdAsync(id!.Value);
+            if (!result.IsSuccess || result.Data == null)
+            {
+                return NotFound();
+            }
+
+            var setting = result.Data;
+            var viewModel = new SiteSettingCreateEditViewModel
+            {
+                Id = setting.Id,
+                Key = setting.Key,
+                Value = setting.Value,
+                Description = setting.Description,
+                Category = setting.Category,
+                Type = setting.Type,
+                ValidValues = setting.ValidValues,
+                IsRequired = setting.IsRequired,
+                IsSystemSetting = setting.IsSystemSetting,
+                Order = setting.Order,
+                CreatedAt = setting.CreatedAt,
+                CreatedBy = setting.CreatedBy,
+                IsEditMode = true
+            };
+
+            ViewBag.Categories = Enum.GetValues<SettingCategory>();
+            ViewBag.Types = Enum.GetValues<SettingType>();
+            return View("CreateEdit", viewModel);
+        }
+        else
+        {
+            ViewBag.Categories = Enum.GetValues<SettingCategory>();
+            ViewBag.Types = Enum.GetValues<SettingType>();
+            return View("CreateEdit", new SiteSettingCreateEditViewModel { IsEditMode = false });
+        }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize]
-    public async Task<IActionResult> Create(CreateSiteSettingViewModel model)
+    public async Task<IActionResult> CreateEdit(SiteSettingCreateEditViewModel model)
     {
         if (!ModelState.IsValid)
         {
             ViewBag.Categories = Enum.GetValues<SettingCategory>();
             ViewBag.Types = Enum.GetValues<SettingType>();
-            return View(model);
+            return View("CreateEdit", model);
         }
 
         // Validate JSON if provided
@@ -128,130 +173,71 @@ public class SiteSettingController : BaseController
                 ModelState.AddModelError(nameof(model.ValidValues), "Valid Values must be valid JSON");
                 ViewBag.Categories = Enum.GetValues<SettingCategory>();
                 ViewBag.Types = Enum.GetValues<SettingType>();
-                return View(model);
+                return View("CreateEdit", model);
             }
         }
 
-        var setting = new SiteSetting
+        if (model.Id == 0) // Create mode
         {
-            Key = model.Key,
-            Value = model.Value,
-            Description = model.Description,
-            Category = model.Category,
-            Type = model.Type,
-            ValidValues = model.ValidValues,
-            IsRequired = model.IsRequired,
-            IsSystemSetting = model.IsSystemSetting,
-            Order = model.Order,
-            CreatedBy = User.Identity?.Name
-        };
-
-        var result = await _siteSettingService.CreateSettingAsync(setting);
-        if (!result.IsSuccess)
-        {
-            AddErrorsToModelState(result);
-            ViewBag.Categories = Enum.GetValues<SettingCategory>();
-            ViewBag.Types = Enum.GetValues<SettingType>();
-            return View(model);
-        }
-
-        SetSuccessMessage("Site setting created successfully");
-        return RedirectToAction(nameof(Index), new { category = model.Category });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Edit(int id)
-    {
-        var result = await _siteSettingService.GetByIdAsync(id);
-        if (!result.IsSuccess || result.Data == null)
-        {
-            return NotFound();
-        }
-
-        var setting = result.Data;
-        var viewModel = new EditSiteSettingViewModel
-        {
-            Id = setting.Id,
-            Key = setting.Key,
-            Value = setting.Value,
-            Description = setting.Description,
-            Category = setting.Category,
-            Type = setting.Type,
-            ValidValues = setting.ValidValues,
-            IsRequired = setting.IsRequired,
-            IsSystemSetting = setting.IsSystemSetting,
-            Order = setting.Order,
-            CreatedAt = setting.CreatedAt,
-            CreatedBy = setting.CreatedBy
-        };
-
-        ViewBag.Categories = Enum.GetValues<SettingCategory>();
-        ViewBag.Types = Enum.GetValues<SettingType>();
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, EditSiteSettingViewModel model)
-    {
-        if (id != model.Id)
-        {
-            return NotFound();
-        }
-
-        if (!ModelState.IsValid)
-        {
-            ViewBag.Categories = Enum.GetValues<SettingCategory>();
-            ViewBag.Types = Enum.GetValues<SettingType>();
-            return View(model);
-        }
-
-        // Validate JSON if provided
-        if (!string.IsNullOrEmpty(model.ValidValues))
-        {
-            try
+            var setting = new SiteSetting
             {
-                JsonDocument.Parse(model.ValidValues);
-            }
-            catch
+                Key = model.Key,
+                Value = model.Value,
+                Description = model.Description,
+                Category = model.Category,
+                Type = model.Type,
+                ValidValues = model.ValidValues,
+                IsRequired = model.IsRequired,
+                IsSystemSetting = model.IsSystemSetting,
+                Order = model.Order,
+                CreatedBy = User.Identity?.Name
+            };
+
+            var result = await _siteSettingService.CreateSettingAsync(setting);
+            if (!result.IsSuccess)
             {
-                ModelState.AddModelError(nameof(model.ValidValues), "Valid Values must be valid JSON");
+                AddErrorsToModelState(result);
                 ViewBag.Categories = Enum.GetValues<SettingCategory>();
                 ViewBag.Types = Enum.GetValues<SettingType>();
-                return View(model);
+                return View("CreateEdit", model);
             }
-        }
 
-        var result = await _siteSettingService.GetByIdAsync(id);
-        if (!result.IsSuccess || result.Data == null)
+            SetSuccessMessage("Site setting created successfully");
+            return RedirectToAction(nameof(Index), new { category = model.Category });
+        }
+        else // Edit mode
         {
-            return NotFound();
+            var result = await _siteSettingService.GetByIdAsync(model.Id);
+            if (!result.IsSuccess || result.Data == null)
+            {
+                return NotFound();
+            }
+
+            var setting = result.Data;
+            setting.Key = model.Key;
+            setting.Value = model.Value;
+            setting.Description = model.Description;
+            setting.Category = model.Category;
+            setting.Type = model.Type;
+            setting.ValidValues = model.ValidValues;
+            setting.IsRequired = model.IsRequired;
+            setting.IsSystemSetting = model.IsSystemSetting;
+            setting.Order = model.Order;
+            setting.UpdatedAt = DateTime.UtcNow;
+            setting.UpdatedBy = User.Identity?.Name;
+
+            var updateResult = await _siteSettingService.UpdateAsync(setting);
+            if (!updateResult.IsSuccess)
+            {
+                AddErrorsToModelState(updateResult);
+                ViewBag.Categories = Enum.GetValues<SettingCategory>();
+                ViewBag.Types = Enum.GetValues<SettingType>();
+                return View("CreateEdit", model);
+            }
+
+            SetSuccessMessage("Site setting updated successfully");
+            return RedirectToAction(nameof(Index), new { category = model.Category });
         }
-
-        var setting = result.Data;
-        setting.Key = model.Key;
-        setting.Value = model.Value;
-        setting.Description = model.Description;
-        setting.Category = model.Category;
-        setting.Type = model.Type;
-        setting.ValidValues = model.ValidValues;
-        setting.IsRequired = model.IsRequired;
-        setting.IsSystemSetting = model.IsSystemSetting;
-        setting.Order = model.Order;
-        setting.UpdatedAt = DateTime.UtcNow;
-        setting.UpdatedBy = User.Identity?.Name;
-
-        var updateResult = await _siteSettingService.UpdateAsync(setting);
-        if (!updateResult.IsSuccess)
-        {
-            AddErrorsToModelState(updateResult);
-            ViewBag.Categories = Enum.GetValues<SettingCategory>();
-            ViewBag.Types = Enum.GetValues<SettingType>();
-            return View(model);
-        }
-
-        SetSuccessMessage("Site setting updated successfully");
-        return RedirectToAction(nameof(Index), new { category = model.Category });
     }
 
     [HttpPost]

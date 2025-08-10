@@ -93,168 +93,177 @@ public class UserController : BaseController
         return View(viewModel);
     }
 
-    public async Task<IActionResult> Create()
+    public IActionResult Create()
     {
-        await PopulateRolesViewBag();
-        return View(new CreateUserViewModel());
+        return RedirectToAction(nameof(CreateEdit));
+    }
+
+    public IActionResult Edit(string id)
+    {
+        return RedirectToAction(nameof(CreateEdit), new { id });
+    }
+
+    public async Task<IActionResult> CreateEdit(string? id = null)
+    {
+        var isEditMode = !string.IsNullOrEmpty(id);
+        
+        if (isEditMode)
+        {
+            var result = await _userService.GetUserByIdAsync(id!);
+            if (!result.IsSuccess || result.Data == null)
+            {
+                return NotFound();
+            }
+
+            var user = result.Data;
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allRoles = _roleManager.Roles.ToList();
+
+            var viewModel = new UserCreateEditViewModel
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email!,
+                PhoneNumber = user.PhoneNumber,
+                AvatarUrl = user.AvatarUrl,
+                Description = user.Description,
+                IsActive = user.IsActive,
+                IsSuperAdmin = user.IsSuperAdmin,
+                EmailConfirmed = user.EmailConfirmed,
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                SelectedRoleIds = allRoles.Where(r => userRoles.Contains(r.Name!)).Select(r => r.Id).ToList(),
+                IsEditMode = true
+            };
+
+            await PopulateRolesViewBag();
+            return View("CreateEdit", viewModel);
+        }
+        else
+        {
+            await PopulateRolesViewBag();
+            return View("CreateEdit", new UserCreateEditViewModel { IsEditMode = false });
+        }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateUserViewModel model)
+    public async Task<IActionResult> CreateEdit(UserCreateEditViewModel model)
     {
         if (!ModelState.IsValid)
         {
             await PopulateRolesViewBag();
-            return View(model);
+            return View("CreateEdit", model);
         }
 
-        var user = new ApplicationUser
+        if (string.IsNullOrEmpty(model.Id)) // Create mode
         {
-            UserName = model.Email,
-            Email = model.Email,
-            FullName = model.FullName,
-            PhoneNumber = model.PhoneNumber,
-            AvatarUrl = model.AvatarUrl,
-            Description = model.Description,
-            IsActive = model.IsActive,
-            IsSuperAdmin = model.IsSuperAdmin,
-            EmailConfirmed = true
-        };
-
-        var result = await _userService.CreateUserAsync(user, model.Password);
-        if (!result.IsSuccess)
-        {
-            SetErrorMessage(result.ErrorMessage ?? "Error creating user");
-            await PopulateRolesViewBag();
-            return View(model);
-        }
-
-        if (model.SelectedRoleIds.Any())
-        {
-            foreach (var roleId in model.SelectedRoleIds)
+            if (string.IsNullOrEmpty(model.Password))
             {
-                var role = await _roleManager.FindByIdAsync(roleId);
-                if (role != null)
+                ModelState.AddModelError(nameof(model.Password), "Password is required for new users");
+                await PopulateRolesViewBag();
+                return View("CreateEdit", model);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName,
+                PhoneNumber = model.PhoneNumber,
+                AvatarUrl = model.AvatarUrl,
+                Description = model.Description,
+                IsActive = model.IsActive,
+                IsSuperAdmin = model.IsSuperAdmin,
+                EmailConfirmed = true
+            };
+
+            var result = await _userService.CreateUserAsync(user, model.Password!);
+            if (!result.IsSuccess)
+            {
+                SetErrorMessage(result.ErrorMessage ?? "Error creating user");
+                await PopulateRolesViewBag();
+                return View("CreateEdit", model);
+            }
+
+            if (model.SelectedRoleIds?.Any() == true)
+            {
+                foreach (var roleId in model.SelectedRoleIds)
                 {
-                    await _userManager.AddToRoleAsync(user, role.Name!);
+                    var role = await _roleManager.FindByIdAsync(roleId);
+                    if (role != null)
+                    {
+                        await _userManager.AddToRoleAsync(user, role.Name!);
+                    }
                 }
             }
+
+            SetSuccessMessage("User created successfully");
+            return RedirectToAction(nameof(Index));
         }
-
-        SetSuccessMessage("User created successfully");
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Edit(string id)
-    {
-        if (string.IsNullOrEmpty(id))
+        else // Edit mode
         {
-            return NotFound();
-        }
-
-        var result = await _userService.GetUserByIdAsync(id);
-        if (!result.IsSuccess || result.Data == null)
-        {
-            return NotFound();
-        }
-
-        var user = result.Data;
-        var userRoles = await _userManager.GetRolesAsync(user);
-        var allRoles = _roleManager.Roles.ToList();
-
-        var viewModel = new EditUserViewModel
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email!,
-            PhoneNumber = user.PhoneNumber,
-            AvatarUrl = user.AvatarUrl,
-            Description = user.Description,
-            IsActive = user.IsActive,
-            IsSuperAdmin = user.IsSuperAdmin,
-            EmailConfirmed = user.EmailConfirmed,
-            PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-            SelectedRoleIds = allRoles.Where(r => userRoles.Contains(r.Name!)).Select(r => r.Id).ToList()
-        };
-
-        await PopulateRolesViewBag();
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, EditUserViewModel model)
-    {
-        if (id != model.Id)
-        {
-            return NotFound();
-        }
-
-        if (!ModelState.IsValid)
-        {
-            await PopulateRolesViewBag();
-            return View(model);
-        }
-
-        var result = await _userService.GetUserByIdAsync(id);
-        if (!result.IsSuccess || result.Data == null)
-        {
-            return NotFound();
-        }
-
-        var user = result.Data;
-        user.FullName = model.FullName;
-        user.Email = model.Email;
-        user.UserName = model.Email;
-        user.PhoneNumber = model.PhoneNumber;
-        user.AvatarUrl = model.AvatarUrl;
-        user.Description = model.Description;
-        user.IsActive = model.IsActive;
-        user.IsSuperAdmin = model.IsSuperAdmin;
-        user.EmailConfirmed = model.EmailConfirmed;
-        user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
-
-        var updateResult = await _userService.UpdateUserAsync(user);
-        if (!updateResult.IsSuccess)
-        {
-            SetErrorMessage(updateResult.ErrorMessage ?? "Error updating user");
-            await PopulateRolesViewBag();
-            return View(model);
-        }
-
-        var currentRoles = await _userManager.GetRolesAsync(user);
-        var rolesToRemove = currentRoles.ToList();
-        var rolesToAdd = new List<string>();
-
-        foreach (var roleId in model.SelectedRoleIds)
-        {
-            var role = await _roleManager.FindByIdAsync(roleId);
-            if (role != null)
+            var result = await _userService.GetUserByIdAsync(model.Id);
+            if (!result.IsSuccess || result.Data == null)
             {
-                if (!currentRoles.Contains(role.Name!))
+                return NotFound();
+            }
+
+            var user = result.Data;
+            user.FullName = model.FullName;
+            user.Email = model.Email;
+            user.UserName = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+            user.AvatarUrl = model.AvatarUrl;
+            user.Description = model.Description;
+            user.IsActive = model.IsActive;
+            user.IsSuperAdmin = model.IsSuperAdmin;
+            user.EmailConfirmed = model.EmailConfirmed;
+            user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
+
+            var updateResult = await _userService.UpdateUserAsync(user);
+            if (!updateResult.IsSuccess)
+            {
+                SetErrorMessage(updateResult.ErrorMessage ?? "Error updating user");
+                await PopulateRolesViewBag();
+                return View("CreateEdit", model);
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var rolesToRemove = currentRoles.ToList();
+            var rolesToAdd = new List<string>();
+
+            if (model.SelectedRoleIds != null)
+            {
+                foreach (var roleId in model.SelectedRoleIds)
                 {
-                    rolesToAdd.Add(role.Name!);
-                }
-                else
-                {
-                    rolesToRemove.Remove(role.Name!);
+                    var role = await _roleManager.FindByIdAsync(roleId);
+                    if (role != null)
+                    {
+                        if (!currentRoles.Contains(role.Name!))
+                        {
+                            rolesToAdd.Add(role.Name!);
+                        }
+                        else
+                        {
+                            rolesToRemove.Remove(role.Name!);
+                        }
+                    }
                 }
             }
-        }
 
-        if (rolesToRemove.Any())
-        {
-            await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
-        }
+            if (rolesToRemove.Any())
+            {
+                await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+            }
 
-        if (rolesToAdd.Any())
-        {
-            await _userManager.AddToRolesAsync(user, rolesToAdd);
-        }
+            if (rolesToAdd.Any())
+            {
+                await _userManager.AddToRolesAsync(user, rolesToAdd);
+            }
 
-        SetSuccessMessage("User updated successfully");
-        return RedirectToAction(nameof(Index));
+            SetSuccessMessage("User updated successfully");
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     [HttpPost]

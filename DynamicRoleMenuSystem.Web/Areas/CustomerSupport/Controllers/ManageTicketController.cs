@@ -15,16 +15,13 @@ public class ManageTicketController : BaseController
 {
     private readonly ITicketService _ticketService;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ILogger<ManageTicketController> _logger;
 
     public ManageTicketController(
         ITicketService ticketService,
-        UserManager<ApplicationUser> userManager,
-        ILogger<ManageTicketController> logger)
+        UserManager<ApplicationUser> userManager)
     {
         _ticketService = ticketService;
         _userManager = userManager;
-        _logger = logger;
     }
 
     public async Task<IActionResult> Index(string filterStatus = "all", string searchTerm = "")
@@ -207,7 +204,7 @@ public class ManageTicketController : BaseController
         var statsResult = await _ticketService.GetTicketStatisticsAsync();
         if (!statsResult.IsSuccess)
         {
-            TempData["Error"] = statsResult.ErrorMessage;
+            SetErrorMessage(statsResult.ErrorMessage);
             return View(new TicketStatistics());
         }
 

@@ -37,6 +37,7 @@ public class MenuViewModel
     public bool IsActive { get; set; } = true;
     
     public List<string> SelectedRoleIds { get; set; } = new List<string>();
+    public bool IsEditMode { get; set; }
 }
 
 public class MenuPermissionViewModel

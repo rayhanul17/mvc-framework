@@ -1,12 +1,12 @@
 @model DynamicRoleMenuSystem.Web.Models.ViewModels.MenuViewModel
 @{
-    ViewData["Title"] = "Create Menu";
+    ViewData["Title"] = Model.IsEditMode ? "Edit Menu" : "Create Menu";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Create New Menu Item</h2>
+        <h2>@(Model.IsEditMode ? "Edit Menu Item" : "Create New Menu Item")</h2>
         <a asp-action="Index" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Menu
         </a>
@@ -16,7 +16,12 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <form asp-action="Create" method="post">
+                    <form asp-action="CreateEdit" method="post">
+                        @if (Model.IsEditMode)
+                        {
+                            <input asp-for="Id" type="hidden" />
+                            <input asp-for="IsEditMode" type="hidden" />
+                        }
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         
                         <div class="row">
@@ -50,9 +55,18 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label asp-for="Action" class="form-label"></label>
-                                <select asp-for="Action" class="form-control" id="actionSelect" disabled>
-                                    <option value="">Select Action</option>
-                                </select>
+                                @if (!Model.IsEditMode)
+                                {
+                                    <select asp-for="Action" class="form-control" id="actionSelect" disabled>
+                                        <option value="">Select Action</option>
+                                    </select>
+                                }
+                                else
+                                {
+                                    <select asp-for="Action" class="form-control" id="actionSelect">
+                                        <option value="">Select Action</option>
+                                    </select>
+                                }
                                 <span asp-validation-for="Action" class="text-danger"></span>
                             </div>
                         </div>
@@ -83,14 +97,21 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label asp-for="Order" class="form-label"></label>
-                                <input asp-for="Order" class="form-control" type="number" min="0" value="0" />
+                                <input asp-for="Order" class="form-control" type="number" min="0" value="@(Model.IsEditMode ? Model.Order : 0)" />
                                 <span asp-validation-for="Order" class="text-danger"></span>
                                 <small class="form-text text-muted">Display order</small>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">&nbsp;</label>
                                 <div class="form-check mt-2">
-                                    <input asp-for="IsActive" class="form-check-input" checked />
+                                    @if (!Model.IsEditMode)
+                                    {
+                                        <input asp-for="IsActive" class="form-check-input" checked />
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="IsActive" class="form-check-input" />
+                                    }
                                     <label asp-for="IsActive" class="form-check-label"></label>
                                 </div>
                             </div>
@@ -105,7 +126,8 @@
                                     {
                                         <div class="col-md-4 col-sm-6">
                                             <div class="form-check">
-                                                <input type="checkbox" name="SelectedRoleIds" value="@role.Id" class="form-check-input" />
+                                                <input type="checkbox" name="SelectedRoleIds" value="@role.Id" class="form-check-input" 
+                                                       @(Model.SelectedRoleIds != null && Model.SelectedRoleIds.Contains(role.Id) ? "checked" : "") />
                                                 <label class="form-check-label">@role.Name</label>
                                             </div>
                                         </div>
@@ -118,7 +140,7 @@
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Create Menu
+                                <i class="fas fa-save"></i> @(Model.IsEditMode ? "Update Menu" : "Create Menu")
                             </button>
                         </div>
                     </form>
@@ -141,21 +163,53 @@
                 </div>
             </div>
             
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5 class="mb-0">Instructions</h5>
+            @if (Model.IsEditMode)
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Menu Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Menu ID:</strong> @Model.Id</p>
+                        <p><strong>Current Status:</strong> 
+                            @if (Model.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactive</span>
+                            }
+                        </p>
+                        @if (Model.ParentId.HasValue)
+                        {
+                            <p><strong>Parent Menu:</strong> Yes</p>
+                        }
+                        else
+                        {
+                            <p><strong>Level:</strong> Root Level</p>
+                        }
+                    </div>
                 </div>
-                <div class="card-body">
-                    <ul class="list-unstyled mb-0">
-                        <li><i class="fas fa-info text-info"></i> Name is used internally</li>
-                        <li><i class="fas fa-info text-info"></i> Display Name is shown to users</li>
-                        <li><i class="fas fa-info text-info"></i> Either set Controller/Action OR custom URL</li>
-                        <li><i class="fas fa-info text-info"></i> Use FontAwesome icons (e.g., fas fa-users)</li>
-                        <li><i class="fas fa-info text-info"></i> Lower order numbers appear first</li>
-                        <li><i class="fas fa-info text-info"></i> Assign to roles for access control</li>
-                    </ul>
+            }
+            else
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">Instructions</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-info text-info"></i> Name is used internally</li>
+                            <li><i class="fas fa-info text-info"></i> Display Name is shown to users</li>
+                            <li><i class="fas fa-info text-info"></i> Either set Controller/Action OR custom URL</li>
+                            <li><i class="fas fa-info text-info"></i> Use FontAwesome icons (e.g., fas fa-users)</li>
+                            <li><i class="fas fa-info text-info"></i> Lower order numbers appear first</li>
+                            <li><i class="fas fa-info text-info"></i> Assign to roles for access control</li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
+            }
 
             <div class="card mt-3">
                 <div class="card-header">
@@ -194,6 +248,9 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         var controllers = @Html.Raw(Json.Serialize(ViewBag.Controllers ?? new Dictionary<string, List<string>>()));
+        var currentController = '@Model.Controller';
+        var currentAction = '@Model.Action';
+        var isEditMode = @Model.IsEditMode.ToString().ToLower();
         
         function updatePreview() {
             var displayName = $('#DisplayName').val() || 'Menu Item';
@@ -212,7 +269,8 @@
             // Populate controllers
             var controllerSelect = $('#controllerSelect');
             for (var controller in controllers) {
-                controllerSelect.append('<option value="' + controller + '">' + controller + '</option>');
+                var selected = (isEditMode && controller === currentController) ? ' selected' : '';
+                controllerSelect.append('<option value="' + controller + '"' + selected + '>' + controller + '</option>');
             }
             
             // Handle controller change
@@ -225,12 +283,18 @@
                 if (selectedController && controllers[selectedController]) {
                     actionSelect.prop('disabled', false);
                     controllers[selectedController].forEach(function(action) {
-                        actionSelect.append('<option value="' + action + '">' + action + '</option>');
+                        var selected = (isEditMode && action === currentAction) ? ' selected' : '';
+                        actionSelect.append('<option value="' + action + '"' + selected + '>' + action + '</option>');
                     });
                 } else {
                     actionSelect.prop('disabled', true);
                 }
             });
+            
+            // Trigger initial population of actions if in edit mode
+            if (isEditMode) {
+                $('#controllerSelect').trigger('change');
+            }
             
             // Update preview on input change
             $('#DisplayName, #Icon').on('input', updatePreview);

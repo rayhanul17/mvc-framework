@@ -1,7 +1,8 @@
 @model DynamicRoleMenuSystem.Web.Models.ViewModels.BlogPostViewModel
 
 @{
-    ViewData["Title"] = "Create Blog Post";
+    var isCreate = Model.Id == 0;
+    ViewData["Title"] = isCreate ? "Create Blog Post" : "Edit Blog Post";
 }
 
 <div class="container-fluid">
@@ -13,8 +14,9 @@
 
     <div class="card">
         <div class="card-body">
-            <form asp-action="Create" method="post">
+            <form asp-action="CreateEdit" method="post">
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                <input type="hidden" asp-for="Id" />
                 
                 <div class="row">
                     <div class="col-md-8">
@@ -76,7 +78,7 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label asp-for="Tags" class="form-label"></label>
-                            <input asp-for="Tags" class="form-control" />
+                            <input asp-for="Tags" class="form-control" placeholder="Comma separated tags" />
                             <span asp-validation-for="Tags" class="text-danger"></span>
                         </div>
                     </div>
@@ -130,7 +132,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Create Post
+                            <i class="fas fa-save"></i> @(isCreate ? "Create" : "Update") Post
                         </button>
                         <a asp-action="Index" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to List
@@ -144,22 +146,4 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <script>
-        $(document).ready(function() {
-            $('#Title').on('blur', function() {
-                var title = $(this).val();
-                var slug = $('#Slug');
-                
-                if (title && !slug.val()) {
-                    var generatedSlug = title.toLowerCase()
-                        .replace(/[^a-z0-9\s-]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/-+/g, '-')
-                        .trim();
-                    slug.val(generatedSlug);
-                }
-            });
-        });
-    </script>
 }

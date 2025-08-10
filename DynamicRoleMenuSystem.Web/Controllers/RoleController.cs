@@ -39,78 +39,78 @@ public class RoleController : BaseController
 
     public IActionResult Create()
     {
-        return View(new RoleViewModel());
+        return RedirectToAction(nameof(CreateEdit));
+    }
+
+    public IActionResult Edit(string id)
+    {
+        return RedirectToAction(nameof(CreateEdit), new { id });
+    }
+
+    public async Task<IActionResult> CreateEdit(string? id = null)
+    {
+        var isEditMode = !string.IsNullOrEmpty(id);
+        
+        if (isEditMode)
+        {
+            var result = await _roleService.GetRoleByIdAsync(id!);
+            if (!result.IsSuccess || result.Data == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new RoleViewModel
+            {
+                Id = result.Data.Id,
+                Name = result.Data.Name ?? string.Empty,
+                Description = result.Data.Description,
+                IsActive = result.Data.IsActive,
+                CreatedAt = result.Data.CreatedAt,
+                UpdatedAt = result.Data.UpdatedAt,
+                IsEditMode = true
+            };
+
+            return View("CreateEdit", viewModel);
+        }
+        else
+        {
+            return View("CreateEdit", new RoleViewModel { IsEditMode = false });
+        }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(RoleViewModel model)
+    public async Task<IActionResult> CreateEdit(RoleViewModel model)
     {
         if (!ModelState.IsValid)
         {
-            return View(model);
+            return View("CreateEdit", model);
         }
 
-        var result = await _roleService.CreateRoleAsync(model.Name, model.Description);
-        if (!result.IsSuccess)
+        if (string.IsNullOrEmpty(model.Id)) // Create mode
         {
-            AddErrorsToModelState(result);
-            return View(model);
+            var result = await _roleService.CreateRoleAsync(model.Name, model.Description);
+            if (!result.IsSuccess)
+            {
+                AddErrorsToModelState(result);
+                return View("CreateEdit", model);
+            }
+
+            SetSuccessMessage("Role created successfully");
+            return RedirectToAction(nameof(Index));
         }
-
-        SetSuccessMessage("Role created successfully");
-        return RedirectToAction(nameof(Index));
-    }
-
-    public async Task<IActionResult> Edit(string id)
-    {
-        if (string.IsNullOrEmpty(id))
+        else // Edit mode
         {
-            return NotFound();
+            var result = await _roleService.UpdateRoleAsync(model.Id, model.Name, model.Description);
+            if (!result.IsSuccess)
+            {
+                AddErrorsToModelState(result);
+                return View("CreateEdit", model);
+            }
+
+            SetSuccessMessage("Role updated successfully");
+            return RedirectToAction(nameof(Index));
         }
-
-        var result = await _roleService.GetRoleByIdAsync(id);
-        if (!result.IsSuccess || result.Data == null)
-        {
-            return NotFound();
-        }
-
-        var viewModel = new RoleViewModel
-        {
-            Id = result.Data.Id,
-            Name = result.Data.Name ?? string.Empty,
-            Description = result.Data.Description,
-            IsActive = result.Data.IsActive,
-            CreatedAt = result.Data.CreatedAt,
-            UpdatedAt = result.Data.UpdatedAt
-        };
-
-        return View(viewModel);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string id, RoleViewModel model)
-    {
-        if (id != model.Id)
-        {
-            return NotFound();
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
-
-        var result = await _roleService.UpdateRoleAsync(id, model.Name, model.Description);
-        if (!result.IsSuccess)
-        {
-            AddErrorsToModelState(result);
-            return View(model);
-        }
-
-        SetSuccessMessage("Role updated successfully");
-        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
