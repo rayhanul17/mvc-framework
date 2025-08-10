@@ -42,7 +42,16 @@
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label asp-for="Area" class="form-label"></label>
-                                <input asp-for="Area" class="form-control" placeholder="e.g., Admin" />
+                                <select asp-for="Area" class="form-control" id="areaSelect">
+                                    <option value="">-- No Area --</option>
+                                    @if (ViewBag.Areas != null)
+                                    {
+                                        @foreach (var area in (List<string>)ViewBag.Areas)
+                                        {
+                                            <option value="@area">@area</option>
+                                        }
+                                    }
+                                </select>
                                 <span asp-validation-for="Area" class="text-danger"></span>
                                 <small class="form-text text-muted">Optional MVC Area</small>
                             </div>
@@ -247,10 +256,11 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        var controllers = @Html.Raw(Json.Serialize(ViewBag.Controllers ?? new Dictionary<string, List<string>>()));
         var currentController = '@Model.Controller';
         var currentAction = '@Model.Action';
+        var currentArea = '@Model.Area';
         var isEditMode = @Model.IsEditMode.ToString().ToLower();
+        var controllers = {};
         
         function updatePreview() {
             var displayName = $('#DisplayName').val() || 'Menu Item';
@@ -265,13 +275,63 @@
             updatePreview();
         }
         
-        $(document).ready(function() {
-            // Populate controllers
+        function loadControllersByArea(areaName, callback) {
+            $.ajax({
+                url: '@Url.Action("GetControllersByArea", "Menu")',
+                type: 'GET',
+                data: { areaName: areaName || '' },
+                success: function(data) {
+                    controllers = data;
+                    populateControllers();
+                    if (callback) callback();
+                },
+                error: function() {
+                    console.error('Failed to load controllers');
+                    controllers = {};
+                    populateControllers();
+                }
+            });
+        }
+        
+        function populateControllers() {
             var controllerSelect = $('#controllerSelect');
+            var actionSelect = $('#actionSelect');
+            
+            // Clear and reset dropdowns
+            controllerSelect.empty().append('<option value="">Select Controller</option>');
+            actionSelect.empty().append('<option value="">Select Action</option>').prop('disabled', true);
+            
+            // Populate controllers
             for (var controller in controllers) {
                 var selected = (isEditMode && controller === currentController) ? ' selected' : '';
                 controllerSelect.append('<option value="' + controller + '"' + selected + '>' + controller + '</option>');
             }
+            
+            // If in edit mode and current controller exists, trigger change to load actions
+            if (isEditMode && currentController && controllers[currentController]) {
+                controllerSelect.trigger('change');
+            }
+        }
+        
+        $(document).ready(function() {
+            // Set current area if in edit mode
+            if (isEditMode && currentArea) {
+                $('#areaSelect').val(currentArea);
+            }
+            
+            // Load controllers based on initial area
+            var initialArea = isEditMode ? currentArea : '';
+            loadControllersByArea(initialArea, function() {
+                if (isEditMode && currentController) {
+                    $('#controllerSelect').val(currentController).trigger('change');
+                }
+            });
+            
+            // Handle area change
+            $('#areaSelect').change(function() {
+                var selectedArea = $(this).val();
+                loadControllersByArea(selectedArea);
+            });
             
             // Handle controller change
             $('#controllerSelect').change(function() {
@@ -290,11 +350,6 @@
                     actionSelect.prop('disabled', true);
                 }
             });
-            
-            // Trigger initial population of actions if in edit mode
-            if (isEditMode) {
-                $('#controllerSelect').trigger('change');
-            }
             
             // Update preview on input change
             $('#DisplayName, #Icon').on('input', updatePreview);

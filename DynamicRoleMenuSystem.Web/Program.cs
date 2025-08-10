@@ -4,20 +4,32 @@ using DynamicRoleMenuSystem.Application.Interfaces;
 using DynamicRoleMenuSystem.Application.Services;
 using DynamicRoleMenuSystem.Web.Middleware;
 using Serilog;
+using Serilog.Events;
 
-// Configure Serilog
+// Configure Serilog with multiple sinks
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+    .AddEnvironmentVariables()
+    .Build();
+
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
-        .AddEnvironmentVariables()
-        .Build())
+    .ReadFrom.Configuration(configuration)
+    .WriteTo.Logger(lc => lc
+        .Filter.ByIncludingOnly(evt => evt.Properties.ContainsKey("SourceContext") && 
+                                       evt.Properties["SourceContext"].ToString().Contains("Heartbeat"))
+        .WriteTo.File(
+            path: "Logs/heartbeat-.txt",
+            rollingInterval: RollingInterval.Day,
+            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [HEARTBEAT] {Message:lj}{NewLine}",
+            retainedFileCountLimit: 7))
     .CreateLogger();
 
 try
 {
     Log.Information("Starting web application");
+    Log.Warning("Application startup - This is a test warning to verify logging configuration");
     
     var builder = WebApplication.CreateBuilder(args);
     
@@ -44,8 +56,9 @@ builder.Services.AddScoped<IAreaDiscoveryService, AreaDiscoveryService>();
 builder.Services.AddScoped<DynamicRoleMenuSystem.Core.Interfaces.ILogRepository, DynamicRoleMenuSystem.Infrastructure.Repositories.LogRepository>();
 builder.Services.AddScoped<ILogService, LogService>();
 
-// Add Background Service for Log Archiving
+// Add Background Services
 builder.Services.AddHostedService<DynamicRoleMenuSystem.Web.Services.LogArchiveBackgroundService>();
+builder.Services.AddHostedService<DynamicRoleMenuSystem.Web.Services.HeartbeatService>();
 
 // Configure cookie authentication
 builder.Services.ConfigureApplicationCookie(options =>

@@ -240,6 +240,62 @@ public class MenuService : BaseService<Menu>, IMenuService
         }
     }
 
+    public Task<Result<Dictionary<string, List<string>>>> GetControllersByAreaAsync(string? areaName)
+    {
+        try
+        {
+            var controllers = new Dictionary<string, List<string>>();
+            var assembly = Assembly.GetEntryAssembly();
+            
+            if (assembly == null)
+                return Task.FromResult(Result<Dictionary<string, List<string>>>.Success(controllers));
+
+            var controllerTypes = assembly.GetTypes()
+                .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(ControllerBase)))
+                .ToList();
+
+            foreach (var controllerType in controllerTypes)
+            {
+                // Check if controller belongs to the specified area
+                var areaAttribute = controllerType.GetCustomAttribute<AreaAttribute>();
+                var controllerAreaName = areaAttribute?.RouteValue;
+                
+                // Filter based on area
+                if (string.IsNullOrEmpty(areaName))
+                {
+                    // If no area specified, get controllers without area attribute
+                    if (areaAttribute != null)
+                        continue;
+                }
+                else
+                {
+                    // If area specified, get controllers with matching area attribute
+                    if (controllerAreaName != areaName)
+                        continue;
+                }
+
+                var controllerName = controllerType.Name.Replace("Controller", "");
+                var actions = controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(m => !m.IsSpecialName && m.IsPublic && m.DeclaringType == controllerType)
+                    .Where(m => m.GetCustomAttribute<NonActionAttribute>() == null)
+                    .Select(m => m.Name)
+                    .Distinct()
+                    .ToList();
+
+                if (actions.Any())
+                {
+                    controllers[controllerName] = actions;
+                }
+            }
+
+            return Task.FromResult(Result<Dictionary<string, List<string>>>.Success(controllers));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult(Result<Dictionary<string, List<string>>>.Failure($"Error getting controllers by area: {ex.Message}"));
+        }
+    }
+
     private IEnumerable<Menu> BuildMenuHierarchy(IEnumerable<Menu> allMenus)
     {
         var menuDict = allMenus.ToDictionary(m => m.Id);
