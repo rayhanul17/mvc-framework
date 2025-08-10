@@ -1,0 +1,452 @@
+@using Microsoft.AspNetCore.Identity
+@using Nexora.Core.Entities
+@inject Nexora.Application.Services.ISiteSettingHelperService SiteSettings
+@inject UserManager<ApplicationUser> UserManager
+@inject Nexora.Application.Interfaces.IFileUploadService FileUploadService
+@{
+    var settings = await SiteSettings.GetAllSettingsAsync();
+    var pageTitle = ViewData["Title"]?.ToString();
+    var fullTitle = settings.GetFullTitle(pageTitle);
+    
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString();
+    
+    // Get current user for avatar
+    ApplicationUser? currentUser = null;
+    string? userAvatarUrl = null;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+        if (currentUser != null)
+        {
+            userAvatarUrl = FileUploadService.GetImageUrl(currentUser.AvatarUrl);
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@fullTitle</title>
+    <meta name="description" content="@settings.MetaDescription" />
+    <meta name="author" content="@settings.OrganizationName" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="@settings.FaviconPath" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Dynamic Theme Styles -->
+    @await Component.InvokeAsync("ThemeStyles")
+    
+    <!-- Site Styles -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Nexora.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Mobile Header Bar -->
+    <div class="mobile-header d-lg-none">
+        <div class="mobile-header-content">
+            <button class="btn btn-link mobile-menu-btn" id="mobileMenuBtn" type="button">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="mobile-brand">
+                @await Component.InvokeAsync("AppBranding", new { type = "compact" })
+            </div>
+            <button class="btn btn-link mobile-theme-toggle" id="mobile-theme-toggle" title="Toggle Theme">
+                <i class="fas fa-moon" id="mobile-theme-icon"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <a class="sidebar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    @await Component.InvokeAsync("AppBranding", new { type = "compact" })
+                </a>
+                <button type="button" id="sidebarCollapse" class="btn btn-link sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <!-- Sidebar Tools -->
+            <div class="sidebar-tools">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="sidebar-search">
+                        <div class="position-relative">
+                            <input class="form-control form-control-sm ps-4" type="text" id="menuSearchInput" placeholder="Search menu..." aria-label="Search menu">
+                            <i class="fas fa-search position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 0.875rem; pointer-events: none;"></i>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="sidebar-auth">
+                        <a class="btn btn-sm btn-outline-primary" asp-controller="Account" asp-action="Login">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                        @if (settings.AllowRegistration)
+                        {
+                            <a class="btn btn-sm btn-primary" asp-controller="Account" asp-action="Register">
+                                <i class="fas fa-user-plus me-1"></i>Register
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="sidebar-menu">
+                <ul class="sidebar-nav">
+                    
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @await Component.InvokeAsync("SidebarMenu", new { currentController, currentAction, currentArea })
+                    }
+                </ul>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="sidebar-footer">
+                    <div class="sidebar-footer-top d-none d-lg-flex">
+                        <button class="btn btn-link theme-toggle-btn ms-auto" id="theme-toggle" title="Toggle Theme">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                            <span class="theme-text">Dark Mode</span>
+                        </button>
+                    </div>
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="user-avatar">
+                                @if (!string.IsNullOrEmpty(userAvatarUrl) && !userAvatarUrl.EndsWith("default-avatar.svg"))
+                                {
+                                    <img src="@userAvatarUrl" alt="@currentUser?.FullName" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    @(currentUser?.FullName?.FirstOrDefault() ?? User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                                }
+                            </div>
+                            <span class="user-name">@(currentUser?.FullName ?? User.Identity?.Name)</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Update"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            }
+        </nav>
+
+        <!-- Content -->
+        <div id="content" class="content">
+
+
+            <!-- Main content -->
+            <main role="main" class="main-content">
+                @if (TempData["SuccessMessage"] != null || ViewBag.SuccessMessage != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>@(TempData["SuccessMessage"] ?? ViewBag.SuccessMessage)
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null || ViewBag.ErrorMessage != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>@(TempData["ErrorMessage"] ?? ViewBag.ErrorMessage)
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["InfoMessage"] != null || ViewBag.InfoMessage != null)
+                {
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>@(TempData["InfoMessage"] ?? ViewBag.InfoMessage)
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["WarningMessage"] != null || ViewBag.WarningMessage != null)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>@(TempData["WarningMessage"] ?? ViewBag.WarningMessage)
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                
+                
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                @await Component.InvokeAsync("ThemeFooter")
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <script>
+        // Sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const sidebarCollapse = document.getElementById('sidebarCollapse');
+            
+            // Load sidebar state from localStorage
+            const sidebarState = localStorage.getItem('sidebarCollapsed');
+            if (sidebarState === 'true') {
+                sidebar.classList.add('collapsed');
+                content.classList.add('expanded');
+            }
+            
+            sidebarCollapse.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('expanded');
+                
+                // Save state to localStorage
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+            
+            // Mobile responsive
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                content.classList.add('expanded');
+            }
+            
+            // Theme toggle - handle both desktop and mobile theme toggles
+            const themeToggle = document.getElementById('theme-toggle');
+            const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const mobileThemeIcon = document.getElementById('mobile-theme-icon');
+            const body = document.body;
+            
+            // Get saved theme or default to light
+            const currentTheme = localStorage.getItem('theme') || '@(settings.DarkMode ? "dark" : "light")';
+            
+            // Apply theme on load
+            applyTheme(currentTheme);
+            
+            // Theme toggle click handler
+            function toggleTheme() {
+                const isDark = body.classList.contains('dark-theme');
+                const newTheme = isDark ? 'light' : 'dark';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            }
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            if (mobileThemeToggle) {
+                mobileThemeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            function applyTheme(theme) {
+                const themeTexts = document.querySelectorAll('.theme-text');
+                if (theme === 'dark') {
+                    body.classList.add('dark-theme');
+                    if (themeIcon) themeIcon.className = 'fas fa-sun';
+                    if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-sun';
+                    themeTexts.forEach(text => text.textContent = 'Light Mode');
+                    document.documentElement.style.setProperty('--app-bg', '#1a1a1a');
+                    document.documentElement.style.setProperty('--app-surface', '#2d2d2d');
+                    document.documentElement.style.setProperty('--app-on-background', '#ffffff');
+                    document.documentElement.style.setProperty('--app-on-surface', '#ffffff');
+                    document.documentElement.style.setProperty('--bs-light', '#404040');
+                } else {
+                    body.classList.remove('dark-theme');
+                    if (themeIcon) themeIcon.className = 'fas fa-moon';
+                    if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-moon';
+                    themeTexts.forEach(text => text.textContent = 'Dark Mode');
+                    document.documentElement.style.setProperty('--app-bg', '#ffffff');
+                    document.documentElement.style.setProperty('--app-surface', '#f8f9fa');
+                    document.documentElement.style.setProperty('--app-on-background', '#212529');
+                    document.documentElement.style.setProperty('--app-on-surface', '#212529');
+                    document.documentElement.style.setProperty('--bs-light', '#f8f9fa');
+                }
+                
+                // Apply brand colors
+                document.documentElement.style.setProperty('--bs-primary', '@settings.PrimaryColor');
+                document.documentElement.style.setProperty('--bs-secondary', '@settings.SecondaryColor');
+                document.documentElement.style.setProperty('--bs-success', '@settings.SuccessColor');
+                document.documentElement.style.setProperty('--bs-danger', '@settings.DangerColor');
+                document.documentElement.style.setProperty('--bs-warning', '@settings.WarningColor');
+            }
+        });
+        
+        // Menu search functionality with highlighting
+        function filterMenuItems() {
+            const searchInput = document.getElementById('menuSearchInput');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const menuItems = document.querySelectorAll('.sidebar-item');
+            
+            // Reset all items to their original state
+            menuItems.forEach(item => {
+                item.style.display = '';
+                // Reset any highlights
+                const spans = item.querySelectorAll('span');
+                spans.forEach(span => {
+                    if (span.innerHTML.includes('mark')) {
+                        span.innerHTML = span.textContent;
+                    }
+                });
+            });
+            
+            // Close all dropdowns first
+            document.querySelectorAll('.sidebar-dropdown').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+            
+            if (searchTerm === '') {
+                return; // Show all items in their default state
+            }
+            
+            // Process each menu item
+            menuItems.forEach(item => {
+                let shouldShow = false;
+                const itemText = item.textContent.toLowerCase();
+                
+                // Check if this item or any of its children match
+                if (itemText.includes(searchTerm)) {
+                    shouldShow = true;
+                    
+                    // Highlight matching text in menu spans
+                    const menuSpans = item.querySelectorAll('.sidebar-link > span, .sidebar-dropdown-item');
+                    menuSpans.forEach(span => {
+                        const text = span.textContent;
+                        if (text.toLowerCase().includes(searchTerm)) {
+                            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                            span.innerHTML = text.replace(regex, '<mark class="menu-highlight">$1</mark>');
+                        }
+                    });
+                    
+                    // If this is a dropdown parent with matching children
+                    if (item.classList.contains('sidebar-dropdown')) {
+                        const childLinks = item.querySelectorAll('.sidebar-dropdown-item');
+                        let hasMatchingChild = false;
+                        
+                        childLinks.forEach(child => {
+                            if (child.textContent.toLowerCase().includes(searchTerm)) {
+                                hasMatchingChild = true;
+                                const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                                child.innerHTML = child.textContent.replace(regex, '<mark class="menu-highlight">$1</mark>');
+                            }
+                        });
+                        
+                        if (hasMatchingChild) {
+                            item.classList.add('active'); // Expand dropdown
+                        }
+                    }
+                    
+                    // If this is a child item inside a dropdown
+                    const parentDropdown = item.closest('.sidebar-dropdown-menu');
+                    if (parentDropdown) {
+                        const parentItem = parentDropdown.closest('.sidebar-dropdown');
+                        if (parentItem) {
+                            parentItem.style.display = '';
+                            parentItem.classList.add('active');
+                            shouldShow = true;
+                        }
+                    }
+                }
+                
+                // Show or hide the item
+                item.style.display = shouldShow ? '' : 'none';
+            });
+        }
+        
+        // Add real-time search
+        document.getElementById('menuSearchInput')?.addEventListener('input', filterMenuItems);
+        
+        // Clear search on ESC key
+        document.getElementById('menuSearchInput')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                filterMenuItems();
+            }
+        });
+        
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const mobileSidebar = document.getElementById('sidebar');
+        
+        function openMobileMenu() {
+            mobileSidebar.classList.add('mobile-show');
+            mobileMenuOverlay.classList.add('show');
+            document.body.classList.add('mobile-menu-open');
+            
+            // Dispatch custom event for sidebar opened
+            document.dispatchEvent(new CustomEvent('sidebarOpened'));
+        }
+        
+        function closeMobileMenu() {
+            mobileSidebar.classList.remove('mobile-show');
+            mobileMenuOverlay.classList.remove('show');
+            document.body.classList.remove('mobile-menu-open');
+        }
+        
+        // Toggle mobile menu on button click
+        mobileMenuBtn?.addEventListener('click', function() {
+            if (mobileSidebar.classList.contains('mobile-show')) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        });
+        
+        // Close mobile menu on overlay click
+        mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
+        
+        // Close mobile menu when clicking a menu link on mobile
+        if (window.innerWidth < 992) {
+            document.querySelectorAll('.sidebar-link:not(.sidebar-dropdown-toggle)').forEach(link => {
+                link.addEventListener('click', function() {
+                    // Only close if it's not a dropdown toggle
+                    if (!this.classList.contains('sidebar-dropdown-toggle')) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                closeMobileMenu();
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

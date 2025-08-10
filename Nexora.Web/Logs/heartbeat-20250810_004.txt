@@ -1,0 +1,11 @@
+2025-08-10 15:36:14.033 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:02 | Memory: 146 MB | GC Memory: 34 MB | Threads: 49 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 09:36:14
+2025-08-10 15:44:19.056 +06:00 [HEARTBEAT] Starting web application
+2025-08-10 15:44:19.086 +06:00 [HEARTBEAT] Application startup - This is a test warning to verify logging configuration
+2025-08-10 15:44:20.419 +06:00 [HEARTBEAT] Log Archive Background Service started
+2025-08-10 15:44:20.436 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:02 | Memory: 146 MB | GC Memory: 34 MB | Threads: 49 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 09:44:20
+2025-08-10 15:44:20.870 +06:00 [HEARTBEAT] Error unprotecting the session cookie.
+2025-08-10 15:44:21.262 +06:00 [HEARTBEAT] HTTP GET / responded 200 in 407.9781 ms
+2025-08-10 15:44:21.291 +06:00 [HEARTBEAT] HTTP GET /css/sidebar.css responded 304 in 2.8512 ms
+2025-08-10 15:44:21.299 +06:00 [HEARTBEAT] HTTP GET /css/site.css responded 200 in 10.0223 ms
+2025-08-10 15:44:40.753 +06:00 [HEARTBEAT] Error unprotecting the session cookie.
+2025-08-10 15:44:40.822 +06:00 [HEARTBEAT] HTTP GET /Role responded 200 in 71.1704 ms

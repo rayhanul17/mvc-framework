@@ -1,0 +1,51 @@
+@model Nexora.Web.ViewComponents.AppBrandingViewModel
+
+@{
+    var defaultLogo = "/images/default-logo.svg";
+    var logoPath = defaultLogo; // Always use default logo
+    var organizationName = Model.Settings.OrganizationName;
+    var shortName = "DRMS"; // Dynamic Role Menu System
+    var slogan = "Efficient Management System";
+    var version = "v1.0.0";
+}
+
+@switch (Model.Type.ToLower())
+{
+    case "logo-only":
+        <img src="@logoPath" alt="@organizationName" class="app-logo" style="height: 40px;" onerror="this.src='@defaultLogo'" />
+        break;
+        
+    case "text-only":
+        <div class="app-brand-text">
+            <span class="app-name">@shortName</span>
+        </div>
+        break;
+        
+    case "compact":
+        <div class="d-flex align-items-center app-brand-compact">
+            <img src="@logoPath" alt="@organizationName" class="app-logo me-2" style="height: 32px;" onerror="this.src='@defaultLogo'" />
+            <span class="app-name fw-bold">@shortName</span>
+        </div>
+        break;
+        
+    case "sidebar":
+        <div class="sidebar-brand d-flex align-items-center">
+            <img src="@logoPath" alt="@organizationName" class="app-logo me-3" style="height: 40px;" onerror="this.src='@defaultLogo'" />
+            <div class="brand-text">
+                <h5 class="mb-0 fw-bold text-primary">@shortName</h5>
+                <small class="text-muted d-block lh-1">@slogan</small>
+            </div>
+        </div>
+        break;
+        
+    default: // "full"
+        <div class="app-brand-full d-flex align-items-center">
+            <img src="@logoPath" alt="@organizationName" class="app-logo me-3" style="height: 48px;" onerror="this.src='@defaultLogo'" />
+            <div class="brand-info">
+                <h4 class="mb-1 fw-bold text-primary">@organizationName</h4>
+                <p class="mb-0 text-muted">@slogan</p>
+                <small class="text-muted">@version</small>
+            </div>
+        </div>
+        break;
+}
