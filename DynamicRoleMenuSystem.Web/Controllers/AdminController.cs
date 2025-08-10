@@ -32,42 +32,16 @@ public class AdminController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ReseedSuperAdminMenus()
+    public async Task<IActionResult> ReseedData()
     {
         try
         {
-            _logger.LogInformation("Starting SuperAdmin menu reseeding process");
-            
-            // Call the comprehensive menu seeder
-            await SuperAdminMenuSeeder.SeedAllMenusForSuperAdminAsync(_context, _roleManager);
-            
-            SetSuccessMessage("SuperAdmin menus have been successfully reseeded with all permissions.");
-            _logger.LogInformation("SuperAdmin menu reseeding completed successfully");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while reseeding SuperAdmin menus");
-            SetErrorMessage($"An error occurred while reseeding menus: {ex.Message}");
-        }
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ReseedAllData()
-    {
-        try
-        {
-            _logger.LogInformation("Starting complete database reseeding process");
+            _logger.LogInformation("Starting database reseeding process");
             
             // Call the main database initializer
             await DbInitializer.InitializeAsync(HttpContext.RequestServices);
             
-            // Then ensure SuperAdmin has all menus
-            await SuperAdminMenuSeeder.SeedAllMenusForSuperAdminAsync(_context, _roleManager);
-            
-            SetSuccessMessage("Database has been successfully reseeded with all initial data.");
+            SetSuccessMessage("Database has been successfully reseeded with initial data.");
             _logger.LogInformation("Database reseeding completed successfully");
         }
         catch (Exception ex)
