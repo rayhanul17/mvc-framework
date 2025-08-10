@@ -1,0 +1,142 @@
+@model List<Nexora.Core.Entities.Ticket>
+@{
+    ViewData["Title"] = "My Assigned Tickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var filterStatus = ViewBag.FilterStatus ?? "all";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-info">
+                <i class="fas fa-tasks"></i> @Model.Count Active Tickets
+            </span>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <select name="filterStatus" class="form-select" onchange="this.form.submit()">
+                        <option value="all" selected="@(filterStatus == "all")">All Status</option>
+                        <option value="Assigned" selected="@(filterStatus == "Assigned")">Assigned</option>
+                        <option value="InProgress" selected="@(filterStatus == "InProgress")">In Progress</option>
+                        <option value="WaitingForCustomer" selected="@(filterStatus == "WaitingForCustomer")">Waiting for Customer</option>
+                        <option value="UnderReview" selected="@(filterStatus == "UnderReview")">Under Review</option>
+                        <option value="Resolved" selected="@(filterStatus == "Resolved")">Resolved</option>
+                    </select>
+                </div>
+                <div class="col-md-8">
+                    <div class="btn-group" role="group">
+                        <a href="?filterStatus=InProgress" class="btn btn-outline-warning">
+                            <i class="fas fa-spinner"></i> In Progress
+                        </a>
+                        <a href="?filterStatus=WaitingForCustomer" class="btn btn-outline-info">
+                            <i class="fas fa-user-clock"></i> Waiting
+                        </a>
+                        <a href="?filterStatus=Resolved" class="btn btn-outline-success">
+                            <i class="fas fa-check"></i> Resolved
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var ticket in Model.OrderBy(t => t.Priority).ThenBy(t => t.CreatedAt))
+            {
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 @(ticket.Priority == Nexora.Core.Entities.TicketPriority.Urgent ? "border-danger" : 
+                                           ticket.Priority == Nexora.Core.Entities.TicketPriority.High ? "border-warning" : "")">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>
+                                <strong>@ticket.TicketNumber</strong>
+                                <span class="badge bg-@GetPriorityColor(ticket.Priority) ms-2">@ticket.Priority</span>
+                            </span>
+                            <span class="badge bg-@GetStatusColor(ticket.Status)">@ticket.Status</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@ticket.Title</h5>
+                            <p class="card-text text-truncate">@ticket.Description</p>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> @ticket.Customer?.FullName
+                                    <br>
+                                    <i class="fas fa-clock"></i> Created @ticket.CreatedAt.ToString("MM/dd/yyyy HH:mm")
+                                    @if (ticket.AssignedAt.HasValue)
+                                    {
+                                        <br>
+                                        <span><i class="fas fa-user-check"></i> Assigned @ticket.AssignedAt.Value.ToString("MM/dd/yyyy HH:mm")</span>
+                                    }
+                                </small>
+                            </div>
+                            <div class="d-grid gap-2">
+                                @if (ticket.Status == Nexora.Core.Entities.TicketStatus.Assigned)
+                                {
+                                    <form asp-action="StartProgress" method="post" class="d-inline">
+                                        <input type="hidden" name="ticketId" value="@ticket.Id" />
+                                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                                            <i class="fas fa-play"></i> Start Working
+                                        </button>
+                                    </form>
+                                }
+                                else if (ticket.Status == Nexora.Core.Entities.TicketStatus.InProgress)
+                                {
+                                    <a asp-action="Resolve" asp-route-id="@ticket.Id" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check-circle"></i> Resolve
+                                    </a>
+                                }
+                                <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No tickets assigned to you at the moment.
+        </div>
+    }
+</div>
+
+@functions {
+    string GetStatusColor(Nexora.Core.Entities.TicketStatus status)
+    {
+        return status switch
+        {
+            Nexora.Core.Entities.TicketStatus.New => "primary",
+            Nexora.Core.Entities.TicketStatus.Assigned => "info",
+            Nexora.Core.Entities.TicketStatus.InProgress => "warning",
+            Nexora.Core.Entities.TicketStatus.WaitingForCustomer => "secondary",
+            Nexora.Core.Entities.TicketStatus.UnderReview => "dark",
+            Nexora.Core.Entities.TicketStatus.Resolved => "success",
+            Nexora.Core.Entities.TicketStatus.Closed => "secondary",
+            Nexora.Core.Entities.TicketStatus.Reopened => "danger",
+            _ => "secondary"
+        };
+    }
+
+    string GetPriorityColor(Nexora.Core.Entities.TicketPriority priority)
+    {
+        return priority switch
+        {
+            Nexora.Core.Entities.TicketPriority.Low => "success",
+            Nexora.Core.Entities.TicketPriority.Medium => "warning",
+            Nexora.Core.Entities.TicketPriority.High => "danger",
+            Nexora.Core.Entities.TicketPriority.Urgent => "dark",
+            _ => "secondary"
+        };
+    }
+}

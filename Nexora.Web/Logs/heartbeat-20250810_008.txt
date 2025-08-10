@@ -1,0 +1,15 @@
+2025-08-10 19:00:30.899 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:02 | Memory: 146 MB | GC Memory: 34 MB | Threads: 49 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 13:00:30
+2025-08-10 19:04:33.704 +06:00 [HEARTBEAT] Starting web application
+2025-08-10 19:04:33.728 +06:00 [HEARTBEAT] Application startup - This is a test warning to verify logging configuration
+2025-08-10 19:04:34.968 +06:00 [HEARTBEAT] Log Archive Background Service started
+2025-08-10 19:04:34.983 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:01 | Memory: 146 MB | GC Memory: 34 MB | Threads: 49 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 13:04:34
+2025-08-10 19:04:35.704 +06:00 [HEARTBEAT] HTTP GET / responded 200 in 330.5732 ms
+2025-08-10 19:04:35.739 +06:00 [HEARTBEAT] HTTP GET /css/sidebar.css responded 304 in 3.9496 ms
+2025-08-10 19:04:35.739 +06:00 [HEARTBEAT] HTTP GET /css/site.css responded 304 in 3.6150 ms
+2025-08-10 19:05:30.798 +06:00 [HEARTBEAT] HTTP GET /Profile/Update responded 200 in 73.8288 ms
+2025-08-10 19:05:30.840 +06:00 [HEARTBEAT] HTTP GET /images/default-avatar.svg responded 200 in 7.9806 ms
+2025-08-10 19:05:43.861 +06:00 [HEARTBEAT] UI Message - Success: Profile updated successfully!
+2025-08-10 19:05:43.864 +06:00 [HEARTBEAT] HTTP POST /Profile/Update responded 302 in 213.0692 ms
+2025-08-10 19:05:43.915 +06:00 [HEARTBEAT] HTTP GET /Profile/Update responded 200 in 26.9787 ms
+2025-08-10 19:05:43.967 +06:00 [HEARTBEAT] HTTP GET /uploads/profiles/4c829ae7-8c6b-4b44-9ed4-4849800f86ff.png responded 200 in 22.5163 ms
+2025-08-10 19:06:51.793 +06:00 [HEARTBEAT] HTTP GET /Nexora.Web.styles.css responded 404 in 4.7537 ms

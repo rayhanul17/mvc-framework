@@ -1,0 +1,16 @@
+2025-08-10 18:47:43.451 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:01 | Memory: 135 MB | GC Memory: 33 MB | Threads: 47 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 12:47:43
+2025-08-10 19:00:29.545 +06:00 [HEARTBEAT] Starting web application
+2025-08-10 19:00:29.569 +06:00 [HEARTBEAT] Application startup - This is a test warning to verify logging configuration
+2025-08-10 19:00:30.883 +06:00 [HEARTBEAT] Log Archive Background Service started
+2025-08-10 19:00:30.899 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:02 | Memory: 146 MB | GC Memory: 34 MB | Threads: 49 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 13:00:30
+2025-08-10 19:00:32.426 +06:00 [HEARTBEAT] HTTP GET / responded 200 in 273.9800 ms
+2025-08-10 19:00:41.935 +06:00 [HEARTBEAT] HTTP GET /Account/Login responded 200 in 50.3121 ms
+2025-08-10 19:01:03.594 +06:00 [HEARTBEAT] HTTP POST /Account/Login responded 302 in 130.0074 ms
+2025-08-10 19:01:03.668 +06:00 [HEARTBEAT] HTTP GET / responded 200 in 65.8787 ms
+2025-08-10 19:01:54.526 +06:00 [HEARTBEAT] HTTP POST /Account/Logout responded 302 in 15.1969 ms
+2025-08-10 19:01:54.548 +06:00 [HEARTBEAT] HTTP GET / responded 200 in 12.7466 ms
+2025-08-10 19:01:59.624 +06:00 [HEARTBEAT] HTTP GET /Account/Login responded 200 in 11.9333 ms
+2025-08-10 19:02:03.072 +06:00 [HEARTBEAT] HTTP GET /Account/Register responded 200 in 19.5852 ms
+2025-08-10 19:02:17.027 +06:00 [HEARTBEAT] HTTP GET /Account/Login responded 200 in 8.7116 ms
+2025-08-10 19:02:35.786 +06:00 [HEARTBEAT] HTTP POST /Account/Login responded 302 in 56.6638 ms
+2025-08-10 19:02:35.812 +06:00 [HEARTBEAT] HTTP GET / responded 200 in 17.7585 ms

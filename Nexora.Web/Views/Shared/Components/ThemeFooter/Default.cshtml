@@ -1,0 +1,159 @@
+@model Nexora.Web.ViewComponents.ThemeFooterViewModel
+
+<div class="container-fluid compact-footer">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center gap-3">
+                <p class="copyright-text mb-0">
+                    @if (!string.IsNullOrEmpty(Model.CopyrightText))
+                    {
+                        @Model.CopyrightText
+                    }
+                    else
+                    {
+                        @:&copy; @DateTime.Now.Year @Model.OrganizationName. All rights reserved.
+                    }
+                </p>
+                @if (Model.ShowFooterMenu)
+                {
+                    <div class="footer-links-inline">
+                        <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <span class="separator">•</span>
+                        <a asp-controller="Home" asp-action="Terms">Terms</a>
+                        <span class="separator">•</span>
+                        <a asp-controller="Home" asp-action="Contact">Contact</a>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            @if (Model.ShowSocialLinks)
+            {
+                <div class="social-links text-md-end">
+                    @if (!string.IsNullOrEmpty(Model.FacebookUrl))
+                    {
+                        <a href="@Model.FacebookUrl" target="_blank" class="social-link-compact" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.TwitterUrl))
+                    {
+                        <a href="@Model.TwitterUrl" target="_blank" class="social-link-compact" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.LinkedInUrl))
+                    {
+                        <a href="@Model.LinkedInUrl" target="_blank" class="social-link-compact" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.InstagramUrl))
+                    {
+                        <a href="@Model.InstagramUrl" target="_blank" class="social-link-compact" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.YouTubeUrl))
+                    {
+                        <a href="@Model.YouTubeUrl" target="_blank" class="social-link-compact" title="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.GitHubUrl))
+                    {
+                        <a href="@Model.GitHubUrl" target="_blank" class="social-link-compact" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .compact-footer {
+        padding: 0.5rem 0;
+    }
+    
+    .copyright-text {
+        color: var(--app-on-surface, #6c757d);
+        font-size: 0.875rem;
+    }
+    
+    .dark-theme .copyright-text {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .footer-links-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .footer-links-inline a {
+        color: var(--app-on-surface, #6c757d);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.2s;
+    }
+    
+    .footer-links-inline a:hover {
+        color: var(--bs-primary);
+    }
+    
+    .dark-theme .footer-links-inline a {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .footer-links-inline .separator {
+        color: var(--app-on-surface, #6c757d);
+        font-size: 0.75rem;
+    }
+    
+    .dark-theme .footer-links-inline .separator {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .social-link-compact {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 50%;
+        margin: 0 0.25rem;
+        color: var(--app-on-surface, #495057);
+        transition: all 0.2s;
+        font-size: 0.875rem;
+    }
+    
+    .social-link-compact:hover {
+        background: var(--bs-primary);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .dark-theme .social-link-compact {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    @@media (max-width: 767px) {
+        .compact-footer .row {
+            text-align: center;
+        }
+        
+        .social-links {
+            text-align: center !important;
+            margin-top: 1rem;
+        }
+        
+        .footer-links-inline {
+            margin-top: 0.5rem;
+        }
+    }
+</style>

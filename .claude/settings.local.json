@@ -5,7 +5,7 @@
       "Bash(dotnet sln add:*)",
       "Bash(dotnet add reference:*)",
       "Bash(dotnet add package:*)",
-      "Bash(if exist DynamicRoleMenuSystem.CoreClass1.cs del DynamicRoleMenuSystem.CoreClass1.cs)",
+      "Bash(if exist Nexora.CoreClass1.cs del Nexora.CoreClass1.cs)",
       "Bash(powershell:*)",
       "Bash(dotnet build)",
       "Bash(dotnet add:*)",
@@ -19,14 +19,15 @@
       "Bash(dotnet build:*)",
       "Bash(dotnet run:*)",
       "Bash(dotnet ef migrations:*)",
-      "Bash(del D:mvc-frameworkDynamicRoleMenuSystem.WebTestMenus.cs)",
+      "Bash(del D:mvc-frameworkNexora.WebTestMenus.cs)",
       "Bash(taskkill:*)",
       "Bash(rmdir:*)",
       "Bash(del CheckMenus.cs)",
       "Bash(del:*)",
       "Bash(rm:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(ren:*)"
     ],
     "deny": []
   }
