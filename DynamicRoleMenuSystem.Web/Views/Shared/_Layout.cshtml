@@ -56,10 +56,20 @@
     <link rel="stylesheet" href="~/DynamicRoleMenuSystem.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <!-- Mobile Menu Toggle Button -->
-    <button class="btn btn-primary d-lg-none mobile-menu-btn" id="mobileMenuBtn" type="button">
-        <i class="fas fa-bars"></i>
-    </button>
+    <!-- Mobile Header Bar -->
+    <div class="mobile-header d-lg-none">
+        <div class="mobile-header-content">
+            <button class="btn btn-link mobile-menu-btn" id="mobileMenuBtn" type="button">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="mobile-brand">
+                @await Component.InvokeAsync("AppBranding", new { type = "compact" })
+            </div>
+            <button class="btn btn-link mobile-theme-toggle" id="mobile-theme-toggle" title="Toggle Theme">
+                <i class="fas fa-moon" id="mobile-theme-icon"></i>
+            </button>
+        </div>
+    </div>
     
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
@@ -116,10 +126,12 @@
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="sidebar-footer">
-                    <button class="btn btn-link theme-toggle-btn" id="theme-toggle" title="Toggle Theme">
-                        <i class="fas fa-moon" id="theme-icon"></i>
-                        <span class="theme-text">Dark Mode</span>
-                    </button>
+                    <div class="sidebar-footer-top">
+                        <button class="btn btn-link theme-toggle-btn ms-auto" id="theme-toggle" title="Toggle Theme">
+                            <i class="fas fa-moon" id="theme-icon"></i>
+                            <span class="theme-text">Dark Mode</span>
+                        </button>
+                    </div>
                     <div class="dropdown">
                         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="user-avatar">
@@ -229,9 +241,11 @@
                 content.classList.add('expanded');
             }
             
-            // Theme toggle - handle multiple theme toggles if present
-            const themeToggles = document.querySelectorAll('#theme-toggle');
-            const themeIcons = document.querySelectorAll('#theme-icon');
+            // Theme toggle - handle both desktop and mobile theme toggles
+            const themeToggle = document.getElementById('theme-toggle');
+            const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const mobileThemeIcon = document.getElementById('mobile-theme-icon');
             const body = document.body;
             
             // Get saved theme or default to light
@@ -241,20 +255,27 @@
             applyTheme(currentTheme);
             
             // Theme toggle click handler
-            themeToggles.forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    const isDark = body.classList.contains('dark-theme');
-                    const newTheme = isDark ? 'light' : 'dark';
-                    applyTheme(newTheme);
-                    localStorage.setItem('theme', newTheme);
-                });
-            });
+            function toggleTheme() {
+                const isDark = body.classList.contains('dark-theme');
+                const newTheme = isDark ? 'light' : 'dark';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            }
+            
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            if (mobileThemeToggle) {
+                mobileThemeToggle.addEventListener('click', toggleTheme);
+            }
             
             function applyTheme(theme) {
                 const themeTexts = document.querySelectorAll('.theme-text');
                 if (theme === 'dark') {
                     body.classList.add('dark-theme');
-                    themeIcons.forEach(icon => icon.className = 'fas fa-sun');
+                    if (themeIcon) themeIcon.className = 'fas fa-sun';
+                    if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-sun';
                     themeTexts.forEach(text => text.textContent = 'Light Mode');
                     document.documentElement.style.setProperty('--app-bg', '#1a1a1a');
                     document.documentElement.style.setProperty('--app-surface', '#2d2d2d');
@@ -263,7 +284,8 @@
                     document.documentElement.style.setProperty('--bs-light', '#404040');
                 } else {
                     body.classList.remove('dark-theme');
-                    themeIcons.forEach(icon => icon.className = 'fas fa-moon');
+                    if (themeIcon) themeIcon.className = 'fas fa-moon';
+                    if (mobileThemeIcon) mobileThemeIcon.className = 'fas fa-moon';
                     themeTexts.forEach(text => text.textContent = 'Dark Mode');
                     document.documentElement.style.setProperty('--app-bg', '#ffffff');
                     document.documentElement.style.setProperty('--app-surface', '#f8f9fa');
