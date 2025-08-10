@@ -152,3 +152,113 @@ body {
     margin-bottom: 0;
   }
 }
+
+/* Dark theme table styles */
+.dark-theme .table {
+  color: rgba(255, 255, 255, 0.87);
+  background-color: transparent;
+}
+
+.dark-theme .table thead th {
+  color: rgba(255, 255, 255, 0.95);
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-theme .table tbody td {
+  color: rgba(255, 255, 255, 0.87);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.dark-theme .table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.dark-theme .table-bordered {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-theme .table-bordered th,
+.dark-theme .table-bordered td {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Dark theme table variant classes */
+.dark-theme .table-primary {
+  background-color: rgba(13, 110, 253, 0.2);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dark-theme .table-secondary {
+  background-color: rgba(108, 117, 125, 0.2);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dark-theme .table-success {
+  background-color: rgba(25, 135, 84, 0.2);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dark-theme .table-danger {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dark-theme .table-warning {
+  background-color: rgba(255, 193, 7, 0.2);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dark-theme .table-info {
+  background-color: rgba(13, 202, 240, 0.2);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dark-theme .table-light {
+  background-color: rgba(248, 249, 250, 0.1);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dark-theme .table-dark {
+  background-color: rgba(33, 37, 41, 0.5);
+  color: rgba(255, 255, 255, 0.87);
+}
+
+/* Fix table action buttons and links in dark mode */
+.dark-theme .table a:not(.btn) {
+  color: #6ea8fe;
+}
+
+.dark-theme .table a:not(.btn):hover {
+  color: #9ec5fe;
+}
+
+/* Fix form controls in tables for dark mode */
+.dark-theme .table .form-control,
+.dark-theme .table .form-select {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.87);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-theme .table .form-control:focus,
+.dark-theme .table .form-select:focus {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+  border-color: var(--bs-primary);
+}
+
+/* Fix badges and pills in tables */
+.dark-theme .table .badge {
+  opacity: 0.9;
+}
+
+/* Ensure table text is readable in cards */
+.dark-theme .card .table {
+  color: inherit;
+}
