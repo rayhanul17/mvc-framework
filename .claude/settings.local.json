@@ -24,7 +24,9 @@
       "Bash(rmdir:*)",
       "Bash(del CheckMenus.cs)",
       "Bash(del:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
