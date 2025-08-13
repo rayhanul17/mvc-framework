@@ -215,21 +215,9 @@ public class BlogPostController : BaseController
         return RedirectToAction(nameof(CreateEdit), new { id });
     }
 
-    public async Task<IActionResult> Delete(int id)
-    {
-        var result = await _postService.GetPostWithCategoryAsync(id);
-        if (!result.IsSuccess || result.Data == null)
-        {
-            SetErrorMessage("Post not found");
-            return RedirectToAction(nameof(Index));
-        }
-
-        return View(result.Data);
-    }
-
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var result = await _postService.DeleteAsync(id);
         

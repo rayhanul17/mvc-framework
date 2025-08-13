@@ -234,7 +234,7 @@
                 var aspNetRole = $('select[data-role="' + role + '"]').val();
                 
                 if (!aspNetRole) {
-                    toastr.warning('Please select an ASP.NET role to map to');
+                    NotificationSystem.warning('Please select an ASP.NET role to map to');
                     return;
                 }
                 
@@ -249,16 +249,16 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            toastr.success(response.message);
+                            NotificationSystem.success(response.message || 'Mapping saved successfully');
                             setTimeout(function() {
                                 location.reload();
                             }, 1500);
                         } else {
-                            toastr.error(response.message);
+                            NotificationSystem.error(response.message || 'Failed to save mapping');
                         }
                     },
                     error: function() {
-                        toastr.error('An error occurred while saving the mapping');
+                        NotificationSystem.error('An error occurred while saving the mapping');
                     }
                 });
             });
@@ -325,12 +325,12 @@
                         },
                         success: function(response) {
                             if (response.success) {
-                                toastr.success(response.message);
+                                NotificationSystem.success(response.message || 'Mapping updated successfully');
                                 setTimeout(function() {
                                     location.reload();
                                 }, 1500);
                             } else {
-                                toastr.error(response.message);
+                                NotificationSystem.error(response.message || 'Failed to update mapping');
                             }
                         }
                     });

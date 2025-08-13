@@ -173,21 +173,9 @@ public class BlogCategoryController : BaseController
         return RedirectToAction(nameof(CreateEdit), new { id });
     }
 
-    public async Task<IActionResult> Delete(int id)
-    {
-        var result = await _categoryService.GetByIdAsync(id);
-        if (!result.IsSuccess || result.Data == null)
-        {
-            SetErrorMessage("Category not found");
-            return RedirectToAction(nameof(Index));
-        }
-
-        return View(result.Data);
-    }
-
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var result = await _categoryService.DeleteAsync(id);
         

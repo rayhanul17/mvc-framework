@@ -73,43 +73,49 @@ public class SiteSettingHelperService : ISiteSettingHelperService
             var model = new SiteSettingsDynamicModel();
 
             // Branding settings
-            model.SiteName = await GetSettingValueAsync("Site.Name", "Dynamic Role Menu System");
-            model.SiteDescription = await GetSettingValueAsync("Site.Description", "A comprehensive role-based menu management system");
-            model.OrganizationName = await GetSettingValueAsync("Organization.Name", "Your Organization");
-            model.LogoPath = await GetSettingValueAsync("Site.Logo", "/images/logo.png");
-            model.FaviconPath = await GetSettingValueAsync("Site.Favicon", "/favicon.ico");
+            model.SiteName = await GetSettingValueAsync("SiteName", "Dynamic Role Menu System");
+            model.SiteDescription = await GetSettingValueAsync("SiteDescription", "A comprehensive role-based menu management system");
+            model.OrganizationName = await GetSettingValueAsync("OrganizationName", "Your Organization");
+            model.ShortName = await GetSettingValueAsync("ShortName", "DRMS");
+            model.Slogan = await GetSettingValueAsync("Slogan", "Empowering Your Digital Future");
+            model.LogoPath = await GetSettingValueAsync("LogoPath", "/images/logo.png");
+            model.SmallLogo = await GetSettingValueAsync("SmallLogo", "/images/logo-small.png");
+            model.LargeLogo = await GetSettingValueAsync("LargeLogo", "/images/logo-large.png");
+            model.FaviconPath = await GetSettingValueAsync("FaviconPath", "/favicon.ico");
 
             // Theme settings
-            model.PrimaryColor = await GetSettingValueAsync("Theme.PrimaryColor", "#0d6efd");
-            model.SecondaryColor = await GetSettingValueAsync("Theme.SecondaryColor", "#6c757d");
-            model.SuccessColor = await GetSettingValueAsync("Theme.SuccessColor", "#198754");
-            model.DangerColor = await GetSettingValueAsync("Theme.DangerColor", "#dc3545");
-            model.WarningColor = await GetSettingValueAsync("Theme.WarningColor", "#ffc107");
-            model.DarkMode = await GetBoolAsync("Theme.DarkMode", false);
+            model.PrimaryColor = await GetSettingValueAsync("PrimaryColor", "#0d6efd");
+            model.SecondaryColor = await GetSettingValueAsync("SecondaryColor", "#6c757d");
+            model.SuccessColor = await GetSettingValueAsync("SuccessColor", "#198754");
+            model.DangerColor = await GetSettingValueAsync("DangerColor", "#dc3545");
+            model.WarningColor = await GetSettingValueAsync("WarningColor", "#ffc107");
+            model.DarkMode = await GetBoolAsync("DarkModeDefault", false);
 
             // Footer settings
-            model.FooterCompanyName = await GetSettingValueAsync("Footer.CompanyName", "Dynamic Role Menu System");
-            model.FooterCopyrightYear = await GetSettingValueAsync("Footer.CopyrightYear", DateTime.UtcNow.Year.ToString());
-            model.FooterShowPoweredBy = await GetBoolAsync("Footer.ShowPoweredBy", true);
-            model.FooterCustomText = await GetSettingValueAsync("Footer.CustomText", "");
-            model.FooterText = await GetSettingValueAsync("Footer.Text", "Building innovative solutions for modern businesses.");
-            model.CopyrightText = await GetSettingValueAsync("Footer.CopyrightText", "");
-            model.ShowSocialLinks = await GetBoolAsync("Footer.ShowSocialLinks", true);
-            model.ShowFooterMenu = await GetBoolAsync("Footer.ShowMenu", true);
+            model.FooterCompanyName = await GetSettingValueAsync("OrganizationName", "Dynamic Role Menu System");
+            model.FooterCopyrightYear = DateTime.UtcNow.Year.ToString();
+            model.FooterShowPoweredBy = await GetBoolAsync("FooterShowPoweredBy", true);
+            model.FooterCustomText = await GetSettingValueAsync("FooterCustomText", "");
+            model.FooterText = await GetSettingValueAsync("FooterText", "Building innovative solutions for modern businesses.");
+            model.FooterHtml = await GetSettingValueAsync("FooterHtml", "");
+            model.CopyrightText = await GetSettingValueAsync("CopyrightText", "");
+            model.ShowSocialLinks = await GetBoolAsync("ShowSocialLinks", true);
+            model.ShowFooterMenu = await GetBoolAsync("ShowFooterMenu", true);
+            model.StickyFooter = await GetBoolAsync("StickyFooter", true);
 
             // Contact settings
-            model.ContactEmail = await GetSettingValueAsync("Contact.Email", "admin@example.com");
-            model.ContactPhone = await GetSettingValueAsync("Contact.Phone", "");
-            model.ContactAddress = await GetSettingValueAsync("Contact.Address", "");
-            model.Address = await GetSettingValueAsync("Contact.Address", "");
+            model.ContactEmail = await GetSettingValueAsync("ContactEmail", "admin@example.com");
+            model.ContactPhone = await GetSettingValueAsync("PhoneNumber", "");
+            model.ContactAddress = await GetSettingValueAsync("Address", "");
+            model.Address = await GetSettingValueAsync("Address", "");
             
             // Social Media settings
-            model.FacebookUrl = await GetSettingValueAsync("Social.Facebook", "");
-            model.TwitterUrl = await GetSettingValueAsync("Social.Twitter", "");
-            model.LinkedInUrl = await GetSettingValueAsync("Social.LinkedIn", "");
-            model.InstagramUrl = await GetSettingValueAsync("Social.Instagram", "");
-            model.YouTubeUrl = await GetSettingValueAsync("Social.YouTube", "");
-            model.GitHubUrl = await GetSettingValueAsync("Social.GitHub", "");
+            model.FacebookUrl = await GetSettingValueAsync("FacebookUrl", "");
+            model.TwitterUrl = await GetSettingValueAsync("TwitterUrl", "");
+            model.LinkedInUrl = await GetSettingValueAsync("LinkedInUrl", "");
+            model.InstagramUrl = await GetSettingValueAsync("InstagramUrl", "");
+            model.YouTubeUrl = await GetSettingValueAsync("YouTubeUrl", "");
+            model.GitHubUrl = await GetSettingValueAsync("GitHubUrl", "");
 
             // SEO settings
             model.MetaTitle = await GetSettingValueAsync("SEO.MetaTitle", "Dynamic Role Menu System");
@@ -139,7 +145,11 @@ public class SiteSettingsDynamicModel
     public string SiteName { get; set; } = "Dynamic Role Menu System";
     public string SiteDescription { get; set; } = "A comprehensive role-based menu management system";
     public string OrganizationName { get; set; } = "Your Organization";
+    public string ShortName { get; set; } = "DRMS";
+    public string Slogan { get; set; } = "Empowering Your Digital Future";
     public string LogoPath { get; set; } = "/images/logo.png";
+    public string SmallLogo { get; set; } = "/images/logo-small.png";
+    public string LargeLogo { get; set; } = "/images/logo-large.png";
     public string FaviconPath { get; set; } = "/favicon.ico";
 
     // Theme
@@ -156,9 +166,11 @@ public class SiteSettingsDynamicModel
     public bool FooterShowPoweredBy { get; set; } = true;
     public string FooterCustomText { get; set; } = "";
     public string FooterText { get; set; } = "Building innovative solutions for modern businesses.";
+    public string FooterHtml { get; set; } = "";
     public string CopyrightText { get; set; } = "";
     public bool ShowSocialLinks { get; set; } = true;
     public bool ShowFooterMenu { get; set; } = true;
+    public bool StickyFooter { get; set; } = true;
 
     // Contact
     public string ContactEmail { get; set; } = "admin@example.com";

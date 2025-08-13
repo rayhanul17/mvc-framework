@@ -18,6 +18,7 @@ public class ThemeFooterViewComponent : ViewComponent
         return View(new ThemeFooterViewModel
         {
             FooterText = settings.FooterText,
+            FooterHtml = settings.FooterHtml,
             CopyrightText = settings.CopyrightText,
             ShowSocialLinks = settings.ShowSocialLinks,
             FacebookUrl = settings.FacebookUrl,
@@ -27,6 +28,7 @@ public class ThemeFooterViewComponent : ViewComponent
             YouTubeUrl = settings.YouTubeUrl,
             GitHubUrl = settings.GitHubUrl,
             OrganizationName = settings.OrganizationName,
+            ShortName = settings.ShortName,
             ContactEmail = settings.ContactEmail,
             ContactPhone = settings.ContactPhone,
             Address = settings.Address,
@@ -38,6 +40,7 @@ public class ThemeFooterViewComponent : ViewComponent
 public class ThemeFooterViewModel
 {
     public string FooterText { get; set; } = string.Empty;
+    public string FooterHtml { get; set; } = string.Empty;
     public string CopyrightText { get; set; } = string.Empty;
     public bool ShowSocialLinks { get; set; }
     public string FacebookUrl { get; set; } = string.Empty;
@@ -47,6 +50,7 @@ public class ThemeFooterViewModel
     public string YouTubeUrl { get; set; } = string.Empty;
     public string GitHubUrl { get; set; } = string.Empty;
     public string OrganizationName { get; set; } = string.Empty;
+    public string ShortName { get; set; } = string.Empty;
     public string ContactEmail { get; set; } = string.Empty;
     public string ContactPhone { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;

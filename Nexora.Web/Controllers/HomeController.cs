@@ -36,6 +36,11 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult NotificationDemo()
+    {
+        return View();
+    }
+
     [Authorize]
     public async Task<IActionResult> Dashboard()
     {

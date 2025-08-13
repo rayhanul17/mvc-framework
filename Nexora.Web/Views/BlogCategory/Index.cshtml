@@ -56,9 +56,10 @@
                                         <a asp-action="CreateEdit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                        <button type="button" class="btn btn-sm btn-danger"
+                                                onclick="return showDeleteModal('@Url.Action("Delete", "BlogCategory", new { id = item.Id })', @Html.Raw(Json.Serialize(item.Name)), 'blog category', null)">
                                             <i class="fas fa-trash"></i>
-                                        </a>
+                                        </button>
                                     </td>
                                 </tr>
                             }

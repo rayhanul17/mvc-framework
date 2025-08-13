@@ -54,6 +54,9 @@
     <link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap5.min.css" />
     <link rel="stylesheet" href="~/lib/datatables/css/responsive.bootstrap5.min.css" />
     
+    <!-- Toastr Notifications -->
+    <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
+    
     <!-- Site Styles -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
@@ -175,33 +178,22 @@
 
             <!-- Main content -->
             <main role="main" class="main-content">
+                @* Server-side notification messages for toastr *@
                 @if (TempData["SuccessMessage"] != null || ViewBag.SuccessMessage != null)
                 {
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-2"></i>@(TempData["SuccessMessage"] ?? ViewBag.SuccessMessage)
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    <div data-notification-success="@(TempData["SuccessMessage"] ?? ViewBag.SuccessMessage)" style="display:none;"></div>
                 }
                 @if (TempData["ErrorMessage"] != null || ViewBag.ErrorMessage != null)
                 {
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i>@(TempData["ErrorMessage"] ?? ViewBag.ErrorMessage)
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    <div data-notification-error="@(TempData["ErrorMessage"] ?? ViewBag.ErrorMessage)" style="display:none;"></div>
                 }
                 @if (TempData["InfoMessage"] != null || ViewBag.InfoMessage != null)
                 {
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>@(TempData["InfoMessage"] ?? ViewBag.InfoMessage)
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    <div data-notification-info="@(TempData["InfoMessage"] ?? ViewBag.InfoMessage)" style="display:none;"></div>
                 }
                 @if (TempData["WarningMessage"] != null || ViewBag.WarningMessage != null)
                 {
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>@(TempData["WarningMessage"] ?? ViewBag.WarningMessage)
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    <div data-notification-warning="@(TempData["WarningMessage"] ?? ViewBag.WarningMessage)" style="display:none;"></div>
                 }
                 
                 
@@ -223,6 +215,12 @@
     <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
     <script src="~/lib/datatables/js/dataTables.responsive.min.js"></script>
     <script src="~/lib/datatables/js/responsive.bootstrap5.min.js"></script>
+    
+    <!-- Toastr Notifications -->
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    
+    <!-- Notification System -->
+    <script src="~/js/notifications.js" asp-append-version="true"></script>
     
     <script src="~/js/site.js" asp-append-version="true"></script>
     

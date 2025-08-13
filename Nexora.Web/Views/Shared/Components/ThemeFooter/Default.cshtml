@@ -1,77 +1,91 @@
 @model Nexora.Web.ViewComponents.ThemeFooterViewModel
 
-<div class="container-fluid compact-footer">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <div class="d-flex align-items-center gap-3">
-                <p class="copyright-text mb-0">
-                    @if (!string.IsNullOrEmpty(Model.CopyrightText))
+@{
+    // Replace placeholders in footer HTML
+    var footerHtml = Model.FooterHtml;
+    if (!string.IsNullOrEmpty(footerHtml))
+    {
+        footerHtml = footerHtml.Replace("{{year}}", DateTime.Now.Year.ToString());
+        footerHtml = footerHtml.Replace("{{orgName}}", Model.OrganizationName);
+        footerHtml = footerHtml.Replace("{{shortName}}", Model.ShortName);
+    }
+}
+
+@if (!string.IsNullOrEmpty(footerHtml))
+{
+    <div class="container-fluid custom-footer">
+        @Html.Raw(footerHtml)
+    </div>
+}
+else
+{
+    <!-- Default footer if no custom HTML is set -->
+    <div class="container-fluid compact-footer">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center gap-3">
+                    <p class="copyright-text mb-0">
+                        &copy; @DateTime.Now.Year @Model.OrganizationName. All rights reserved.
+                    </p>
+                    @if (Model.ShowFooterMenu)
                     {
-                        @Model.CopyrightText
+                        <div class="footer-links-inline">
+                            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <span class="separator">•</span>
+                            <a asp-controller="Home" asp-action="Terms">Terms</a>
+                            <span class="separator">•</span>
+                            <a asp-controller="Home" asp-action="Contact">Contact</a>
+                        </div>
                     }
-                    else
-                    {
-                        @:&copy; @DateTime.Now.Year @Model.OrganizationName. All rights reserved.
-                    }
-                </p>
-                @if (Model.ShowFooterMenu)
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                @if (Model.ShowSocialLinks)
                 {
-                    <div class="footer-links-inline">
-                        <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        <span class="separator">•</span>
-                        <a asp-controller="Home" asp-action="Terms">Terms</a>
-                        <span class="separator">•</span>
-                        <a asp-controller="Home" asp-action="Contact">Contact</a>
+                    <div class="social-links text-md-end">
+                        @if (!string.IsNullOrEmpty(Model.FacebookUrl))
+                        {
+                            <a href="@Model.FacebookUrl" target="_blank" class="social-link-compact" title="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.TwitterUrl))
+                        {
+                            <a href="@Model.TwitterUrl" target="_blank" class="social-link-compact" title="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.LinkedInUrl))
+                        {
+                            <a href="@Model.LinkedInUrl" target="_blank" class="social-link-compact" title="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.InstagramUrl))
+                        {
+                            <a href="@Model.InstagramUrl" target="_blank" class="social-link-compact" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.YouTubeUrl))
+                        {
+                            <a href="@Model.YouTubeUrl" target="_blank" class="social-link-compact" title="YouTube">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.GitHubUrl))
+                        {
+                            <a href="@Model.GitHubUrl" target="_blank" class="social-link-compact" title="GitHub">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        }
                     </div>
                 }
             </div>
         </div>
-        
-        <div class="col-md-6">
-            @if (Model.ShowSocialLinks)
-            {
-                <div class="social-links text-md-end">
-                    @if (!string.IsNullOrEmpty(Model.FacebookUrl))
-                    {
-                        <a href="@Model.FacebookUrl" target="_blank" class="social-link-compact" title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.TwitterUrl))
-                    {
-                        <a href="@Model.TwitterUrl" target="_blank" class="social-link-compact" title="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.LinkedInUrl))
-                    {
-                        <a href="@Model.LinkedInUrl" target="_blank" class="social-link-compact" title="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.InstagramUrl))
-                    {
-                        <a href="@Model.InstagramUrl" target="_blank" class="social-link-compact" title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.YouTubeUrl))
-                    {
-                        <a href="@Model.YouTubeUrl" target="_blank" class="social-link-compact" title="YouTube">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.GitHubUrl))
-                    {
-                        <a href="@Model.GitHubUrl" target="_blank" class="social-link-compact" title="GitHub">
-                            <i class="fab fa-github"></i>
-                        </a>
-                    }
-                </div>
-            }
-        </div>
     </div>
-</div>
+}
 
 <style>
     .compact-footer {

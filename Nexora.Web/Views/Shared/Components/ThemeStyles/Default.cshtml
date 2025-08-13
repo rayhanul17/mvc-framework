@@ -1,10 +1,16 @@
 @model Nexora.Core.Common.AppSettings
+@inject Nexora.Application.Services.ISiteSettingHelperService SiteSettings
+@{
+    var settings = await SiteSettings.GetAllSettingsAsync();
+    var primaryColor = settings.PrimaryColor ?? "#0d6efd";
+    var secondaryColor = settings.SecondaryColor ?? "#6c757d";
+}
 
 <style id="dynamic-theme-styles">
 :root {
-    /* Brand Colors - Hardcoded default theme colors */
-    --bs-primary: #0d6efd;
-    --bs-secondary: #6c757d;
+    /* Brand Colors - Dynamic from site settings */
+    --bs-primary: @primaryColor;
+    --bs-secondary: @secondaryColor;
     --bs-success: #198754;
     --bs-danger: #dc3545;
     --bs-warning: #ffc107;
