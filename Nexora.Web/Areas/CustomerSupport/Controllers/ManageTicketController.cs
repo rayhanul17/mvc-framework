@@ -390,7 +390,7 @@ public class ManageTicketController : BaseController
                         ticket.CustomerId,
                         "Ticket Priority Updated",
                         $"Priority of ticket {ticket.TicketNumber} has been changed to {model.NewPriority.Value}",
-                        NotificationType.TicketUpdated
+                        NotificationType.StatusChange
                     );
                 }
                 

@@ -185,7 +185,7 @@
                     @if (Model.Tickets.Any())
                     {
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table id="ticketsTable" class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
                                         <th width="30">
@@ -832,8 +832,46 @@
             }
         }
         
-        // Initialize bulk operations
+        // Initialize DataTables and bulk operations
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize DataTables
+            $('#ticketsTable').DataTable({
+                responsive: true,
+                order: [[7, 'desc']], // Sort by Created Date column by default
+                columnDefs: [
+                    { orderable: false, targets: [0, 9] }, // Disable sorting on checkbox and Actions columns
+                    { searchable: false, targets: [0, 9] }, // Disable searching on checkbox and Actions columns
+                    { width: "30px", targets: [0] }, // Set fixed width for checkbox column
+                    { width: "200px", targets: [9] } // Set fixed width for Actions column
+                ],
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                language: {
+                    search: "Search tickets:",
+                    lengthMenu: "Show _MENU_ tickets per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ tickets",
+                    infoEmpty: "No tickets found",
+                    infoFiltered: "(filtered from _MAX_ total tickets)",
+                    emptyTable: "No tickets available",
+                    zeroRecords: "No matching tickets found"
+                },
+                drawCallback: function() {
+                    // Re-attach event handlers after each redraw (pagination, search, etc.)
+                    updateSelectionCount();
+                    
+                    // Re-bind checkbox event handlers
+                    const checkboxes = document.querySelectorAll('.ticket-checkbox');
+                    checkboxes.forEach(cb => {
+                        cb.onchange = updateSelectionCount;
+                    });
+                    
+                    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+                    if (selectAllCheckbox) {
+                        selectAllCheckbox.onchange = toggleSelectAll;
+                    }
+                }
+            });
+            
             updateSelectionCount(); // Initial state
             
             // Auto-refresh every 30 seconds

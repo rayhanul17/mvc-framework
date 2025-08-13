@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table id="roleMappingsTable" class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>Customer Service Role</th>
@@ -195,8 +195,39 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Initialize DataTables
+            $('#roleMappingsTable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']], // Sort by Customer Service Role column by default
+                columnDefs: [
+                    { orderable: false, targets: [4] }, // Disable sorting on Actions column
+                    { searchable: false, targets: [4] }, // Disable searching on Actions column
+                    { width: "200px", targets: [4] } // Set fixed width for Actions column
+                ],
+                pageLength: 10,
+                lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "All"]],
+                language: {
+                    search: "Search role mappings:",
+                    lengthMenu: "Show _MENU_ mappings per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ role mappings",
+                    infoEmpty: "No role mappings found",
+                    infoFiltered: "(filtered from _MAX_ total mappings)",
+                    emptyTable: "No role mappings available",
+                    zeroRecords: "No matching role mappings found"
+                },
+                drawCallback: function() {
+                    // Re-attach event handlers after DataTables redraw
+                    attachRoleMappingHandlers();
+                }
+            });
+            
+            // Initial attachment of handlers
+            attachRoleMappingHandlers();
+        });
+        
+        function attachRoleMappingHandlers() {
             // Save mapping
-            $('.btn-save').on('click', function() {
+            $('.btn-save').off('click').on('click', function() {
                 var button = $(this);
                 var role = button.data('role');
                 var description = button.data('description');
@@ -233,7 +264,7 @@
             });
             
             // Toggle mapping
-            $('.btn-toggle').on('click', function() {
+            $('.btn-toggle').off('click').on('click', function() {
                 var button = $(this);
                 var role = button.data('role');
                 
@@ -261,7 +292,7 @@
             });
             
             // Edit mapping
-            $('.btn-edit').on('click', function() {
+            $('.btn-edit').off('click').on('click', function() {
                 var role = $(this).data('role');
                 var select = $('select[data-role="' + role + '"]');
                 select.prop('disabled', false);
@@ -312,7 +343,7 @@
             });
             
             // Delete mapping
-            $('.btn-delete').on('click', function() {
+            $('.btn-delete').off('click').on('click', function() {
                 var role = $(this).data('role');
                 
                 if (confirm('Are you sure you want to delete this role mapping?')) {
@@ -339,6 +370,6 @@
                     });
                 }
             });
-        });
+        }
     </script>
 }

@@ -115,6 +115,7 @@ public class TicketListViewModel
 
 public class DashboardViewModel
 {
+    public string WelcomeMessage { get; set; } = "Welcome to Customer Support Dashboard";
     public TicketStatistics Statistics { get; set; } = new();
     public List<Ticket> RecentTickets { get; set; } = new();
     public List<Ticket> MyTickets { get; set; } = new();

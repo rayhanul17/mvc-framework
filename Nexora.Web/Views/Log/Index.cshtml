@@ -83,7 +83,7 @@
                     
                     <!-- Logs Table -->
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
+                        <table id="auditLogsTable" class="table table-bordered table-striped">
                             <thead>
                                 <tr>
                                     <th>Date/Time</th>
@@ -204,3 +204,31 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#auditLogsTable').DataTable({
+                responsive: true,
+                order: [[0, 'desc']], // Sort by Date/Time column by default
+                columnDefs: [
+                    { orderable: false, targets: [8] }, // Disable sorting on Actions column
+                    { searchable: false, targets: [8] }, // Disable searching on Actions column
+                    { width: "150px", targets: [0] }, // Set width for Date/Time column
+                    { width: "100px", targets: [8] } // Set fixed width for Actions column
+                ],
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                language: {
+                    search: "Search audit logs:",
+                    lengthMenu: "Show _MENU_ logs per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ audit logs",
+                    infoEmpty: "No audit logs found",
+                    infoFiltered: "(filtered from _MAX_ total logs)",
+                    emptyTable: "No audit logs available",
+                    zeroRecords: "No matching audit logs found"
+                }
+            });
+        });
+    </script>
+}

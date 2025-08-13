@@ -52,7 +52,7 @@
     @if (Model.Tickets.Any())
     {
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table id="supportTicketsTable" class="table table-hover">
                 <thead>
                     <tr>
                         <th>Ticket #</th>
@@ -157,4 +157,31 @@
             _ => "secondary"
         };
     }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#supportTicketsTable').DataTable({
+                responsive: true,
+                order: [[5, 'desc']], // Sort by Created Date column by default
+                columnDefs: [
+                    { orderable: false, targets: [7] }, // Disable sorting on Actions column
+                    { searchable: false, targets: [7] }, // Disable searching on Actions column
+                    { width: "100px", targets: [7] } // Set fixed width for Actions column
+                ],
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                language: {
+                    search: "Search support tickets:",
+                    lengthMenu: "Show _MENU_ tickets per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ support tickets",
+                    infoEmpty: "No support tickets found",
+                    infoFiltered: "(filtered from _MAX_ total tickets)",
+                    emptyTable: "No support tickets available",
+                    zeroRecords: "No matching support tickets found"
+                }
+            });
+        });
+    </script>
 }

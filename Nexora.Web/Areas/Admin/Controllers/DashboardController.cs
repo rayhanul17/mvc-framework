@@ -121,8 +121,8 @@ public class DashboardController : BaseController
     private async Task<int> GetActiveSessionsCount()
     {
         // Placeholder - would implement actual session tracking
-        return await _userManager.Users.CountAsync(u => u.LastLoginDate.HasValue && 
-                                                        u.LastLoginDate.Value > DateTime.UtcNow.AddHours(-24));
+        // For now, return count of active users
+        return await _userManager.Users.CountAsync(u => u.IsActive);
     }
 
     [HttpGet]

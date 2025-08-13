@@ -76,7 +76,7 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table id="settingsTable-@categoryGroup.Category" class="table table-hover mb-0 settings-table">
                             <thead class="table-light">
                                 <tr>
                                     <th>Key</th>
@@ -228,4 +228,34 @@
             </div>
         </div>
     </div>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTables for all settings tables
+            $('.settings-table').each(function() {
+                $(this).DataTable({
+                    responsive: true,
+                    order: [[0, 'asc']], // Sort by Key column by default
+                    columnDefs: [
+                        { orderable: false, targets: [6] }, // Disable sorting on Actions column
+                        { searchable: false, targets: [6] }, // Disable searching on Actions column
+                        { width: "150px", targets: [6] } // Set fixed width for Actions column
+                    ],
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                    language: {
+                        search: "Search settings:",
+                        lengthMenu: "Show _MENU_ settings per page",
+                        info: "Showing _START_ to _END_ of _TOTAL_ settings",
+                        infoEmpty: "No settings found",
+                        infoFiltered: "(filtered from _MAX_ total settings)",
+                        emptyTable: "No settings available",
+                        zeroRecords: "No matching settings found"
+                    }
+                });
+            });
+        });
+    </script>
 }
