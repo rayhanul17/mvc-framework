@@ -1,251 +1,450 @@
 @model Nexora.Web.Areas.CustomerSupport.Models.DashboardViewModel
 @{
-    ViewData["Title"] = "Support Dashboard";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Customer Support Dashboard";
 }
 
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2>@ViewData["Title"]</h2>
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1>
+                            <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                            Customer Support Dashboard
+                        </h1>
+                        <p class="text-muted mb-0">
+                            @Model.WelcomeMessage
+                            <span id="last-updated" class="text-info ms-2"></span>
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                        <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>New Ticket
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Statistics Cards -->
+    <!-- Key Metrics Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-primary">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-muted mb-2">Total Tickets</h6>
-                            <h3 class="mb-0">@Model.Statistics.TotalTickets</h3>
+                            <h6 class="text-white-75 mb-1">Total Tickets</h6>
+                            <h2 class="mb-0" id="total-tickets">@Model.Statistics.TotalTickets</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                @Model.TicketsCreatedToday created today
+                            </small>
                         </div>
-                        <i class="fas fa-ticket-alt fa-2x text-primary"></i>
+                        <div class="opacity-75">
+                            <i class="fas fa-ticket-alt fa-3x"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3">
-            <div class="card border-warning">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-muted mb-2">Open Tickets</h6>
-                            <h3 class="mb-0">@Model.Statistics.OpenTickets</h3>
+                            <h6 class="text-white-75 mb-1">Open Tickets</h6>
+                            <h2 class="mb-0" id="open-tickets">@Model.Statistics.OpenTickets</h2>
+                            <small class="text-white-75">
+                                @if (Model.OverdueTickets > 0)
+                                {
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <span>@Model.OverdueTickets overdue</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-check me-1"></i>
+                                    <span>None overdue</span>
+                                }
+                            </small>
                         </div>
-                        <i class="fas fa-clock fa-2x text-warning"></i>
+                        <div class="opacity-75">
+                            <i class="fas fa-clock fa-3x"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3">
-            <div class="card border-success">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-muted mb-2">Resolved</h6>
-                            <h3 class="mb-0">@Model.Statistics.ResolvedTickets</h3>
+                            <h6 class="text-white-75 mb-1">Resolved</h6>
+                            <h2 class="mb-0" id="resolved-tickets">@Model.Statistics.ResolvedTickets</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-arrow-up me-1"></i>
+                                @Model.TicketsResolvedToday resolved today
+                            </small>
                         </div>
-                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                        <div class="opacity-75">
+                            <i class="fas fa-check-circle fa-3x"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3">
-            <div class="card border-info">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-muted mb-2">Avg Resolution</h6>
-                            <h3 class="mb-0">@Model.Statistics.AverageResolutionHours.ToString("F1")h</h3>
+                            <h6 class="text-white-75 mb-1">Avg Resolution</h6>
+                            <h2 class="mb-0">@Model.AverageResolutionTime.ToString("F1")h</h2>
+                            <small class="text-white-75">
+                                @if (Model.Statistics.UnassignedTickets > 0)
+                                {
+                                    <i class="fas fa-user-slash me-1"></i>
+                                    <span>@Model.Statistics.UnassignedTickets unassigned</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-users me-1"></i>
+                                    <span>All assigned</span>
+                                }
+                            </small>
                         </div>
-                        <i class="fas fa-hourglass-half fa-2x text-info"></i>
+                        <div class="opacity-75">
+                            <i class="fas fa-stopwatch fa-3x"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Priority Alert Banner -->
+    @if (Model.HighPriorityTickets > 0 || Model.OverdueTickets > 0)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-@(Model.HighPriorityTickets > 5 || Model.OverdueTickets > 3 ? "danger" : "warning") alert-dismissible fade show">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                        <div class="flex-grow-1">
+                            <strong>Attention Required!</strong>
+                            @if (Model.HighPriorityTickets > 0)
+                            {
+                                <span>@Model.HighPriorityTickets high priority tickets need attention.</span>
+                            }
+                            @if (Model.OverdueTickets > 0)
+                            {
+                                <span>@Model.OverdueTickets tickets are overdue.</span>
+                            }
+                        </div>
+                        <div>
+                            <a asp-area="CustomerSupport" asp-controller="ManageTicket" asp-action="Index" 
+                               asp-route-filterPriority="High" class="btn btn-outline-dark btn-sm me-2">
+                                <i class="fas fa-eye me-1"></i>View High Priority
+                            </a>
+                            @if (Model.OverdueTickets > 0)
+                            {
+                                <a href="#" onclick="viewOverdue()" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-clock me-1"></i>View Overdue
+                                </a>
+                            }
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        </div>
+    }
 
     <div class="row">
-        <!-- My Tickets / Unassigned Tickets -->
-        <div class="col-md-8">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Recent Activity Chart -->
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        @if (User.IsInRole("SupportManager"))
-                        {
-                            <text>Unassigned Tickets</text>
-                        }
-                        else if (User.IsInRole("Support"))
-                        {
-                            <text>My Assigned Tickets</text>
-                        }
-                        else
-                        {
-                            <text>My Tickets</text>
-                        }
-                    </h5>
-                    <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Index" class="btn btn-sm btn-primary">
-                        View All
-                    </a>
+                    <div>
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Activity Trends (Last 7 Days)
+                        </h5>
+                    </div>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-primary active" onclick="showTrendChart('week')">7 Days</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="showTrendChart('month')">30 Days</button>
+                    </div>
                 </div>
                 <div class="card-body">
+                    <canvas id="trendsChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- Priority Distribution -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-chart-pie me-2"></i>By Priority
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Statistics.TicketsByPriority.Any())
+                            {
+                                <canvas id="priorityChart" height="200"></canvas>
+                                <div class="mt-3">
+                                    @foreach (var priority in Model.Statistics.TicketsByPriority.OrderByDescending(p => (int)p.Key))
+                                    {
+                                        var percentage = Model.Statistics.TotalTickets > 0 ? 
+                                                       (priority.Value * 100.0 / Model.Statistics.TotalTickets) : 0;
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="badge bg-@(GetPriorityBadgeClass(priority.Key))">@priority.Key</span>
+                                            <span>@priority.Value (@percentage.ToString("F1")%)</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-chart-pie fa-3x mb-2"></i>
+                                    <p>No data available</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>By Category
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Statistics.TicketsByCategory.Any())
+                            {
+                                <canvas id="categoryChart" height="200"></canvas>
+                                <div class="mt-3">
+                                    @foreach (var category in Model.Statistics.TicketsByCategory.OrderByDescending(c => c.Value).Take(5))
+                                    {
+                                        var percentage = Model.Statistics.TotalTickets > 0 ? 
+                                                       (category.Value * 100.0 / Model.Statistics.TotalTickets) : 0;
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-truncate">@category.Key</span>
+                                            <span>@category.Value (@percentage.ToString("F1")%)</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-chart-bar fa-3x mb-2"></i>
+                                    <p>No categories defined</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Feed -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Activity
+                    </h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadRecentActivity()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="recent-activity-feed">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- My Tickets -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>My Tickets (@Model.MyTickets.Count)
+                    </h6>
+                    <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Index" 
+                       class="btn btn-outline-primary btn-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
                     @if (Model.MyTickets.Any())
                     {
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Ticket #</th>
-                                        <th>Title</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var ticket in Model.MyTickets)
-                                    {
-                                        <tr>
-                                            <td>@ticket.TicketNumber</td>
-                                            <td>@ticket.Title</td>
-                                            <td>
-                                                <span class="badge bg-@GetPriorityColor(ticket.Priority)">
-                                                    @ticket.Priority
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-@GetStatusColor(ticket.Status)">
-                                                    @ticket.Status
-                                                </span>
-                                            </td>
-                                            <td>@ticket.CreatedAt.ToString("MM/dd HH:mm")</td>
-                                            <td>
-                                                @if (User.IsInRole("SupportManager"))
-                                                {
-                                                    <a asp-area="CustomerSupport" asp-controller="ManageTicket" 
-                                                       asp-action="Assign" asp-route-id="@ticket.Id" 
-                                                       class="btn btn-sm btn-info">
-                                                        Assign
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <a asp-area="CustomerSupport" asp-controller="Ticket" 
-                                                       asp-action="Details" asp-route-id="@ticket.Id" 
-                                                       class="btn btn-sm btn-info">
-                                                        View
-                                                    </a>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                        <div class="list-group list-group-flush">
+                            @foreach (var ticket in Model.MyTickets.Take(5))
+                            {
+                                <a href="@Url.Action("Details", "Ticket", new { area = "CustomerSupport", id = ticket.Id })" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <h6 class="mb-1">@(ticket.TicketNumber ?? $"T{ticket.Id:D6}")</h6>
+                                                <span class="badge bg-@(GetStatusBadgeClass(ticket.Status))">@ticket.Status</span>
+                                            </div>
+                                            <p class="mb-1 text-truncate">@ticket.Title</p>
+                                            <small class="text-muted">
+                                                <span class="badge bg-@(GetPriorityBadgeClass(ticket.Priority)) me-1">@ticket.Priority</span>
+                                                @ticket.CreatedAt.ToString("MMM dd, HH:mm")
+                                            </small>
+                                        </div>
+                                    </div>
+                                </a>
+                            }
                         </div>
                     }
                     else
                     {
-                        <p class="text-muted text-center">No tickets to display</p>
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <p class="text-muted mb-0">No active tickets assigned</p>
+                        </div>
                     }
                 </div>
             </div>
 
-            <!-- Recent Activity -->
-            @if (User.IsInRole("SupportManager") && Model.RecentTickets.Any())
+            <!-- Unassigned Tickets -->
+            @if (Model.UnassignedTickets.Any())
             {
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Recent Tickets</h5>
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-user-slash me-2"></i>Unassigned (@Model.UnassignedTickets.Count)
+                        </h6>
+                        <a asp-area="CustomerSupport" asp-controller="ManageTicket" asp-action="Unassigned" 
+                           class="btn btn-outline-warning btn-sm">View All</a>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Ticket #</th>
-                                        <th>Customer</th>
-                                        <th>Assigned To</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var ticket in Model.RecentTickets)
-                                    {
-                                        <tr>
-                                            <td>@ticket.TicketNumber</td>
-                                            <td>@ticket.Customer?.FullName</td>
-                                            <td>
-                                                @if (ticket.AssignedTo != null)
-                                                {
-                                                    @ticket.AssignedTo.FullName
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">Unassigned</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-@GetStatusColor(ticket.Status)">
-                                                    @ticket.Status
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <a asp-area="CustomerSupport" asp-controller="ManageTicket" 
-                                                   asp-action="Details" asp-route-id="@ticket.Id" 
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @foreach (var ticket in Model.UnassignedTickets.Take(5))
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <h6 class="mb-1">@(ticket.TicketNumber ?? $"T{ticket.Id:D6}")</h6>
+                                                <span class="badge bg-@(GetPriorityBadgeClass(ticket.Priority))">@ticket.Priority</span>
+                                            </div>
+                                            <p class="mb-1 text-truncate">@ticket.Title</p>
+                                            <small class="text-muted">
+                                                @ticket.Customer?.FullName • @ticket.CreatedAt.ToString("MMM dd, HH:mm")
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <a href="@Url.Action("Assign", "ManageTicket", new { area = "CustomerSupport", id = ticket.Id })" 
+                                           class="btn btn-primary btn-sm">
+                                            <i class="fas fa-user-plus me-1"></i>Assign
+                                        </a>
+                                        <a href="@Url.Action("Details", "Ticket", new { area = "CustomerSupport", id = ticket.Id })" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i>View
+                                        </a>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             }
-        </div>
 
-        <!-- Notifications & Quick Actions -->
-        <div class="col-md-4">
+            <!-- Top Performers -->
+            @if (Model.TopPerformers.Any())
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-trophy me-2"></i>Top Performers (30 days)
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @for (int i = 0; i < Model.TopPerformers.Take(5).Count(); i++)
+                            {
+                                var performer = Model.TopPerformers[i];
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="badge bg-@(i == 0 ? "warning" : i == 1 ? "secondary" : i == 2 ? "dark" : "light text-dark") me-2">
+                                            @(i + 1)
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <strong>@performer.AgentName</strong>
+                                                <span class="text-success">@performer.TicketsResolved resolved</span>
+                                            </div>
+                                            <small class="text-muted">
+                                                @performer.OpenTickets open • 
+                                                @performer.AverageResolutionTime.ToString("F1")h avg • 
+                                                @performer.CustomerSatisfactionScore.ToString("F1")★
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
             <!-- Notifications -->
-            <div class="card mb-4">
+            <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        Notifications
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-bell me-2"></i>Recent Notifications
                         @if (Model.UnreadNotificationCount > 0)
                         {
                             <span class="badge bg-danger">@Model.UnreadNotificationCount</span>
                         }
-                    </h5>
-                    <a asp-action="Notifications" class="btn btn-sm btn-outline-primary">View All</a>
+                    </h6>
+                    @if (Model.UnreadNotificationCount > 0)
+                    {
+                        <button class="btn btn-outline-secondary btn-sm" onclick="markAllNotificationsAsRead()">
+                            <i class="fas fa-check me-1"></i>Mark All Read
+                        </button>
+                    }
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     @if (Model.RecentNotifications.Any())
                     {
                         <div class="list-group list-group-flush">
-                            @foreach (var notification in Model.RecentNotifications)
+                            @foreach (var notification in Model.RecentNotifications.Take(5))
                             {
-                                <div class="list-group-item px-0">
+                                <div class="list-group-item @(!notification.IsRead ? "bg-light border-primary border-start border-3" : "")" 
+                                     data-notification-id="@notification.Id">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div class="flex-grow-1">
                                             <h6 class="mb-1">@notification.Title</h6>
                                             <p class="mb-1 small">@notification.Message</p>
-                                            <small class="text-muted">
-                                                @notification.CreatedAt.ToString("MM/dd HH:mm")
-                                            </small>
+                                            <small class="text-muted">@notification.CreatedAt.ToString("MMM dd, HH:mm")</small>
                                         </div>
                                         @if (!notification.IsRead)
                                         {
-                                            <button class="btn btn-sm btn-outline-secondary mark-read" 
-                                                    data-id="@notification.Id">
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    onclick="markNotificationAsRead(@notification.Id)">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         }
@@ -256,48 +455,11 @@
                     }
                     else
                     {
-                        <p class="text-muted text-center">No new notifications</p>
+                        <div class="text-center py-4">
+                            <i class="fas fa-bell-slash fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No recent notifications</p>
+                        </div>
                     }
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        @if (User.IsInRole("Customer"))
-                        {
-                            <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Create" 
-                               class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Create New Ticket
-                            </a>
-                            <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Index" 
-                               class="btn btn-outline-primary">
-                                <i class="fas fa-list"></i> View My Tickets
-                            </a>
-                        }
-                        @if (User.IsInRole("Support"))
-                        {
-                            <a asp-area="CustomerSupport" asp-controller="SupportTicket" asp-action="MyTickets" 
-                               class="btn btn-primary">
-                                <i class="fas fa-tasks"></i> My Assigned Tickets
-                            </a>
-                        }
-                        @if (User.IsInRole("SupportManager"))
-                        {
-                            <a asp-area="CustomerSupport" asp-controller="ManageTicket" asp-action="Unassigned" 
-                               class="btn btn-warning">
-                                <i class="fas fa-exclamation-triangle"></i> Unassigned Tickets
-                            </a>
-                            <a asp-area="CustomerSupport" asp-controller="ManageTicket" asp-action="Statistics" 
-                               class="btn btn-info">
-                                <i class="fas fa-chart-bar"></i> View Statistics
-                            </a>
-                        }
-                    </div>
                 </div>
             </div>
         </div>
@@ -305,65 +467,319 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mark notification as read
-            document.querySelectorAll('.mark-read').forEach(button => {
-                button.addEventListener('click', function() {
-                    const notificationId = this.dataset.id;
-                    fetch('@Url.Action("MarkNotificationAsRead")', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('[name="__RequestVerificationToken"]')?.value || ''
+        let trendsChart, priorityChart, categoryChart;
+        let lastUpdateTime = new Date();
+
+        $(document).ready(function() {
+            initializeCharts();
+            loadRecentActivity();
+            updateLastUpdatedTime();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(function() {
+                refreshDashboardStats();
+                updateLastUpdatedTime();
+            }, 30000);
+        });
+
+        function initializeCharts() {
+            // Trends Chart
+            const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+            trendsChart = new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: [@Html.Raw(string.Join(",", Model.WeeklyTrends.Select(t => $"'{t.Date:MMM dd}'")))],
+                    datasets: [{
+                        label: 'Created',
+                        data: [@string.Join(",", Model.WeeklyTrends.Select(t => t.TicketsCreated))],
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0.1
+                    }, {
+                        label: 'Resolved',
+                        data: [@string.Join(",", Model.WeeklyTrends.Select(t => t.TicketsResolved))],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
                         },
-                        body: JSON.stringify({ id: notificationId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            this.remove();
-                            // Update notification count
-                            const badge = document.querySelector('.badge.bg-danger');
-                            if (badge) {
-                                const count = parseInt(badge.textContent) - 1;
-                                if (count > 0) {
-                                    badge.textContent = count;
-                                } else {
-                                    badge.remove();
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            @if (Model.Statistics.TicketsByPriority.Any())
+            {
+                <text>
+                // Priority Chart
+                const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+                priorityChart = new Chart(priorityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [@Html.Raw(string.Join(",", Model.Statistics.TicketsByPriority.Keys.Select(k => $"'{k}'")))],
+                        datasets: [{
+                            data: [@string.Join(",", Model.Statistics.TicketsByPriority.Values)],
+                            backgroundColor: [
+                                '#28a745', // Low - green
+                                '#17a2b8', // Medium - blue  
+                                '#ffc107', // High - yellow
+                                '#dc3545', // Urgent - red
+                                '#343a40'  // Critical - dark
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+
+            @if (Model.Statistics.TicketsByCategory.Any())
+            {
+                <text>
+                // Category Chart
+                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                categoryChart = new Chart(categoryCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [@Html.Raw(string.Join(",", Model.Statistics.TicketsByCategory.Keys.Take(5).Select(k => $"'{k}'")))],
+                        datasets: [{
+                            label: 'Tickets',
+                            data: [@string.Join(",", Model.Statistics.TicketsByCategory.Values.Take(5))],
+                            backgroundColor: '#007bff',
+                            borderColor: '#0056b3',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
                                 }
                             }
                         }
-                    });
+                    }
                 });
+                </text>
+            }
+        }
+
+        function refreshDashboard() {
+            showLoadingSpinner();
+            refreshDashboardStats();
+            loadRecentActivity();
+            updateLastUpdatedTime();
+        }
+
+        function refreshDashboardStats() {
+            fetch('@Url.Action("GetDashboardStats", "Dashboard", new { area = "CustomerSupport" })')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.error) {
+                        document.getElementById('total-tickets').textContent = data.totalTickets;
+                        document.getElementById('open-tickets').textContent = data.openTickets;
+                        document.getElementById('resolved-tickets').textContent = data.resolvedTickets;
+                        
+                        // Update badges
+                        if (data.overdueTickets > 0) {
+                            showNotification('warning', `${data.overdueTickets} tickets are overdue!`);
+                        }
+                    }
+                });
+        }
+
+        function loadRecentActivity() {
+            fetch('@Url.Action("GetRecentActivity", "Dashboard", new { area = "CustomerSupport" })')
+                .then(response => response.json())
+                .then(data => {
+                    const feed = document.getElementById('recent-activity-feed');
+                    if (data.error) {
+                        feed.innerHTML = '<div class="text-center py-4"><p class="text-muted">Error loading activity</p></div>';
+                        return;
+                    }
+                    
+                    if (data.length === 0) {
+                        feed.innerHTML = '<div class="text-center py-4"><i class="fas fa-history fa-2x text-muted mb-2"></i><p class="text-muted">No recent activity</p></div>';
+                        return;
+                    }
+
+                    let html = '<div class="list-group list-group-flush">';
+                    data.forEach(item => {
+                        const timeAgo = moment(item.createdAt).fromNow();
+                        const badgeClass = item.isInternal ? 'warning' : item.isSystemGenerated ? 'secondary' : 'primary';
+                        const badgeText = item.isInternal ? 'Internal' : item.isSystemGenerated ? 'System' : 'Comment';
+                        
+                        html += `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1">
+                                        <a href="/CustomerSupport/Ticket/Details/${item.ticketId}" class="text-decoration-none">
+                                            ${item.ticketNumber}: ${item.ticketTitle}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">${timeAgo}</small>
+                                </div>
+                                <p class="mb-1 small text-truncate">${item.comment}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>${item.userName}
+                                    <span class="badge bg-${badgeClass} ms-2">${badgeText}</span>
+                                </small>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    feed.innerHTML = html;
+                });
+        }
+
+        function markNotificationAsRead(id) {
+            fetch('@Url.Action("MarkNotificationAsRead", "Dashboard", new { area = "CustomerSupport" })', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const notificationElement = document.querySelector(`[data-notification-id="${id}"]`);
+                    if (notificationElement) {
+                        notificationElement.classList.remove('bg-light', 'border-primary', 'border-start', 'border-3');
+                        const button = notificationElement.querySelector('button');
+                        if (button) button.remove();
+                    }
+                }
             });
-        });
+        }
+
+        function markAllNotificationsAsRead() {
+            fetch('@Url.Action("MarkAllNotificationsAsRead", "Dashboard", new { area = "CustomerSupport" })', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelectorAll('[data-notification-id]').forEach(element => {
+                        element.classList.remove('bg-light', 'border-primary', 'border-start', 'border-3');
+                        const button = element.querySelector('button');
+                        if (button) button.remove();
+                    });
+                    const badge = document.querySelector('.badge.bg-danger');
+                    if (badge) badge.remove();
+                    showNotification('success', `${data.count} notifications marked as read`);
+                }
+            });
+        }
+
+        function viewOverdue() {
+            window.location.href = '@Url.Action("Index", "ManageTicket", new { area = "CustomerSupport" })' + '?isOverdue=true';
+        }
+
+        function showTrendChart(period) {
+            // Update active button
+            document.querySelectorAll('.btn-group .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // This would fetch new data for the selected period
+            console.log('Showing trends for:', period);
+        }
+
+        function updateLastUpdatedTime() {
+            lastUpdateTime = new Date();
+            document.getElementById('last-updated').textContent = `Last updated: ${lastUpdateTime.toLocaleTimeString()}`;
+        }
+
+        function showLoadingSpinner() {
+            // Add loading indicators to metric cards
+            document.querySelectorAll('.card h2').forEach(element => {
+                element.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"></div>';
+            });
+        }
+
+        function showNotification(type, message) {
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            toast.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 5000);
+        }
     </script>
+    
+    <!-- Moment.js for time formatting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
 }
 
 @functions {
-    string GetStatusColor(Nexora.Core.Entities.TicketStatus status)
+    string GetStatusBadgeClass(Nexora.Core.Entities.TicketStatus status)
     {
         return status switch
         {
             Nexora.Core.Entities.TicketStatus.New => "primary",
-            Nexora.Core.Entities.TicketStatus.Assigned => "info",
+            Nexora.Core.Entities.TicketStatus.Open => "info",
             Nexora.Core.Entities.TicketStatus.InProgress => "warning",
+            Nexora.Core.Entities.TicketStatus.OnHold => "secondary",
             Nexora.Core.Entities.TicketStatus.Resolved => "success",
-            Nexora.Core.Entities.TicketStatus.Closed => "secondary",
-            Nexora.Core.Entities.TicketStatus.Reopened => "danger",
+            Nexora.Core.Entities.TicketStatus.Closed => "dark",
+            Nexora.Core.Entities.TicketStatus.Cancelled => "danger",
+            Nexora.Core.Entities.TicketStatus.Reopened => "info",
             _ => "secondary"
         };
     }
 
-    string GetPriorityColor(Nexora.Core.Entities.TicketPriority priority)
+    string GetPriorityBadgeClass(Nexora.Core.Entities.TicketPriority priority)
     {
         return priority switch
         {
             Nexora.Core.Entities.TicketPriority.Low => "success",
-            Nexora.Core.Entities.TicketPriority.Medium => "warning",
-            Nexora.Core.Entities.TicketPriority.High => "danger",
-            Nexora.Core.Entities.TicketPriority.Urgent => "dark",
+            Nexora.Core.Entities.TicketPriority.Medium => "info",
+            Nexora.Core.Entities.TicketPriority.High => "warning",
+            Nexora.Core.Entities.TicketPriority.Urgent => "danger",
+            Nexora.Core.Entities.TicketPriority.Critical => "dark",
             _ => "secondary"
         };
     }

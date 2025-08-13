@@ -36,6 +36,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     // Audit Log Entities
     public DbSet<Log> Logs { get; set; }
     public DbSet<LogArchive> LogArchives { get; set; }
+    
+    // Customer Service Entities
+    public DbSet<CustomerServiceRoleMapping> CustomerServiceRoleMappings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -366,6 +369,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.LoggedAt);
             entity.HasIndex(e => e.ArchivedAt);
             entity.HasIndex(e => new { e.TableName, e.EntityId });
+        });
+        
+        // CustomerServiceRoleMapping Configuration
+        builder.Entity<CustomerServiceRoleMapping>(entity =>
+        {
+            entity.ToTable("CustomerServiceRoleMappings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.CustomerServiceRole).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.AspNetRoleName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(500);
+            
+            entity.HasOne(e => e.AspNetRole)
+                .WithMany()
+                .HasForeignKey(e => e.AspNetRoleName)
+                .HasPrincipalKey(r => r.Name)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasIndex(e => e.CustomerServiceRole).IsUnique();
+            entity.HasIndex(e => e.AspNetRoleName);
         });
     }
 

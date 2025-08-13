@@ -27,7 +27,8 @@
       "Bash(rm:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(ren:*)"
+      "Bash(ren:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }

@@ -31,12 +31,23 @@ public static class DbInitializer
         
         // Seed site settings
         await SeedSiteSettingsAsync(context);
+        
+        // Seed Customer Service role mappings
+        await SeedCustomerServiceRoleMappingsAsync(context);
     }
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
     {
-        // Only seed necessary roles
-        string[] roleNames = { "SuperAdmin", "Admin", "User" };
+        // Seed necessary roles including Customer Service roles
+        string[] roleNames = { 
+            "SuperAdmin", 
+            "Administrator", 
+            "User",
+            "CustomerSupportAdmin",
+            "CustomerSupportManager", 
+            "CustomerSupportAgent",
+            "CustomerSupportCustomer"
+        };
         
         foreach (var roleName in roleNames)
         {
@@ -114,7 +125,32 @@ public static class DbInitializer
             
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
+                await userManager.AddToRoleAsync(adminUser, "Administrator");
+            }
+        }
+
+        // Seed Test Users (testuser1 to testuser5) without any roles
+        for (int i = 1; i <= 5; i++)
+        {
+            var testEmail = $"testuser{i}@example.com";
+            var testUser = await userManager.FindByEmailAsync(testEmail);
+
+            if (testUser == null)
+            {
+                testUser = new ApplicationUser
+                {
+                    UserName = testEmail,
+                    Email = testEmail,
+                    FullName = $"Test User {i}",
+                    Description = $"Test user account {i} for testing purposes",
+                    EmailConfirmed = true,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true,
+                    IsSuperAdmin = false
+                };
+
+                var result = await userManager.CreateAsync(testUser, "TestUser@123");
+                // Note: Not adding any roles to these test users
             }
         }
     }
@@ -373,7 +409,7 @@ public static class DbInitializer
 
     private static async Task AssignMenuPermissionsAsync(ApplicationDbContext context, RoleManager<ApplicationRole> roleManager)
     {
-        var adminRole = await roleManager.FindByNameAsync("Admin");
+        var adminRole = await roleManager.FindByNameAsync("Administrator");
         var superAdminRole = await roleManager.FindByNameAsync("SuperAdmin");
         
         if (adminRole == null || superAdminRole == null)
@@ -530,10 +566,116 @@ public static class DbInitializer
                 IsSystemSetting = false,
                 Order = 2,
                 CreatedAt = DateTime.UtcNow
+            },
+            new SiteSetting
+            {
+                Key = "SiteSlogan",
+                Value = "Dynamic Role-Based System",
+                Description = "Website tagline or slogan",
+                Category = SettingCategory.Branding,
+                Type = SettingType.Text,
+                IsRequired = false,
+                IsSystemSetting = false,
+                Order = 3,
+                CreatedAt = DateTime.UtcNow
+            },
+            new SiteSetting
+            {
+                Key = "WelcomeMessage",
+                Value = "Welcome to your dashboard! Here's an overview of your system.",
+                Description = "Default welcome message for admin dashboard",
+                Category = SettingCategory.UserInterface,
+                Type = SettingType.Text,
+                IsRequired = false,
+                IsSystemSetting = false,
+                Order = 1,
+                CreatedAt = DateTime.UtcNow
+            },
+            new SiteSetting
+            {
+                Key = "CustomerSupportWelcome",
+                Value = "Welcome to Customer Support! Here's what's happening with your tickets.",
+                Description = "Welcome message for customer support dashboard",
+                Category = SettingCategory.UserInterface,
+                Type = SettingType.Text,
+                IsRequired = false,
+                IsSystemSetting = false,
+                Order = 2,
+                CreatedAt = DateTime.UtcNow
+            },
+            new SiteSetting
+            {
+                Key = "CustomerServiceWelcome",
+                Value = "Welcome to Customer Service configuration panel.",
+                Description = "Welcome message for customer service dashboard",
+                Category = SettingCategory.UserInterface,
+                Type = SettingType.Text,
+                IsRequired = false,
+                IsSystemSetting = false,
+                Order = 3,
+                CreatedAt = DateTime.UtcNow
+            },
+            new SiteSetting
+            {
+                Key = "UserWelcomeMessage",
+                Value = "Welcome to your personal dashboard",
+                Description = "Welcome message for regular user dashboard",
+                Category = SettingCategory.UserInterface,
+                Type = SettingType.Text,
+                IsRequired = false,
+                IsSystemSetting = false,
+                Order = 4,
+                CreatedAt = DateTime.UtcNow
             }
         };
 
         await context.SiteSettings.AddRangeAsync(settings);
+        await context.SaveChangesAsync();
+    }
+    
+    private static async Task SeedCustomerServiceRoleMappingsAsync(ApplicationDbContext context)
+    {
+        // Check if mappings already exist
+        if (await context.CustomerServiceRoleMappings.AnyAsync())
+            return;
+
+        var mappings = new List<CustomerServiceRoleMapping>
+        {
+            new CustomerServiceRoleMapping
+            {
+                CustomerServiceRole = "CustomerSupportAdmin",
+                AspNetRoleName = "CustomerSupportAdmin",
+                Description = "Full administrative access to Customer Service area",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new CustomerServiceRoleMapping
+            {
+                CustomerServiceRole = "CustomerSupportManager",
+                AspNetRoleName = "CustomerSupportManager",
+                Description = "Manager access - can view all tickets and assign work",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new CustomerServiceRoleMapping
+            {
+                CustomerServiceRole = "CustomerSupportAgent",
+                AspNetRoleName = "CustomerSupportAgent",
+                Description = "Agent access - can view and respond to assigned tickets",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            },
+            new CustomerServiceRoleMapping
+            {
+                CustomerServiceRole = "CustomerSupportCustomer",
+                AspNetRoleName = "CustomerSupportCustomer",
+                Description = "Customer access - can only view their own tickets",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            }
+        };
+
+        await context.CustomerServiceRoleMappings.AddRangeAsync(mappings);
         await context.SaveChangesAsync();
     }
 }

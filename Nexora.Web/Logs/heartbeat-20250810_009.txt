@@ -1,7 +1,0 @@
-2025-08-10 19:04:34.983 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:01 | Memory: 146 MB | GC Memory: 34 MB | Threads: 49 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 13:04:34
-2025-08-10 19:08:06.316 +06:00 [HEARTBEAT] Starting web application
-2025-08-10 19:08:06.341 +06:00 [HEARTBEAT] Application startup - This is a test warning to verify logging configuration
-2025-08-10 19:08:07.564 +06:00 [HEARTBEAT] Log Archive Background Service started
-2025-08-10 19:08:07.580 +06:00 [HEARTBEAT] Application Heartbeat #1 | Status: Healthy | Uptime: 00:00:02 | Memory: 146 MB | GC Memory: 34 MB | Threads: 49 | GC Gen0: 0 Gen1: 0 Gen2: 0 | Timestamp: 2025-08-10 13:08:07
-2025-08-10 19:08:08.548 +06:00 [HEARTBEAT] HTTP GET / responded 200 in 347.6471 ms
-2025-08-10 19:08:08.584 +06:00 [HEARTBEAT] HTTP GET /uploads/profiles/4c829ae7-8c6b-4b44-9ed4-4849800f86ff.png responded 304 in 2.3721 ms

@@ -4,33 +4,38 @@ namespace Nexora.Core.Entities;
 
 public class TicketComment : BaseEntity
 {
-    
-    public int TicketId { get; set; }
-    public virtual Ticket Ticket { get; set; } = null!;
-    
     [Required]
-    public string Comment { get; set; } = string.Empty;
+    [StringLength(2000)]
+    public string Comment { get; set; } = string.Empty;  // Changed from Content to Comment
     
-    public string UserId { get; set; } = string.Empty;
-    public virtual ApplicationUser User { get; set; } = null!;
+    public CommentType Type { get; set; } = CommentType.General;
     
-    public bool IsInternal { get; set; } // Internal notes not visible to customer
-    
-    public CommentType Type { get; set; } = CommentType.Comment;
-    
-    // For status change comments
     public TicketStatus? OldStatus { get; set; }
     public TicketStatus? NewStatus { get; set; }
     
+    public bool IsInternal { get; set; } = false;
+    
+    public bool IsSystemGenerated { get; set; } = false;
+    
+    // Foreign Keys
+    public int TicketId { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    
+    // Navigation Properties
+    public virtual Ticket Ticket { get; set; } = null!;
+    public virtual ApplicationUser User { get; set; } = null!;
+    
+    // Collections
     public virtual ICollection<TicketAttachment> Attachments { get; set; } = new List<TicketAttachment>();
 }
 
 public enum CommentType
 {
-    Comment = 1,
+    General = 1,
     StatusChange = 2,
     Assignment = 3,
-    Resolution = 4,
-    Reopened = 5,
-    InternalNote = 6
+    Internal = 4,
+    Resolution = 5,
+    Reopened = 6,
+    Comment = 7
 }
