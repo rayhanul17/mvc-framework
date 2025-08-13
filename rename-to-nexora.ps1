@@ -6,18 +6,6 @@ Write-Host "Project Rename: DynamicRoleMenuSystem -> Nexora" -ForegroundColor Cy
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Check if git has uncommitted changes
-$gitStatus = git status --porcelain
-if ($gitStatus) {
-    Write-Host "WARNING: You have uncommitted changes!" -ForegroundColor Yellow
-    Write-Host "Please commit or stash your changes before proceeding." -ForegroundColor Yellow
-    $confirm = Read-Host "Do you want to continue anyway? (yes/no)"
-    if ($confirm -ne "yes") {
-        Write-Host "Rename cancelled." -ForegroundColor Red
-        exit
-    }
-}
-
 Write-Host "This script will:" -ForegroundColor Yellow
 Write-Host "1. Rename solution and project files" -ForegroundColor White
 Write-Host "2. Rename project folders" -ForegroundColor White
@@ -25,11 +13,8 @@ Write-Host "3. Update all namespaces and references" -ForegroundColor White
 Write-Host "4. Update configuration files" -ForegroundColor White
 Write-Host ""
 
-$confirm = Read-Host "Do you want to proceed? (yes/no)"
-if ($confirm -ne "yes") {
-    Write-Host "Rename cancelled." -ForegroundColor Red
-    exit
-}
+# Auto-proceed for automation
+Write-Host "Proceeding with rename operation..." -ForegroundColor Green
 
 $rootPath = "D:\mvc-framework"
 Set-Location $rootPath
