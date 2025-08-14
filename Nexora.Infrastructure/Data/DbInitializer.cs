@@ -34,6 +34,11 @@ public static class DbInitializer
         
         // Seed Customer Service role mappings
         await SeedCustomerServiceRoleMappingsAsync(context);
+        
+        // Seed comprehensive test data
+        await SeedTestTeamMembersAsync(userManager);
+        await SeedBlogPostsAsync(context, userManager);
+        await SeedTicketsAsync(context, userManager);
     }
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
@@ -129,7 +134,10 @@ public static class DbInitializer
             }
         }
 
-        // Seed Test Users (testuser1 to testuser5) without any roles
+        // Seed Customer Support Team Members
+        await SeedSupportTeamAsync(userManager);
+        
+        // Seed Test Customers (testuser1 to testuser5)
         for (int i = 1; i <= 5; i++)
         {
             var testEmail = $"testuser{i}@example.com";
@@ -150,7 +158,12 @@ public static class DbInitializer
                 };
 
                 var result = await userManager.CreateAsync(testUser, "TestUser@123");
-                // Note: Not adding any roles to these test users
+                
+                if (result.Succeeded)
+                {
+                    // Add CustomerSupportCustomer role to test users
+                    await userManager.AddToRoleAsync(testUser, "CustomerSupportCustomer");
+                }
             }
         }
     }
@@ -566,5 +579,506 @@ public static class DbInitializer
 
         await context.CustomerServiceRoleMappings.AddRangeAsync(mappings);
         await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedSupportTeamAsync(UserManager<ApplicationUser> userManager)
+    {
+        // Seed Customer Support Admin
+        var supportAdminEmail = "support.admin@example.com";
+        if (await userManager.FindByEmailAsync(supportAdminEmail) == null)
+        {
+            var supportAdmin = new ApplicationUser
+            {
+                UserName = supportAdminEmail,
+                Email = supportAdminEmail,
+                FullName = "Sarah Johnson",
+                Description = "Customer Support Administrator",
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                IsSuperAdmin = false
+            };
+            
+            var result = await userManager.CreateAsync(supportAdmin, "Support@123");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(supportAdmin, "CustomerSupportAdmin");
+            }
+        }
+
+        // Seed Customer Support Manager
+        var supportManagerEmail = "support.manager@example.com";
+        if (await userManager.FindByEmailAsync(supportManagerEmail) == null)
+        {
+            var supportManager = new ApplicationUser
+            {
+                UserName = supportManagerEmail,
+                Email = supportManagerEmail,
+                FullName = "Michael Davis",
+                Description = "Customer Support Manager",
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                IsSuperAdmin = false
+            };
+            
+            var result = await userManager.CreateAsync(supportManager, "Manager@123");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(supportManager, "CustomerSupportManager");
+            }
+        }
+
+        // Seed Customer Support Agents
+        string[] agentNames = { "Emily Wilson", "James Brown", "Lisa Martinez", "Robert Taylor" };
+        for (int i = 0; i < agentNames.Length; i++)
+        {
+            var agentEmail = $"agent{i + 1}@example.com";
+            if (await userManager.FindByEmailAsync(agentEmail) == null)
+            {
+                var agent = new ApplicationUser
+                {
+                    UserName = agentEmail,
+                    Email = agentEmail,
+                    FullName = agentNames[i],
+                    Description = "Customer Support Agent",
+                    EmailConfirmed = true,
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true,
+                    IsSuperAdmin = false
+                };
+                
+                var result = await userManager.CreateAsync(agent, "Agent@123");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(agent, "CustomerSupportAgent");
+                }
+            }
+        }
+    }
+
+    private static async Task SeedTestTeamMembersAsync(UserManager<ApplicationUser> userManager)
+    {
+        // Additional team members for testing various scenarios
+        var blogAuthorEmail = "blog.author@example.com";
+        if (await userManager.FindByEmailAsync(blogAuthorEmail) == null)
+        {
+            var blogAuthor = new ApplicationUser
+            {
+                UserName = blogAuthorEmail,
+                Email = blogAuthorEmail,
+                FullName = "John Writer",
+                Description = "Content Creator and Blog Author",
+                EmailConfirmed = true,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+                IsSuperAdmin = false
+            };
+            
+            var result = await userManager.CreateAsync(blogAuthor, "BlogAuthor@123");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(blogAuthor, "Administrator");
+            }
+        }
+    }
+
+    private static async Task SeedBlogPostsAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    {
+        if (await context.BlogPosts.AnyAsync())
+            return;
+
+        var adminUser = await userManager.FindByEmailAsync("admin@example.com");
+        var blogAuthor = await userManager.FindByEmailAsync("blog.author@example.com");
+        
+        if (adminUser == null)
+            return;
+
+        var techCategory = await context.BlogCategories.FirstOrDefaultAsync(c => c.Slug == "technology");
+        var businessCategory = await context.BlogCategories.FirstOrDefaultAsync(c => c.Slug == "business");
+        var tutorialCategory = await context.BlogCategories.FirstOrDefaultAsync(c => c.Slug == "tutorial");
+
+        var blogPosts = new List<BlogPost>
+        {
+            new BlogPost
+            {
+                Title = "Getting Started with ASP.NET Core MVC",
+                Slug = "getting-started-aspnet-core-mvc",
+                Content = @"<p>ASP.NET Core MVC is a powerful framework for building web applications. In this comprehensive guide, we'll explore the fundamental concepts and best practices.</p>
+                           <h2>What is ASP.NET Core MVC?</h2>
+                           <p>ASP.NET Core MVC provides a patterns-based way to build dynamic websites that enables a clean separation of concerns.</p>
+                           <h2>Key Features</h2>
+                           <ul>
+                               <li>Cross-platform support</li>
+                               <li>High performance</li>
+                               <li>Built-in dependency injection</li>
+                               <li>Modular framework</li>
+                           </ul>",
+                Summary = "Learn the basics of ASP.NET Core MVC framework and start building modern web applications.",
+                FeaturedImageUrl = "/images/blog/aspnet-core-mvc.jpg",
+                CategoryId = tutorialCategory?.Id ?? 1,
+                AuthorId = adminUser.Id,
+                ViewCount = 245,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-30),
+                CreatedAt = DateTime.UtcNow.AddDays(-30)
+            },
+            new BlogPost
+            {
+                Title = "10 Best Practices for Entity Framework Core",
+                Slug = "best-practices-entity-framework-core",
+                Content = @"<p>Entity Framework Core is a modern object-database mapper for .NET. Here are the top 10 best practices to follow.</p>
+                           <h2>1. Use Async Methods</h2>
+                           <p>Always use async methods when querying the database to improve application scalability.</p>
+                           <h2>2. Optimize Your Queries</h2>
+                           <p>Use projection to select only the fields you need, reducing data transfer and improving performance.</p>",
+                Summary = "Discover the best practices for using Entity Framework Core effectively in your applications.",
+                FeaturedImageUrl = "/images/blog/ef-core-best-practices.jpg",
+                CategoryId = techCategory?.Id ?? 1,
+                AuthorId = blogAuthor?.Id ?? adminUser.Id,
+                ViewCount = 532,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-20),
+                CreatedAt = DateTime.UtcNow.AddDays(-20)
+            },
+            new BlogPost
+            {
+                Title = "Building a Customer Support System",
+                Slug = "building-customer-support-system",
+                Content = @"<p>A robust customer support system is essential for any business. Let's explore how to build one from scratch.</p>
+                           <h2>Core Components</h2>
+                           <p>Every support system needs ticket management, user authentication, and reporting capabilities.</p>
+                           <h2>Implementation Strategy</h2>
+                           <p>Start with a solid architecture and gradually add features based on business requirements.</p>",
+                Summary = "Step-by-step guide to building a comprehensive customer support system.",
+                FeaturedImageUrl = "/images/blog/support-system.jpg",
+                CategoryId = businessCategory?.Id ?? 1,
+                AuthorId = adminUser.Id,
+                ViewCount = 189,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-15),
+                CreatedAt = DateTime.UtcNow.AddDays(-15)
+            },
+            new BlogPost
+            {
+                Title = "Understanding Dependency Injection in .NET",
+                Slug = "understanding-dependency-injection-dotnet",
+                Content = @"<p>Dependency Injection (DI) is a design pattern that helps create loosely coupled applications.</p>
+                           <h2>Why Use Dependency Injection?</h2>
+                           <p>DI makes your code more testable, maintainable, and flexible.</p>",
+                Summary = "Master the concepts of dependency injection in .NET applications.",
+                FeaturedImageUrl = "/images/blog/dependency-injection.jpg",
+                CategoryId = tutorialCategory?.Id ?? 1,
+                AuthorId = blogAuthor?.Id ?? adminUser.Id,
+                ViewCount = 412,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-10),
+                CreatedAt = DateTime.UtcNow.AddDays(-10)
+            },
+            new BlogPost
+            {
+                Title = "Draft: Microservices Architecture Guide",
+                Slug = "microservices-architecture-guide",
+                Content = @"<p>This is a draft post about microservices architecture...</p>",
+                Summary = "Comprehensive guide to microservices architecture (Draft)",
+                CategoryId = techCategory?.Id ?? 1,
+                AuthorId = adminUser.Id,
+                ViewCount = 0,
+                IsPublished = false,
+                CreatedAt = DateTime.UtcNow.AddDays(-5)
+            }
+        };
+
+        await context.BlogPosts.AddRangeAsync(blogPosts);
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedTicketsAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    {
+        if (await context.Tickets.AnyAsync())
+            return;
+
+        // Get users for ticket creation
+        var customer1 = await userManager.FindByEmailAsync("testuser1@example.com");
+        var customer2 = await userManager.FindByEmailAsync("testuser2@example.com");
+        var customer3 = await userManager.FindByEmailAsync("testuser3@example.com");
+        var agent1 = await userManager.FindByEmailAsync("agent1@example.com");
+        var agent2 = await userManager.FindByEmailAsync("agent2@example.com");
+        var manager = await userManager.FindByEmailAsync("support.manager@example.com");
+
+        if (customer1 == null || agent1 == null)
+            return;
+
+        var tickets = new List<Ticket>
+        {
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-001",
+                Title = "Cannot login to my account",
+                Description = "I'm unable to login to my account. I've tried resetting my password but still getting an error message.",
+                Status = TicketStatus.Open,
+                Priority = TicketPriority.High,
+                Category = "Account",
+                CustomerId = customer1.Id,
+                AssignedToId = agent1?.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-5),
+                UpdatedAt = DateTime.UtcNow.AddDays(-4)
+            },
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-002",
+                Title = "Billing issue - duplicate charge",
+                Description = "I was charged twice for my subscription this month. Please refund the duplicate charge.",
+                Status = TicketStatus.InProgress,
+                Priority = TicketPriority.Critical,
+                Category = "Billing",
+                CustomerId = customer2?.Id ?? customer1.Id,
+                AssignedToId = agent2?.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-3),
+                UpdatedAt = DateTime.UtcNow.AddDays(-2)
+            },
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-003",
+                Title = "Feature request - Export to PDF",
+                Description = "It would be great if we could export reports to PDF format. This would help with sharing reports with clients.",
+                Status = TicketStatus.Open,
+                Priority = TicketPriority.Low,
+                Category = "Feature",
+                CustomerId = customer3?.Id ?? customer1.Id,
+                AssignedToId = null, // Unassigned
+                CreatedAt = DateTime.UtcNow.AddDays(-7),
+                UpdatedAt = DateTime.UtcNow.AddDays(-7)
+            },
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-004",
+                Title = "Application crashes on startup",
+                Description = "The application crashes immediately after launching. Error message: 'Unable to load configuration file'",
+                Status = TicketStatus.Resolved,
+                Priority = TicketPriority.High,
+                Category = "Technical",
+                CustomerId = customer1.Id,
+                AssignedToId = agent1?.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-10),
+                UpdatedAt = DateTime.UtcNow.AddDays(-8),
+                ResolvedAt = DateTime.UtcNow.AddDays(-8),
+                ResolutionNotes = "Configuration file was corrupted. Provided new configuration file to customer."
+            },
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-005",
+                Title = "Slow performance issues",
+                Description = "The system has been running very slowly for the past week. Page load times are over 30 seconds.",
+                Status = TicketStatus.InProgress,
+                Priority = TicketPriority.Medium,
+                Category = "Technical",
+                CustomerId = customer2?.Id ?? customer1.Id,
+                AssignedToId = agent2?.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-2),
+                UpdatedAt = DateTime.UtcNow.AddDays(-1)
+            },
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-006",
+                Title = "Request for training materials",
+                Description = "We have new team members joining. Could you provide training materials and documentation?",
+                Status = TicketStatus.Closed,
+                Priority = TicketPriority.Low,
+                Category = "Other",
+                CustomerId = customer3?.Id ?? customer1.Id,
+                AssignedToId = agent1?.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-15),
+                UpdatedAt = DateTime.UtcNow.AddDays(-12),
+                ResolvedAt = DateTime.UtcNow.AddDays(-12),
+                ClosedAt = DateTime.UtcNow.AddDays(-11),
+                ResolutionNotes = "Provided comprehensive training materials and scheduled training session."
+            },
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-007",
+                Title = "Integration with third-party API failing",
+                Description = "Our integration with the payment gateway API is returning 401 errors since yesterday.",
+                Status = TicketStatus.Open,
+                Priority = TicketPriority.Critical,
+                Category = "Technical",
+                CustomerId = customer1.Id,
+                AssignedToId = null, // Unassigned critical ticket
+                CreatedAt = DateTime.UtcNow.AddHours(-6),
+                UpdatedAt = DateTime.UtcNow.AddHours(-6)
+            },
+            new Ticket
+            {
+                TicketNumber = "TKT-2024-008",
+                Title = "Update payment method",
+                Description = "I need to update my payment method from credit card to bank transfer.",
+                Status = TicketStatus.OnHold,
+                Priority = TicketPriority.Medium,
+                Category = "Billing",
+                CustomerId = customer2?.Id ?? customer1.Id,
+                AssignedToId = agent2?.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-4),
+                UpdatedAt = DateTime.UtcNow.AddDays(-3)
+            }
+        };
+
+        await context.Tickets.AddRangeAsync(tickets);
+        await context.SaveChangesAsync();
+
+        // Add ticket comments
+        await SeedTicketCommentsAsync(context, tickets, agent1, customer1);
+        
+        // Add ticket history
+        await SeedTicketHistoryAsync(context, tickets, agent1);
+    }
+
+    private static async Task SeedTicketCommentsAsync(ApplicationDbContext context, List<Ticket> tickets, ApplicationUser? agent, ApplicationUser customer)
+    {
+        if (await context.TicketComments.AnyAsync())
+            return;
+
+        var resolvedTicket = tickets.FirstOrDefault(t => t.Status == TicketStatus.Resolved);
+        if (resolvedTicket != null && agent != null)
+        {
+            var comments = new List<TicketComment>
+            {
+                new TicketComment
+                {
+                    TicketId = resolvedTicket.Id,
+                    UserId = customer.Id,
+                    Comment = "I've attached a screenshot of the error message.",
+                    IsInternal = false,
+                    CreatedAt = resolvedTicket.CreatedAt.AddHours(1)
+                },
+                new TicketComment
+                {
+                    TicketId = resolvedTicket.Id,
+                    UserId = agent.Id,
+                    Comment = "Thank you for the screenshot. I can see the issue now. Let me investigate this.",
+                    IsInternal = false,
+                    CreatedAt = resolvedTicket.CreatedAt.AddHours(2)
+                },
+                new TicketComment
+                {
+                    TicketId = resolvedTicket.Id,
+                    UserId = agent.Id,
+                    Comment = "Internal note: Configuration file path issue. Need to provide updated config.",
+                    IsInternal = true,
+                    CreatedAt = resolvedTicket.CreatedAt.AddHours(3)
+                },
+                new TicketComment
+                {
+                    TicketId = resolvedTicket.Id,
+                    UserId = agent.Id,
+                    Comment = "I've sent you a new configuration file via email. Please replace the existing one and try again.",
+                    IsInternal = false,
+                    CreatedAt = resolvedTicket.CreatedAt.AddHours(4)
+                },
+                new TicketComment
+                {
+                    TicketId = resolvedTicket.Id,
+                    UserId = customer.Id,
+                    Comment = "That worked! Thank you so much for the quick resolution.",
+                    IsInternal = false,
+                    CreatedAt = resolvedTicket.CreatedAt.AddHours(5)
+                }
+            };
+
+            await context.TicketComments.AddRangeAsync(comments);
+        }
+
+        var inProgressTicket = tickets.FirstOrDefault(t => t.Status == TicketStatus.InProgress);
+        if (inProgressTicket != null && agent != null)
+        {
+            var comments = new List<TicketComment>
+            {
+                new TicketComment
+                {
+                    TicketId = inProgressTicket.Id,
+                    UserId = agent?.Id ?? customer.Id,
+                    Comment = "I'm currently investigating this issue. I'll need to review your account details.",
+                    IsInternal = false,
+                    CreatedAt = inProgressTicket.CreatedAt.AddHours(2)
+                },
+                new TicketComment
+                {
+                    TicketId = inProgressTicket.Id,
+                    UserId = customer.Id,
+                    Comment = "Please let me know if you need any additional information from my end.",
+                    IsInternal = false,
+                    CreatedAt = inProgressTicket.CreatedAt.AddHours(3)
+                }
+            };
+
+            await context.TicketComments.AddRangeAsync(comments);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedTicketHistoryAsync(ApplicationDbContext context, List<Ticket> tickets, ApplicationUser? agent)
+    {
+        if (await context.TicketHistories.AnyAsync())
+            return;
+
+        var histories = new List<TicketHistory>();
+
+        foreach (var ticket in tickets.Where(t => t.AssignedToId != null))
+        {
+            histories.Add(new TicketHistory
+            {
+                TicketId = ticket.Id,
+                Action = "Ticket Created",
+                UserId = ticket.CustomerId,
+                Description = $"Ticket {ticket.TicketNumber} was created",
+                CreatedAt = ticket.CreatedAt
+            });
+
+            if (ticket.AssignedToId != null)
+            {
+                histories.Add(new TicketHistory
+                {
+                    TicketId = ticket.Id,
+                    Action = "Ticket Assigned",
+                    UserId = agent?.Id ?? ticket.CustomerId,
+                    Description = $"Ticket assigned to {agent?.FullName ?? "Support Agent"}",
+                    OldValue = "Unassigned",
+                    NewValue = agent?.FullName ?? "Support Agent",
+                    CreatedAt = ticket.CreatedAt.AddMinutes(30)
+                });
+            }
+
+            if (ticket.Status == TicketStatus.Resolved || ticket.Status == TicketStatus.Closed)
+            {
+                histories.Add(new TicketHistory
+                {
+                    TicketId = ticket.Id,
+                    Action = "Status Changed",
+                    UserId = agent?.Id ?? ticket.CustomerId,
+                    Description = "Ticket status changed to Resolved",
+                    OldValue = "InProgress",
+                    NewValue = "Resolved",
+                    CreatedAt = ticket.ResolvedAt ?? ticket.UpdatedAt ?? DateTime.UtcNow
+                });
+            }
+
+            if (ticket.Status == TicketStatus.Closed)
+            {
+                histories.Add(new TicketHistory
+                {
+                    TicketId = ticket.Id,
+                    Action = "Ticket Closed",
+                    UserId = ticket.CustomerId,
+                    Description = "Ticket was closed",
+                    CreatedAt = ticket.ClosedAt ?? ticket.UpdatedAt ?? DateTime.UtcNow
+                });
+            }
+        }
+
+        if (histories.Any())
+        {
+            await context.TicketHistories.AddRangeAsync(histories);
+            await context.SaveChangesAsync();
+        }
     }
 }

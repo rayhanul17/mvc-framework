@@ -72,7 +72,16 @@ public class ManageTicketController : BaseController
             return RedirectToAction(nameof(Index));
         }
 
-        var supportStaff = await _userManager.GetUsersInRoleAsync("Support");
+        // Get all support staff (agents, managers, and admins) excluding SuperAdmin
+        var supportAgents = await _userManager.GetUsersInRoleAsync("CustomerSupportAgent");
+        var supportManagers = await _userManager.GetUsersInRoleAsync("CustomerSupportManager");
+        var supportAdmins = await _userManager.GetUsersInRoleAsync("CustomerSupportAdmin");
+        
+        var supportStaff = supportAgents.Concat(supportManagers).Concat(supportAdmins)
+            .Where(u => !u.IsSuperAdmin) // Exclude SuperAdmin users
+            .GroupBy(u => u.Id)
+            .Select(g => g.First())
+            .ToList();
         
         var model = new AssignTicketViewModel
         {
@@ -91,8 +100,17 @@ public class ManageTicketController : BaseController
     {
         if (!ModelState.IsValid)
         {
-            var supportStaff = await _userManager.GetUsersInRoleAsync("Support");
-            model.AvailableStaff = supportStaff.ToList();
+            // Get all support staff (agents, managers, and admins) excluding SuperAdmin
+            var agents2 = await _userManager.GetUsersInRoleAsync("CustomerSupportAgent");
+            var managers2 = await _userManager.GetUsersInRoleAsync("CustomerSupportManager");
+            var admins2 = await _userManager.GetUsersInRoleAsync("CustomerSupportAdmin");
+            
+            var supportStaff2 = agents2.Concat(managers2).Concat(admins2)
+                .Where(u => !u.IsSuperAdmin) // Exclude SuperAdmin users
+                .GroupBy(u => u.Id)
+                .Select(g => g.First())
+                .ToList();
+            model.AvailableStaff = supportStaff2.ToList();
             return View(model);
         }
 
@@ -106,7 +124,16 @@ public class ManageTicketController : BaseController
         }
 
         SetErrorMessage(result.ErrorMessage);
-        var staff = await _userManager.GetUsersInRoleAsync("Support");
+        // Get all support staff (agents, managers, and admins) excluding SuperAdmin
+        var agents3 = await _userManager.GetUsersInRoleAsync("CustomerSupportAgent");
+        var managers3 = await _userManager.GetUsersInRoleAsync("CustomerSupportManager");
+        var admins3 = await _userManager.GetUsersInRoleAsync("CustomerSupportAdmin");
+        
+        var staff = agents3.Concat(managers3).Concat(admins3)
+            .Where(u => !u.IsSuperAdmin) // Exclude SuperAdmin users
+            .GroupBy(u => u.Id)
+            .Select(g => g.First())
+            .ToList();
         model.AvailableStaff = staff.ToList();
         return View(model);
     }
@@ -420,11 +447,12 @@ public class ManageTicketController : BaseController
     [HttpGet]
     public async Task<IActionResult> GetAvailableAgents()
     {
-        var agents = await _userManager.GetUsersInRoleAsync("CustomerSupportAgent");
-        var managers = await _userManager.GetUsersInRoleAsync("CustomerSupportManager");
-        var admins = await _userManager.GetUsersInRoleAsync("CustomerSupportAdmin");
+        var supportAgents = await _userManager.GetUsersInRoleAsync("CustomerSupportAgent");
+        var supportManagers = await _userManager.GetUsersInRoleAsync("CustomerSupportManager");
+        var supportAdmins = await _userManager.GetUsersInRoleAsync("CustomerSupportAdmin");
         
-        var allStaff = agents.Concat(managers).Concat(admins)
+        var allStaff = supportAgents.Concat(supportManagers).Concat(supportAdmins)
+            .Where(u => !u.IsSuperAdmin) // Exclude SuperAdmin users
             .GroupBy(u => u.Id)
             .Select(g => g.First())
             .Select(u => new 

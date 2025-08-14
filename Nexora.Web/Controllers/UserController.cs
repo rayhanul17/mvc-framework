@@ -37,22 +37,24 @@ public class UserController : BaseController
             return View(new List<UserViewModel>());
         }
 
-        var userViewModels = result.Data!.Select(user => new UserViewModel
-        {
-            Id = user.Id,
-            FullName = user.FullName,
-            Email = user.Email!,
-            PhoneNumber = user.PhoneNumber,
-            AvatarUrl = user.AvatarUrl,
-            Description = user.Description,
-            IsActive = user.IsActive,
-            IsSuperAdmin = user.IsSuperAdmin,
-            EmailConfirmed = user.EmailConfirmed,
-            PhoneNumberConfirmed = user.PhoneNumberConfirmed,
-            CreatedAt = user.CreatedAt,
-            UpdatedAt = user.UpdatedAt,
-            AssignedRoles = user.UserRoles.Select(ur => ur.Role.Name!).ToList()
-        }).ToList();
+        var userViewModels = result.Data!
+            .Where(user => !user.IsSuperAdmin) // Exclude SuperAdmin users from the list
+            .Select(user => new UserViewModel
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email!,
+                PhoneNumber = user.PhoneNumber,
+                AvatarUrl = user.AvatarUrl,
+                Description = user.Description,
+                IsActive = user.IsActive,
+                IsSuperAdmin = user.IsSuperAdmin,
+                EmailConfirmed = user.EmailConfirmed,
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                CreatedAt = user.CreatedAt,
+                UpdatedAt = user.UpdatedAt,
+                AssignedRoles = user.UserRoles.Select(ur => ur.Role.Name!).ToList()
+            }).ToList();
 
         return View(userViewModels);
     }
@@ -116,6 +118,14 @@ public class UserController : BaseController
             }
 
             var user = result.Data;
+            
+            // Prevent editing SuperAdmin users
+            if (user.IsSuperAdmin)
+            {
+                SetErrorMessage("SuperAdmin users cannot be edited through this interface.");
+                return RedirectToAction(nameof(Index));
+            }
+            
             var userRoles = await _userManager.GetRolesAsync(user);
             var allRoles = _roleManager.Roles.ToList();
 
@@ -173,7 +183,7 @@ public class UserController : BaseController
                 AvatarUrl = model.AvatarUrl,
                 Description = model.Description,
                 IsActive = model.IsActive,
-                IsSuperAdmin = model.IsSuperAdmin,
+                IsSuperAdmin = false, // Never allow creating SuperAdmin through UI
                 EmailConfirmed = true
             };
 
@@ -209,6 +219,14 @@ public class UserController : BaseController
             }
 
             var user = result.Data;
+            
+            // Prevent editing SuperAdmin users
+            if (user.IsSuperAdmin)
+            {
+                SetErrorMessage("SuperAdmin users cannot be edited through this interface.");
+                return RedirectToAction(nameof(Index));
+            }
+            
             user.FullName = model.FullName;
             user.Email = model.Email;
             user.UserName = model.Email;
@@ -216,7 +234,8 @@ public class UserController : BaseController
             user.AvatarUrl = model.AvatarUrl;
             user.Description = model.Description;
             user.IsActive = model.IsActive;
-            user.IsSuperAdmin = model.IsSuperAdmin;
+            // Never allow changing IsSuperAdmin flag through UI
+            // user.IsSuperAdmin = model.IsSuperAdmin; // Removed
             user.EmailConfirmed = model.EmailConfirmed;
             user.PhoneNumberConfirmed = model.PhoneNumberConfirmed;
 
@@ -273,6 +292,14 @@ public class UserController : BaseController
         if (string.IsNullOrEmpty(id))
         {
             return NotFound();
+        }
+
+        // Check if user is SuperAdmin before deleting
+        var userResult = await _userService.GetUserByIdAsync(id);
+        if (userResult.IsSuccess && userResult.Data != null && userResult.Data.IsSuperAdmin)
+        {
+            SetErrorMessage("SuperAdmin users cannot be deleted through this interface.");
+            return RedirectToAction(nameof(Index));
         }
 
         var result = await _userService.DeleteUserAsync(id);

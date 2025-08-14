@@ -138,6 +138,10 @@ public class RoleService : IRoleService
             if (user == null)
                 return Result.Failure("User not found");
 
+            // Prevent assigning roles to SuperAdmin users
+            if (user.IsSuperAdmin)
+                return Result.Failure("Cannot assign roles to SuperAdmin users");
+
             var role = await _roleManager.FindByIdAsync(roleId);
             if (role == null)
                 return Result.Failure("Role not found");
@@ -164,6 +168,10 @@ public class RoleService : IRoleService
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 return Result.Failure("User not found");
+
+            // Prevent removing roles from SuperAdmin users
+            if (user.IsSuperAdmin)
+                return Result.Failure("Cannot remove roles from SuperAdmin users");
 
             var role = await _roleManager.FindByIdAsync(roleId);
             if (role == null)

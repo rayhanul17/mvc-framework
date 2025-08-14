@@ -507,11 +507,13 @@ public class TicketController : BaseController
         if (!string.IsNullOrEmpty(agentRole))
         {
             var agents = await _userManager.GetUsersInRoleAsync(agentRole);
-            model.AvailableAgents = agents.Select(u => new SelectListItem
-            {
-                Value = u.Id,
-                Text = u.FullName
-            }).ToList();
+            model.AvailableAgents = agents
+                .Where(u => !u.IsSuperAdmin) // Exclude SuperAdmin users
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id,
+                    Text = u.FullName
+                }).ToList();
         }
 
         // Add categories

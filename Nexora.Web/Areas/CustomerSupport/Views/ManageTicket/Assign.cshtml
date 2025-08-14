@@ -133,13 +133,13 @@
                     <p class="text-muted mb-3">Assign to available team members based on workload:</p>
                     
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-outline-primary" onclick="quickAssign('auto')">
+                        <button type="button" class="btn btn-outline-primary" onclick="quickAssign('auto')" data-bs-toggle="tooltip" title="Automatically assign to the agent with the least workload">
                             <i class="fas fa-magic me-2"></i>Auto-Assign (Least Busy)
                         </button>
-                        <button type="button" class="btn btn-outline-success" onclick="quickAssign('round-robin')">
+                        <button type="button" class="btn btn-outline-success" onclick="quickAssign('round-robin')" data-bs-toggle="tooltip" title="Assign using round-robin distribution">
                             <i class="fas fa-sync-alt me-2"></i>Round Robin Assignment
                         </button>
-                        <button type="button" class="btn btn-outline-info" onclick="quickAssign('skill-match')">
+                        <button type="button" class="btn btn-outline-info" onclick="quickAssign('skill-match')" data-bs-toggle="tooltip" title="Match ticket category with agent skills">
                             <i class="fas fa-bullseye me-2"></i>Skill-Based Assignment
                         </button>
                     </div>
@@ -193,6 +193,76 @@
                         </div>
                     }
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Assignment Successful
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Ticket Successfully Assigned!</h4>
+                    <p class="text-muted mb-0">Ticket #<span id="assignedTicketNumber"></span> has been assigned to <span id="assignedToName"></span></p>
+                    <div id="notificationStatus" class="mt-3"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="@Url.Action("Details", new { id = Model.TicketId })" class="btn btn-primary">
+                    <i class="fas fa-eye me-2"></i>View Ticket Details
+                </a>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-list me-2"></i>Back to Ticket List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Modal -->
+<div class="modal fade" id="processingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+                <h5>Assigning Ticket...</h5>
+                <p class="text-muted mb-0">Please wait while we assign the ticket and send notifications.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Assignment Failed
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="errorMessage">An error occurred while assigning the ticket. Please try again.</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="retryAssignment()">
+                    <i class="fas fa-redo me-2"></i>Try Again
+                </button>
             </div>
         </div>
     </div>
@@ -259,16 +329,84 @@
             }, 5000);
         }
         
-        // Form validation enhancement
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Form submission with modal feedback
         document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
             const assignToSelect = document.getElementById('AssignToUserId');
             if (!assignToSelect.value) {
-                e.preventDefault();
                 assignToSelect.focus();
                 assignToSelect.classList.add('border-danger');
                 showToast('Please select a team member to assign the ticket to.', 'warning');
                 return false;
             }
+            
+            // Show processing modal
+            const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+            processingModal.show();
+            
+            // Get form data
+            const formData = new FormData(this);
+            
+            // Submit via AJAX for better user experience
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error('Assignment failed');
+                }
+            })
+            .then(data => {
+                processingModal.hide();
+                
+                // Show success modal
+                const selectedOption = assignToSelect.options[assignToSelect.selectedIndex];
+                document.getElementById('assignedTicketNumber').textContent = '@Model.TicketNumber';
+                document.getElementById('assignedToName').textContent = selectedOption.text;
+                
+                // Update notification status
+                const notificationStatus = document.getElementById('notificationStatus');
+                const sendNotification = document.getElementById('sendNotification').checked;
+                const notifyCustomer = document.getElementById('notifyCustomer').checked;
+                
+                let notifications = [];
+                if (sendNotification) notifications.push('Email sent to assignee');
+                if (notifyCustomer) notifications.push('Customer notified');
+                
+                if (notifications.length > 0) {
+                    notificationStatus.innerHTML = '<i class="fas fa-bell text-success me-2"></i>' + notifications.join(' • ');
+                } else {
+                    notificationStatus.innerHTML = '<span class="text-muted">No notifications sent</span>';
+                }
+                
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            })
+            .catch(error => {
+                processingModal.hide();
+                
+                // Show error modal
+                document.getElementById('errorMessage').textContent = error.message || 'An error occurred while assigning the ticket.';
+                const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+                errorModal.show();
+            });
         });
+        
+        function retryAssignment() {
+            const errorModal = bootstrap.Modal.getInstance(document.getElementById('errorModal'));
+            errorModal.hide();
+            // Focus on the select field
+            document.getElementById('AssignToUserId').focus();
+        }
     </script>
 }
