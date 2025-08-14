@@ -94,7 +94,7 @@
                                                 </button>
                                             </form>
                                             <button type="button" class="btn btn-outline-danger btn-sm" 
-                                                    onclick="return showDeleteModal('@Url.Action("Delete", "User", new { id = item.Id })', @Html.Raw(Json.Serialize(item.FullName)), 'user', '<small class=\'text-muted\'>Email: ' + @Html.Raw(Json.Serialize(item.Email)) + '</small>')">
+                                                    onclick="return showDeleteModal('@Url.Action("Delete", "User", new { id = item.Id })', @Html.Raw(Json.Serialize(item.FullName)), 'user', @Html.Raw(Json.Serialize($"<small class='text-muted'>Email: {item.Email}</small>")))">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -120,6 +120,9 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Show loading mask while initializing DataTable
+            LoadingMask.show({ message: 'Loading users data...', animation: 'pulse' });
+            
             $('#usersTable').DataTable({
                 responsive: true,
                 order: [[5, 'desc']], // Sort by Created Date column by default
@@ -130,6 +133,7 @@
                 ],
                 pageLength: 25,
                 lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                processing: true,
                 language: {
                     search: "Search users:",
                     lengthMenu: "Show _MENU_ users per page",
@@ -137,11 +141,16 @@
                     infoEmpty: "No users found",
                     infoFiltered: "(filtered from _MAX_ total users)",
                     emptyTable: "No users available",
-                    zeroRecords: "No matching users found"
+                    zeroRecords: "No matching users found",
+                    processing: '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
                 },
                 dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
                      "<'row'<'col-sm-12'tr>>" +
-                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+                     "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                initComplete: function() {
+                    // Hide loading mask after DataTable is initialized
+                    LoadingMask.hide();
+                }
             });
         });
     </script>

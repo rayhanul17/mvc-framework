@@ -262,3 +262,178 @@ body {
 .dark-theme .card .table {
   color: inherit;
 }
+
+/* ========================================
+   Loading Mask Styles
+   ======================================== */
+.loading-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.dark-theme .loading-mask {
+  background: rgba(30, 30, 30, 0.95);
+}
+
+.loading-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-logo-container {
+  display: inline-block;
+  position: relative;
+}
+
+.loading-logo {
+  max-width: 120px;
+  max-height: 120px;
+  animation: logoBreathing 2s ease-in-out infinite;
+}
+
+.loading-spinner {
+  display: inline-block;
+}
+
+.loading-spinner .spinner-border {
+  width: 4rem;
+  height: 4rem;
+  border-width: 0.4rem;
+}
+
+.loading-text {
+  margin-top: 1rem;
+}
+
+.loading-message {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 500;
+  animation: textPulse 1.5s ease-in-out infinite;
+}
+
+.dark-theme .loading-message {
+  color: #aaa;
+}
+
+/* Logo Animations */
+@keyframes logoBreathing {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes logoPulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.05) rotate(1deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(0deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes logoRotateScale {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+@keyframes logoBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-10px) scale(1.05);
+  }
+  50% {
+    transform: translateY(0) scale(1.1);
+  }
+  75% {
+    transform: translateY(-5px) scale(1.05);
+  }
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Loading mask variations */
+.loading-mask.pulse .loading-logo {
+  animation: logoPulse 2s ease-in-out infinite;
+}
+
+.loading-mask.rotate .loading-logo {
+  animation: logoRotateScale 3s ease-in-out infinite;
+}
+
+.loading-mask.bounce .loading-logo {
+  animation: logoBounce 2s ease-in-out infinite;
+}
+
+/* Progress bar for loading mask */
+.loading-progress {
+  width: 200px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 1rem auto 0;
+}
+
+.dark-theme .loading-progress {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.loading-progress-bar {
+  height: 100%;
+  background: var(--bs-primary);
+  border-radius: 2px;
+  animation: progressAnimation 2s ease-in-out infinite;
+}
+
+@keyframes progressAnimation {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 100%;
+  }
+}

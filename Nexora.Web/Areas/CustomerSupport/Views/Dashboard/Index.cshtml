@@ -521,75 +521,75 @@
                 }
             });
 
+            // Priority Chart
             @if (Model.Statistics.TicketsByPriority.Any())
             {
-                <text>
-                // Priority Chart
-                const priorityCtx = document.getElementById('priorityChart').getContext('2d');
-                priorityChart = new Chart(priorityCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: [@Html.Raw(string.Join(",", Model.Statistics.TicketsByPriority.Keys.Select(k => $"'{k}'")))],
-                        datasets: [{
-                            data: [@string.Join(",", Model.Statistics.TicketsByPriority.Values)],
-                            backgroundColor: [
-                                '#28a745', // Low - green
-                                '#17a2b8', // Medium - blue  
-                                '#ffc107', // High - yellow
-                                '#dc3545', // Urgent - red
-                                '#343a40'  // Critical - dark
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    }
-                });
-                </text>
+                @:const priorityCtx = document.getElementById('priorityChart');
+                @:if (priorityCtx) {
+                @:    priorityChart = new Chart(priorityCtx.getContext('2d'), {
+                @:        type: 'doughnut',
+                @:        data: {
+                @:            labels: [@Html.Raw(string.Join(",", Model.Statistics.TicketsByPriority.Keys.Select(k => $"'{k}'")))],
+                @:            datasets: [{
+                @:                data: [@string.Join(",", Model.Statistics.TicketsByPriority.Values)],
+                @:                backgroundColor: [
+                @:                    '#28a745', // Low - green
+                @:                    '#17a2b8', // Medium - blue  
+                @:                    '#ffc107', // High - yellow
+                @:                    '#dc3545', // Urgent - red
+                @:                    '#343a40'  // Critical - dark
+                @:                ]
+                @:            }]
+                @:        },
+                @:        options: {
+                @:            responsive: true,
+                @:            maintainAspectRatio: false,
+                @:            plugins: {
+                @:                legend: {
+                @:                    display: false
+                @:                }
+                @:            }
+                @:        }
+                @:    });
+                @:}
             }
 
+            // Category Chart
             @if (Model.Statistics.TicketsByCategory.Any())
             {
-                <text>
-                // Category Chart
-                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-                categoryChart = new Chart(categoryCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: [@Html.Raw(string.Join(",", Model.Statistics.TicketsByCategory.Keys.Take(5).Select(k => $"'{k}'")))],
-                        datasets: [{
-                            label: 'Tickets',
-                            data: [@string.Join(",", Model.Statistics.TicketsByCategory.Values.Take(5))],
-                            backgroundColor: '#007bff',
-                            borderColor: '#0056b3',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
-                                }
-                            }
-                        }
-                    }
-                });
-                </text>
+                @:const categoryCtx = document.getElementById('categoryChart');
+                @:if (categoryCtx) {
+                @:    categoryChart = new Chart(categoryCtx.getContext('2d'), {
+                @:        type: 'bar',
+                @:        data: {
+                @:            labels: [@Html.Raw(string.Join(",", Model.Statistics.TicketsByCategory.Keys.Take(5).Select(k => $"'{k}'")))],
+                @:            datasets: [{
+                @:                label: 'Tickets',
+                @:                data: [@string.Join(",", Model.Statistics.TicketsByCategory.Values.Take(5))],
+                @:                backgroundColor: '#007bff',
+                @:                borderColor: '#0056b3',
+                @:                borderWidth: 1
+                @:            }]
+                @:        },
+                @:        options: {
+                @:            responsive: true,
+                @:            maintainAspectRatio: false,
+                @:            plugins: {
+                @:                legend: {
+                @:                    display: false
+                @:                }
+                @:            },
+                @:            scales: {
+                @:                y: {
+                @:                    beginAtZero: true,
+                @:                    ticks: {
+                @:                        stepSize: 1
+                @:                    }
+                @:                }
+                @:            }
+                @:        }
+                @:    });
+                @:}
             }
         }
 

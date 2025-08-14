@@ -347,9 +347,11 @@
                 return false;
             }
             
-            // Show processing modal
-            const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
-            processingModal.show();
+            // Use global loading mask instead of modal
+            LoadingMask.show({
+                message: 'Assigning ticket to ' + assignToSelect.options[assignToSelect.selectedIndex].text + '...',
+                animation: 'pulse'
+            });
             
             // Get form data
             const formData = new FormData(this);
@@ -367,7 +369,7 @@
                 }
             })
             .then(data => {
-                processingModal.hide();
+                LoadingMask.hide();
                 
                 // Show success modal
                 const selectedOption = assignToSelect.options[assignToSelect.selectedIndex];
@@ -393,7 +395,7 @@
                 successModal.show();
             })
             .catch(error => {
-                processingModal.hide();
+                LoadingMask.hide();
                 
                 // Show error modal
                 document.getElementById('errorMessage').textContent = error.message || 'An error occurred while assigning the ticket.';

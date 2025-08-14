@@ -178,13 +178,53 @@ public class LogService : ILogService
             {
                 var logs = await _logRepository.GetLogsAsync(
                     tableName, entityId, userId, startDate, endDate, action, skip, take);
-                return Result<IEnumerable<object>>.Success(logs.Cast<object>());
+                
+                // Project to anonymous object with all required properties
+                var projectedLogs = logs.Select(l => new
+                {
+                    l.Id,
+                    l.TableName,
+                    l.EntityId,
+                    l.Action,
+                    l.OldValues,
+                    l.NewValues,
+                    l.Changes,
+                    l.IpAddress,
+                    l.UserAgent,
+                    l.LoggedAt,
+                    l.UserId,
+                    User = l.User,
+                    IsArchived = false,
+                    ArchivedAt = (DateTime?)null
+                }).Cast<object>();
+                
+                return Result<IEnumerable<object>>.Success(projectedLogs);
             }
             else if (source == "archive")
             {
                 var archives = await _logRepository.GetArchivedLogsAsync(
                     tableName, entityId, userId, startDate, endDate, action, skip, take);
-                return Result<IEnumerable<object>>.Success(archives.Cast<object>());
+                
+                // Project to anonymous object with all required properties
+                var projectedArchives = archives.Select(l => new
+                {
+                    l.Id,
+                    l.TableName,
+                    l.EntityId,
+                    l.Action,
+                    l.OldValues,
+                    l.NewValues,
+                    l.Changes,
+                    l.IpAddress,
+                    l.UserAgent,
+                    l.LoggedAt,
+                    l.UserId,
+                    User = l.User,
+                    IsArchived = true,
+                    ArchivedAt = (DateTime?)l.ArchivedAt
+                }).Cast<object>();
+                
+                return Result<IEnumerable<object>>.Success(projectedArchives);
             }
             else
             {

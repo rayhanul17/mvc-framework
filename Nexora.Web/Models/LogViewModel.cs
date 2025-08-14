@@ -16,6 +16,7 @@ public class LogViewModel
     public int PageSize { get; set; } = 20;
     public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
     public int TotalRecords { get; set; }
+    public int TotalCount => TotalRecords; // Alias for TotalRecords for consistency
 }
 
 public class EntityHistoryViewModel

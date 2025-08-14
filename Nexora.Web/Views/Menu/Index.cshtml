@@ -93,7 +93,7 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
-                                                    onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = menu.Id })', @Html.Raw(Json.Serialize(menu.Name)), 'menu item', '<small class=\'text-warning\'>⚠️ This will also delete all child menu items.</small>')">
+                                                    onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = menu.Id })', @Html.Raw(Json.Serialize(menu.Name)), 'menu item', @Html.Raw(Json.Serialize("<small class='text-warning'>⚠️ This will also delete all child menu items.</small>")))">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -163,7 +163,7 @@
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
-                                                        onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = child.Id })', @Html.Raw(Json.Serialize(child.Name)), 'menu item', '<small class=\'text-warning\'>⚠️ This will also delete all child menu items.</small>')">
+                                                        onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = child.Id })', @Html.Raw(Json.Serialize(child.Name)), 'menu item', @Html.Raw(Json.Serialize("<small class='text-warning'>⚠️ This will also delete all child menu items.</small>")))">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>

@@ -82,6 +82,7 @@ public class SiteSettingHelperService : ISiteSettingHelperService
             model.SmallLogo = await GetSettingValueAsync("SmallLogo", "/images/logo-small.png");
             model.LargeLogo = await GetSettingValueAsync("LargeLogo", "/images/logo-large.png");
             model.FaviconPath = await GetSettingValueAsync("FaviconPath", "/favicon.ico");
+            model.LoadingLogoPath = await GetSettingValueAsync("LoadingLogoPath", "");
 
             // Theme settings
             model.PrimaryColor = await GetSettingValueAsync("PrimaryColor", "#0d6efd");
@@ -151,6 +152,7 @@ public class SiteSettingsDynamicModel
     public string SmallLogo { get; set; } = "/images/logo-small.png";
     public string LargeLogo { get; set; } = "/images/logo-large.png";
     public string FaviconPath { get; set; } = "/favicon.ico";
+    public string LoadingLogoPath { get; set; } = "";
 
     // Theme
     public string PrimaryColor { get; set; } = "#0d6efd";

@@ -39,6 +39,7 @@ public static class DbInitializer
         await SeedTestTeamMembersAsync(userManager);
         await SeedBlogPostsAsync(context, userManager);
         await SeedTicketsAsync(context, userManager);
+        await SeedAuditLogsAsync(context, userManager);
     }
 
     private static async Task SeedRolesAsync(RoleManager<ApplicationRole> roleManager)
@@ -1080,5 +1081,312 @@ public static class DbInitializer
             await context.TicketHistories.AddRangeAsync(histories);
             await context.SaveChangesAsync();
         }
+    }
+    
+    private static async Task SeedAuditLogsAsync(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    {
+        // Check if logs already exist
+        if (await context.Logs.AnyAsync())
+            return;
+
+        // Get users for audit log entries
+        var superAdmin = await userManager.FindByEmailAsync("superadmin@example.com");
+        var admin = await userManager.FindByEmailAsync("admin@example.com");
+        var agent = await userManager.FindByEmailAsync("agent1@example.com");
+        var manager = await userManager.FindByEmailAsync("manager1@example.com");
+
+        var logs = new List<Log>
+        {
+            // User management logs
+            new Log
+            {
+                TableName = "Users",
+                EntityId = 1,
+                Action = "Added",
+                Changes = "New user created: agent1@example.com",
+                UserId = superAdmin?.Id,
+                IpAddress = "192.168.1.100",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-30)
+            },
+            new Log
+            {
+                TableName = "Users",
+                EntityId = 2,
+                Action = "Modified",
+                Changes = "User role updated from Agent to Manager",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-25)
+            },
+            new Log
+            {
+                TableName = "Users",
+                EntityId = 3,
+                Action = "Modified",
+                Changes = "Password reset requested",
+                UserId = agent?.Id,
+                IpAddress = "192.168.1.102",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-20)
+            },
+            
+            // Role management logs
+            new Log
+            {
+                TableName = "Roles",
+                EntityId = 1,
+                Action = "Added",
+                Changes = "New role created: CustomerSupportAgent",
+                UserId = superAdmin?.Id,
+                IpAddress = "192.168.1.100",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-28)
+            },
+            new Log
+            {
+                TableName = "Roles",
+                EntityId = 2,
+                Action = "Modified",
+                Changes = "Role permissions updated",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-22)
+            },
+            
+            // Ticket management logs
+            new Log
+            {
+                TableName = "Tickets",
+                EntityId = 1,
+                Action = "Added",
+                Changes = "New ticket created: TKT-2024-001",
+                UserId = agent?.Id,
+                IpAddress = "192.168.1.102",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-15)
+            },
+            new Log
+            {
+                TableName = "Tickets",
+                EntityId = 1,
+                Action = "Modified",
+                Changes = "Status changed from Open to InProgress",
+                UserId = agent?.Id,
+                IpAddress = "192.168.1.102",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-14)
+            },
+            new Log
+            {
+                TableName = "Tickets",
+                EntityId = 2,
+                Action = "Added",
+                Changes = "New ticket created: TKT-2024-002",
+                UserId = manager?.Id,
+                IpAddress = "192.168.1.103",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-12)
+            },
+            new Log
+            {
+                TableName = "Tickets",
+                EntityId = 2,
+                Action = "Modified",
+                Changes = "Priority changed from Low to High",
+                UserId = manager?.Id,
+                IpAddress = "192.168.1.103",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-11)
+            },
+            new Log
+            {
+                TableName = "Tickets",
+                EntityId = 1,
+                Action = "Modified",
+                Changes = "Status changed from InProgress to Closed",
+                UserId = agent?.Id,
+                IpAddress = "192.168.1.102",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-10)
+            },
+            
+            // Blog management logs
+            new Log
+            {
+                TableName = "BlogPosts",
+                EntityId = 1,
+                Action = "Added",
+                Changes = "New blog post published: Getting Started with Our Platform",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-8)
+            },
+            new Log
+            {
+                TableName = "BlogPosts",
+                EntityId = 1,
+                Action = "Modified",
+                Changes = "Blog post updated: Added new section",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-7)
+            },
+            new Log
+            {
+                TableName = "BlogCategories",
+                EntityId = 1,
+                Action = "Added",
+                Changes = "New category created: Technology",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-9)
+            },
+            
+            // Site settings logs
+            new Log
+            {
+                TableName = "SiteSettings",
+                EntityId = 1,
+                Action = "Modified",
+                Changes = "Site title updated",
+                UserId = superAdmin?.Id,
+                IpAddress = "192.168.1.100",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-5)
+            },
+            new Log
+            {
+                TableName = "SiteSettings",
+                EntityId = 2,
+                Action = "Modified",
+                Changes = "Footer text updated",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-4)
+            },
+            
+            // Menu management logs
+            new Log
+            {
+                TableName = "Menus",
+                EntityId = 1,
+                Action = "Added",
+                Changes = "New menu item created: Dashboard",
+                UserId = superAdmin?.Id,
+                IpAddress = "192.168.1.100",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-18)
+            },
+            new Log
+            {
+                TableName = "Menus",
+                EntityId = 2,
+                Action = "Modified",
+                Changes = "Menu order changed",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddDays(-16)
+            },
+            
+            // Recent activity logs
+            new Log
+            {
+                TableName = "Users",
+                EntityId = 4,
+                Action = "Modified",
+                Changes = "User account activated",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddHours(-12)
+            },
+            new Log
+            {
+                TableName = "Tickets",
+                EntityId = 3,
+                Action = "Added",
+                Changes = "New ticket created: TKT-2024-003",
+                UserId = agent?.Id,
+                IpAddress = "192.168.1.102",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddHours(-6)
+            },
+            new Log
+            {
+                TableName = "Tickets",
+                EntityId = 3,
+                Action = "Modified",
+                Changes = "Ticket assigned to agent",
+                UserId = manager?.Id,
+                IpAddress = "192.168.1.103",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddHours(-3)
+            },
+            new Log
+            {
+                TableName = "Users",
+                EntityId = 5,
+                Action = "Deleted",
+                Changes = "User account deleted: testuser@example.com",
+                UserId = superAdmin?.Id,
+                IpAddress = "192.168.1.100",
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                LoggedAt = DateTime.UtcNow.AddHours(-1)
+            }
+        };
+
+        await context.Logs.AddRangeAsync(logs);
+        
+        // Add some archived logs
+        var archivedLogs = new List<LogArchive>
+        {
+            new LogArchive
+            {
+                TableName = "Users",
+                EntityId = 10,
+                Action = "Added",
+                Changes = "Old user created",
+                UserId = superAdmin?.Id,
+                IpAddress = "192.168.1.100",
+                UserAgent = "Mozilla/5.0",
+                LoggedAt = DateTime.UtcNow.AddDays(-60),
+                ArchivedAt = DateTime.UtcNow.AddDays(-30)
+            },
+            new LogArchive
+            {
+                TableName = "Tickets",
+                EntityId = 100,
+                Action = "Modified",
+                Changes = "Old ticket updated",
+                UserId = agent?.Id,
+                IpAddress = "192.168.1.102",
+                UserAgent = "Mozilla/5.0",
+                LoggedAt = DateTime.UtcNow.AddDays(-90),
+                ArchivedAt = DateTime.UtcNow.AddDays(-30)
+            },
+            new LogArchive
+            {
+                TableName = "BlogPosts",
+                EntityId = 50,
+                Action = "Deleted",
+                Changes = "Old blog post deleted",
+                UserId = admin?.Id,
+                IpAddress = "192.168.1.101",
+                UserAgent = "Mozilla/5.0",
+                LoggedAt = DateTime.UtcNow.AddDays(-120),
+                ArchivedAt = DateTime.UtcNow.AddDays(-30)
+            }
+        };
+
+        await context.LogArchives.AddRangeAsync(archivedLogs);
+        await context.SaveChangesAsync();
     }
 }

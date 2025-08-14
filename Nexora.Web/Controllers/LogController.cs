@@ -20,48 +20,109 @@ public class LogController : BaseController
         string? tableName = null,
         int? entityId = null,
         string? action = null,
-        string source = "all",
+        string? source = null,
         DateTime? startDate = null,
         DateTime? endDate = null,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = 25)
     {
-        var skip = (page - 1) * pageSize;
-        
-        // Get total count first for pagination (without skip/take)
-        var totalLogsResult = await _logService.GetCombinedLogsAsync(
-            tableName, entityId, null, startDate, endDate, action, source, null, null);
-        var totalRecords = totalLogsResult.IsSuccess ? totalLogsResult.Data?.Count() ?? 0 : 0;
-        
-        // Get paginated logs
-        var logsResult = await _logService.GetCombinedLogsAsync(
-            tableName, entityId, null, startDate, endDate, action, source, skip, pageSize);
+        try
+        {
+            // Set default source to "log" (Main Table) if not specified
+            if (string.IsNullOrEmpty(source))
+                source = "log";
             
-        if (!logsResult.IsSuccess)
-        {
-            SetErrorMessage(logsResult.ErrorMessage ?? "Failed to load logs");
-            return View(new LogViewModel { Logs = new List<dynamic>() });
+            // Ensure page size has a default
+            if (pageSize <= 0) pageSize = 25;
+            if (page <= 0) page = 1;
+            
+            var skip = (page - 1) * pageSize;
+            
+            // Get all logs without pagination first to get the count
+            var allLogsResult = await _logService.GetCombinedLogsAsync(
+                tableName, entityId, null, startDate, endDate, action, source, null, null);
+            
+            if (!allLogsResult.IsSuccess)
+            {
+                SetErrorMessage($"Failed to load logs: {allLogsResult.ErrorMessage}");
+                return View(new LogViewModel 
+                { 
+                    Logs = new List<dynamic>(),
+                    TableNames = new SelectList(new List<string>()),
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    Source = source
+                });
+            }
+            
+            var allLogs = allLogsResult.Data?.ToList() ?? new List<object>();
+            var totalRecords = allLogs.Count;
+            
+            // Debug: Log the count
+            if (totalRecords == 0)
+            {
+                // Try to get logs directly without filtering to debug
+                var debugResult = await _logService.GetCombinedLogsAsync(
+                    null, null, null, null, null, null, "log", null, null);
+                var debugCount = debugResult.Data?.Count() ?? 0;
+                
+                if (debugCount == 0)
+                {
+                    // No logs in database, show info message
+                    SetWarningMessage($"No logs found in the database. Source: {source}");
+                }
+                else
+                {
+                    SetWarningMessage($"Found {debugCount} logs in database but filters returned 0 results.");
+                }
+            }
+            
+            // Now get the paginated subset
+            var paginatedLogs = allLogs.Skip(skip).Take(pageSize).ToList();
+            
+            // Get table names for filter dropdown
+            var tableNamesResult = await _logService.GetTableNamesAsync();
+            var tableNames = tableNamesResult.IsSuccess ? tableNamesResult.Data : new List<string>();
+            
+            var viewModel = new LogViewModel
+            {
+                Logs = paginatedLogs.Cast<dynamic>(),
+                TableNames = new SelectList(tableNames),
+                SelectedTableName = tableName,
+                EntityId = entityId,
+                SelectedAction = action,
+                Source = source,
+                StartDate = startDate,
+                EndDate = endDate,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalRecords = totalRecords
+            };
+            
+            // Debug: Add a message if we have logs but they're not showing
+            if (totalRecords > 0 && !paginatedLogs.Any())
+            {
+                SetWarningMessage($"Found {totalRecords} logs but page {page} is out of range. Showing page 1.");
+                return RedirectToAction(nameof(Index), new { 
+                    tableName, entityId, action, source, startDate, endDate, 
+                    page = 1, pageSize 
+                });
+            }
+            
+            return View(viewModel);
         }
-        
-        var tableNamesResult = await _logService.GetTableNamesAsync();
-        var tableNames = tableNamesResult.IsSuccess ? tableNamesResult.Data : new List<string>();
-        
-        var viewModel = new LogViewModel
+        catch (Exception ex)
         {
-            Logs = logsResult.Data?.Cast<dynamic>() ?? new List<dynamic>(),
-            TableNames = new SelectList(tableNames),
-            SelectedTableName = tableName,
-            EntityId = entityId,
-            SelectedAction = action,
-            Source = source,
-            StartDate = startDate,
-            EndDate = endDate,
-            CurrentPage = page,
-            PageSize = pageSize,
-            TotalRecords = totalRecords
-        };
-        
-        return View(viewModel);
+            SetErrorMessage($"An error occurred while loading logs: {ex.Message}");
+            return View(new LogViewModel 
+            { 
+                Logs = new List<dynamic>(),
+                TableNames = new SelectList(new List<string>()),
+                CurrentPage = 1,
+                PageSize = pageSize,
+                Source = source
+            });
+        }
     }
     
     [HttpGet]
