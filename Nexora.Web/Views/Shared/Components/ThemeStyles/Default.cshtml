@@ -37,7 +37,7 @@
     --sidebar-width: 280px;
     --sidebar-collapsed-width: 60px;
     --header-height: 60px;
-    --content-max-width: 1200px;
+    --content-max-width: 100%;
     --content-padding: 1.5rem;
 }
 
@@ -104,7 +104,7 @@ code, pre {
 }
 
 .main-content {
-    max-width: var(--content-max-width);
+    max-width: 100%;
     padding: var(--content-padding);
     background-color: var(--app-bg);
 }
@@ -173,6 +173,7 @@ code, pre {
 @@media (max-width: 1200px) {
     .main-content {
         max-width: 100%;
+        width: 100%;
         padding: calc(var(--content-padding) * 0.75);
     }
 }

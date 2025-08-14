@@ -475,34 +475,19 @@
     overflow-x: hidden;
 }
 
+/* Ensure full width content */
 .main-content .container-fluid,
 .main-content .container {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 0;
-    padding-right: 0;
+    max-width: 100%;
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
 }
 
 /* Ensure no excessive right margins or padding */
 .content {
     padding-right: 0 !important;
-}
-
-/* Override theme responsive styles that cause wide layouts */
-@media (min-width: 1201px) {
-    .main-content {
-        max-width: 1200px !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-    
-    .main-content .container-fluid,
-    .main-content .container {
-        max-width: none !important;
-        padding-left: 15px;
-        padding-right: 15px;
-    }
+    width: 100%;
 }
 
 
