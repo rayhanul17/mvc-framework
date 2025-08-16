@@ -1,0 +1,227 @@
+@model Nexora.Web.Areas.CustomerSupport.Models.TicketDetailsViewModel
+@{
+    ViewData["Title"] = $"Ticket #{Model.Ticket.TicketNumber}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="MyTickets" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to My Tickets
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">@Model.Ticket.Title</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Status:</strong>
+                            <span class="badge bg-@GetStatusColor(Model.Ticket.Status)">
+                                @Model.Ticket.Status
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Priority:</strong>
+                            <span class="badge bg-@GetPriorityColor(Model.Ticket.Priority)">
+                                @Model.Ticket.Priority
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p class="mt-2">@Html.Raw(Model.Ticket.Description.Replace("\n", "<br />"))</p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Ticket.ResolutionNotes))
+                    {
+                        <div class="alert alert-success">
+                            <h6>Resolution Notes:</h6>
+                            <p>@Model.Ticket.ResolutionNotes</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Comments & Notes</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Comments.Any())
+                    {
+                        foreach (var comment in Model.Comments.OrderBy(c => c.CreatedAt))
+                        {
+                            <div class="comment-item mb-3 pb-3 border-bottom @(comment.IsInternal ? "bg-light p-2 rounded" : "")">
+                                <div class="d-flex justify-content-between">
+                                    <strong>
+                                        @comment.User?.FullName
+                                        @if (comment.IsInternal)
+                                        {
+                                            <span class="badge bg-warning">Internal</span>
+                                        }
+                                    </strong>
+                                    <small class="text-muted">@comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")</small>
+                                </div>
+                                @if (comment.Type != Nexora.Core.Entities.CommentType.Comment)
+                                {
+                                    <span class="badge bg-info">@comment.Type</span>
+                                }
+                                <p class="mt-2 mb-0">@comment.Comment</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No comments yet.</p>
+                    }
+
+                    @if (Model.Ticket.Status != Nexora.Core.Entities.TicketStatus.Closed)
+                    {
+                        <form asp-action="AddComment" method="post" class="mt-3">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket.Id" />
+                            <div class="mb-3">
+                                <label class="form-label">Add Comment</label>
+                                <textarea name="comment" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="isInternal" id="isInternal">
+                                <label class="form-check-label" for="isInternal">
+                                    Internal note (not visible to customer)
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-comment"></i> Add Comment
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Ticket Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Ticket #:</dt>
+                        <dd class="col-sm-7">@Model.Ticket.TicketNumber</dd>
+
+                        <dt class="col-sm-5">Category:</dt>
+                        <dd class="col-sm-7">@Model.Ticket.Category</dd>
+
+                        <dt class="col-sm-5">Customer:</dt>
+                        <dd class="col-sm-7">
+                            @Model.Ticket.Customer?.FullName
+                            <br>
+                            <small class="text-muted">@Model.Ticket.Customer?.Email</small>
+                        </dd>
+
+                        <dt class="col-sm-5">Created:</dt>
+                        <dd class="col-sm-7">@Model.Ticket.CreatedAt.ToString("MM/dd/yyyy HH:mm")</dd>
+
+                        @if (Model.Ticket.AssignedAt.HasValue)
+                        {
+                            <dt class="col-sm-5">Assigned:</dt>
+                            <dd class="col-sm-7">@Model.Ticket.AssignedAt.Value.ToString("MM/dd/yyyy HH:mm")</dd>
+                        }
+
+                        @if (Model.Ticket.ResponseTimeHours > 0)
+                        {
+                            <dt class="col-sm-5">Response Time:</dt>
+                            <dd class="col-sm-7">@Model.Ticket.ResponseTimeHours hours</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Ticket.Status == Nexora.Core.Entities.TicketStatus.Assigned)
+                    {
+                        <form asp-action="StartProgress" method="post" class="mb-2">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket.Id" />
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-play"></i> Start Working
+                            </button>
+                        </form>
+                    }
+                    else if (Model.Ticket.Status == Nexora.Core.Entities.TicketStatus.InProgress)
+                    {
+                        <a asp-action="Resolve" asp-route-id="@Model.Ticket.Id" class="btn btn-success w-100 mb-2">
+                            <i class="fas fa-check-circle"></i> Resolve Ticket
+                        </a>
+                        
+                        <form asp-action="RequestReview" method="post" class="mb-2">
+                            <input type="hidden" name="ticketId" value="@Model.Ticket.Id" />
+                            <input type="hidden" name="notes" value="Requesting manager review" />
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-user-tie"></i> Request Review
+                            </button>
+                        </form>
+                    }
+                    
+                    @if (Model.Ticket.Status != Nexora.Core.Entities.TicketStatus.Closed && 
+                         Model.Ticket.Status != Nexora.Core.Entities.TicketStatus.Resolved)
+                    {
+                        <button class="btn btn-info w-100" onclick="changeStatus()">
+                            <i class="fas fa-sync"></i> Change Status
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function changeStatus() {
+            // This would open a modal or redirect to status change page
+            alert('Status change feature coming soon!');
+        }
+    </script>
+}
+
+@functions {
+    string GetStatusColor(Nexora.Core.Entities.TicketStatus status)
+    {
+        return status switch
+        {
+            Nexora.Core.Entities.TicketStatus.New => "primary",
+            Nexora.Core.Entities.TicketStatus.Assigned => "info",
+            Nexora.Core.Entities.TicketStatus.InProgress => "warning",
+            Nexora.Core.Entities.TicketStatus.Resolved => "success",
+            Nexora.Core.Entities.TicketStatus.Closed => "secondary",
+            Nexora.Core.Entities.TicketStatus.Reopened => "danger",
+            _ => "secondary"
+        };
+    }
+
+    string GetPriorityColor(Nexora.Core.Entities.TicketPriority priority)
+    {
+        return priority switch
+        {
+            Nexora.Core.Entities.TicketPriority.Low => "success",
+            Nexora.Core.Entities.TicketPriority.Medium => "warning",
+            Nexora.Core.Entities.TicketPriority.High => "danger",
+            Nexora.Core.Entities.TicketPriority.Urgent => "dark",
+            _ => "secondary"
+        };
+    }
+}

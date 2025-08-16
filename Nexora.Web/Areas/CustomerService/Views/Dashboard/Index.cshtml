@@ -1,0 +1,306 @@
+@model Nexora.Web.Areas.CustomerService.Models.CustomerServiceDashboardViewModel
+@{
+    ViewData["Title"] = "Customer Service Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-1">
+                            <i class="fas fa-headset text-primary me-2"></i>
+                            Customer Service Dashboard
+                        </h1>
+                        <p class="text-muted mb-0">@Model.WelcomeMessage</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Index", "Configuration")" class="btn btn-outline-primary">
+                            <i class="fas fa-cogs me-1"></i>Configuration
+                        </a>
+                        <a href="@Url.Action("Index", "Ticket")" class="btn btn-primary">
+                            <i class="fas fa-ticket-alt me-1"></i>Tickets
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">Role Mappings</h6>
+                            <h2 class="mb-0">@Model.TotalRoleMappings</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-check me-1"></i>@Model.ActiveRoleMappings active
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-user-cog fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">Total Tickets</h6>
+                            <h2 class="mb-0">@Model.TotalTickets</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-ticket-alt me-1"></i>All time
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-clipboard-list fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">Open Tickets</h6>
+                            <h2 class="mb-0">@Model.OpenTickets</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Need attention
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-clock fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">My Tickets</h6>
+                            <h2 class="mb-0">@Model.MyTickets</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-user me-1"></i>Assigned to me
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-user-check fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Role Mappings Overview -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-sitemap me-2"></i>Role Mappings Overview
+                    </h5>
+                    <a href="@Url.Action("Index", "Configuration")" class="btn btn-outline-primary btn-sm">
+                        Manage Roles
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <h4 class="mb-0">@Model.ActiveRoleMappings</h4>
+                                </div>
+                                <h6 class="mt-2 mb-0">Active Mappings</h6>
+                                <small class="text-muted">Currently enabled</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <h4 class="mb-0">@Model.InactiveRoleMappings</h4>
+                                </div>
+                                <h6 class="mt-2 mb-0">Inactive Mappings</h6>
+                                <small class="text-muted">Temporarily disabled</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <h4 class="mb-0">@Model.TotalRoleMappings</h4>
+                                </div>
+                                <h6 class="mt-2 mb-0">Total Mappings</h6>
+                                <small class="text-muted">All configurations</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="@Url.Action("Index", "Configuration")" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-cogs me-2"></i>
+                                <div>
+                                    <strong>Role Configuration</strong>
+                                    <br><small>Manage role mappings</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="@Url.Action("Create", "Ticket")" class="btn btn-outline-success w-100">
+                                <i class="fas fa-plus me-2"></i>
+                                <div>
+                                    <strong>Create Ticket</strong>
+                                    <br><small>New support request</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="@Url.Action("Index", "Ticket")" class="btn btn-outline-info w-100">
+                                <i class="fas fa-list me-2"></i>
+                                <div>
+                                    <strong>View Tickets</strong>
+                                    <br><small>Browse all tickets</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="@Url.Action("Index", "Configuration")" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <div>
+                                    <strong>Access Control</strong>
+                                    <br><small>Permission settings</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- User Roles -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-user-shield me-2"></i>My Roles
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.UserRoles.Any())
+                    {
+                        @foreach (var role in Model.UserRoles)
+                        {
+                            <span class="badge bg-primary me-1 mb-1">@role</span>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No roles assigned</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Recent Role Mappings -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Recent Mappings
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentRoleMappings.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var mapping in Model.RecentRoleMappings)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">@mapping.CustomerServiceRole</h6>
+                                            <p class="mb-1 small">Maps to: @mapping.AspNetRoleName</p>
+                                            <small class="text-muted">@mapping.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                        <span class="badge bg-@(mapping.IsActive ? "success" : "secondary")">
+                                            @(mapping.IsActive ? "Active" : "Inactive")
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-sitemap fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No recent mappings</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh stats every 30 seconds
+        setInterval(function() {
+            fetch('@Url.Action("GetRoleMappingStats", "Dashboard", new { area = "CustomerService" })')
+                .then(response => response.json())
+                .then(data => {
+                    // Update stats if needed
+                    console.log('Stats updated:', data);
+                })
+                .catch(error => console.error('Error refreshing stats:', error));
+        }, 30000);
+    </script>
+}
+
+<style>
+    .page-header {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 1rem;
+    }
+    
+    .btn.w-100 {
+        text-align: left;
+        height: auto;
+        padding: 1rem;
+    }
+    
+    .btn.w-100 i {
+        font-size: 1.5rem;
+        vertical-align: middle;
+    }
+</style>

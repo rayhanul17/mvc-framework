@@ -1,0 +1,297 @@
+@model Nexora.Web.Models.UserDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-1">
+                            <i class="fas fa-home text-primary me-2"></i>
+                            Dashboard
+                        </h1>
+                        <p class="text-muted mb-0">@Model.WelcomeMessage, @Model.FullName</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Index", "Profile")" class="btn btn-outline-primary">
+                            <i class="fas fa-user me-1"></i>Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="text-white">Welcome back, @Model.FullName!</h3>
+                            <p class="text-white-75 mb-0">
+                                @Model.SiteSlogan
+                            </p>
+                            <small class="text-white-75">
+                                Member since @Model.MemberSince.ToString("MMMM yyyy")
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="bg-white bg-opacity-25 rounded p-3">
+                                <h5 class="text-white mb-1">Profile Completion</h5>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" role="progressbar" 
+                                         style="width: @(Model.ProfileCompletion)%"></div>
+                                </div>
+                                <small class="text-white-75">@Model.ProfileCompletion% Complete</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- User Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>Account Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Full Name</label>
+                                <p class="mb-0">@Model.FullName</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Username</label>
+                                <p class="mb-0">@Model.UserName</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email</label>
+                                <p class="mb-0">@Model.Email</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Member Since</label>
+                                <p class="mb-0">@Model.MemberSince.ToString("MMM dd, yyyy")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="@Url.Action("Index", "Profile")" class="btn btn-outline-primary w-100 text-start">
+                                <i class="fas fa-user-edit me-2"></i>
+                                <div>
+                                    <strong>Update Profile</strong>
+                                    <br><small>Edit your personal information</small>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="@Url.Action("ChangePassword", "Account")" class="btn btn-outline-warning w-100 text-start">
+                                <i class="fas fa-key me-2"></i>
+                                <div>
+                                    <strong>Change Password</strong>
+                                    <br><small>Update your security credentials</small>
+                                </div>
+                            </a>
+                        </div>
+                        @if (Model.UserRoles.Any())
+                        {
+                            <div class="col-md-6 mb-3">
+                                <a href="#" onclick="showRoles()" class="btn btn-outline-info w-100 text-start">
+                                    <i class="fas fa-shield-alt me-2"></i>
+                                    <div>
+                                        <strong>View Permissions</strong>
+                                        <br><small>See your assigned roles</small>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                        <div class="col-md-6 mb-3">
+                            <a href="@Url.Action("Privacy")" class="btn btn-outline-secondary w-100 text-start">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                <div>
+                                    <strong>Privacy Policy</strong>
+                                    <br><small>Review privacy terms</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- User Roles -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-user-shield me-2"></i>My Roles
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.UserRoles.Any())
+                    {
+                        @foreach (var role in Model.UserRoles)
+                        {
+                            <span class="badge bg-primary me-1 mb-1">@role</span>
+                        }
+                        <hr>
+                        <small class="text-muted">
+                            These roles determine your access permissions in the system.
+                        </small>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">No special roles assigned</p>
+                        <small class="text-muted">You have basic user permissions.</small>
+                    }
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-2"></i>System Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Site Name</small>
+                        <strong>@Model.SiteName</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Current Session</small>
+                        <strong>Active</strong>
+                    </div>
+                    <div class="mb-0">
+                        <small class="text-muted d-block">Last Updated</small>
+                        <strong>@DateTime.Now.ToString("MMM dd, yyyy HH:mm")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Roles Modal -->
+<div class="modal fade" id="rolesModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Your System Roles</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.UserRoles.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var role in Model.UserRoles)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">@role</h6>
+                                        <p class="mb-0 small text-muted">
+                                            @(GetRoleDescription(role))
+                                        </p>
+                                    </div>
+                                    <span class="badge bg-primary">Active</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-3">
+                        <i class="fas fa-user fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No special roles assigned</p>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showRoles() {
+            new bootstrap.Modal(document.getElementById('rolesModal')).show();
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 1rem;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+        
+        .btn.w-100 {
+            text-align: left;
+            height: auto;
+            padding: 1rem;
+        }
+        
+        .btn.w-100 i {
+            font-size: 1.5rem;
+            vertical-align: middle;
+        }
+    </style>
+}
+
+@functions {
+    string GetRoleDescription(string role)
+    {
+        return role switch
+        {
+            "Administrator" => "Full system administration privileges",
+            "SuperAdmin" => "Super administrator with all permissions",
+            "CustomerSupportAdmin" => "Customer support administration",
+            "CustomerSupportManager" => "Customer support management",
+            "CustomerSupportAgent" => "Customer support agent",
+            "User" => "Standard user privileges",
+            _ => "System role with specific permissions"
+        };
+    }
+}

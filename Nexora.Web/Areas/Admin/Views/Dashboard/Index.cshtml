@@ -1,0 +1,405 @@
+@model Nexora.Web.Areas.Admin.Models.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h2 mb-1">
+                            <i class="fas fa-tachometer-alt text-primary me-2"></i>
+                            Admin Dashboard
+                        </h1>
+                        <p class="text-muted mb-0">@Model.WelcomeMessage</p>
+                        <small class="text-muted">Last updated: <span id="last-updated">@DateTime.Now.ToString("MMM dd, yyyy HH:mm")</span></small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="refreshDashboard()">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-cogs me-1"></i>Admin Tools
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">System Management</h6></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "SiteSetting")">
+                                    <i class="fas fa-sliders-h me-2"></i>Site Settings
+                                </a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "User")">
+                                    <i class="fas fa-users me-2"></i>User Management
+                                </a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Role")">
+                                    <i class="fas fa-user-shield me-2"></i>Role Management
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="clearCache()">
+                                    <i class="fas fa-trash me-2"></i>Clear Cache
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="backupDatabase()">
+                                    <i class="fas fa-database me-2"></i>Backup Database
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">Total Users</h6>
+                            <h2 class="mb-0" id="total-users">@Model.TotalUsers</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-arrow-up me-1"></i>@Model.ActiveUsers active
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-users fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">Active Users</h6>
+                            <h2 class="mb-0" id="active-users">@Model.ActiveUsers</h2>
+                            <small class="text-white-75">
+                                @if (Model.LockedUsers > 0)
+                                {
+                                    <i class="fas fa-lock me-1"></i>@Model.LockedUsers <text>locked</text>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-check me-1"></i><text>All active</text>
+                                }
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-user-check fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">Blog Posts</h6>
+                            <h2 class="mb-0" id="blog-posts">@Model.TotalBlogPosts</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-eye me-1"></i>@Model.PublishedBlogPosts published
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-blog fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-75 mb-1">System Roles</h6>
+                            <h2 class="mb-0" id="total-roles">@Model.TotalRoles</h2>
+                            <small class="text-white-75">
+                                <i class="fas fa-shield-alt me-1"></i>Active permissions
+                            </small>
+                        </div>
+                        <div class="opacity-75">
+                            <i class="fas fa-user-shield fa-3x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- System Performance -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>System Performance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="progress-circle mb-2" style="--progress: @Model.SystemMetrics.CpuUsage;">
+                                    <span>@Model.SystemMetrics.CpuUsage.ToString("F1")%</span>
+                                </div>
+                                <h6 class="mb-0">CPU Usage</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="progress-circle mb-2" style="--progress: @Model.SystemMetrics.MemoryUsage;">
+                                    <span>@Model.SystemMetrics.MemoryUsage.ToString("F1")%</span>
+                                </div>
+                                <h6 class="mb-0">Memory Usage</h6>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="progress-circle mb-2" style="--progress: @Model.SystemMetrics.DiskUsage;">
+                                    <span>@Model.SystemMetrics.DiskUsage.ToString("F1")%</span>
+                                </div>
+                                <h6 class="mb-0">Disk Usage</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-users fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h5 class="mb-0">@Model.SystemMetrics.ActiveSessions</h5>
+                                    <small class="text-muted">Active Sessions</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tachometer-alt fa-2x text-success me-3"></i>
+                                <div>
+                                    <h5 class="mb-0">@Model.SystemMetrics.RequestsPerMinute</h5>
+                                    <small class="text-muted">Requests/Min</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-heartbeat me-2"></i>System Health
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="status-indicator bg-@(Model.DatabaseStatus == "Healthy" ? "success" : "danger") me-3"></div>
+                                <div>
+                                    <h6 class="mb-0">Database</h6>
+                                    <small class="text-muted">@Model.DatabaseStatus</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="status-indicator bg-success me-3"></div>
+                                <div>
+                                    <h6 class="mb-0">Web Server</h6>
+                                    <small class="text-muted">Running</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="status-indicator bg-success me-3"></div>
+                                <div>
+                                    <h6 class="mb-0">Cache</h6>
+                                    <small class="text-muted">Operational</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Last Backup:</strong> @Model.LastBackupDate.ToString("MMM dd, yyyy HH:mm")
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Recent Users -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-user-plus me-2"></i>Recent Users
+                    </h6>
+                    <a href="@Url.Action("Index", "User")" class="btn btn-outline-primary btn-sm">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.RecentUsers.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var user in Model.RecentUsers)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                             style="width: 32px; height: 32px; font-size: 12px;">
+                                            @user.FullName.FirstOrDefault()
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between">
+                                                <h6 class="mb-0">@user.FullName</h6>
+                                                <span class="badge bg-@(user.IsActive ? "success" : "warning")">
+                                                    @(user.IsActive ? "Active" : "Inactive")
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">@user.Email</small>
+                                            <br>
+                                            <small class="text-muted">Joined @user.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No recent users</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="@Url.Action("CreateEdit", "SiteSetting")" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>Add Site Setting
+                        </a>
+                        <a href="@Url.Action("Create", "User")" class="btn btn-outline-success">
+                            <i class="fas fa-user-plus me-2"></i>Create User
+                        </a>
+                        <a href="@Url.Action("Create", "Role")" class="btn btn-outline-info">
+                            <i class="fas fa-shield-alt me-2"></i>Create Role
+                        </a>
+                        <a href="@Url.Action("Create", "BlogPost")" class="btn btn-outline-warning">
+                            <i class="fas fa-edit me-2"></i>New Blog Post
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#007bff calc(var(--progress) * 1%), #e9ecef 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        .progress-circle::before {
+            content: '';
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+        }
+        
+        .progress-circle span {
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .page-header {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 1rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function refreshDashboard() {
+            fetch('@Url.Action("GetSystemStats", "Dashboard", new { area = "Admin" })')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-users').textContent = data.totalUsers;
+                    document.getElementById('active-users').textContent = data.activeUsers;
+                    document.getElementById('total-roles').textContent = data.totalRoles;
+                    document.getElementById('blog-posts').textContent = data.blogPosts;
+                    document.getElementById('last-updated').textContent = new Date().toLocaleString();
+                })
+                .catch(error => console.error('Error refreshing dashboard:', error));
+        }
+
+        function clearCache() {
+            if (confirm('Are you sure you want to clear the system cache?')) {
+                fetch('@Url.Action("ClearCache", "Dashboard", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    }
+                }).then(() => window.location.reload());
+            }
+        }
+
+        function backupDatabase() {
+            if (confirm('Are you sure you want to initiate a database backup?')) {
+                fetch('@Url.Action("BackupDatabase", "Dashboard", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    }
+                }).then(() => window.location.reload());
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(refreshDashboard, 30000);
+    </script>
+}

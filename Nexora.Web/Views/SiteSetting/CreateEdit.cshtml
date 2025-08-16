@@ -1,0 +1,317 @@
+@model Nexora.Web.Models.ViewModels.SiteSettingCreateEditViewModel
+@{
+    ViewData["Title"] = Model.IsEditMode ? "Edit Site Setting" : "Create Site Setting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@(Model.IsEditMode ? $"Edit Setting: {Model.Key}" : "Create New Site Setting")</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Settings
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="CreateEdit" method="post">
+                        @if (Model.IsEditMode)
+                        {
+                            <input asp-for="Id" type="hidden" />
+                            <input asp-for="IsEditMode" type="hidden" />
+                            <input asp-for="CreatedAt" type="hidden" />
+                            <input asp-for="CreatedBy" type="hidden" />
+                        }
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Key" class="form-label"></label>
+                            @if (Model.IsEditMode)
+                            {
+                                <input asp-for="Key" class="form-control" readonly />
+                            }
+                            else
+                            {
+                                <input asp-for="Key" class="form-control" placeholder="e.g., Site.NewSetting" />
+                                <small class="form-text text-muted">Use dot notation for organization (e.g., Category.SettingName)</small>
+                            }
+                            <span asp-validation-for="Key" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Value" class="form-label"></label>
+                            @if (Model.IsEditMode && Model.Type == SettingType.Boolean)
+                            {
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="Value" value="true" @(Model.Value.ToLower() == "true" ? "checked" : "") />
+                                    <input type="hidden" name="Value" value="false" />
+                                    <label class="form-check-label">Enable/Disable</label>
+                                </div>
+                            }
+                            else if (Model.IsEditMode && Model.Type == SettingType.TextArea)
+                            {
+                                <textarea asp-for="Value" class="form-control" rows="4"></textarea>
+                            }
+                            else if (Model.IsEditMode && Model.Type == SettingType.Color)
+                            {
+                                <input asp-for="Value" class="form-control" type="color" />
+                            }
+                            else if (Model.IsEditMode && Model.Type == SettingType.Number)
+                            {
+                                <input asp-for="Value" class="form-control" type="number" />
+                            }
+                            else if (Model.IsEditMode && Model.Type == SettingType.Email)
+                            {
+                                <input asp-for="Value" class="form-control" type="email" />
+                            }
+                            else if (Model.IsEditMode && Model.Type == SettingType.Url)
+                            {
+                                <input asp-for="Value" class="form-control" type="url" />
+                            }
+                            else if (Model.IsEditMode && Model.Type == SettingType.Select && !string.IsNullOrEmpty(Model.ValidValues))
+                            {
+                                <select asp-for="Value" class="form-select">
+                                    @{
+                                        try
+                                        {
+                                            var options = System.Text.Json.JsonSerializer.Deserialize<string[]>(Model.ValidValues);
+                                            if (options != null)
+                                            {
+                                                foreach (var option in options)
+                                                {
+                                                    <option value="@option" selected="@(Model.Value == option)">@option</option>
+                                                }
+                                            }
+                                        }
+                                        catch { }
+                                    }
+                                </select>
+                            }
+                            else
+                            {
+                                <input asp-for="Value" class="form-control" id="settingValue" />
+                            }
+                            <span asp-validation-for="Value" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Category" class="form-label"></label>
+                                    <select asp-for="Category" class="form-select" asp-items="Html.GetEnumSelectList<SettingCategory>()">
+                                        @if (!Model.IsEditMode)
+                                        {
+                                            <option value="">Select Category</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Type" class="form-label"></label>
+                                    @if (Model.IsEditMode)
+                                    {
+                                        <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<SettingType>()" disabled>
+                                        </select>
+                                        <input asp-for="Type" type="hidden" />
+                                        <small class="form-text text-muted">Type cannot be changed after creation</small>
+                                    }
+                                    else
+                                    {
+                                        <select asp-for="Type" class="form-select" id="settingType" asp-items="Html.GetEnumSelectList<SettingType>()">
+                                            <option value="">Select Type</option>
+                                        </select>
+                                    }
+                                    <span asp-validation-for="Type" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" id="validValuesGroup" style="display: @(Model.IsEditMode && Model.Type == SettingType.Select ? "block" : "none");">
+                            <label asp-for="ValidValues" class="form-label"></label>
+                            <textarea asp-for="ValidValues" class="form-control" rows="3" placeholder='["Option 1", "Option 2", "Option 3"]'></textarea>
+                            <span asp-validation-for="ValidValues" class="text-danger"></span>
+                            <small class="form-text text-muted">For Select type, provide options as JSON array</small>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label asp-for="Order" class="form-label"></label>
+                                    <input asp-for="Order" class="form-control" type="number" min="0" />
+                                    <span asp-validation-for="Order" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3 mt-4">
+                                    <input asp-for="IsRequired" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsRequired" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3 mt-4">
+                                    @if (User.IsInRole("SuperAdmin") || !Model.IsEditMode)
+                                    {
+                                        <input asp-for="IsSystemSetting" class="form-check-input" type="checkbox" />
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="IsSystemSetting" class="form-check-input" type="checkbox" disabled />
+                                        <input asp-for="IsSystemSetting" type="hidden" />
+                                    }
+                                    <label asp-for="IsSystemSetting" class="form-check-label"></label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> @(Model.IsEditMode ? "Update Setting" : "Create Setting")
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            @if (Model.IsEditMode)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Setting Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row small">
+                            <dt class="col-sm-5">Created:</dt>
+                            <dd class="col-sm-7">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</dd>
+                            
+                            @if (!string.IsNullOrEmpty(Model.CreatedBy))
+                            {
+                                <dt class="col-sm-5">Created By:</dt>
+                                <dd class="col-sm-7">@Model.CreatedBy</dd>
+                            }
+                            
+                            <dt class="col-sm-5">Type:</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge bg-info">@Model.Type</span>
+                            </dd>
+                            
+                            <dt class="col-sm-5">Category:</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge bg-secondary">@Model.Category</span>
+                            </dd>
+                            
+                            @if (Model.IsSystemSetting)
+                            {
+                                <dt class="col-sm-5">Status:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-danger">System Setting</span>
+                                </dd>
+                            }
+                        </dl>
+                        
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <hr />
+                            <h6>Description:</h6>
+                            <p class="small text-muted">@Model.Description</p>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">Guidelines</h6>
+                    </div>
+                    <div class="card-body">
+                        <h6>Setting Types:</h6>
+                        <ul class="small">
+                            <li><strong>Text:</strong> Single-line text input</li>
+                            <li><strong>TextArea:</strong> Multi-line text input</li>
+                            <li><strong>Number:</strong> Numeric values only</li>
+                            <li><strong>Boolean:</strong> True/False toggle</li>
+                            <li><strong>Color:</strong> Color picker</li>
+                            <li><strong>Email:</strong> Email address validation</li>
+                            <li><strong>Url:</strong> URL validation</li>
+                            <li><strong>Select:</strong> Dropdown with options</li>
+                            <li><strong>Json:</strong> JSON data</li>
+                        </ul>
+                        
+                        <h6 class="mt-3">Categories:</h6>
+                        <ul class="small">
+                            <li><strong>Branding:</strong> Logo, name, etc.</li>
+                            <li><strong>Theme:</strong> Colors, fonts</li>
+                            <li><strong>Layout:</strong> UI configuration</li>
+                            <li><strong>Security:</strong> System settings</li>
+                            <li><strong>Features:</strong> Feature toggles</li>
+                            <li><strong>Contact:</strong> Contact info</li>
+                            <li><strong>Social:</strong> Social media</li>
+                            <li><strong>Advanced:</strong> SEO, etc.</li>
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @if (!Model.IsEditMode)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const typeSelect = document.getElementById('settingType');
+                const validValuesGroup = document.getElementById('validValuesGroup');
+                const valueInput = document.getElementById('settingValue');
+                
+                if (typeSelect) {
+                    typeSelect.addEventListener('change', function() {
+                        const selectedType = this.options[this.selectedIndex].text;
+                        
+                        // Show/hide valid values field for Select type
+                        if (selectedType === 'Select') {
+                            validValuesGroup.style.display = 'block';
+                        } else {
+                            validValuesGroup.style.display = 'none';
+                        }
+                        
+                        // Update value input type based on selection
+                        switch(selectedType) {
+                            case 'Boolean':
+                                valueInput.type = 'checkbox';
+                                break;
+                            case 'Number':
+                                valueInput.type = 'number';
+                                break;
+                            case 'Color':
+                                valueInput.type = 'color';
+                                break;
+                            case 'Email':
+                                valueInput.type = 'email';
+                                break;
+                            case 'Url':
+                                valueInput.type = 'url';
+                                break;
+                            default:
+                                valueInput.type = 'text';
+                        }
+                    });
+                }
+            });
+        </script>
+    }
+}

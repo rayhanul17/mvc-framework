@@ -1,0 +1,188 @@
+@model IEnumerable<Nexora.Core.Entities.BlogPost>
+
+@{
+    ViewData["Title"] = "Blog Posts";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <a asp-action="CreateEdit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New Post
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="blogPostsTable" class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Author</th>
+                            <th>Status</th>
+                            <th>Views</th>
+                            <th>Published Date</th>
+                            <th>Created At</th>
+                            <th width="200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model.OrderByDescending(p => p.CreatedAt))
+                            {
+                                <tr>
+                                    <td>
+                                        @item.Title
+                                        @if (!string.IsNullOrEmpty(item.Slug))
+                                        {
+                                            <br /><small class="text-muted"><code>@item.Slug</code></small>
+                                        }
+                                    </td>
+                                    <td>@(item.Category?.Name ?? "-")</td>
+                                    <td>@(item.Author?.FullName ?? "-")</td>
+                                    <td>
+                                        @if (item.IsPublished)
+                                        {
+                                            <span class="badge bg-success">Published</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">Draft</span>
+                                        }
+                                    </td>
+                                    <td>@item.ViewCount</td>
+                                    <td>@(item.PublishedDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                    <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <a asp-action="CreateEdit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        @if (!item.IsPublished)
+                                        {
+                                            <button class="btn btn-sm btn-success publish-btn" data-id="@item.Id">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-secondary unpublish-btn" data-id="@item.Id">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        }
+                                        <button type="button" class="btn btn-sm btn-danger"
+                                                onclick="return showDeleteModal('@Url.Action("Delete", "BlogPost", new { id = item.Id })', @Html.Raw(Json.Serialize(item.Title)), 'blog post', null)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center">No posts found</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTables
+            $('#blogPostsTable').DataTable({
+                responsive: true,
+                order: [[6, 'desc']], // Sort by Created At column by default
+                columnDefs: [
+                    { orderable: false, targets: [7] }, // Disable sorting on Actions column
+                    { searchable: false, targets: [7] }, // Disable searching on Actions column
+                    { width: "200px", targets: [7] }, // Set fixed width for Actions column
+                    { type: "num", targets: [4] } // Treat Views column as numeric
+                ],
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                language: {
+                    search: "Search blog posts:",
+                    lengthMenu: "Show _MENU_ posts per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ blog posts",
+                    infoEmpty: "No blog posts found",
+                    infoFiltered: "(filtered from _MAX_ total posts)",
+                    emptyTable: "No blog posts available",
+                    zeroRecords: "No matching blog posts found"
+                },
+                drawCallback: function() {
+                    // Re-attach event handlers after DataTables redraw
+                    attachPublishHandlers();
+                }
+            });
+            
+            // Initial attachment of handlers
+            attachPublishHandlers();
+        });
+        
+        function attachPublishHandlers() {
+            $('.publish-btn').off('click').on('click', function() {
+                var id = $(this).data('id');
+                var btn = $(this);
+                
+                showConfirmModal(
+                    'Are you sure you want to publish this post?',
+                    '<small class="text-muted">This will make the post visible to all users.</small>',
+                    function() {
+                        var loadingToast = NotificationSystem.loading('Publishing post...');
+                        $.post('@Url.Action("Publish", "BlogPost")', { id: id }, function(response) {
+                            NotificationSystem.hide(loadingToast);
+                            if (response.success) {
+                                NotificationSystem.success(response.message || 'Post published successfully');
+                                setTimeout(function() { location.reload(); }, 1000);
+                            } else {
+                                NotificationSystem.error(response.message || 'Failed to publish post');
+                            }
+                        }).fail(function() {
+                            NotificationSystem.hide(loadingToast);
+                            NotificationSystem.error('An error occurred while publishing the post');
+                        });
+                    },
+                    { confirmText: 'Publish', headerClass: 'bg-success' }
+                );
+            });
+            
+            $('.unpublish-btn').off('click').on('click', function() {
+                var id = $(this).data('id');
+                var btn = $(this);
+                
+                showConfirmModal(
+                    'Are you sure you want to unpublish this post?',
+                    '<small class="text-muted">This will hide the post from public view.</small>',
+                    function() {
+                        var loadingToast = NotificationSystem.loading('Unpublishing post...');
+                        $.post('@Url.Action("Unpublish", "BlogPost")', { id: id }, function(response) {
+                            NotificationSystem.hide(loadingToast);
+                            if (response.success) {
+                                NotificationSystem.success(response.message || 'Post unpublished successfully');
+                                setTimeout(function() { location.reload(); }, 1000);
+                            } else {
+                                NotificationSystem.error(response.message || 'Failed to unpublish post');
+                            }
+                        }).fail(function() {
+                            NotificationSystem.hide(loadingToast);
+                            NotificationSystem.error('An error occurred while unpublishing the post');
+                        });
+                    },
+                    { confirmText: 'Unpublish', headerClass: 'bg-warning' }
+                );
+            });
+        }
+    </script>
+}

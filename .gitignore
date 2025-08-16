@@ -20,8 +20,16 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
-[Ll]og/
-[Ll]ogs/
+
+# Application log files (root level only)
+/Logs/
+/Nexora.Web/Logs/
+*.log
+*.txt
+
+# User uploaded files
+/Nexora.Web/wwwroot/uploads/
+/wwwroot/uploads/
 
 # .NET Core
 project.lock.json

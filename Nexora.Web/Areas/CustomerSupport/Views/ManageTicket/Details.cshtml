@@ -1,0 +1,512 @@
+@model Nexora.Web.Areas.CustomerSupport.Models.TicketDetailsViewModel
+@{
+    ViewData["Title"] = $"Ticket #{Model.Ticket.TicketNumber} - Manager View";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>
+                            <i class="fas fa-eye text-primary me-2"></i>
+                            Ticket #@(Model.Ticket.TicketNumber ?? $"T{Model.Ticket.Id:D6}")
+                        </h2>
+                        <p class="text-muted">@Model.Ticket.Title</p>
+                    </div>
+                    <div>
+                        <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Manage Tickets
+                        </a>
+                        @if (Model.Ticket.AssignedToId == null)
+                        {
+                            <a asp-action="Assign" asp-route-id="@Model.Ticket.Id" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Assign
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Assign" asp-route-id="@Model.Ticket.Id" class="btn btn-warning">
+                                <i class="fas fa-user-edit me-2"></i>Reassign
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Ticket Overview -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Ticket Overview
+                        </h5>
+                        <div>
+                            <span class="badge bg-@(GetStatusBadgeClass(Model.Ticket.Status)) me-2">@Model.Ticket.Status</span>
+                            <span class="badge bg-@(GetPriorityBadgeClass(Model.Ticket.Priority))">@Model.Ticket.Priority</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Title:</strong></div>
+                        <div class="col-sm-9">@Model.Ticket.Title</div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Description:</strong></div>
+                        <div class="col-sm-9">
+                            <div class="border p-3 rounded bg-light">
+                                @Html.Raw(Model.Ticket.Description.Replace("\n", "<br/>"))
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Category:</strong></div>
+                        <div class="col-sm-9">@(Model.Ticket.Category ?? "Not specified")</div>
+                    </div>
+
+                    @if (Model.Ticket.DueDate.HasValue)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Due Date:</strong></div>
+                            <div class="col-sm-9">
+                                @Model.Ticket.DueDate.Value.ToString("MMM dd, yyyy HH:mm")
+                                @if (Model.Ticket.DueDate.Value < DateTime.Now && Model.Ticket.Status != Nexora.Core.Entities.TicketStatus.Closed && Model.Ticket.Status != Nexora.Core.Entities.TicketStatus.Resolved)
+                                {
+                                    <span class="badge bg-danger ms-2">Overdue</span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Ticket.ResolutionNotes))
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-3"><strong>Resolution:</strong></div>
+                            <div class="col-sm-9">
+                                <div class="border p-3 rounded bg-success bg-opacity-10 border-success">
+                                    @Html.Raw(Model.Ticket.ResolutionNotes.Replace("\n", "<br/>"))
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            @if (Model.CanEdit)
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-bolt me-2"></i>Quick Actions
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="d-grid gap-2">
+                                    @if (Model.Ticket.Status != Nexora.Core.Entities.TicketStatus.InProgress)
+                                    {
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="quickStatusUpdate('InProgress')">
+                                            <i class="fas fa-play me-1"></i>Start Progress
+                                        </button>
+                                    }
+                                    @if (Model.CanResolve)
+                                    {
+                                        <button type="button" class="btn btn-success btn-sm" onclick="quickResolve()">
+                                            <i class="fas fa-check me-1"></i>Quick Resolve
+                                        </button>
+                                    }
+                                    @if (Model.Ticket.Status != Nexora.Core.Entities.TicketStatus.OnHold)
+                                    {
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="quickStatusUpdate('OnHold')">
+                                            <i class="fas fa-pause me-1"></i>Put On Hold
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-grid gap-2">
+                                    @if (Model.CanClose)
+                                    {
+                                        <button type="button" class="btn btn-dark btn-sm" onclick="quickStatusUpdate('Closed')">
+                                            <i class="fas fa-times me-1"></i>Close Ticket
+                                        </button>
+                                    }
+                                    @if (Model.CanReopen && (Model.Ticket.Status == Nexora.Core.Entities.TicketStatus.Closed || Model.Ticket.Status == Nexora.Core.Entities.TicketStatus.Resolved))
+                                    {
+                                        <button type="button" class="btn btn-info btn-sm" onclick="quickStatusUpdate('Reopened')">
+                                            <i class="fas fa-redo me-1"></i>Reopen
+                                        </button>
+                                    }
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="escalateTicket()">
+                                        <i class="fas fa-arrow-up me-1"></i>Escalate
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Comments Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-comments me-2"></i>Comments & Activity (@Model.Comments.Count)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.Comments.Any())
+                    {
+                        <div class="timeline">
+                            @foreach (var comment in Model.Comments.OrderByDescending(c => c.CreatedAt))
+                            {
+                                <div class="timeline-item mb-4">
+                                    <div class="timeline-marker bg-@(comment.IsInternal ? "warning" : "primary")"></div>
+                                    <div class="timeline-content">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <strong>@comment.User.FullName</strong>
+                                                @if (comment.IsInternal)
+                                                {
+                                                    <span class="badge bg-warning ms-2">Internal</span>
+                                                }
+                                                @if (comment.IsSystemGenerated)
+                                                {
+                                                    <span class="badge bg-secondary ms-2">System</span>
+                                                }
+                                            </div>
+                                            <small class="text-muted">@comment.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+                                        </div>
+                                        <div class="comment-content bg-light p-3 rounded">
+                                            @Html.Raw(comment.Comment.Replace("\n", "<br/>"))
+                                        </div>
+                                        @if (comment.Attachments.Any())
+                                        {
+                                            <div class="mt-2">
+                                                <small class="text-muted">Attachments:</small>
+                                                @foreach (var attachment in comment.Attachments)
+                                                {
+                                                    <div class="d-inline-block me-2">
+                                                        <i class="fas fa-paperclip me-1"></i>
+                                                        <a href="@attachment.FilePath" target="_blank">@attachment.FileName</a>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-comments fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No comments yet</p>
+                        </div>
+                    }
+
+                    <!-- Add Comment Form -->
+                    <hr>
+                    <form asp-area="CustomerSupport" asp-controller="Ticket" asp-action="AddComment" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="TicketId" value="@Model.Ticket.Id" />
+                        
+                        <div class="mb-3">
+                            <label for="Comment" class="form-label">Add Comment</label>
+                            <textarea name="Comment" class="form-control" rows="4" placeholder="Add your comment..." required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="Attachments" class="form-label">Attachments</label>
+                                    <input name="Attachments" type="file" class="form-control" multiple />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mt-4">
+                                    <input name="IsInternal" type="checkbox" class="form-check-input" id="isInternal" />
+                                    <label class="form-check-label" for="isInternal">
+                                        <i class="fas fa-lock me-1"></i>Internal comment (not visible to customer)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-comment me-2"></i>Add Comment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Management Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-cogs me-2"></i>Management Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Edit" asp-route-id="@Model.Ticket.Id" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-edit me-1"></i>Edit Ticket
+                        </a>
+                        @if (Model.Ticket.AssignedToId == null)
+                        {
+                            <a asp-action="Assign" asp-route-id="@Model.Ticket.Id" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-user-plus me-1"></i>Assign to Agent
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Assign" asp-route-id="@Model.Ticket.Id" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-user-edit me-1"></i>Reassign
+                            </a>
+                        }
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="createFollowUpTicket()">
+                            <i class="fas fa-plus me-1"></i>Create Follow-up
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="duplicateTicket()">
+                            <i class="fas fa-copy me-1"></i>Duplicate Ticket
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-info me-2"></i>Ticket Details
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <strong>Created:</strong><br>
+                        <small class="text-muted">@Model.Ticket.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+                    </div>
+                    
+                    @if (Model.Ticket.UpdatedAt.HasValue)
+                    {
+                        <div class="mb-2">
+                            <strong>Last Updated:</strong><br>
+                            <small class="text-muted">@Model.Ticket.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</small>
+                        </div>
+                    }
+                    
+                    @if (Model.Ticket.ResolvedAt.HasValue)
+                    {
+                        <div class="mb-2">
+                            <strong>Resolved:</strong><br>
+                            <small class="text-muted">@Model.Ticket.ResolvedAt.Value.ToString("MMM dd, yyyy HH:mm")</small>
+                        </div>
+                    }
+                    
+                    @if (Model.Ticket.ClosedAt.HasValue)
+                    {
+                        <div class="mb-2">
+                            <strong>Closed:</strong><br>
+                            <small class="text-muted">@Model.Ticket.ClosedAt.Value.ToString("MMM dd, yyyy HH:mm")</small>
+                        </div>
+                    }
+
+                    <hr>
+                    
+                    <div class="mb-2">
+                        <strong>Customer:</strong><br>
+                        <div class="d-flex align-items-center mt-1">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 12px;">
+                                @Model.Ticket.Customer.FullName.First()
+                            </div>
+                            <div>
+                                <div>@Model.Ticket.Customer.FullName</div>
+                                <small class="text-muted">@Model.Ticket.Customer.Email</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong>Assigned To:</strong><br>
+                        @if (Model.Ticket.AssignedTo != null)
+                        {
+                            <div class="d-flex align-items-center mt-1">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 12px;">
+                                    @Model.Ticket.AssignedTo.FullName.First()
+                                </div>
+                                <div>
+                                    <div>@Model.Ticket.AssignedTo.FullName</div>
+                                    <small class="text-muted">@Model.Ticket.AssignedTo.Email</small>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Unassigned</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Tickets -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-link me-2"></i>Related Tickets
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No related tickets found</p>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="linkTicket()">
+                        <i class="fas fa-link me-1"></i>Link Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function quickStatusUpdate(newStatus) {
+            if (confirm(`Are you sure you want to change this ticket's status to ${newStatus}?`)) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("UpdateStatus", "Ticket", new { area = "CustomerSupport" })';
+                
+                const ticketIdInput = document.createElement('input');
+                ticketIdInput.type = 'hidden';
+                ticketIdInput.name = 'id';
+                ticketIdInput.value = '@Model.Ticket.Id';
+                form.appendChild(ticketIdInput);
+                
+                const statusInput = document.createElement('input');
+                statusInput.type = 'hidden';
+                statusInput.name = 'newStatus';
+                statusInput.value = newStatus;
+                form.appendChild(statusInput);
+                
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '__RequestVerificationToken';
+                tokenInput.value = $('input[name="__RequestVerificationToken"]').val();
+                form.appendChild(tokenInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        function quickResolve() {
+            const resolution = prompt('Please enter resolution notes:');
+            if (resolution) {
+                quickStatusUpdate('Resolved');
+            }
+        }
+        
+        function escalateTicket() {
+            if (confirm('Escalate this ticket to higher priority?')) {
+                alert('Escalation functionality to be implemented');
+            }
+        }
+        
+        function createFollowUpTicket() {
+            if (confirm('Create a follow-up ticket based on this ticket?')) {
+                window.location.href = '@Url.Action("Create", "Ticket", new { area = "CustomerSupport" })' + '?parentId=' + '@Model.Ticket.Id';
+            }
+        }
+        
+        function duplicateTicket() {
+            if (confirm('Create a duplicate of this ticket?')) {
+                alert('Duplicate ticket functionality to be implemented');
+            }
+        }
+        
+        function linkTicket() {
+            const ticketNumber = prompt('Enter ticket number to link:');
+            if (ticketNumber) {
+                alert(`Link to ticket ${ticketNumber} - functionality to be implemented`);
+            }
+        }
+    </script>
+    
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        
+        .timeline-item {
+            position: relative;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -16px;
+            top: 3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .timeline-content {
+            margin-left: 8px;
+        }
+    </style>
+}
+
+@functions {
+    string GetStatusBadgeClass(Nexora.Core.Entities.TicketStatus status)
+    {
+        return status switch
+        {
+            Nexora.Core.Entities.TicketStatus.New => "primary",
+            Nexora.Core.Entities.TicketStatus.Open => "info",
+            Nexora.Core.Entities.TicketStatus.InProgress => "warning",
+            Nexora.Core.Entities.TicketStatus.OnHold => "secondary",
+            Nexora.Core.Entities.TicketStatus.Resolved => "success",
+            Nexora.Core.Entities.TicketStatus.Closed => "dark",
+            Nexora.Core.Entities.TicketStatus.Cancelled => "danger",
+            Nexora.Core.Entities.TicketStatus.Reopened => "info",
+            _ => "secondary"
+        };
+    }
+
+    string GetPriorityBadgeClass(Nexora.Core.Entities.TicketPriority priority)
+    {
+        return priority switch
+        {
+            Nexora.Core.Entities.TicketPriority.Low => "success",
+            Nexora.Core.Entities.TicketPriority.Medium => "info",
+            Nexora.Core.Entities.TicketPriority.High => "warning",
+            Nexora.Core.Entities.TicketPriority.Urgent => "danger",
+            Nexora.Core.Entities.TicketPriority.Critical => "dark",
+            _ => "secondary"
+        };
+    }
+}

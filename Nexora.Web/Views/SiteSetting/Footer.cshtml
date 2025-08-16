@@ -1,0 +1,354 @@
+@model Nexora.Core.Entities.SiteSetting
+@{
+    ViewData["Title"] = "Footer Settings";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-shoe-prints text-primary me-2"></i>Footer Settings</h2>
+            <p class="text-muted">Customize your website footer content and appearance</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Settings
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form asp-action="SaveFooter" method="post" id="footerForm">
+                @Html.AntiForgeryToken()
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-code me-2"></i>Footer HTML Content</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Footer HTML</label>
+                            <textarea name="FooterHtml" id="footerHtmlEditor" rows="15" class="form-control font-monospace">@(Model?.Value ?? "")</textarea>
+                            <small class="text-muted">You can use HTML tags and Bootstrap classes. Available placeholders: {{year}}, {{orgName}}, {{shortName}}</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="StickyFooter" value="true" id="stickyFooter" checked>
+                                <label class="form-check-label fw-bold" for="stickyFooter">
+                                    Sticky Footer
+                                </label>
+                            </div>
+                            <small class="text-muted">Keep footer at the bottom of the viewport when content is short</small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" onclick="insertTemplate()">
+                                <i class="fas fa-file-code me-2"></i>Use Template
+                            </button>
+                            <div>
+                                <button type="button" class="btn btn-info me-2" onclick="previewFooter()">
+                                    <i class="fas fa-eye me-2"></i>Preview
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Footer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <!-- HTML Helper -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-toolbox me-2"></i>Quick Insert</h6>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group btn-group-sm mb-2" role="group">
+                        <button type="button" class="btn btn-outline-primary" onclick="insertTag('p')">
+                            <i class="fas fa-paragraph"></i> Paragraph
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="insertTag('div')">
+                            <i class="fas fa-square"></i> Div
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="insertTag('span')">
+                            <i class="fas fa-text-width"></i> Span
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="insertLink()">
+                            <i class="fas fa-link"></i> Link
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="insertTag('strong')">
+                            <i class="fas fa-bold"></i> Bold
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="insertTag('em')">
+                            <i class="fas fa-italic"></i> Italic
+                        </button>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6>Bootstrap Classes</h6>
+                        <div class="row g-2">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addClass('text-center')">text-center</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addClass('text-muted')">text-muted</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addClass('mb-2')">mb-2</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addClass('mt-3')">mt-3</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addClass('d-flex')">d-flex</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addClass('justify-content-center')">justify-content-center</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <h6>Placeholders</h6>
+                        <div class="row g-2">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="insertPlaceholder('{{year}}')">Current Year</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="insertPlaceholder('{{orgName}}')">Organization Name</button>
+                            </div>
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="insertPlaceholder('{{shortName}}')">Short Name</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Preview -->
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-desktop me-2"></i>Live Preview</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="footer-preview" id="footerPreview">
+                        <div class="text-center text-muted p-3">
+                            <i class="fas fa-eye-slash fa-2x mb-2"></i>
+                            <p>Click "Preview" to see your footer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Templates -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-layer-group me-2"></i>Footer Templates</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('simple')">
+                            Simple Footer
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('columns')">
+                            Multi-Column Footer
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('social')">
+                            Footer with Social Links
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadTemplate('minimal')">
+                            Minimal Footer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .footer-preview {
+        min-height: 150px;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        overflow: auto;
+    }
+    
+    #footerHtmlEditor {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        const templates = {
+            simple: `<div class="text-center py-3">
+    <p class="mb-2">© {{year}} <strong>{{orgName}}</strong>. All rights reserved.</p>
+    <div class="footer-links">
+        <a href="/privacy" class="text-muted me-3">Privacy Policy</a>
+        <a href="/terms" class="text-muted me-3">Terms of Service</a>
+        <a href="/contact" class="text-muted">Contact Us</a>
+    </div>
+</div>`,
+            columns: `<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4">
+            <h5>{{orgName}}</h5>
+            <p class="text-muted">Your trusted partner for digital solutions.</p>
+        </div>
+        <div class="col-md-4">
+            <h6>Quick Links</h6>
+            <ul class="list-unstyled">
+                <li><a href="/about" class="text-muted">About Us</a></li>
+                <li><a href="/services" class="text-muted">Services</a></li>
+                <li><a href="/contact" class="text-muted">Contact</a></li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h6>Legal</h6>
+            <ul class="list-unstyled">
+                <li><a href="/privacy" class="text-muted">Privacy Policy</a></li>
+                <li><a href="/terms" class="text-muted">Terms of Service</a></li>
+            </ul>
+        </div>
+    </div>
+    <hr class="my-3">
+    <div class="text-center">
+        <p class="mb-0 text-muted">© {{year}} {{orgName}}. All rights reserved.</p>
+    </div>
+</div>`,
+            social: `<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+            <p class="mb-0">© {{year}} <strong>{{orgName}}</strong></p>
+        </div>
+        <div class="social-links">
+            <a href="#" class="text-muted me-3"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="text-muted me-3"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="text-muted me-3"><i class="fab fa-linkedin"></i></a>
+            <a href="#" class="text-muted"><i class="fab fa-github"></i></a>
+        </div>
+        <div>
+            <a href="/privacy" class="text-muted me-2">Privacy</a>
+            <a href="/terms" class="text-muted">Terms</a>
+        </div>
+    </div>
+</div>`,
+            minimal: `<div class="text-center py-2">
+    <p class="mb-0 text-muted small">© {{year}} {{orgName}}</p>
+</div>`
+        };
+        
+        function loadTemplate(templateName) {
+            if (templates[templateName]) {
+                document.getElementById('footerHtmlEditor').value = templates[templateName];
+                previewFooter();
+                NotificationSystem.info('Template loaded. You can customize it as needed.');
+            }
+        }
+        
+        function insertTemplate() {
+            loadTemplate('simple');
+        }
+        
+        function insertTag(tag) {
+            const editor = document.getElementById('footerHtmlEditor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            const replacement = `<${tag}>${selectedText}</${tag}>`;
+            
+            editor.value = editor.value.substring(0, start) + replacement + editor.value.substring(end);
+            editor.focus();
+            editor.setSelectionRange(start + tag.length + 2, start + tag.length + 2 + selectedText.length);
+        }
+        
+        function insertLink() {
+            const url = prompt('Enter URL:', 'https://');
+            if (url) {
+                const editor = document.getElementById('footerHtmlEditor');
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                const selectedText = editor.value.substring(start, end) || 'Link text';
+                const replacement = `<a href="${url}" class="text-muted">${selectedText}</a>`;
+                
+                editor.value = editor.value.substring(0, start) + replacement + editor.value.substring(end);
+                editor.focus();
+            }
+        }
+        
+        function addClass(className) {
+            const editor = document.getElementById('footerHtmlEditor');
+            const start = editor.selectionStart;
+            const text = ` class="${className}"`;
+            
+            editor.value = editor.value.substring(0, start) + text + editor.value.substring(start);
+            editor.focus();
+            editor.setSelectionRange(start + text.length, start + text.length);
+        }
+        
+        function insertPlaceholder(placeholder) {
+            const editor = document.getElementById('footerHtmlEditor');
+            const start = editor.selectionStart;
+            
+            editor.value = editor.value.substring(0, start) + placeholder + editor.value.substring(start);
+            editor.focus();
+            editor.setSelectionRange(start + placeholder.length, start + placeholder.length);
+        }
+        
+        function previewFooter() {
+            let html = document.getElementById('footerHtmlEditor').value;
+            
+            // Replace placeholders with sample values
+            html = html.replace(/{{year}}/g, new Date().getFullYear());
+            html = html.replace(/{{orgName}}/g, 'Your Organization');
+            html = html.replace(/{{shortName}}/g, 'YO');
+            
+            document.getElementById('footerPreview').innerHTML = html;
+        }
+        
+        // Auto-preview on typing (debounced)
+        let previewTimeout;
+        document.getElementById('footerHtmlEditor').addEventListener('input', function() {
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(previewFooter, 500);
+        });
+        
+        // Form submission
+        document.getElementById('footerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const loadingToast = NotificationSystem.loading('Saving footer settings...');
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                NotificationSystem.hide(loadingToast);
+                if (data.success) {
+                    NotificationSystem.success('Footer settings saved successfully!');
+                    setTimeout(() => window.location.href = '/SiteSetting', 1500);
+                } else {
+                    NotificationSystem.error(data.message || 'Failed to save settings');
+                }
+            })
+            .catch(error => {
+                NotificationSystem.hide(loadingToast);
+                NotificationSystem.error('An error occurred while saving settings');
+            });
+        });
+        
+        // Load initial preview if content exists
+        if (document.getElementById('footerHtmlEditor').value) {
+            previewFooter();
+        }
+    </script>
+}

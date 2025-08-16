@@ -1,0 +1,47 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="text-center py-5">
+                @if (Model.StatusCode == 404)
+                {
+                    <h1 class="display-1">404</h1>
+                    <h2>Page Not Found</h2>
+                    <p>The page you are looking for doesn't exist.</p>
+                    <a href="/" class="btn btn-primary">Go to Home</a>
+                }
+                else if (Model.StatusCode == 403)
+                {
+                    <h1 class="display-1">403</h1>
+                    <h2>Access Denied</h2>
+                    <p>You don't have permission to access this resource.</p>
+                    <a href="/" class="btn btn-primary">Go to Home</a>
+                }
+                else if (Model.StatusCode == 500)
+                {
+                    <h1 class="display-1">500</h1>
+                    <h2>Internal Server Error</h2>
+                    <p>Something went wrong on our end. Please try again later.</p>
+                    <a href="/" class="btn btn-primary">Go to Home</a>
+                }
+                else
+                {
+                    <h1 class="display-1">@Model.StatusCode</h1>
+                    <h2>Oops! Something went wrong</h2>
+                    <p>An error occurred while processing your request.</p>
+                    @if (Model.ShowRequestId)
+                    {
+                        <p>
+                            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+                        </p>
+                    }
+                    <a href="/" class="btn btn-primary">Go to Home</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

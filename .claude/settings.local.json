@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet new:*)",
+      "Bash(dotnet sln add:*)",
+      "Bash(dotnet add reference:*)",
+      "Bash(dotnet add package:*)",
+      "Bash(if exist Nexora.CoreClass1.cs del Nexora.CoreClass1.cs)",
+      "Bash(powershell:*)",
+      "Bash(dotnet build)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet tool install:*)",
+      "Bash(dotnet ef migrations add:*)",
+      "Bash(dotnet ef database update:*)",
+      "Bash(dotnet ef dbcontext:*)",
+      "Bash(dotnet ef database drop:*)",
+      "Bash(mkdir:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet run:*)",
+      "Bash(dotnet ef migrations:*)",
+      "Bash(del D:mvc-frameworkNexora.WebTestMenus.cs)",
+      "Bash(taskkill:*)",
+      "Bash(rmdir:*)",
+      "Bash(del CheckMenus.cs)",
+      "Bash(del:*)",
+      "Bash(rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ren:*)",
+      "Bash(timeout:*)",
+      "WebFetch(domain:cdn.datatables.net)",
+      "Bash(curl:*)",
+      "Bash(dir:*)"
+    ],
+    "deny": []
+  }
+}

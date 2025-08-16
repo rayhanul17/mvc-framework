@@ -1,0 +1,85 @@
+@model IEnumerable<Nexora.Web.Models.ViewModels.RoleViewModel>
+@{
+    ViewData["Title"] = "Role Management";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Role Management</h2>
+        <a asp-action="CreateEdit" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Role
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="rolesTable" class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Name)</th>
+            <th>@Html.DisplayNameFor(model => model.Description)</th>
+            <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+            <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>
+                    @if (item.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Inactive</span>
+                    }
+                </td>
+                <td>@item.CreatedAt?.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    <a asp-action="CreateEdit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <button type="button" class="btn btn-sm btn-danger" 
+                            onclick="return showDeleteModal('@Url.Action("Delete", "Role", new { id = item.Id })', @Html.Raw(Json.Serialize(item.Name)), 'role', @Html.Raw(Json.Serialize($"<small class='text-muted'>{item.Description ?? ""}</small>")))">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        }
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#rolesTable').DataTable({
+                responsive: true,
+                order: [[3, 'desc']], // Sort by Created Date column by default
+                columnDefs: [
+                    { orderable: false, targets: [4] }, // Disable sorting on Actions column
+                    { searchable: false, targets: [4] }, // Disable searching on Actions column
+                    { width: "150px", targets: [4] } // Set fixed width for Actions column
+                ],
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                language: {
+                    search: "Search roles:",
+                    lengthMenu: "Show _MENU_ roles per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ roles",
+                    infoEmpty: "No roles found",
+                    infoFiltered: "(filtered from _MAX_ total roles)",
+                    emptyTable: "No roles available",
+                    zeroRecords: "No matching roles found"
+                }
+            });
+        });
+    </script>
+}

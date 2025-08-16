@@ -1,0 +1,127 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = $"Error {Model.StatusCode}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-8 col-lg-6">
+            <div class="text-center">
+                <!-- Error Icon -->
+                <div class="mb-4">
+                    <i class="fas fa-exclamation-circle fa-6x text-secondary opacity-50"></i>
+                </div>
+
+                <!-- Error Code -->
+                <h1 class="display-1 fw-bold text-secondary">@Model.StatusCode</h1>
+                <h2 class="h4 mb-3">@Model.GetStatusCodeDescription()</h2>
+                
+                <!-- User-friendly message -->
+                <p class="lead text-muted mb-4">
+                    @Model.GetUserFriendlyMessage()
+                </p>
+
+                <!-- Action buttons -->
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+                    <button type="button" class="btn btn-primary" onclick="window.location.reload()">
+                        <i class="fas fa-sync-alt me-2"></i>Try Again
+                    </button>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
+                        <i class="fas fa-home me-2"></i>Homepage
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left me-2"></i>Go Back
+                    </button>
+                </div>
+
+                <!-- Help suggestions -->
+                <div class="mt-5">
+                    <h6 class="text-muted">What can you try?</h6>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-sync-alt text-secondary me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="h6">Refresh</h6>
+                                    <small class="text-muted">Try refreshing the page</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-clock text-secondary me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="h6">Wait</h6>
+                                    <small class="text-muted">The issue might be temporary</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-envelope text-secondary me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="h6">Contact</h6>
+                                    <small class="text-muted">Report the issue to support</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical details -->
+                @if (Model.ShowRequestId)
+                {
+                    <div class="mt-4">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#technicalDetails">
+                            <i class="fas fa-cog me-1"></i>Technical Details
+                        </button>
+                        <div class="collapse mt-3" id="technicalDetails">
+                            <div class="card">
+                                <div class="card-body text-start">
+                                    <h6>Debug Information</h6>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-sm-3"><strong>Request ID:</strong></div>
+                                        <div class="col-sm-9"><code>@Model.RequestId</code></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-3"><strong>Status Code:</strong></div>
+                                        <div class="col-sm-9">@Model.StatusCode</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-3"><strong>Timestamp:</strong></div>
+                                        <div class="col-sm-9">@Model.Timestamp.ToString("yyyy-MM-dd HH:mm:ss UTC")</div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.OriginalPath))
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-3"><strong>Path:</strong></div>
+                                            <div class="col-sm-9"><code>@Model.OriginalPath</code></div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+        
+        .min-vh-100 {
+            min-height: 100vh;
+        }
+        
+        .opacity-50 {
+            opacity: 0.5;
+        }
+    </style>
+}

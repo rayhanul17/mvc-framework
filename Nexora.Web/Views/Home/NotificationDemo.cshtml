@@ -1,0 +1,178 @@
+@{
+    ViewData["Title"] = "Notification System Demo";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2>Notification System Demo</h2>
+            <p class="text-muted">Test all notification and modal features</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Toaster Notifications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success" onclick="NotificationSystem.success('Operation completed successfully!', 'Success')">
+                            <i class="fas fa-check me-2"></i>Success Notification
+                        </button>
+                        <button class="btn btn-danger" onclick="NotificationSystem.error('Something went wrong!', 'Error')">
+                            <i class="fas fa-times me-2"></i>Error Notification
+                        </button>
+                        <button class="btn btn-info" onclick="NotificationSystem.info('Here is some information', 'Info')">
+                            <i class="fas fa-info me-2"></i>Info Notification
+                        </button>
+                        <button class="btn btn-warning" onclick="NotificationSystem.warning('Please be careful!', 'Warning')">
+                            <i class="fas fa-exclamation me-2"></i>Warning Notification
+                        </button>
+                        <button class="btn btn-primary" onclick="testLoadingNotification()">
+                            <i class="fas fa-spinner me-2"></i>Loading Notification (3s)
+                        </button>
+                        <button class="btn btn-secondary" onclick="NotificationSystem.clear()">
+                            <i class="fas fa-eraser me-2"></i>Clear All Notifications
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Modal Dialogs</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-danger" onclick="testDeleteModal()">
+                            <i class="fas fa-trash me-2"></i>Delete Modal
+                        </button>
+                        <button class="btn btn-primary" onclick="testConfirmModal()">
+                            <i class="fas fa-question me-2"></i>Confirmation Modal
+                        </button>
+                        <button class="btn btn-info" onclick="testLoadingModal()">
+                            <i class="fas fa-spinner me-2"></i>Loading Modal (3s)
+                        </button>
+                        <button class="btn btn-success" onclick="testCustomConfirmModal()">
+                            <i class="fas fa-check me-2"></i>Custom Confirm Modal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Combined Features</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary" onclick="testDeleteWithCallback()">
+                        <i class="fas fa-magic me-2"></i>Delete with Callback & Notification
+                    </button>
+                    <button class="btn btn-success ms-2" onclick="testAjaxOperation()">
+                        <i class="fas fa-cloud me-2"></i>Simulate AJAX Operation
+                    </button>
+                    <button class="btn btn-warning ms-2" onclick="testValidationErrors()">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Show Validation Errors
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function testLoadingNotification() {
+            var toast = NotificationSystem.loading('Processing your request...');
+            setTimeout(function() {
+                NotificationSystem.hide(toast);
+                NotificationSystem.success('Process completed!');
+            }, 3000);
+        }
+
+        function testDeleteModal() {
+            showDeleteModal(
+                '#',
+                'Sample Item',
+                'demo item',
+                '<small class="text-muted">ID: 12345<br>Created: 2024-01-01</small>'
+            );
+        }
+
+        function testConfirmModal() {
+            showConfirmModal(
+                'Are you sure you want to proceed with this action?',
+                '<div class="alert alert-info">This is additional information about the action.</div>',
+                function() {
+                    NotificationSystem.success('Action confirmed!');
+                }
+            );
+        }
+
+        function testLoadingModal() {
+            var modal = ModalSystem.showLoadingModal('Processing your request...');
+            setTimeout(function() {
+                ModalSystem.hideLoadingModal();
+                NotificationSystem.success('Process completed!');
+            }, 3000);
+        }
+
+        function testCustomConfirmModal() {
+            showConfirmModal(
+                'Do you want to save these changes?',
+                '<ul><li>Change 1: Updated name</li><li>Change 2: Modified settings</li></ul>',
+                function() {
+                    NotificationSystem.success('Changes saved successfully!');
+                },
+                {
+                    confirmText: 'Save Changes',
+                    headerClass: 'bg-success'
+                }
+            );
+        }
+
+        function testDeleteWithCallback() {
+            ModalSystem.showDeleteModal(
+                '#',
+                'Important Document',
+                'document',
+                '<div class="alert alert-warning">This document has 5 dependencies</div>',
+                function() {
+                    // Custom callback instead of page reload
+                    NotificationSystem.success('Document deleted successfully!');
+                    NotificationSystem.info('Cleaning up dependencies...');
+                    setTimeout(function() {
+                        NotificationSystem.success('All dependencies cleaned!');
+                    }, 2000);
+                }
+            );
+        }
+
+        function testAjaxOperation() {
+            var loading = NotificationSystem.loading('Fetching data from server...');
+            
+            // Simulate AJAX call
+            setTimeout(function() {
+                NotificationSystem.hide(loading);
+                NotificationSystem.success('Data loaded successfully!');
+                NotificationSystem.info('Found 42 records');
+            }, 2000);
+        }
+
+        function testValidationErrors() {
+            showValidationErrors({
+                'Email': 'Email address is required',
+                'Password': ['Password must be at least 8 characters', 'Password must contain a number'],
+                'Username': 'Username is already taken'
+            });
+        }
+    </script>
+}
