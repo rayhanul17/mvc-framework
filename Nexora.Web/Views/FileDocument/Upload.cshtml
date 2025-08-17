@@ -1,0 +1,126 @@
+@{
+    ViewData["Title"] = "Upload File";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select File <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="file" name="file" required>
+                            <div class="form-text">
+                                Maximum file size: 50 MB<br>
+                                Allowed types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, ZIP, RAR, Images (JPG, PNG, GIF), MP4, MP3
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Documents">Documents</option>
+                                <option value="Spreadsheets">Spreadsheets</option>
+                                <option value="Presentations">Presentations</option>
+                                <option value="Images">Images</option>
+                                <option value="Archives">Archives</option>
+                                <option value="Media">Media</option>
+                                <option value="Reports">Reports</option>
+                                <option value="Templates">Templates</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" 
+                                      placeholder="Enter a brief description of the file"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" class="form-control" id="tags" name="tags" 
+                                   placeholder="Enter tags separated by commas (e.g., report, monthly, sales)">
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="@Url.Action("Index", "FileDocument")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload File
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // File validation
+            $('#file').on('change', function() {
+                var file = this.files[0];
+                if (file) {
+                    var maxSize = 50 * 1024 * 1024; // 50MB
+                    if (file.size > maxSize) {
+                        alert('File size exceeds 50MB limit');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    var allowedExtensions = [
+                        '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', 
+                        '.txt', '.csv', '.zip', '.rar', '.jpg', '.jpeg', '.png', 
+                        '.gif', '.mp4', '.mp3'
+                    ];
+                    
+                    var fileName = file.name.toLowerCase();
+                    var isValid = false;
+                    
+                    for (var i = 0; i < allowedExtensions.length; i++) {
+                        if (fileName.endsWith(allowedExtensions[i])) {
+                            isValid = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!isValid) {
+                        alert('File type not allowed');
+                        this.value = '';
+                        return;
+                    }
+                }
+            });
+            
+            // Form validation
+            $('form').on('submit', function(e) {
+                var file = $('#file')[0].files[0];
+                var category = $('#category').val();
+                
+                if (!file) {
+                    e.preventDefault();
+                    alert('Please select a file');
+                    return false;
+                }
+                
+                if (!category) {
+                    e.preventDefault();
+                    alert('Please select a category');
+                    return false;
+                }
+                
+                // Show loading while uploading
+                showLoading('Uploading file...');
+            });
+        });
+    </script>
+}

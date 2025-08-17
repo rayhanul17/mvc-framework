@@ -1,0 +1,210 @@
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <table id="auditLogTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Table Name</th>
+                                <th>Entity ID</th>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>IP Address</th>
+                                <th>Date/Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    
+    <style>
+        .dataTables_processing {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            margin-left: -100px;
+            margin-top: -26px;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+        }
+    </style>
+    
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Add anti-forgery token to the page if not present
+            if (!$('input[name="__RequestVerificationToken"]').length) {
+                $('body').append('@Html.AntiForgeryToken()'.replace(/<\/?form[^>]*>/g, ''));
+            }
+            
+            var auditTable = $('#auditLogTable').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                ajax: {
+                    url: '@Url.Action("GetAuditLogs", "AuditLog")',
+                    type: 'POST',
+                    contentType: 'application/x-www-form-urlencoded',
+                    data: function(d) {
+                        // Add anti-forgery token to the request
+                        d.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                        return $.param(d);
+                    },
+                    dataSrc: function(json) {
+                        // Ensure processing indicator is hidden when data is received
+                        if (auditTable) {
+                            auditTable.processing(false);
+                        }
+                        return json.data || [];
+                    },
+                    error: function(xhr, error, thrown) {
+                        // Hide processing indicator on error
+                        if (auditTable) {
+                            auditTable.processing(false);
+                        }
+                        console.error('DataTables AJAX error:', error, thrown);
+                        console.error('Response:', xhr.responseText);
+                        
+                        // Show user-friendly error message
+                        if (xhr.status === 400) {
+                            toastr.error('Invalid request. Please refresh the page and try again.');
+                        } else if (xhr.status === 500) {
+                            toastr.error('Server error occurred. Please contact support.');
+                        } else {
+                            toastr.error('Failed to load audit logs. Please try again.');
+                        }
+                    }
+                },
+                columns: [
+                    { data: 'id', name: 'Id', orderable: true },
+                    { data: 'tableName', name: 'TableName', orderable: true },
+                    { data: 'entityId', name: 'EntityId', orderable: true },
+                    { 
+                        data: 'action', 
+                        name: 'Action',
+                        orderable: true,
+                        render: function(data) {
+                            var badgeClass = '';
+                            switch(data.toLowerCase()) {
+                                case 'create':
+                                    badgeClass = 'badge bg-success';
+                                    break;
+                                case 'update':
+                                    badgeClass = 'badge bg-warning';
+                                    break;
+                                case 'delete':
+                                    badgeClass = 'badge bg-danger';
+                                    break;
+                                default:
+                                    badgeClass = 'badge bg-secondary';
+                            }
+                            return '<span class="' + badgeClass + '">' + data + '</span>';
+                        }
+                    },
+                    { 
+                        data: 'userName', 
+                        name: 'UserName',
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return data || 'System';
+                        }
+                    },
+                    { 
+                        data: 'ipAddress', 
+                        name: 'IpAddress',
+                        orderable: false,
+                        render: function(data) {
+                            return data || '-';
+                        }
+                    },
+                    { 
+                        data: 'loggedAt', 
+                        name: 'LoggedAt',
+                        orderable: true,
+                        render: function(data) {
+                            if (data) {
+                                var date = new Date(data);
+                                return date.toLocaleString();
+                            }
+                            return '-';
+                        }
+                    },
+                    {
+                        data: null,
+                        orderable: false,
+                        render: function(data, type, row) {
+                            return '<a href="@Url.Action("Details", "AuditLog")/' + row.id + '" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> View</a>';
+                        }
+                    }
+                ],
+                order: [[6, 'desc']],
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+                language: {
+                    processing: '<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i><br/><span>Loading audit logs...</span></div>',
+                    search: 'Search:',
+                    lengthMenu: 'Show _MENU_ entries',
+                    info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+                    infoEmpty: 'Showing 0 to 0 of 0 entries',
+                    infoFiltered: '(filtered from _MAX_ total entries)',
+                    paginate: {
+                        first: 'First',
+                        last: 'Last',
+                        next: 'Next',
+                        previous: 'Previous'
+                    },
+                    emptyTable: 'No audit logs available'
+                },
+                initComplete: function() {
+                    // Ensure processing indicator is hidden after initialization
+                    this.api().processing(false);
+                }
+            });
+            
+            // Add event handlers to properly manage processing indicator
+            auditTable.on('preXhr.dt', function() {
+                // Show processing indicator before request
+                auditTable.processing(true);
+            });
+            
+            auditTable.on('xhr.dt', function() {
+                // Hide processing indicator after successful request
+                auditTable.processing(false);
+            });
+            
+            auditTable.on('error.dt', function() {
+                // Hide processing indicator on error
+                auditTable.processing(false);
+            });
+        });
+    </script>
+}

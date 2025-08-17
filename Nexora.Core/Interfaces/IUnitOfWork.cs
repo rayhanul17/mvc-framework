@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace Nexora.Core.Interfaces;
 
 public interface IUnitOfWork : IDisposable
@@ -7,4 +9,5 @@ public interface IUnitOfWork : IDisposable
     Task BeginTransactionAsync();
     Task CommitAsync();
     Task RollbackAsync();
+    DbContext GetDbContext();
 }

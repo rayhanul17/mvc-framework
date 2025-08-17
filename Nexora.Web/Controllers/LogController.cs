@@ -10,117 +10,232 @@ namespace Nexora.Web.Controllers;
 public class LogController : BaseController
 {
     private readonly ILogService _logService;
+    private readonly ILogger<LogController> _logger;
     
-    public LogController(ILogService logService)
+    public LogController(ILogService logService, ILogger<LogController> logger)
     {
         _logService = logService;
+        _logger = logger;
     }
     
-    public async Task<IActionResult> Index(
-        string? tableName = null,
-        int? entityId = null,
-        string? action = null,
-        string? source = null,
-        DateTime? startDate = null,
-        DateTime? endDate = null,
-        int page = 1,
-        int pageSize = 25)
+    public async Task<IActionResult> Index()
+    {
+        // Get table names for filter dropdown
+        var tableNamesResult = await _logService.GetTableNamesAsync();
+        var tableNames = tableNamesResult.IsSuccess ? tableNamesResult.Data : new List<string>();
+        
+        ViewBag.TableNames = new SelectList(tableNames);
+        return View();
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ExportLogs(
+        string? source, 
+        string? tableName, 
+        int? rowId,
+        int? entityId, 
+        string? action,
+        string? username,
+        string? ipAddress,
+        DateTime? startDate,
+        DateTime? endDate,
+        string? keyword)
     {
         try
         {
-            // Set default source to "log" (Main Table) if not specified
-            if (string.IsNullOrEmpty(source))
-                source = "log";
+            // Get filtered logs for export
+            var logsResult = await _logService.GetCombinedLogsAsync(
+                tableName,
+                entityId,
+                username,
+                startDate,
+                endDate,
+                action,
+                source ?? "log",
+                null, // No pagination for export
+                null,
+                ipAddress,
+                keyword
+            );
             
-            // Ensure page size has a default
-            if (pageSize <= 0) pageSize = 25;
-            if (page <= 0) page = 1;
-            
-            var skip = (page - 1) * pageSize;
-            
-            // Get all logs without pagination first to get the count
-            var allLogsResult = await _logService.GetCombinedLogsAsync(
-                tableName, entityId, null, startDate, endDate, action, source, null, null);
-            
-            if (!allLogsResult.IsSuccess)
+            if (!logsResult.IsSuccess || logsResult.Data == null)
             {
-                SetErrorMessage($"Failed to load logs: {allLogsResult.ErrorMessage}");
-                return View(new LogViewModel 
-                { 
-                    Logs = new List<dynamic>(),
-                    TableNames = new SelectList(new List<string>()),
-                    CurrentPage = page,
-                    PageSize = pageSize,
-                    Source = source
-                });
+                TempData["ErrorMessage"] = "Failed to export logs";
+                return RedirectToAction(nameof(Index));
             }
             
-            var allLogs = allLogsResult.Data?.ToList() ?? new List<object>();
-            var totalRecords = allLogs.Count;
+            // Convert to CSV format
+            var csv = new System.Text.StringBuilder();
+            csv.AppendLine("ID,Date/Time,Table,Entity ID,Action,User,IP Address,Changes,Old Values,New Values,Status");
             
-            // Debug: Log the count
-            if (totalRecords == 0)
+            foreach (dynamic log in logsResult.Data)
             {
-                // Try to get logs directly without filtering to debug
-                var debugResult = await _logService.GetCombinedLogsAsync(
-                    null, null, null, null, null, null, "log", null, null);
-                var debugCount = debugResult.Data?.Count() ?? 0;
-                
-                if (debugCount == 0)
-                {
-                    // No logs in database, show info message
-                    SetWarningMessage($"No logs found in the database. Source: {source}");
-                }
-                else
-                {
-                    SetWarningMessage($"Found {debugCount} logs in database but filters returned 0 results.");
-                }
+                csv.AppendLine($"{log.Id},{log.LoggedAt},{log.TableName},{log.EntityId},{log.Action}," +
+                              $"{log.User?.UserName ?? "System"},{log.IpAddress ?? "-"}," +
+                              $"\"{log.Changes ?? ""}\",\"{log.OldValues ?? ""}\",\"{log.NewValues ?? ""}\"," +
+                              $"{(log.IsArchived ? "Archived" : "Active")}");
             }
             
-            // Now get the paginated subset
-            var paginatedLogs = allLogs.Skip(skip).Take(pageSize).ToList();
-            
-            // Get table names for filter dropdown
-            var tableNamesResult = await _logService.GetTableNamesAsync();
-            var tableNames = tableNamesResult.IsSuccess ? tableNamesResult.Data : new List<string>();
-            
-            var viewModel = new LogViewModel
-            {
-                Logs = paginatedLogs.Cast<dynamic>(),
-                TableNames = new SelectList(tableNames),
-                SelectedTableName = tableName,
-                EntityId = entityId,
-                SelectedAction = action,
-                Source = source,
-                StartDate = startDate,
-                EndDate = endDate,
-                CurrentPage = page,
-                PageSize = pageSize,
-                TotalRecords = totalRecords
-            };
-            
-            // Debug: Add a message if we have logs but they're not showing
-            if (totalRecords > 0 && !paginatedLogs.Any())
-            {
-                SetWarningMessage($"Found {totalRecords} logs but page {page} is out of range. Showing page 1.");
-                return RedirectToAction(nameof(Index), new { 
-                    tableName, entityId, action, source, startDate, endDate, 
-                    page = 1, pageSize 
-                });
-            }
-            
-            return View(viewModel);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(csv.ToString());
+            return File(bytes, "text/csv", $"logs_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         }
         catch (Exception ex)
         {
-            SetErrorMessage($"An error occurred while loading logs: {ex.Message}");
-            return View(new LogViewModel 
-            { 
-                Logs = new List<dynamic>(),
-                TableNames = new SelectList(new List<string>()),
-                CurrentPage = 1,
-                PageSize = pageSize,
-                Source = source
+            _logger.LogError(ex, "Error exporting logs");
+            TempData["ErrorMessage"] = "An error occurred while exporting logs";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> GetLogs([FromForm] LogDataTableRequest request)
+    {
+        try
+        {
+            // Parse search value if needed
+            var searchValue = request.Search?.Value;
+            
+            // Get sort column and direction
+            var sortColumn = request.Columns != null && request.Order != null && request.Order.Any()
+                ? request.Columns[request.Order[0].Column].Data
+                : "LoggedAt";
+            var sortDirection = request.Order != null && request.Order.Any()
+                ? request.Order[0].Dir
+                : "desc";
+            
+            // Handle row ID filter separately if provided
+            if (request.RowId.HasValue)
+            {
+                // Get specific log by ID from appropriate source
+                var logResult = await _logService.GetLogByIdAsync(request.RowId.Value, request.Source ?? "log");
+                if (logResult.IsSuccess && logResult.Data != null)
+                {
+                    var log = logResult.Data;
+                    var singleData = new List<LogDataViewModel>
+                    {
+                        new LogDataViewModel
+                        {
+                            Id = log.Id,
+                            TableName = log.TableName,
+                            EntityId = log.EntityId,
+                            Action = log.Action,
+                            OldValues = log.OldValues,
+                            NewValues = log.NewValues,
+                            Changes = log.Changes,
+                            IpAddress = log.IpAddress,
+                            UserAgent = log.UserAgent,
+                            LoggedAt = log.LoggedAt,
+                            UserId = log.UserId,
+                            UserName = log.User?.UserName,
+                            FullName = log.User?.FullName,
+                            IsArchived = request.Source == "archive"
+                        }
+                    };
+                    
+                    return Json(new LogDataTableResponse
+                    {
+                        Draw = request.Draw,
+                        RecordsTotal = 1,
+                        RecordsFiltered = 1,
+                        Data = singleData
+                    });
+                }
+            }
+            
+            // Get the data using raw queries with all filters
+            var logsResult = await _logService.GetCombinedLogsAsync(
+                request.TableName,
+                request.EntityId,
+                request.Username, // Now filtering by username
+                request.StartDate,
+                request.EndDate,
+                request.Action,
+                request.Source ?? "log",
+                request.Start,
+                request.Length,
+                request.IpAddress,
+                request.Keyword
+            );
+            
+            if (!logsResult.IsSuccess || logsResult.Data == null)
+            {
+                return Json(new LogDataTableResponse
+                {
+                    Draw = request.Draw,
+                    RecordsTotal = 0,
+                    RecordsFiltered = 0,
+                    Data = new List<LogDataViewModel>()
+                });
+            }
+            
+            // Convert to view models
+            var data = new List<LogDataViewModel>();
+            foreach (dynamic log in logsResult.Data)
+            {
+                data.Add(new LogDataViewModel
+                {
+                    Id = log.Id,
+                    TableName = log.TableName,
+                    EntityId = log.EntityId,
+                    Action = log.Action,
+                    OldValues = log.OldValues,
+                    NewValues = log.NewValues,
+                    Changes = log.Changes,
+                    IpAddress = log.IpAddress,
+                    UserAgent = log.UserAgent,
+                    LoggedAt = log.LoggedAt,
+                    UserId = log.UserId,
+                    UserName = log.User?.UserName,
+                    FullName = log.User?.FullName,
+                    IsArchived = log.IsArchived,
+                    ArchivedAt = log.ArchivedAt
+                });
+            }
+            
+            // Get total count (without filters)
+            var totalCountResult = await _logService.GetCombinedLogsAsync(
+                null, null, null, null, null, null, request.Source ?? "log", null, null, null, null
+            );
+            var totalCount = totalCountResult.IsSuccess && totalCountResult.Data != null 
+                ? totalCountResult.Data.Count() 
+                : 0;
+            
+            // Get filtered count
+            var filteredCountResult = await _logService.GetCombinedLogsAsync(
+                request.TableName,
+                request.EntityId,
+                null,
+                request.StartDate,
+                request.EndDate,
+                request.Action,
+                request.Source ?? "log",
+                null,
+                null
+            );
+            var filteredCount = filteredCountResult.IsSuccess && filteredCountResult.Data != null 
+                ? filteredCountResult.Data.Count() 
+                : 0;
+            
+            var response = new LogDataTableResponse
+            {
+                Draw = request.Draw,
+                RecordsTotal = totalCount,
+                RecordsFiltered = filteredCount,
+                Data = data
+            };
+            
+            return Json(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting logs for DataTables");
+            return Json(new LogDataTableResponse
+            {
+                Draw = request.Draw,
+                RecordsTotal = 0,
+                RecordsFiltered = 0,
+                Data = new List<LogDataViewModel>()
             });
         }
     }
@@ -148,7 +263,7 @@ public class LogController : BaseController
     }
     
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin,Admin")]
     public async Task<IActionResult> ArchiveLogs()
     {
         var result = await _logService.ArchiveOldLogsAsync();
@@ -166,7 +281,7 @@ public class LogController : BaseController
     }
     
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "SuperAdmin")]
     public async Task<IActionResult> CleanupArchives()
     {
         var result = await _logService.CleanupArchivedLogsAsync();

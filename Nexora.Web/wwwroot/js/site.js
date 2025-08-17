@@ -204,19 +204,42 @@ $(document).ready(function() {
                 xhr.setRequestHeader('RequestVerificationToken', token);
             }
             
-            // Show loading mask for non-GET requests or if specified
-            if (settings.type !== 'GET' || settings.showLoading) {
+            // Skip loading mask for DataTables requests (they handle their own processing indicator)
+            const isDataTablesRequest = settings.url && (
+                settings.url.includes('GetLogs') || 
+                settings.url.includes('GetAuditLogs') ||
+                settings.data && typeof settings.data === 'string' && settings.data.includes('draw=')
+            );
+            
+            // Show loading mask for non-GET requests or if specified, but not for DataTables
+            if (!isDataTablesRequest && (settings.type !== 'GET' || settings.showLoading)) {
                 const loadingMessage = settings.loadingMessage || 'Processing...';
                 LoadingMask.show({ message: loadingMessage });
             }
         },
         complete: function(xhr, status) {
-            // Hide loading mask
-            LoadingMask.hide();
+            // Only hide loading mask if it was shown (not for DataTables)
+            const isDataTablesRequest = this.url && (
+                this.url.includes('GetLogs') || 
+                this.url.includes('GetAuditLogs') ||
+                this.data && typeof this.data === 'string' && this.data.includes('draw=')
+            );
+            
+            if (!isDataTablesRequest) {
+                LoadingMask.hide();
+            }
         },
         error: function(xhr, status, error) {
-            // Hide loading mask on error
-            LoadingMask.hide();
+            // Only hide loading mask if it was shown (not for DataTables)
+            const isDataTablesRequest = this.url && (
+                this.url.includes('GetLogs') || 
+                this.url.includes('GetAuditLogs') ||
+                this.data && typeof this.data === 'string' && this.data.includes('draw=')
+            );
+            
+            if (!isDataTablesRequest) {
+                LoadingMask.hide();
+            }
             
             // Show error notification if not handled
             if (!xhr.handled) {
@@ -320,13 +343,8 @@ $(document).ready(function() {
     if ($.fn.DataTable) {
         $.fn.dataTable.ext.errMode = 'none';
         
-        $(document).on('processing.dt', function(e, settings, processing) {
-            if (processing) {
-                LoadingMask.show({ message: 'Loading data...' });
-            } else {
-                LoadingMask.hide();
-            }
-        });
+        // Let DataTables handle its own processing indicator
+        // Don't interfere with DataTables' built-in loading system
     }
 });
 

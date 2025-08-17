@@ -58,6 +58,9 @@ builder.Services.AddScoped<IAreaDiscoveryService, AreaDiscoveryService>();
 builder.Services.AddScoped<Nexora.Core.Interfaces.ILogRepository, Nexora.Infrastructure.Repositories.LogRepository>();
 builder.Services.AddScoped<ILogService, LogService>();
 
+// Add File Document Service
+builder.Services.AddScoped<IFileDocumentService, FileDocumentService>();
+
 // Add Background Services
 builder.Services.AddHostedService<Nexora.Web.Services.LogArchiveBackgroundService>();
 builder.Services.AddHostedService<Nexora.Web.Services.HeartbeatService>();
@@ -145,6 +148,9 @@ using (var scope = app.Services.CreateScope())
         
         // Ensure Site Settings menu exists and is assigned to SuperAdmin
         await Nexora.Web.Data.EnsureSiteSettingsMenu.EnsureMenuExistsAsync(services);
+        
+        // Update Audit Log menu to use new controller
+        await Nexora.Web.Data.UpdateAuditLogMenuSeed.UpdateAuditLogMenu(context);
     }
     catch (Exception ex)
     {

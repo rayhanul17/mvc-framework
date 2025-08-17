@@ -176,6 +176,31 @@
     display: none;
 }
 
+/* Hide app name and text elements when collapsed */
+.sidebar.collapsed .app-name {
+    display: none;
+}
+
+.sidebar.collapsed .app-brand-compact .app-name,
+.sidebar.collapsed .brand-text {
+    display: none;
+}
+
+/* Center logo when collapsed */
+.sidebar.collapsed .sidebar-brand {
+    justify-content: center;
+}
+
+.sidebar.collapsed .app-brand-compact {
+    justify-content: center;
+}
+
+/* Adjust logo spacing when collapsed */
+.sidebar.collapsed .app-brand-compact .app-logo,
+.sidebar.collapsed .app-brand-compact .app-logo-placeholder {
+    margin-right: 0 !important;
+}
+
 .sidebar.collapsed .sidebar-toggle {
     margin-left: auto;
 }

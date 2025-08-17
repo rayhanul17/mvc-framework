@@ -461,17 +461,20 @@
         // Close mobile menu on overlay click
         mobileMenuOverlay?.addEventListener('click', closeMobileMenu);
         
-        // Close mobile menu when clicking a menu link on mobile
-        if (window.innerWidth < 992) {
-            document.querySelectorAll('.sidebar-link:not(.sidebar-dropdown-toggle)').forEach(link => {
-                link.addEventListener('click', function() {
-                    // Only close if it's not a dropdown toggle
-                    if (!this.classList.contains('sidebar-dropdown-toggle')) {
-                        closeMobileMenu();
-                    }
-                });
-            });
-        }
+        // Use event delegation to handle menu link clicks (works with dynamic content)
+        document.addEventListener('click', function(e) {
+            // Check if clicked element is a sidebar link that should close mobile menu
+            if (e.target.closest('.sidebar-link') && 
+                !e.target.closest('.sidebar-dropdown-toggle') &&
+                window.innerWidth < 992) {
+                closeMobileMenu();
+            }
+        });
+        
+        // Also close mobile menu when page navigation occurs
+        window.addEventListener('beforeunload', function() {
+            closeMobileMenu();
+        });
         
         // Handle window resize
         window.addEventListener('resize', function() {

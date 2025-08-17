@@ -1,0 +1,143 @@
+@model Nexora.Core.Entities.Log
+@{
+    ViewData["Title"] = "Audit Log Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                    <div class="card-tools">
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">ID</dt>
+                        <dd class="col-sm-9">@Model.Id</dd>
+
+                        <dt class="col-sm-3">Table Name</dt>
+                        <dd class="col-sm-9">@Model.TableName</dd>
+
+                        <dt class="col-sm-3">Entity ID</dt>
+                        <dd class="col-sm-9">@Model.EntityId</dd>
+
+                        <dt class="col-sm-3">Action</dt>
+                        <dd class="col-sm-9">
+                            @{
+                                var badgeClass = Model.Action.ToLower() switch
+                                {
+                                    "create" => "badge bg-success",
+                                    "update" => "badge bg-warning",
+                                    "delete" => "badge bg-danger",
+                                    _ => "badge bg-secondary"
+                                };
+                            }
+                            <span class="@badgeClass">@Model.Action</span>
+                        </dd>
+
+                        <dt class="col-sm-3">User</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.User != null)
+                            {
+                                <span>@Model.User.UserName (@Model.User.FullName)</span>
+                            }
+                            else
+                            {
+                                <span>System</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">IP Address</dt>
+                        <dd class="col-sm-9">@(Model.IpAddress ?? "-")</dd>
+
+                        <dt class="col-sm-3">User Agent</dt>
+                        <dd class="col-sm-9">
+                            @if (!string.IsNullOrEmpty(Model.UserAgent))
+                            {
+                                <small>@Model.UserAgent</small>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-3">Date/Time</dt>
+                        <dd class="col-sm-9">@Model.LoggedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+
+                        @if (!string.IsNullOrEmpty(Model.Changes))
+                        {
+                            <dt class="col-sm-3">Changes</dt>
+                            <dd class="col-sm-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <pre class="mb-0">@Model.Changes</pre>
+                                    </div>
+                                </div>
+                            </dd>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.OldValues))
+                        {
+                            <dt class="col-sm-3">Old Values</dt>
+                            <dd class="col-sm-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <pre class="mb-0" id="oldValues"></pre>
+                                    </div>
+                                </div>
+                            </dd>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.NewValues))
+                        {
+                            <dt class="col-sm-3">New Values</dt>
+                            <dd class="col-sm-9">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <pre class="mb-0" id="newValues"></pre>
+                                    </div>
+                                </div>
+                            </dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            @if (!string.IsNullOrEmpty(Model.OldValues))
+            {
+                <text>
+                try {
+                    var oldValues = JSON.parse('@Html.Raw(Model.OldValues.Replace("'", "\\'"))');
+                    $('#oldValues').text(JSON.stringify(oldValues, null, 2));
+                } catch (e) {
+                    $('#oldValues').text('@Html.Raw(Model.OldValues.Replace("'", "\\'"))');
+                }
+                </text>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.NewValues))
+            {
+                <text>
+                try {
+                    var newValues = JSON.parse('@Html.Raw(Model.NewValues.Replace("'", "\\'"))');
+                    $('#newValues').text(JSON.stringify(newValues, null, 2));
+                } catch (e) {
+                    $('#newValues').text('@Html.Raw(Model.NewValues.Replace("'", "\\'"))');
+                }
+                </text>
+            }
+        });
+    </script>
+}

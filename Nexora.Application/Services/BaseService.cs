@@ -1,4 +1,7 @@
+using System.Data;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 using Nexora.Application.Interfaces;
 using Nexora.Core.Common;
 using Nexora.Core.Interfaces;
@@ -112,6 +115,49 @@ public class BaseService<T> : IBaseService<T> where T : class
         catch (Exception ex)
         {
             return Result<int>.Failure($"Error counting entities: {ex.Message}");
+        }
+    }
+
+    public virtual async Task<Result<int>> ExecuteRawSqlAsync(string sql, params object[] parameters)
+    {
+        try
+        {
+            var context = _unitOfWork.GetDbContext();
+            var result = await context.Database.ExecuteSqlRawAsync(sql, parameters);
+            return Result<int>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<int>.Failure($"Error executing raw SQL: {ex.Message}");
+        }
+    }
+
+    public virtual async Task<Result<DataTable>> LoadDataTableAsync(string sql, params object[] parameters)
+    {
+        try
+        {
+            var context = _unitOfWork.GetDbContext();
+            var connectionString = context.Database.GetConnectionString();
+            
+            using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+            
+            using var command = new MySqlCommand(sql, connection);
+            
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                command.Parameters.AddWithValue($"@p{i}", parameters[i] ?? DBNull.Value);
+            }
+            
+            using var adapter = new MySqlDataAdapter(command);
+            var dataTable = new DataTable();
+            adapter.Fill(dataTable);
+            
+            return Result<DataTable>.Success(dataTable);
+        }
+        catch (Exception ex)
+        {
+            return Result<DataTable>.Failure($"Error loading data: {ex.Message}");
         }
     }
 }

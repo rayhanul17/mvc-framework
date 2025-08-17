@@ -39,6 +39,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     
     // Customer Service Entities
     public DbSet<CustomerServiceRoleMapping> CustomerServiceRoleMappings { get; set; }
+    
+    // File Management Entities
+    public DbSet<FileDocument> FileDocuments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
