@@ -43,6 +43,48 @@
             
             <div class="card mt-4">
                 <div class="card-header">
+                    <h5 class="card-title mb-0">Blog Management</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Import Blog Posts</h6>
+                                    <p class="card-text">
+                                        Import multiple blog posts from an Excel file. Supports categories, tags, and all metadata.
+                                    </p>
+                                    <a asp-controller="BlogImport" asp-action="Index" class="btn btn-primary">
+                                        <i class="fas fa-file-excel"></i> Import from Excel
+                                    </a>
+                                    <a asp-controller="BlogImport" asp-action="DownloadTemplate" class="btn btn-outline-secondary">
+                                        <i class="fas fa-download"></i> Download Template
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">Manage Blog Content</h6>
+                                    <p class="card-text">
+                                        View and manage all blog posts, categories, tags, and comments.
+                                    </p>
+                                    <a asp-controller="BlogPost" asp-action="Index" class="btn btn-info">
+                                        <i class="fas fa-blog"></i> Manage Posts
+                                    </a>
+                                    <a asp-controller="BlogCategory" asp-action="Index" class="btn btn-outline-info">
+                                        <i class="fas fa-folder"></i> Categories
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
                     <h5 class="card-title mb-0">Quick Links</h5>
                 </div>
                 <div class="card-body">

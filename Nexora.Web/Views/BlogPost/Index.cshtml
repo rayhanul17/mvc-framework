@@ -10,6 +10,9 @@
             <h2>@ViewData["Title"]</h2>
         </div>
         <div class="col-md-6 text-end">
+            <a asp-controller="BlogImport" asp-action="Index" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Import from Excel
+            </a>
             <a asp-action="CreateEdit" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Create New Post
             </a>

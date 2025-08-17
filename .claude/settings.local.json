@@ -31,7 +31,8 @@
       "Bash(timeout:*)",
       "WebFetch(domain:cdn.datatables.net)",
       "Bash(curl:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(dotnet remove:*)"
     ],
     "deny": []
   }
