@@ -45,7 +45,12 @@ public class AuditLogController : Controller
                 request.Length,
                 searchValue,
                 sortColumn,
-                sortDirection
+                sortDirection,
+                request.TableName,
+                request.Action,
+                request.UserName,
+                request.StartDate,
+                request.EndDate
             );
 
             if (!dataResult.IsSuccess || dataResult.Data == null)
@@ -89,7 +94,13 @@ public class AuditLogController : Controller
             }
 
             var totalCountResult = await _auditLogService.GetTotalCountAsync();
-            var filteredCountResult = await _auditLogService.GetFilteredCountAsync(searchValue);
+            var filteredCountResult = await _auditLogService.GetFilteredCountAsync(
+                searchValue, 
+                request.TableName, 
+                request.Action, 
+                request.UserName, 
+                request.StartDate, 
+                request.EndDate);
 
             var response = new 
             {
@@ -139,5 +150,24 @@ public class AuditLogController : Controller
         }
 
         return View(result.Data);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetTableNames()
+    {
+        try
+        {
+            var result = await _auditLogService.GetUniqueTableNamesAsync();
+            if (result.IsSuccess && result.Data != null)
+            {
+                return Json(result.Data);
+            }
+            return Json(new List<string>());
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting table names");
+            return Json(new List<string>());
+        }
     }
 }

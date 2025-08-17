@@ -13,7 +13,7 @@ public class AuditLogService : BaseService<Log>, IAuditLogService
     {
     }
 
-    public async Task<Result<DataTable>> GetAuditLogsForDataTableAsync(int start, int length, string? searchValue, string? sortColumn, string? sortDirection)
+    public async Task<Result<DataTable>> GetAuditLogsForDataTableAsync(int start, int length, string? searchValue, string? sortColumn, string? sortDirection, string? tableName = null, string? action = null, string? userName = null, DateTime? startDate = null, DateTime? endDate = null)
     {
         try
         {
@@ -37,18 +37,56 @@ public class AuditLogService : BaseService<Log>, IAuditLogService
             ");
 
             var parameters = new List<object>();
+            var paramIndex = 0;
+
+            // Add filter conditions
+            if (!string.IsNullOrWhiteSpace(tableName))
+            {
+                sql.Append($" AND l.TableName = @p{paramIndex}");
+                parameters.Add(tableName);
+                paramIndex++;
+            }
+
+            if (!string.IsNullOrWhiteSpace(action))
+            {
+                sql.Append($" AND l.Action = @p{paramIndex}");
+                parameters.Add(action);
+                paramIndex++;
+            }
+
+            if (!string.IsNullOrWhiteSpace(userName))
+            {
+                sql.Append($" AND (u.UserName LIKE CONCAT('%', @p{paramIndex}, '%') OR u.FullName LIKE CONCAT('%', @p{paramIndex}, '%'))");
+                parameters.Add(userName);
+                paramIndex++;
+            }
+
+            if (startDate.HasValue)
+            {
+                sql.Append($" AND l.LoggedAt >= @p{paramIndex}");
+                parameters.Add(startDate.Value);
+                paramIndex++;
+            }
+
+            if (endDate.HasValue)
+            {
+                sql.Append($" AND l.LoggedAt <= @p{paramIndex}");
+                parameters.Add(endDate.Value.AddDays(1).AddSeconds(-1)); // Include end of day
+                paramIndex++;
+            }
 
             if (!string.IsNullOrWhiteSpace(searchValue))
             {
-                sql.Append(@" AND (
-                    l.TableName LIKE CONCAT('%', @p0, '%') OR
-                    l.Action LIKE CONCAT('%', @p0, '%') OR
-                    l.Changes LIKE CONCAT('%', @p0, '%') OR
-                    l.IpAddress LIKE CONCAT('%', @p0, '%') OR
-                    u.UserName LIKE CONCAT('%', @p0, '%') OR
-                    u.FullName LIKE CONCAT('%', @p0, '%')
+                sql.Append($@" AND (
+                    l.TableName LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    l.Action LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    l.Changes LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    l.IpAddress LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    u.UserName LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    u.FullName LIKE CONCAT('%', @p{paramIndex}, '%')
                 )");
                 parameters.Add(searchValue);
+                paramIndex++;
             }
 
             if (!string.IsNullOrWhiteSpace(sortColumn))
@@ -103,29 +141,72 @@ public class AuditLogService : BaseService<Log>, IAuditLogService
         }
     }
 
-    public async Task<Result<int>> GetFilteredCountAsync(string? searchValue)
+    public async Task<Result<int>> GetFilteredCountAsync(string? searchValue, string? tableName = null, string? action = null, string? userName = null, DateTime? startDate = null, DateTime? endDate = null)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(searchValue))
-            {
-                return await GetTotalCountAsync();
-            }
-
-            var sql = @"
+            var sql = new StringBuilder();
+            sql.Append(@"
                 SELECT COUNT(*)
                 FROM Logs l
                 LEFT JOIN Users u ON l.UserId = u.Id
-                WHERE 
-                    l.TableName LIKE CONCAT('%', @p0, '%') OR
-                    l.Action LIKE CONCAT('%', @p0, '%') OR
-                    l.Changes LIKE CONCAT('%', @p0, '%') OR
-                    l.IpAddress LIKE CONCAT('%', @p0, '%') OR
-                    u.UserName LIKE CONCAT('%', @p0, '%') OR
-                    u.FullName LIKE CONCAT('%', @p0, '%')
-            ";
+                WHERE 1=1
+            ");
 
-            var result = await LoadDataTableAsync(sql, searchValue);
+            var parameters = new List<object>();
+            var paramIndex = 0;
+
+            // Add filter conditions
+            if (!string.IsNullOrWhiteSpace(tableName))
+            {
+                sql.Append($" AND l.TableName = @p{paramIndex}");
+                parameters.Add(tableName);
+                paramIndex++;
+            }
+
+            if (!string.IsNullOrWhiteSpace(action))
+            {
+                sql.Append($" AND l.Action = @p{paramIndex}");
+                parameters.Add(action);
+                paramIndex++;
+            }
+
+            if (!string.IsNullOrWhiteSpace(userName))
+            {
+                sql.Append($" AND (u.UserName LIKE CONCAT('%', @p{paramIndex}, '%') OR u.FullName LIKE CONCAT('%', @p{paramIndex}, '%'))");
+                parameters.Add(userName);
+                paramIndex++;
+            }
+
+            if (startDate.HasValue)
+            {
+                sql.Append($" AND l.LoggedAt >= @p{paramIndex}");
+                parameters.Add(startDate.Value);
+                paramIndex++;
+            }
+
+            if (endDate.HasValue)
+            {
+                sql.Append($" AND l.LoggedAt <= @p{paramIndex}");
+                parameters.Add(endDate.Value.AddDays(1).AddSeconds(-1)); // Include end of day
+                paramIndex++;
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchValue))
+            {
+                sql.Append($@" AND (
+                    l.TableName LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    l.Action LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    l.Changes LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    l.IpAddress LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    u.UserName LIKE CONCAT('%', @p{paramIndex}, '%') OR
+                    u.FullName LIKE CONCAT('%', @p{paramIndex}, '%')
+                )");
+                parameters.Add(searchValue);
+                paramIndex++;
+            }
+
+            var result = await LoadDataTableAsync(sql.ToString(), parameters.ToArray());
             
             if (result.IsSuccess && result.Data != null && result.Data.Rows.Count > 0)
             {
@@ -138,6 +219,35 @@ public class AuditLogService : BaseService<Log>, IAuditLogService
         catch (Exception ex)
         {
             return Result<int>.Failure($"Error getting filtered count: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<List<string>>> GetUniqueTableNamesAsync()
+    {
+        try
+        {
+            var sql = "SELECT DISTINCT TableName FROM Logs ORDER BY TableName";
+            var result = await LoadDataTableAsync(sql);
+            
+            if (result.IsSuccess && result.Data != null)
+            {
+                var tableNames = new List<string>();
+                foreach (System.Data.DataRow row in result.Data.Rows)
+                {
+                    var tableName = row["TableName"]?.ToString();
+                    if (!string.IsNullOrWhiteSpace(tableName))
+                    {
+                        tableNames.Add(tableName);
+                    }
+                }
+                return Result<List<string>>.Success(tableNames);
+            }
+            
+            return Result<List<string>>.Failure("Unable to get table names");
+        }
+        catch (Exception ex)
+        {
+            return Result<List<string>>.Failure($"Error getting table names: {ex.Message}");
         }
     }
 }

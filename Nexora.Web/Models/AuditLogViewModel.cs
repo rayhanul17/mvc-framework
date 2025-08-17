@@ -22,6 +22,13 @@ public class AuditLogDataTableRequest
     public DataTableSearch? Search { get; set; }
     public List<DataTableColumn>? Columns { get; set; }
     public List<DataTableOrder>? Order { get; set; }
+    
+    // Filter properties
+    public string? TableName { get; set; }
+    public string? Action { get; set; }
+    public string? UserName { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
 }
 
 public class DataTableSearch

@@ -10,22 +10,82 @@
                     <h3 class="card-title">@ViewData["Title"]</h3>
                 </div>
                 <div class="card-body">
-                    <table id="auditLogTable" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Table Name</th>
-                                <th>Entity ID</th>
-                                <th>Action</th>
-                                <th>User</th>
-                                <th>IP Address</th>
-                                <th>Date/Time</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    <!-- Filter Controls -->
+                    <div class="row mb-3">
+                        <div class="col-md-2">
+                            <label for="filterTableName" class="form-label">Table Name</label>
+                            <select id="filterTableName" class="form-select form-select-sm">
+                                <option value="">All Tables</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filterAction" class="form-label">Action</label>
+                            <select id="filterAction" class="form-select form-select-sm">
+                                <option value="">All Actions</option>
+                                <option value="Create">Create</option>
+                                <option value="Update">Update</option>
+                                <option value="Delete">Delete</option>
+                                <option value="Login">Login</option>
+                                <option value="Logout">Logout</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filterUser" class="form-label">User</label>
+                            <input type="text" id="filterUser" class="form-control form-control-sm" placeholder="Username">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filterStartDate" class="form-label">Start Date</label>
+                            <input type="date" id="filterStartDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filterEndDate" class="form-label">End Date</label>
+                            <input type="date" id="filterEndDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" id="applyFilters" class="btn btn-primary btn-sm me-2">
+                                <i class="fas fa-search"></i> Apply
+                            </button>
+                            <button type="button" id="clearFilters" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-redo"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Date Range Buttons -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label small">Quick Date Range:</label>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-secondary quick-date" data-range="today">Today</button>
+                                <button type="button" class="btn btn-outline-secondary quick-date" data-range="yesterday">Yesterday</button>
+                                <button type="button" class="btn btn-outline-secondary quick-date" data-range="week">This Week</button>
+                                <button type="button" class="btn btn-outline-secondary quick-date" data-range="month">This Month</button>
+                                <button type="button" class="btn btn-outline-secondary quick-date" data-range="last7">Last 7 Days</button>
+                                <button type="button" class="btn btn-outline-secondary quick-date" data-range="last30">Last 30 Days</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- DataTable -->
+                    <div class="table-responsive">
+                        <table id="auditLogTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Table Name</th>
+                                    <th>Entity ID</th>
+                                    <th>Action</th>
+                                    <th>User</th>
+                                    <th>IP Address</th>
+                                    <th>Date/Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -34,7 +94,6 @@
 
 @section Scripts {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     
     <style>
         .dataTables_processing {
@@ -52,12 +111,21 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             z-index: 10000;
         }
+        
+        /* Custom responsive styles */
+        @@media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            .btn-group-sm .btn {
+                padding: 0.125rem 0.25rem;
+                font-size: 0.75rem;
+            }
+        }
     </style>
     
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
     
     <script>
         $(document).ready(function() {
@@ -66,10 +134,9 @@
                 $('body').append('@Html.AntiForgeryToken()'.replace(/<\/?form[^>]*>/g, ''));
             }
             
-            var auditTable = $('#auditLogTable').DataTable({
+            var table = $('#auditLogTable').DataTable({
                 processing: true,
                 serverSide: true,
-                responsive: true,
                 ajax: {
                     url: '@Url.Action("GetAuditLogs", "AuditLog")',
                     type: 'POST',
@@ -77,22 +144,24 @@
                     data: function(d) {
                         // Add anti-forgery token to the request
                         d.__RequestVerificationToken = $('input[name="__RequestVerificationToken"]').val();
+                        
+                        // Add filter parameters
+                        d.tableName = $('#filterTableName').val();
+                        d.action = $('#filterAction').val();
+                        d.userName = $('#filterUser').val();
+                        d.startDate = $('#filterStartDate').val();
+                        d.endDate = $('#filterEndDate').val();
+                        
                         return $.param(d);
                     },
                     dataSrc: function(json) {
-                        // Ensure processing indicator is hidden when data is received
-                        if (auditTable) {
-                            auditTable.processing(false);
-                        }
                         return json.data || [];
                     },
                     error: function(xhr, error, thrown) {
-                        // Hide processing indicator on error
-                        if (auditTable) {
-                            auditTable.processing(false);
-                        }
                         console.error('DataTables AJAX error:', error, thrown);
-                        console.error('Response:', xhr.responseText);
+                        if (xhr.responseText) {
+                            console.error('Response:', xhr.responseText);
+                        }
                         
                         // Show user-friendly error message
                         if (xhr.status === 400) {
@@ -185,26 +254,86 @@
                     emptyTable: 'No audit logs available'
                 },
                 initComplete: function() {
-                    // Ensure processing indicator is hidden after initialization
-                    this.api().processing(false);
+                    console.log('AuditLog DataTable initialized successfully');
+                    // Load unique table names for filter dropdown
+                    loadTableNames();
                 }
             });
             
-            // Add event handlers to properly manage processing indicator
-            auditTable.on('preXhr.dt', function() {
-                // Show processing indicator before request
-                auditTable.processing(true);
+            // Apply filters button
+            $('#applyFilters').on('click', function() {
+                table.ajax.reload();
             });
             
-            auditTable.on('xhr.dt', function() {
-                // Hide processing indicator after successful request
-                auditTable.processing(false);
+            // Clear filters button
+            $('#clearFilters').on('click', function() {
+                $('#filterTableName').val('');
+                $('#filterAction').val('');
+                $('#filterUser').val('');
+                $('#filterStartDate').val('');
+                $('#filterEndDate').val('');
+                table.ajax.reload();
             });
             
-            auditTable.on('error.dt', function() {
-                // Hide processing indicator on error
-                auditTable.processing(false);
+            // Quick date range buttons
+            $('.quick-date').on('click', function() {
+                var range = $(this).data('range');
+                var today = new Date();
+                var startDate, endDate;
+                
+                switch(range) {
+                    case 'today':
+                        startDate = endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'yesterday':
+                        var yesterday = new Date(today);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        startDate = endDate = yesterday.toISOString().split('T')[0];
+                        break;
+                    case 'week':
+                        var weekStart = new Date(today);
+                        weekStart.setDate(today.getDate() - today.getDay());
+                        startDate = weekStart.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'month':
+                        var monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                        startDate = monthStart.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'last7':
+                        var week = new Date(today);
+                        week.setDate(today.getDate() - 7);
+                        startDate = week.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
+                    case 'last30':
+                        var month = new Date(today);
+                        month.setDate(today.getDate() - 30);
+                        startDate = month.toISOString().split('T')[0];
+                        endDate = today.toISOString().split('T')[0];
+                        break;
+                }
+                
+                $('#filterStartDate').val(startDate);
+                $('#filterEndDate').val(endDate);
+                table.ajax.reload();
             });
+            
+            // Function to load table names for dropdown
+            function loadTableNames() {
+                $.get('@Url.Action("GetTableNames", "AuditLog")', function(data) {
+                    var select = $('#filterTableName');
+                    select.empty().append('<option value="">All Tables</option>');
+                    if (data && data.length > 0) {
+                        $.each(data, function(index, tableName) {
+                            select.append('<option value="' + tableName + '">' + tableName + '</option>');
+                        });
+                    }
+                }).fail(function() {
+                    console.log('Failed to load table names');
+                });
+            }
         });
     </script>
 }
