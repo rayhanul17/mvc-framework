@@ -119,11 +119,19 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="mb-3">
                             <div class="form-check form-switch">
                                 <input asp-for="IsPublished" class="form-check-input" type="checkbox" />
                                 <label asp-for="IsPublished" class="form-check-label"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="CommentsEnabled" class="form-check-input" type="checkbox" />
+                                <label asp-for="CommentsEnabled" class="form-check-label"></label>
                             </div>
                         </div>
                     </div>
@@ -144,6 +152,81 @@
     </div>
 </div>
 
+@section Styles {
+    <!-- Summernote CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.css" rel="stylesheet">
+}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize Summernote
+            $('#content-editor').summernote({
+                height: 400,
+                placeholder: 'Write your blog content here...',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        // Handle image upload
+                        for (let i = 0; i < files.length; i++) {
+                            uploadImage(files[i], this);
+                        }
+                    }
+                }
+            });
+            
+            // Auto-generate slug from title
+            $('#Title').on('keyup', function() {
+                if ($('#Slug').val() === '') {
+                    var slug = $(this).val()
+                        .toLowerCase()
+                        .replace(/[^a-z0-9]+/g, '-')
+                        .replace(/^-+|-+$/g, '');
+                    $('#Slug').val(slug);
+                }
+            });
+            
+            // Auto-generate meta title from title
+            $('#Title').on('keyup', function() {
+                if ($('#MetaTitle').val() === '') {
+                    $('#MetaTitle').val($(this).val());
+                }
+            });
+            
+            // Auto-generate meta description from summary
+            $('#Summary').on('keyup', function() {
+                if ($('#MetaDescription').val() === '') {
+                    $('#MetaDescription').val($(this).val());
+                }
+            });
+        });
+        
+        function uploadImage(file, editor) {
+            // Create form data
+            var data = new FormData();
+            data.append('file', file);
+            
+            // You can implement image upload to server here
+            // For now, we'll use a placeholder
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $(editor).summernote('insertImage', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
 }

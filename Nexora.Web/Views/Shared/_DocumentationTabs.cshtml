@@ -1,0 +1,607 @@
+@inject Nexora.Application.Services.ISiteSettingHelperService SiteSettings
+@{
+    var settings = await SiteSettings.GetAllSettingsAsync();
+}
+
+<!-- Documentation Section - Available for all users -->
+<div class="row mt-5 mb-4 px-3 px-md-4">
+    <div class="col-12">
+        <div class="theme-card">
+            <div class="theme-card-header px-3 px-md-4 py-3">
+                <h4 class="mb-0">
+                    <i class="fas fa-book text-primary me-2"></i>System Documentation
+                </h4>
+            </div>
+            <div class="card-body px-3 px-md-4 py-4">
+                <!-- Documentation Tabs -->
+                <ul class="nav nav-tabs" id="documentationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="getting-started-tab" data-bs-toggle="tab" data-bs-target="#getting-started" type="button" role="tab">
+                            <i class="fas fa-play-circle me-1"></i>Getting Started
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="user-management-tab" data-bs-toggle="tab" data-bs-target="#user-management" type="button" role="tab">
+                            <i class="fas fa-users me-1"></i>User Management
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="menu-system-tab" data-bs-toggle="tab" data-bs-target="#menu-system" type="button" role="tab">
+                            <i class="fas fa-list me-1"></i>Menu System
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="role-permissions-tab" data-bs-toggle="tab" data-bs-target="#role-permissions" type="button" role="tab">
+                            <i class="fas fa-user-shield me-1"></i>Roles & Permissions
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="theme-system-tab" data-bs-toggle="tab" data-bs-target="#theme-system" type="button" role="tab">
+                            <i class="fas fa-palette me-1"></i>Theme System
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="api-reference-tab" data-bs-toggle="tab" data-bs-target="#api-reference" type="button" role="tab">
+                            <i class="fas fa-code me-1"></i>API Reference
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="troubleshooting-tab" data-bs-toggle="tab" data-bs-target="#troubleshooting" type="button" role="tab">
+                            <i class="fas fa-tools me-1"></i>Troubleshooting
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content mt-4" id="documentationTabContent">
+                    <!-- Getting Started Tab -->
+                    <div class="tab-pane fade show active" id="getting-started" role="tabpanel">
+                        <div class="documentation-content">
+                            <h5 class="theme-text mb-3">Welcome to @settings.OrganizationName System</h5>
+                            <p class="theme-text-secondary">
+                                This documentation will help you understand and use all features of our management system effectively.
+                            </p>
+                            
+                            <div class="alert theme-alert-info mt-4">
+                                <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Quick Start Guide</h6>
+                                <ol class="mb-0">
+                                    <li>Login with your credentials or register a new account</li>
+                                    <li>Navigate through the sidebar menu to access different modules</li>
+                                    <li>Use the theme toggle to switch between light and dark modes</li>
+                                    <li>Access your profile settings from the user dropdown menu</li>
+                                </ol>
+                            </div>
+                            
+                            <!-- Example Section -->
+                            <div class="example-section mt-4">
+                                <h6 class="theme-text">Example: First Login</h6>
+                                <div class="theme-code-block">
+                                    <pre><code>1. Navigate to /Account/Login
+2. Enter your email and password
+3. Click "Sign In" button
+4. You'll be redirected to the dashboard
+5. Your menu items will be loaded based on your role</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">Key Features</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Role-based access control</li>
+                                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dynamic menu generation</li>
+                                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Dark/Light theme support</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Audit logging</li>
+                                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>File management</li>
+                                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Responsive design</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Management Tab -->
+                    <div class="tab-pane fade" id="user-management" role="tabpanel">
+                        <div class="documentation-content">
+                            <h5 class="theme-text mb-3">User Management Documentation</h5>
+                            <p class="theme-text-secondary">
+                                Learn how to manage users, assign roles, and control access to your system.
+                            </p>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">Creating a New User</h6>
+                                <p class="theme-text-secondary">To create a new user, follow these steps:</p>
+                                <ol class="theme-text">
+                                    <li>Navigate to User Management from the sidebar</li>
+                                    <li>Click on "Create New User" button</li>
+                                    <li>Fill in the required information</li>
+                                    <li>Assign appropriate roles</li>
+                                    <li>Click "Save" to create the user</li>
+                                </ol>
+                            </div>
+                            
+                            <!-- Example -->
+                            <div class="example-section mt-4">
+                                <h6 class="theme-text">Example: User Creation Form</h6>
+                                <div class="theme-code-block">
+                                    <pre><code>// User Model
+{
+    "Email": "user@example.com",
+    "FullName": "John Doe",
+    "PhoneNumber": "+1234567890",
+    "Role": "Employee",
+    "IsActive": true,
+    "Department": "IT"
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">User Properties</h6>
+                                <div class="table-responsive">
+                                    <table class="table theme-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Property</th>
+                                                <th>Type</th>
+                                                <th>Required</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Email</td>
+                                                <td>String</td>
+                                                <td>Yes</td>
+                                                <td>User's email address (used for login)</td>
+                                            </tr>
+                                            <tr>
+                                                <td>FullName</td>
+                                                <td>String</td>
+                                                <td>Yes</td>
+                                                <td>User's display name</td>
+                                            </tr>
+                                            <tr>
+                                                <td>PhoneNumber</td>
+                                                <td>String</td>
+                                                <td>No</td>
+                                                <td>Contact phone number</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Role</td>
+                                                <td>String</td>
+                                                <td>Yes</td>
+                                                <td>User's role in the system</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Menu System Tab -->
+                    <div class="tab-pane fade" id="menu-system" role="tabpanel">
+                        <div class="documentation-content">
+                            <h5 class="theme-text mb-3">Dynamic Menu System</h5>
+                            <p class="theme-text-secondary">
+                                Our dynamic menu system automatically generates navigation based on user roles and permissions.
+                            </p>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">Menu Structure</h6>
+                                <p class="theme-text-secondary">The menu system supports:</p>
+                                <ul class="theme-text">
+                                    <li>Hierarchical menu structure (parent-child relationships)</li>
+                                    <li>Role-based visibility</li>
+                                    <li>Dynamic icons and ordering</li>
+                                    <li>Active state detection</li>
+                                    <li>Collapsible sub-menus</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Example -->
+                            <div class="example-section mt-4">
+                                <h6 class="theme-text">Example: Menu Configuration</h6>
+                                <div class="theme-code-block">
+                                    <pre><code>// Menu Item Structure
+{
+    "Name": "User Management",
+    "Controller": "User",
+    "Action": "Index",
+    "Icon": "fas fa-users",
+    "Order": 1,
+    "ParentId": null,
+    "Roles": ["Administrator", "Manager"],
+    "IsActive": true,
+    "Children": [
+        {
+            "Name": "Create User",
+            "Controller": "User",
+            "Action": "Create",
+            "Icon": "fas fa-user-plus",
+            "Order": 1
+        }
+    ]
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="alert theme-alert-warning mt-4">
+                                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Important Notes</h6>
+                                <ul class="mb-0">
+                                    <li>Menu items are cached for performance</li>
+                                    <li>Changes to menu structure require cache refresh</li>
+                                    <li>Parent menus should have unique names</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Role & Permissions Tab -->
+                    <div class="tab-pane fade" id="role-permissions" role="tabpanel">
+                        <div class="documentation-content">
+                            <h5 class="theme-text mb-3">Role-Based Access Control (RBAC)</h5>
+                            <p class="theme-text-secondary">
+                                Manage user permissions through a flexible role-based system.
+                            </p>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">Default Roles</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="theme-card mb-3">
+                                            <div class="card-body">
+                                                <h6 class="text-danger">SuperAdmin</h6>
+                                                <p class="theme-text-secondary small">Full system access, cannot be modified</p>
+                                                <ul class="small theme-text">
+                                                    <li>All permissions</li>
+                                                    <li>System configuration</li>
+                                                    <li>User management</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="theme-card mb-3">
+                                            <div class="card-body">
+                                                <h6 class="text-warning">Administrator</h6>
+                                                <p class="theme-text-secondary small">Administrative access</p>
+                                                <ul class="small theme-text">
+                                                    <li>User management</li>
+                                                    <li>Content management</li>
+                                                    <li>Reports access</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="theme-card mb-3">
+                                            <div class="card-body">
+                                                <h6 class="text-info">Manager</h6>
+                                                <p class="theme-text-secondary small">Management level access</p>
+                                                <ul class="small theme-text">
+                                                    <li>Team management</li>
+                                                    <li>Report viewing</li>
+                                                    <li>Content editing</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="theme-card mb-3">
+                                            <div class="card-body">
+                                                <h6 class="text-success">Employee</h6>
+                                                <p class="theme-text-secondary small">Basic user access</p>
+                                                <ul class="small theme-text">
+                                                    <li>View assigned content</li>
+                                                    <li>Update profile</li>
+                                                    <li>Basic operations</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Example -->
+                            <div class="example-section mt-4">
+                                <h6 class="theme-text">Example: Checking User Role in Code</h6>
+                                <div class="theme-code-block">
+                                    <pre><code>// C# Controller
+[Authorize(Roles = "Administrator,Manager")]
+public IActionResult AdminPanel()
+{
+    return View();
+}
+
+// Razor View
+@@if (User.IsInRole("Administrator"))
+{
+    &lt;button class="btn btn-danger"&gt;Delete&lt;/button&gt;
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Theme System Tab -->
+                    <div class="tab-pane fade" id="theme-system" role="tabpanel">
+                        <div class="documentation-content">
+                            <h5 class="theme-text mb-3">Theme System Documentation</h5>
+                            <p class="theme-text-secondary">
+                                Learn how to use our theme system to ensure your custom components work in both light and dark modes.
+                            </p>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">Using Theme Classes</h6>
+                                <p class="theme-text-secondary">Apply theme-aware classes to automatically support dark/light modes:</p>
+                            </div>
+                            
+                            <!-- Example -->
+                            <div class="example-section mt-4">
+                                <h6 class="theme-text">Example: Theme-Aware Card</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="small theme-text-secondary">HTML Code:</p>
+                                        <div class="theme-code-block">
+                                            <pre><code>&lt;div class="theme-card"&gt;
+    &lt;div class="theme-card-header"&gt;
+        &lt;h5 class="theme-text"&gt;Title&lt;/h5&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;p class="theme-text-secondary"&gt;
+            Content here
+        &lt;/p&gt;
+        &lt;button class="theme-btn"&gt;
+            Action
+        &lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="small theme-text-secondary">Live Preview:</p>
+                                        <div class="theme-card">
+                                            <div class="theme-card-header">
+                                                <h5 class="theme-text mb-0">Title</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="theme-text-secondary">Content here</p>
+                                                <button class="theme-btn">Action</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">Available CSS Variables</h6>
+                                <div class="table-responsive">
+                                    <table class="table theme-table theme-table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Variable</th>
+                                                <th>Purpose</th>
+                                                <th>Light Mode</th>
+                                                <th>Dark Mode</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><code>--theme-bg-primary</code></td>
+                                                <td>Main background</td>
+                                                <td>#ffffff</td>
+                                                <td>#1a1a1a</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--theme-text-primary</code></td>
+                                                <td>Main text color</td>
+                                                <td>rgba(0,0,0,0.87)</td>
+                                                <td>rgba(255,255,255,0.87)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--theme-border-primary</code></td>
+                                                <td>Border color</td>
+                                                <td>rgba(0,0,0,0.12)</td>
+                                                <td>rgba(255,255,255,0.12)</td>
+                                            </tr>
+                                            <tr>
+                                                <td><code>--theme-shadow-sm</code></td>
+                                                <td>Small shadow</td>
+                                                <td>0 1px 2px rgba(0,0,0,0.07)</td>
+                                                <td>0 1px 2px rgba(0,0,0,0.3)</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- API Reference Tab -->
+                    <div class="tab-pane fade" id="api-reference" role="tabpanel">
+                        <div class="documentation-content">
+                            <h5 class="theme-text mb-3">API Reference</h5>
+                            <p class="theme-text-secondary">
+                                Reference documentation for system APIs and endpoints.
+                            </p>
+                            
+                            <div class="mt-4">
+                                <h6 class="theme-text">Common API Endpoints</h6>
+                                <div class="accordion" id="apiAccordion">
+                                    <div class="accordion-item theme-card">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#userApi">
+                                                <strong>User Management API</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="userApi" class="accordion-collapse collapse show" data-bs-parent="#apiAccordion">
+                                            <div class="accordion-body">
+                                                <div class="theme-code-block">
+                                                    <pre><code>GET    /api/users           - Get all users
+GET    /api/users/{id}      - Get user by ID
+POST   /api/users           - Create new user
+PUT    /api/users/{id}      - Update user
+DELETE /api/users/{id}      - Delete user</code></pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item theme-card mt-2">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#roleApi">
+                                                <strong>Role Management API</strong>
+                                            </button>
+                                        </h2>
+                                        <div id="roleApi" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
+                                            <div class="accordion-body">
+                                                <div class="theme-code-block">
+                                                    <pre><code>GET    /api/roles           - Get all roles
+GET    /api/roles/{id}      - Get role by ID
+POST   /api/roles           - Create new role
+PUT    /api/roles/{id}      - Update role
+DELETE /api/roles/{id}      - Delete role</code></pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Example Request -->
+                            <div class="example-section mt-4">
+                                <h6 class="theme-text">Example: API Request</h6>
+                                <div class="theme-code-block">
+                                    <pre><code>// JavaScript Fetch Example
+fetch('/api/users', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({
+        email: 'user@example.com',
+        fullName: 'John Doe',
+        role: 'Employee'
+    })
+})
+.then(response => response.json())
+.then(data => console.log(data));</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Troubleshooting Tab -->
+                    <div class="tab-pane fade" id="troubleshooting" role="tabpanel">
+                        <div class="documentation-content">
+                            <h5 class="theme-text mb-3">Troubleshooting Guide</h5>
+                            <p class="theme-text-secondary">
+                                Common issues and their solutions.
+                            </p>
+                            
+                            <div class="mt-4">
+                                <div class="theme-card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="theme-text">
+                                            <i class="fas fa-question-circle text-warning me-2"></i>
+                                            Cannot Login
+                                        </h6>
+                                        <p class="theme-text-secondary">If you're unable to login:</p>
+                                        <ol class="theme-text">
+                                            <li>Verify your email and password are correct</li>
+                                            <li>Check if your account is active</li>
+                                            <li>Clear browser cache and cookies</li>
+                                            <li>Try resetting your password</li>
+                                            <li>Contact administrator if issue persists</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                
+                                <div class="theme-card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="theme-text">
+                                            <i class="fas fa-question-circle text-warning me-2"></i>
+                                            Menu Items Not Showing
+                                        </h6>
+                                        <p class="theme-text-secondary">If menu items are missing:</p>
+                                        <ol class="theme-text">
+                                            <li>Check your role permissions</li>
+                                            <li>Refresh the page (F5)</li>
+                                            <li>Clear application cache</li>
+                                            <li>Verify menu items are active in admin panel</li>
+                                            <li>Check browser console for errors</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                
+                                <div class="theme-card mb-3">
+                                    <div class="card-body">
+                                        <h6 class="theme-text">
+                                            <i class="fas fa-question-circle text-warning me-2"></i>
+                                            Theme Not Switching
+                                        </h6>
+                                        <p class="theme-text-secondary">If theme toggle isn't working:</p>
+                                        <ol class="theme-text">
+                                            <li>Check browser's localStorage is enabled</li>
+                                            <li>Try hard refresh (Ctrl+F5)</li>
+                                            <li>Clear browser cache</li>
+                                            <li>Check for JavaScript errors in console</li>
+                                            <li>Verify theme-variables.css is loaded</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert theme-alert-danger mt-4">
+                                <h6 class="alert-heading"><i class="fas fa-phone me-2"></i>Need More Help?</h6>
+                                <p class="mb-0">
+                                    If you're still experiencing issues, please contact support at:
+                                    <br>Email: @(settings.ContactEmail ?? "support@example.com")
+                                    <br>Phone: @(settings.ContactPhone ?? "+1-234-567-8900")
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize documentation tabs after DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Force recalculation of styles
+        const docSection = document.querySelector('.theme-card');
+        if (docSection) {
+            docSection.style.display = 'none';
+            docSection.offsetHeight; // Force reflow
+            docSection.style.display = '';
+        }
+        
+        // Initialize Bootstrap tabs if needed
+        const tabElements = document.querySelectorAll('#documentationTabs button[data-bs-toggle="tab"]');
+        tabElements.forEach(function(tabEl) {
+            tabEl.addEventListener('shown.bs.tab', function (event) {
+                // Force layout recalculation when tab is shown
+                window.dispatchEvent(new Event('resize'));
+            });
+        });
+        
+        // Ensure theme classes are applied
+        setTimeout(function() {
+            const themeCards = document.querySelectorAll('.theme-card');
+            themeCards.forEach(function(card) {
+                card.classList.add('theme-card');
+            });
+        }, 100);
+    });
+</script>

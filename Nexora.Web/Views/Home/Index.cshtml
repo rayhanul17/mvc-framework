@@ -1,310 +1,1088 @@
-@inject Microsoft.Extensions.Options.IOptions<Nexora.Core.Common.AppSettings> AppSettingsOptions
+@model Nexora.Web.Models.BlogLandingViewModel
 @{
-    ViewData["Title"] = "Dashboard";
-    var appSettings = AppSettingsOptions.Value;
+    Layout = null;
 }
 
-<!-- Hero Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-0 bg-gradient" style="background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 80%, var(--bs-secondary)) 100%);">
-            <div class="card-body text-white p-4 p-md-5">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h1 class="display-5 fw-bold mb-3">
-                            Welcome to @appSettings.OrganizationName
-                        </h1>
-                        <p class="lead mb-4">
-                            Streamline your workflow with our comprehensive management system
-                        </p>
-                        <p class="mb-0">
-                            <i class="fas fa-quote-left me-2"></i>
-                            <em>Efficiency through intelligent automation</em>
-                            <i class="fas fa-quote-right ms-2"></i>
-                        </p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@Model.SiteName - Welcome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 120px 0 80px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3Cpattern id="a" patternUnits="userSpaceOnUse" width="100" height="100"%3E%3Cpath d="M0 50h100M50 0v100" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="100" height="100" fill="url(%23a)"/%3E%3C/svg%3E');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            background: white;
+            border-radius: 50px;
+            padding: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        /* Blog Grid */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .blog-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            position: relative;
+        }
+
+        .blog-category {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .blog-content {
+            padding: 1.5rem;
+        }
+
+        .blog-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+            color: #2c3e50;
+        }
+
+        .blog-summary {
+            color: #6c757d;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+
+        .blog-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            background: #f0f2f5;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+
+        /* Categories Sidebar */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .sidebar-widget {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .widget-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .category-list {
+            list-style: none;
+        }
+
+        .category-item {
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .category-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .category-count {
+            background: white;
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+        }
+
+        .category-item:hover .category-count {
+            background: rgba(255,255,255,0.9);
+        }
+
+        /* Auth Forms */
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .form-check input {
+            margin-right: 0.5rem;
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .auth-links a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .post-full-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .post-content {
+            line-height: 1.8;
+            color: #495057;
+        }
+
+        .post-content h2 {
+            margin: 1.5rem 0 1rem;
+            color: #2c3e50;
+        }
+
+        .post-content p {
+            margin-bottom: 1rem;
+        }
+
+        .post-content ul {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        /* Tag Cloud */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .tag-cloud-item {
+            padding: 6px 14px;
+            background: #f0f2f5;
+            color: #495057;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .tag-cloud-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .tab {
+                padding: 0.75rem 1rem;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">@Model.SiteName</div>
+            <div class="nav-buttons">
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    <div style="color: #333; margin-right: 1rem;">
+                        Welcome, <strong>@User.Identity.Name</strong>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <div class="d-none d-md-block">
-                            <i class="fas fa-cube fa-5x opacity-75"></i>
+                    <button class="btn btn-primary" onclick="window.location.href='/Home/UserDashboard'">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </button>
+                    <button class="btn btn-outline" onclick="performLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-outline" onclick="window.location.href='/Account/Login'">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='/Account/Register'">
+                        <i class="fas fa-user-plus"></i> Register
+                    </button>
+                }
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>@Model.SiteName</h1>
+            <p>@Model.SiteDescription</p>
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search articles..." onkeyup="searchPosts(event)">
+                <button class="search-btn" onclick="performSearch()">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('blog')">
+                <i class="fas fa-blog"></i> Blog Articles
+            </div>
+            <div class="tab" onclick="showTab('categories')">
+                <i class="fas fa-folder"></i> Categories
+            </div>
+            @if (!User.Identity!.IsAuthenticated)
+            {
+                <div class="tab" onclick="showTab('login')">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </div>
+                <div class="tab" onclick="showTab('register')">
+                    <i class="fas fa-user-plus"></i> Register
+                </div>
+            }
+        </div>
+
+        <!-- Blog Section -->
+        <div id="blog" class="content-section active">
+            <h2 style="margin-bottom: 2rem; color: #2c3e50;">Featured Articles</h2>
+            <div class="blog-grid" id="blogGrid">
+                @foreach (var post in Model.FeaturedPosts.Concat(Model.RecentPosts))
+                {
+                    <div class="blog-card" onclick='showPostDetail(@Html.Raw(Json.Serialize(post)))'>
+                        <div style="position: relative;">
+                            <img src="@post.FeaturedImageUrl" alt="@post.Title" class="blog-image">
+                            <span class="blog-category">@post.CategoryName</span>
+                        </div>
+                        <div class="blog-content">
+                            <h3 class="blog-title">@post.Title</h3>
+                            <p class="blog-summary">@post.Summary</p>
+                            <div class="blog-meta">
+                                <span><i class="fas fa-user"></i> @post.AuthorName</span>
+                                <span><i class="fas fa-calendar"></i> @post.PublishedDate.ToString("MMM dd, yyyy")</span>
+                                <span><i class="fas fa-eye"></i> @post.ViewCount</span>
+                            </div>
+                            @if (post.Tags.Any())
+                            {
+                                <div class="blog-tags">
+                                    @foreach (var tag in post.Tags.Take(3))
+                                    {
+                                        <span class="tag">@tag</span>
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
+                }
+            </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div id="categories" class="content-section">
+            <div class="two-column">
+                <div>
+                    <h2 style="margin-bottom: 2rem; color: #2c3e50;">Browse by Category</h2>
+                    <div class="blog-grid" id="categoryPosts">
+                        <!-- Posts will be loaded here when category is selected -->
+                    </div>
                 </div>
+                <div class="sidebar">
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Categories</h3>
+                        <ul class="category-list">
+                            @foreach (var category in Model.Categories)
+                            {
+                                <li class="category-item" onclick="loadCategoryPosts('@category.Slug', '@category.Name')">
+                                    <span>@category.Name</span>
+                                    <span class="category-count">@category.PostCount</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Popular Tags</h3>
+                        <div class="tag-cloud">
+                            @foreach (var tag in Model.PopularTags)
+                            {
+                                <span class="tag-cloud-item" onclick="searchByTag('@tag.Name')" style="font-size: @(14 + Math.Min(tag.Count * 2, 10))px">
+                                    @tag.Name
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Popular Posts</h3>
+                        @foreach (var post in Model.PopularPosts)
+                        {
+                            <div style="padding: 0.75rem 0; border-bottom: 1px solid #f0f2f5; cursor: pointer;" 
+                                 onclick='showPostDetail(@Html.Raw(Json.Serialize(new { post.Title, post.Slug, Summary = post.Summary, CategoryName = post.CategoryName, AuthorName = post.AuthorName, PublishedDate = post.PublishedDate, ViewCount = post.ViewCount })))'>
+                                <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: #2c3e50;">@post.Title</h4>
+                                <div style="font-size: 0.85rem; color: #6c757d;">
+                                    <span>@post.PublishedDate.ToString("MMM dd")</span> • 
+                                    <span>@post.ViewCount views</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (!User.Identity!.IsAuthenticated)
+        {
+            <!-- Login Section -->
+            <div id="login" class="content-section">
+            <div class="auth-container">
+                <h2 style="text-align: center; margin-bottom: 2rem; color: #2c3e50;">Welcome Back</h2>
+                <div id="loginAlert"></div>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="loginEmail" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" required placeholder="Enter your password">
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+                <div class="auth-links">
+                    <p>Don't have an account? <a href="#" onclick="showTab('register')">Register here</a></p>
+                    <p><a href="#">Forgot your password?</a></p>
+                </div>
+            </div>
+        </div>
+
+            <!-- Register Section -->
+            <div id="register" class="content-section">
+            <div class="auth-container">
+                <h2 style="text-align: center; margin-bottom: 2rem; color: #2c3e50;">Create Account</h2>
+                <div id="registerAlert"></div>
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="registerName" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="registerEmail" required placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="registerPassword" required placeholder="Create a password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" required placeholder="Confirm your password">
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <label for="agreeTerms">I agree to the Terms and Conditions</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </form>
+                <div class="auth-links">
+                    <p>Already have an account? <a href="#" onclick="showTab('login')">Login here</a></p>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- Post Detail Modal -->
+    <div id="postModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be loaded here -->
             </div>
         </div>
     </div>
-</div>
 
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <!-- Statistics Cards -->
-    @* Show Statistics - now always enabled *@
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card border-0 h-100">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                                <i class="fas fa-users fa-2x text-primary"></i>
+    <script>
+        // Tab switching
+        function showTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.tab').classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Search functionality
+        function searchPosts(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.blog-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.blog-title').textContent.toLowerCase();
+                const summary = card.querySelector('.blog-summary').textContent.toLowerCase();
+                const tags = Array.from(card.querySelectorAll('.tag')).map(t => t.textContent.toLowerCase());
+                
+                if (title.includes(query) || summary.includes(query) || tags.some(tag => tag.includes(query))) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function searchByTag(tag) {
+            document.getElementById('searchInput').value = tag;
+            showTab('blog');
+            performSearch();
+        }
+
+        // Post detail modal
+        function showPostDetail(post) {
+            // Redirect to the blog post details page with comments
+            window.location.href = `/BlogPost/Details/${post.id}/${post.slug || ''}`;
+        }
+
+        function closeModal() {
+            document.getElementById('postModal').classList.remove('active');
+        }
+
+        // Category posts loading
+        function loadCategoryPosts(slug, name) {
+            const container = document.getElementById('categoryPosts');
+            container.innerHTML = '<div class="spinner"></div>';
+            
+            // Simulate loading posts for category
+            setTimeout(() => {
+                container.innerHTML = `
+                    <h3 style="margin-bottom: 1.5rem; color: #2c3e50;">Posts in "${name}"</h3>
+                    <p style="color: #6c757d;">Showing all posts in the ${name} category...</p>
+                `;
+                
+                // In real app, filter posts by category
+                const allPosts = @Html.Raw(Json.Serialize(Model.FeaturedPosts.Concat(Model.RecentPosts)));
+                const categoryPosts = allPosts.filter(p => p.categorySlug === slug || p.categoryName === name);
+                
+                if (categoryPosts.length > 0) {
+                    container.innerHTML += '<div class="blog-grid">' + 
+                        categoryPosts.map(post => `
+                            <div class="blog-card" onclick='showPostDetail(${JSON.stringify(post)})'>
+                                <div style="position: relative;">
+                                    <img src="${post.featuredImageUrl}" alt="${post.title}" class="blog-image">
+                                    <span class="blog-category">${post.categoryName}</span>
+                                </div>
+                                <div class="blog-content">
+                                    <h3 class="blog-title">${post.title}</h3>
+                                    <p class="blog-summary">${post.summary}</p>
+                                    <div class="blog-meta">
+                                        <span><i class="fas fa-user"></i> ${post.authorName}</span>
+                                        <span><i class="fas fa-calendar"></i> ${new Date(post.publishedDate).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <h5 class="card-title">Total Users</h5>
-                        <h3 class="text-primary mb-0">1,247</h3>
-                        <small class="text-success">
-                            <i class="fas fa-arrow-up me-1"></i>12% increase
-                        </small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card border-0 h-100">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-success bg-opacity-10 p-3">
-                                <i class="fas fa-chart-line fa-2x text-success"></i>
-                            </div>
-                        </div>
-                        <h5 class="card-title">Active Sessions</h5>
-                        <h3 class="text-success mb-0">89</h3>
-                        <small class="text-muted">Currently online</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card border-0 h-100">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-info bg-opacity-10 p-3">
-                                <i class="fas fa-tasks fa-2x text-info"></i>
-                            </div>
-                        </div>
-                        <h5 class="card-title">Menu Items</h5>
-                        <h3 class="text-info mb-0">24</h3>
-                        <small class="text-muted">System menus</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card border-0 h-100">
-                    <div class="card-body text-center">
-                        <div class="d-flex align-items-center justify-content-center mb-3">
-                            <div class="rounded-circle bg-warning bg-opacity-10 p-3">
-                                <i class="fas fa-shield-alt fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                        <h5 class="card-title">Security</h5>
-                        <h3 class="text-warning mb-0">98%</h3>
-                        <small class="text-muted">System health</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        `).join('') + '</div>';
+                } else {
+                    container.innerHTML += '<p>No posts found in this category.</p>';
+                }
+            }, 500);
+        }
+
+        // Authentication handlers
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (!email || !password) {
+                document.getElementById('loginAlert').innerHTML = '<div class="alert alert-error">Please enter both email and password</div>';
+                return;
+            }
+            
+            // Show loading
+            const alertDiv = document.getElementById('loginAlert');
+            alertDiv.innerHTML = '<div class="alert alert-success">Logging in...</div>';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('Email', email);
+            formData.append('Password', password);
+            formData.append('RememberMe', rememberMe);
+            
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) {
+                formData.append('__RequestVerificationToken', token.value);
+            }
+            
+            // Perform AJAX login
+            fetch('/Account/Login', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // Login successful, redirect
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    // Login successful
+                    window.location.reload();
+                } else {
+                    return response.text();
+                }
+            })
+            .then(html => {
+                if (html && html.includes('Invalid login attempt')) {
+                    alertDiv.innerHTML = '<div class="alert alert-error">Invalid email or password</div>';
+                } else if (html) {
+                    // Parse validation errors from response
+                    alertDiv.innerHTML = '<div class="alert alert-error">Login failed. Please check your credentials.</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                alertDiv.innerHTML = '<div class="alert alert-error">An error occurred during login</div>';
+            });
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            const alertDiv = document.getElementById('registerAlert');
+            
+            if (!name || !email || !password || !confirmPassword) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Please fill in all fields</div>';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Passwords do not match!</div>';
+                return;
+            }
+            
+            if (password.length < 6) {
+                alertDiv.innerHTML = '<div class="alert alert-error">Password must be at least 6 characters long</div>';
+                return;
+            }
+            
+            alertDiv.innerHTML = '<div class="alert alert-success">Creating account...</div>';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('FullName', name);
+            formData.append('Email', email);
+            formData.append('Password', password);
+            formData.append('ConfirmPassword', confirmPassword);
+            
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) {
+                formData.append('__RequestVerificationToken', token.value);
+            }
+            
+            // Perform AJAX registration
+            fetch('/Account/Register', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    // Registration successful, redirect
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    // Registration successful
+                    window.location.reload();
+                } else {
+                    return response.text();
+                }
+            })
+            .then(html => {
+                if (html) {
+                    // Parse validation errors from response
+                    if (html.includes('already taken') || html.includes('already exists')) {
+                        alertDiv.innerHTML = '<div class="alert alert-error">Email address is already registered</div>';
+                    } else if (html.includes('Password')) {
+                        alertDiv.innerHTML = '<div class="alert alert-error">Password does not meet requirements</div>';
+                    } else {
+                        alertDiv.innerHTML = '<div class="alert alert-error">Registration failed. Please try again.</div>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Registration error:', error);
+                alertDiv.innerHTML = '<div class="alert alert-error">An error occurred during registration</div>';
+            });
+        }
+
+        // Logout functionality
+        function performLogout() {
+            const formData = new FormData();
+            
+            // Get anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (token) {
+                formData.append('__RequestVerificationToken', token.value);
+            }
+            
+            // Perform logout
+            fetch('/Account/Logout', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                window.location.href = '/Account/Logout';
+            });
+        }
+
+        // Close modal on click outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('postModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
     
-
-    <div class="row">
-        <!-- Quick Actions -->
-        @* Quick Actions - now always enabled *@
-            <div class="col-lg-6 mb-4">
-                <div class="card border-0 h-100">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-bolt text-primary me-2"></i>Quick Actions
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <a href="@Url.Action("Index", "User")" class="btn btn-outline-primary w-100 py-3">
-                                    <i class="fas fa-users fa-2x d-block mb-2"></i>
-                                    <span>Manage Users</span>
-                                </a>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="@Url.Action("Index", "Menu")" class="btn btn-outline-success w-100 py-3">
-                                    <i class="fas fa-list fa-2x d-block mb-2"></i>
-                                    <span>Menu Settings</span>
-                                </a>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="@Url.Action("Index", "Role")" class="btn btn-outline-info w-100 py-3">
-                                    <i class="fas fa-user-tag fa-2x d-block mb-2"></i>
-                                    <span>Role Management</span>
-                                </a>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="#" class="btn btn-outline-warning w-100 py-3">
-                                    <i class="fas fa-cog fa-2x d-block mb-2"></i>
-                                    <span>System Settings</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        
-
-        <!-- Recent Activity -->
-        @* Recent Activity - now always enabled *@
-            <div class="col-lg-6 mb-4">
-                <div class="card border-0 h-100">
-                    <div class="card-header bg-transparent border-0 pb-0">
-                        <h5 class="card-title mb-0">
-                            <i class="fas fa-clock text-info me-2"></i>Recent Activity
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="timeline">
-                            <div class="timeline-item d-flex mb-3">
-                                <div class="timeline-marker">
-                                    <div class="rounded-circle bg-success p-2">
-                                        <i class="fas fa-user fa-sm text-white"></i>
-                                    </div>
-                                </div>
-                                <div class="timeline-content ms-3">
-                                    <h6 class="mb-1">New user registered</h6>
-                                    <small class="text-muted">john.doe@@example.com joined the system</small>
-                                    <br>
-                                    <small class="text-muted">2 minutes ago</small>
-                                </div>
-                            </div>
-                            <div class="timeline-item d-flex mb-3">
-                                <div class="timeline-marker">
-                                    <div class="rounded-circle bg-primary p-2">
-                                        <i class="fas fa-edit fa-sm text-white"></i>
-                                    </div>
-                                </div>
-                                <div class="timeline-content ms-3">
-                                    <h6 class="mb-1">Menu updated</h6>
-                                    <small class="text-muted">User Management menu permissions modified</small>
-                                    <br>
-                                    <small class="text-muted">15 minutes ago</small>
-                                </div>
-                            </div>
-                            <div class="timeline-item d-flex mb-3">
-                                <div class="timeline-marker">
-                                    <div class="rounded-circle bg-warning p-2">
-                                        <i class="fas fa-shield-alt fa-sm text-white"></i>
-                                    </div>
-                                </div>
-                                <div class="timeline-content ms-3">
-                                    <h6 class="mb-1">Security scan completed</h6>
-                                    <small class="text-muted">System security check passed successfully</small>
-                                    <br>
-                                    <small class="text-muted">1 hour ago</small>
-                                </div>
-                            </div>
-                            <div class="timeline-item d-flex">
-                                <div class="timeline-marker">
-                                    <div class="rounded-circle bg-info p-2">
-                                        <i class="fas fa-database fa-sm text-white"></i>
-                                    </div>
-                                </div>
-                                <div class="timeline-content ms-3">
-                                    <h6 class="mb-1">Database backup</h6>
-                                    <small class="text-muted">Scheduled backup completed successfully</small>
-                                    <br>
-                                    <small class="text-muted">3 hours ago</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-center mt-3">
-                            <a href="#" class="btn btn-sm btn-outline-secondary">View All Activity</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        
-    </div>
-
-    <!-- System Information -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-info-circle text-secondary me-2"></i>System Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <strong>Version:</strong><br>
-                            <span class="text-muted">v1.0.0</span>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <strong>Environment:</strong><br>
-                            <span class="text-muted">@(ViewContext.HttpContext.RequestServices.GetRequiredService<Microsoft.AspNetCore.Hosting.IWebHostEnvironment>().EnvironmentName)</span>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <strong>Last Login:</strong><br>
-                            <span class="text-muted">@DateTime.Now.ToString("MMM dd, yyyy HH:mm")</span>
-                        </div>
-                        <div class="col-md-3 col-sm-6 mb-3">
-                            <strong>User Role:</strong><br>
-                            <span class="text-muted">@(User.IsInRole("Administrator") ? "Administrator" : "User")</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-else
-{
-    <!-- Guest Welcome -->
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 text-center">
-                <div class="card-body p-5">
-                    <i class="fas fa-lock fa-3x text-muted mb-4"></i>
-                    <h3 class="card-title">Access Required</h3>
-                    <p class="card-text lead mb-4">
-                        Please sign in to access the @appSettings.OrganizationName management system.
-                    </p>
-                    <div class="d-flex justify-content-center gap-3">
-                        <a href="@Url.Action("Login", "Account")" class="btn btn-primary">
-                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                        </a>
-                        <a href="@Url.Action("Register", "Account")" class="btn btn-outline-primary">
-                            <i class="fas fa-user-plus me-2"></i>Register
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Features Overview -->
-    <div class="row mt-5">
-        <div class="col-12 text-center mb-4">
-            <h4>Platform Features</h4>
-            <p class="text-muted">Discover what makes our system powerful</p>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="text-center">
-                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center p-3 mb-3">
-                    <i class="fas fa-users-cog fa-2x text-primary"></i>
-                </div>
-                <h5>User Management</h5>
-                <p class="text-muted">Comprehensive user administration with role-based access control.</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="text-center">
-                <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center p-3 mb-3">
-                    <i class="fas fa-list-alt fa-2x text-success"></i>
-                </div>
-                <h5>Dynamic Menus</h5>
-                <p class="text-muted">Flexible menu system that adapts to user permissions automatically.</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="text-center">
-                <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center p-3 mb-3">
-                    <i class="fas fa-shield-alt fa-2x text-info"></i>
-                </div>
-                <h5>Security First</h5>
-                <p class="text-muted">Built-in security features to protect your data and users.</p>
-            </div>
-        </div>
-    </div>
-}
+    @Html.AntiForgeryToken()
+</body>
+</html>

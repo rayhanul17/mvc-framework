@@ -1,0 +1,427 @@
+@model Nexora.Core.Entities.BlogPost
+@{
+    ViewData["Title"] = Model.MetaTitle ?? Model.Title;
+    ViewData["MetaDescription"] = Model.MetaDescription ?? Model.Summary;
+    ViewData["MetaKeywords"] = Model.MetaKeywords;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <article class="blog-post">
+                <header class="blog-post-header mb-4">
+                    @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
+                    {
+                        <img src="@Model.FeaturedImageUrl" alt="@Model.Title" class="img-fluid rounded mb-3" />
+                    }
+                    
+                    <h1 class="blog-post-title">@Model.Title</h1>
+                    
+                    <div class="blog-post-meta text-muted mb-3">
+                        <small>
+                            <i class="fas fa-calendar"></i> @Model.PublishedDate?.ToString("MMMM dd, yyyy")
+                            @if (Model.Author != null)
+                            {
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-user"></i> @Model.Author.FullName
+                            }
+                            @if (Model.Category != null)
+                            {
+                                <span class="mx-2">|</span>
+                                <i class="fas fa-folder"></i> @Model.Category.Name
+                            }
+                        </small>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Summary))
+                    {
+                        <div class="blog-post-summary alert alert-info">
+                            <strong>Summary:</strong> @Model.Summary
+                        </div>
+                    }
+                </header>
+
+                <div class="blog-post-content">
+                    @Html.Raw(Model.Content)
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Tags))
+                {
+                    <div class="blog-post-tags mt-4">
+                        <strong>Tags: </strong>
+                        @foreach (var tag in Model.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <span class="badge bg-secondary me-2">#@tag.Trim()</span>
+                        }
+                    </div>
+                }
+            </article>
+
+            <!-- Comments Section -->
+            @if (Model.CommentsEnabled)
+            {
+                <section class="comments-section mt-5">
+                    <h3 class="comments-title mb-4">
+                        <i class="fas fa-comments"></i> Comments
+                        <span id="comments-count" class="badge bg-primary ms-2">0</span>
+                    </h3>
+
+                    <!-- Comment Form -->
+                    <div class="comment-form mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Leave a Comment</h5>
+                                <form id="comment-form">
+                                    @if (!User.Identity!.IsAuthenticated)
+                                    {
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <input type="text" id="author-name" class="form-control" placeholder="Your Name *" required />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="email" id="author-email" class="form-control" placeholder="Your Email (optional)" />
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="mb-3">
+                                        <textarea id="comment-content" class="form-control" rows="4" placeholder="Write your comment here..." required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="file" id="comment-attachments" class="form-control" multiple accept="image/*,.pdf,.doc,.docx,.txt" />
+                                        <small class="form-text text-muted">Optional: Attach images or documents (max 5MB each)</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Post Comment
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comments List -->
+                    <div id="comments-list" class="comments-list">
+                        <div class="text-center py-4">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading comments...</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            }
+            else
+            {
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle"></i> Comments are disabled for this post.
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="sidebar">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Post Information</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Published:</strong> @Model.PublishedDate?.ToString("MMM dd, yyyy")</li>
+                            <li><strong>Category:</strong> @(Model.Category?.Name ?? "Uncategorized")</li>
+                            <li><strong>Author:</strong> @(Model.Author?.FullName ?? "Unknown")</li>
+                            @if (Model.UpdatedAt.HasValue && Model.UpdatedAt != Model.CreatedAt)
+                            {
+                                <li><strong>Last Updated:</strong> @Model.UpdatedAt.Value.ToString("MMM dd, yyyy")</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                @if (User.Identity.IsAuthenticated && (User.IsInRole("Administrator") || User.IsInRole("SuperAdmin")))
+                {
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Admin Actions</h5>
+                            <a href="@Url.Action("CreateEdit", "BlogPost", new { id = Model.Id })" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i> Edit Post
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const blogPostId = @Model.Id;
+            
+            // Load comments when page loads
+            loadComments();
+            
+            // Handle comment form submission
+            $('#comment-form').on('submit', function(e) {
+                e.preventDefault();
+                submitComment();
+            });
+            
+            function loadComments() {
+                $.ajax({
+                    url: '/Comment/GetComments',
+                    type: 'GET',
+                    data: { blogPostId: blogPostId },
+                    success: function(response) {
+                        if (response.success) {
+                            displayComments(response.data);
+                            updateCommentsCount(response.data.length);
+                        } else {
+                            $('#comments-list').html('<div class="alert alert-warning">Failed to load comments.</div>');
+                        }
+                    },
+                    error: function() {
+                        $('#comments-list').html('<div class="alert alert-danger">Error loading comments.</div>');
+                    }
+                });
+            }
+            
+            function displayComments(comments) {
+                if (comments.length === 0) {
+                    $('#comments-list').html('<div class="alert alert-info"><i class="fas fa-info-circle"></i> No comments yet. Be the first to comment!</div>');
+                    return;
+                }
+                
+                var html = '';
+                comments.forEach(function(comment) {
+                    html += renderComment(comment);
+                });
+                $('#comments-list').html(html);
+            }
+            
+            function renderComment(comment) {
+                var html = '<div class="comment mb-3 p-3 border rounded">';
+                html += '<div class="comment-header d-flex justify-content-between align-items-center mb-2">';
+                
+                // Display proper user name
+                var displayName = comment.authorName;
+                if (!displayName || displayName.trim() === '') {
+                    displayName = 'Anonymous User';
+                }
+                
+                // Show if user is authenticated (has UserId) vs anonymous
+                if (comment.userId) {
+                    html += '<div class="comment-author">';
+                    html += '<strong>' + escapeHtml(displayName) + '</strong>';
+                    html += ' <span class="badge bg-primary ms-2" title="Registered User"><i class="fas fa-user"></i> Member</span>';
+                    html += '</div>';
+                } else {
+                    html += '<div class="comment-author">';
+                    html += '<strong>' + escapeHtml(displayName) + '</strong>';
+                    html += ' <span class="badge bg-secondary ms-2" title="Anonymous User"><i class="fas fa-user-secret"></i> Guest</span>';
+                    html += '</div>';
+                }
+                
+                html += '<div class="comment-date text-muted"><small>' + formatDate(comment.createdAt) + '</small></div>';
+                html += '</div>';
+                html += '<div class="comment-content">' + escapeHtml(comment.content) + '</div>';
+                
+                if (comment.attachments && comment.attachments.length > 0) {
+                    html += '<div class="comment-attachments mt-2">';
+                    comment.attachments.forEach(function(attachment) {
+                        html += '<a href="/Comment/DownloadAttachment/' + attachment.id + '" class="btn btn-sm btn-outline-secondary me-2">';
+                        html += '<i class="fas fa-paperclip"></i> ' + escapeHtml(attachment.fileName);
+                        html += '</a>';
+                    });
+                    html += '</div>';
+                }
+                
+                // Add reply button for authenticated users (can be added later)
+                @if (User.Identity!.IsAuthenticated)
+                {
+                    @:html += '<div class="comment-actions mt-2">';
+                    @:html += '<button class="btn btn-sm btn-outline-primary" onclick="replyToComment(' + comment.id + ')">';
+                    @:html += '<i class="fas fa-reply"></i> Reply';
+                    @:html += '</button>';
+                    @:html += '</div>';
+                }
+                
+                html += '</div>';
+                return html;
+            }
+            
+            function submitComment() {
+                var content = $('#comment-content').val().trim();
+                if (!content) {
+                    alert('Please enter a comment.');
+                    return;
+                }
+                
+                var formData = new FormData();
+                formData.append('blogPostId', blogPostId);
+                formData.append('content', content);
+                
+                @if (!User.Identity!.IsAuthenticated)
+                {
+                    @:var authorName = $('#author-name').val().trim();
+                    @:var authorEmail = $('#author-email').val().trim();
+                    @:if (!authorName) {
+                        @:alert('Please enter your name.');
+                        @:return;
+                    @:}
+                    @:formData.append('authorName', authorName);
+                    @:if (authorEmail) {
+                        @:formData.append('authorEmail', authorEmail);
+                    @:}
+                }
+                
+                // Handle file attachments
+                var files = $('#comment-attachments')[0].files;
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('attachments', files[i]);
+                }
+                
+                // Disable form during submission
+                $('#comment-form button[type="submit"]').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Posting...');
+                
+                $.ajax({
+                    url: '/Comment/AddComment',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            // Clear form
+                            $('#comment-content').val('');
+                            $('#author-name').val('');
+                            $('#author-email').val('');
+                            $('#comment-attachments').val('');
+                            
+                            // Reload comments
+                            loadComments();
+                            
+                            // Show success message
+                            showAlert('success', 'Comment posted successfully!');
+                        } else {
+                            showAlert('danger', response.message || 'Failed to post comment');
+                        }
+                    },
+                    error: function() {
+                        showAlert('danger', 'Error posting comment. Please try again.');
+                    },
+                    complete: function() {
+                        // Re-enable form
+                        $('#comment-form button[type="submit"]').prop('disabled', false).html('<i class="fas fa-paper-plane"></i> Post Comment');
+                    }
+                });
+            }
+            
+            function updateCommentsCount(count) {
+                $('#comments-count').text(count);
+            }
+            
+            function formatDate(dateString) {
+                var date = new Date(dateString);
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            }
+            
+            function escapeHtml(text) {
+                var div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            function showAlert(type, message) {
+                var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert">';
+                alertHtml += message;
+                alertHtml += '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+                alertHtml += '</div>';
+                
+                $('.comments-section').prepend(alertHtml);
+                
+                // Auto-hide success alerts after 3 seconds
+                if (type === 'success') {
+                    setTimeout(function() {
+                        $('.alert-success').fadeOut();
+                    }, 3000);
+                }
+            }
+            
+            // Reply functionality (for future enhancement)
+            function replyToComment(commentId) {
+                // For now, just scroll to comment form
+                document.getElementById('comment-content').focus();
+                showAlert('info', 'Reply functionality will be enhanced in future updates. For now, please post your reply as a new comment.');
+            }
+        });
+    </script>
+}
+
+<style>
+    .blog-post-header {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 1rem;
+    }
+    
+    .blog-post-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .blog-post-meta {
+        font-size: 0.9rem;
+    }
+    
+    .blog-post-summary {
+        font-style: italic;
+    }
+    
+    .blog-post-content {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #555;
+    }
+    
+    .blog-post-tags .badge {
+        font-size: 0.8rem;
+    }
+    
+    .comments-section {
+        border-top: 2px solid #eee;
+        padding-top: 2rem;
+    }
+    
+    .comments-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .comment {
+        background-color: #f8f9fa;
+    }
+    
+    .comment-author {
+        font-size: 1rem;
+        color: #495057;
+    }
+    
+    .comment-content {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #666;
+    }
+    
+    .sidebar .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .sidebar .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+</style>

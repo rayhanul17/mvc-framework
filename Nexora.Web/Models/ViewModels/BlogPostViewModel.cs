@@ -56,4 +56,10 @@ public class BlogPostViewModel
     public string? CategoryName { get; set; }
     public string? AuthorName { get; set; }
     public int ViewCount { get; set; }
+    
+    [Display(Name = "Enable Comments")]
+    public bool CommentsEnabled { get; set; } = true;
+    
+    [Display(Name = "Require Comment Approval")]
+    public bool RequireCommentApproval { get; set; } = false;
 }

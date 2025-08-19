@@ -31,6 +31,52 @@ public class BlogPostController : BaseController
         return View(new List<BlogPost>());
     }
 
+    [AllowAnonymous]
+    public async Task<IActionResult> Details(int id, string slug = "")
+    {
+        try
+        {
+            // Debug logging
+            System.Console.WriteLine($"BlogPost Details called with ID: {id}, Slug: '{slug}'");
+            
+            var result = await _postService.GetPostWithCategoryAsync(id);
+            
+            System.Console.WriteLine($"Service result - Success: {result.IsSuccess}, Data: {(result.Data != null ? "Not null" : "NULL")}");
+            
+            if (!result.IsSuccess || result.Data == null)
+            {
+                System.Console.WriteLine($"Service failed or no data. Error: {result.ErrorMessage}");
+                return NotFound();
+            }
+
+            var post = result.Data;
+            System.Console.WriteLine($"Post found - Title: '{post.Title}', Slug: '{post.Slug}', Published: {post.IsPublished}");
+            
+            // Check if slug matches (for SEO friendly URLs)
+            if (!string.IsNullOrEmpty(slug) && !string.Equals(post.Slug, slug, StringComparison.OrdinalIgnoreCase))
+            {
+                System.Console.WriteLine($"Slug mismatch, redirecting. Expected: '{post.Slug}', Got: '{slug}'");
+                return RedirectToAction(nameof(Details), new { id = post.Id, slug = post.Slug });
+            }
+
+            // Only show published posts for non-authenticated users
+            if (!post.IsPublished && !User.Identity!.IsAuthenticated)
+            {
+                System.Console.WriteLine("Post not published and user not authenticated");
+                return NotFound();
+            }
+
+            System.Console.WriteLine("Returning view with post data");
+            return View(post);
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"Exception in Details action: {ex.Message}");
+            System.Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            return NotFound();
+        }
+    }
+
     // Combined Create/Edit GET action
     public async Task<IActionResult> CreateEdit(int id = 0)
     {

@@ -61,6 +61,9 @@ builder.Services.AddScoped<ILogService, LogService>();
 // Add File Document Service
 builder.Services.AddScoped<IFileDocumentService, FileDocumentService>();
 
+// Add Comment Service
+builder.Services.AddScoped<ICommentService, CommentService>();
+
 // Add Background Services
 builder.Services.AddHostedService<Nexora.Web.Services.LogArchiveBackgroundService>();
 builder.Services.AddHostedService<Nexora.Web.Services.HeartbeatService>();
@@ -70,9 +73,38 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.LogoutPath = "/Account/Logout";
-    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.AccessDeniedPath = "/Error/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     options.SlidingExpiration = true;
+    
+    // Custom redirect behavior for AJAX requests
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api") || 
+            context.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            context.Response.StatusCode = 401;
+        }
+        else
+        {
+            context.Response.Redirect(context.RedirectUri);
+        }
+        return Task.CompletedTask;
+    };
+    
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api") || 
+            context.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            context.Response.StatusCode = 403;
+        }
+        else
+        {
+            context.Response.Redirect(context.RedirectUri);
+        }
+        return Task.CompletedTask;
+    };
 });
 
 // Add session support
@@ -94,10 +126,27 @@ var app = builder.Build();
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
     {
-        app.UseExceptionHandler("/Home/Error");
+        // Handle exceptions and display custom error page
+        app.UseExceptionHandler("/Error/ServerError");
+        
         // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         app.UseHsts();
     }
+    else
+    {
+        // In development, show detailed error page
+        app.UseDeveloperExceptionPage();
+    }
+
+// Custom error handling middleware for status codes
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
+// Store original path for error pages
+app.Use(async (context, next) =>
+{
+    context.Items["originalPath"] = context.Request.Path.Value;
+    await next();
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -109,6 +158,12 @@ app.UseAuthorization();
 
 // Add Permission Middleware
 app.UseMiddleware<PermissionMiddleware>();
+
+// Blog post details route with slug support
+app.MapControllerRoute(
+    name: "blogpost-details",
+    pattern: "BlogPost/Details/{id:int}/{slug?}",
+    defaults: new { controller = "BlogPost", action = "Details" });
 
 app.MapControllerRoute(
     name: "areas",

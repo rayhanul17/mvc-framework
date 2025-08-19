@@ -1,0 +1,549 @@
+/* ========================================
+   Theme Variables and Utility Classes
+   ======================================== */
+
+/* Light Mode Variables (Default) */
+:root {
+  /* Primary Colors */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8f9fa;
+  --theme-bg-tertiary: #e9ecef;
+  --theme-bg-surface: #ffffff;
+  --theme-bg-surface-variant: #f8f9fa;
+  
+  /* Text Colors */
+  --theme-text-primary: rgba(0, 0, 0, 0.87);
+  --theme-text-secondary: rgba(0, 0, 0, 0.6);
+  --theme-text-tertiary: rgba(0, 0, 0, 0.38);
+  --theme-text-disabled: rgba(0, 0, 0, 0.38);
+  --theme-text-inverse: #ffffff;
+  
+  /* Border Colors */
+  --theme-border-primary: rgba(0, 0, 0, 0.12);
+  --theme-border-secondary: rgba(0, 0, 0, 0.06);
+  --theme-border-focus: var(--bs-primary);
+  
+  /* Surface Overlays */
+  --theme-overlay-hover: rgba(0, 0, 0, 0.04);
+  --theme-overlay-focus: rgba(0, 0, 0, 0.08);
+  --theme-overlay-selected: rgba(0, 0, 0, 0.08);
+  --theme-overlay-activated: rgba(0, 0, 0, 0.12);
+  
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.07);
+  --theme-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --theme-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --theme-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  
+  /* Component Specific */
+  --theme-card-bg: #ffffff;
+  --theme-input-bg: #ffffff;
+  --theme-input-border: rgba(0, 0, 0, 0.2);
+  --theme-code-bg: #f6f8fa;
+  --theme-code-text: #24292e;
+}
+
+/* Dark Mode Variables */
+.dark-theme {
+  /* Primary Colors */
+  --theme-bg-primary: #1a1a1a;
+  --theme-bg-secondary: #2d2d2d;
+  --theme-bg-tertiary: #404040;
+  --theme-bg-surface: #2d2d2d;
+  --theme-bg-surface-variant: #383838;
+  
+  /* Text Colors */
+  --theme-text-primary: rgba(255, 255, 255, 0.87);
+  --theme-text-secondary: rgba(255, 255, 255, 0.6);
+  --theme-text-tertiary: rgba(255, 255, 255, 0.38);
+  --theme-text-disabled: rgba(255, 255, 255, 0.38);
+  --theme-text-inverse: #000000;
+  
+  /* Border Colors */
+  --theme-border-primary: rgba(255, 255, 255, 0.12);
+  --theme-border-secondary: rgba(255, 255, 255, 0.06);
+  --theme-border-focus: var(--bs-primary);
+  
+  /* Surface Overlays */
+  --theme-overlay-hover: rgba(255, 255, 255, 0.04);
+  --theme-overlay-focus: rgba(255, 255, 255, 0.08);
+  --theme-overlay-selected: rgba(255, 255, 255, 0.08);
+  --theme-overlay-activated: rgba(255, 255, 255, 0.12);
+  
+  /* Shadows */
+  --theme-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --theme-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --theme-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --theme-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  
+  /* Component Specific */
+  --theme-card-bg: #2d2d2d;
+  --theme-input-bg: rgba(255, 255, 255, 0.05);
+  --theme-input-border: rgba(255, 255, 255, 0.2);
+  --theme-code-bg: #1e1e1e;
+  --theme-code-text: #f8f8f2;
+}
+
+/* ========================================
+   Utility Classes for Theme-Aware Elements
+   ======================================== */
+
+/* Background Classes */
+.theme-bg {
+  background-color: var(--theme-bg-primary);
+  transition: background-color 0.3s ease;
+}
+
+.theme-bg-secondary {
+  background-color: var(--theme-bg-secondary);
+  transition: background-color 0.3s ease;
+}
+
+.theme-bg-tertiary {
+  background-color: var(--theme-bg-tertiary);
+  transition: background-color 0.3s ease;
+}
+
+.theme-surface {
+  background-color: var(--theme-bg-surface);
+  transition: background-color 0.3s ease;
+}
+
+.theme-surface-variant {
+  background-color: var(--theme-bg-surface-variant);
+  transition: background-color 0.3s ease;
+}
+
+/* Text Classes */
+.theme-text {
+  color: var(--theme-text-primary);
+  transition: color 0.3s ease;
+}
+
+.theme-text-secondary {
+  color: var(--theme-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.theme-text-tertiary {
+  color: var(--theme-text-tertiary);
+  transition: color 0.3s ease;
+}
+
+.theme-text-disabled {
+  color: var(--theme-text-disabled);
+  transition: color 0.3s ease;
+}
+
+.theme-text-inverse {
+  color: var(--theme-text-inverse);
+  transition: color 0.3s ease;
+}
+
+/* Border Classes */
+.theme-border {
+  border-color: var(--theme-border-primary);
+  transition: border-color 0.3s ease;
+}
+
+.theme-border-secondary {
+  border-color: var(--theme-border-secondary);
+  transition: border-color 0.3s ease;
+}
+
+/* Card Component */
+.theme-card {
+  background-color: var(--theme-card-bg);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+  box-shadow: var(--theme-shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.theme-card:hover {
+  box-shadow: var(--theme-shadow-md);
+}
+
+.theme-card-header {
+  background-color: var(--theme-bg-secondary);
+  border-bottom: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-primary);
+}
+
+.theme-card-footer {
+  background-color: var(--theme-bg-secondary);
+  border-top: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-secondary);
+}
+
+/* Input Component */
+.theme-input {
+  background-color: var(--theme-input-bg);
+  border: 1px solid var(--theme-input-border);
+  color: var(--theme-text-primary);
+  transition: all 0.3s ease;
+}
+
+.theme-input:focus {
+  background-color: var(--theme-bg-surface);
+  border-color: var(--theme-border-focus);
+  color: var(--theme-text-primary);
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.theme-input::placeholder {
+  color: var(--theme-text-tertiary);
+}
+
+.theme-input:disabled {
+  background-color: var(--theme-overlay-hover);
+  color: var(--theme-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Button Component */
+.theme-btn {
+  background-color: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+  transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+  background-color: var(--theme-overlay-hover);
+  color: var(--theme-text-primary);
+}
+
+.theme-btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.theme-btn:disabled {
+  background-color: var(--theme-overlay-hover);
+  color: var(--theme-text-disabled);
+  cursor: not-allowed;
+}
+
+/* List Component */
+.theme-list {
+  background-color: var(--theme-bg-surface);
+  border: 1px solid var(--theme-border-primary);
+}
+
+.theme-list-item {
+  background-color: transparent;
+  color: var(--theme-text-primary);
+  border-bottom: 1px solid var(--theme-border-secondary);
+  padding: 0.75rem 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.theme-list-item:hover {
+  background-color: var(--theme-overlay-hover);
+}
+
+.theme-list-item:active,
+.theme-list-item.active {
+  background-color: var(--theme-overlay-selected);
+}
+
+.theme-list-item:last-child {
+  border-bottom: none;
+}
+
+/* Table Component */
+.theme-table {
+  background-color: var(--theme-bg-surface);
+  color: var(--theme-text-primary);
+}
+
+.theme-table thead {
+  background-color: var(--theme-bg-secondary);
+  border-bottom: 2px solid var(--theme-border-primary);
+}
+
+.theme-table th {
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  padding: 0.75rem;
+}
+
+.theme-table td {
+  color: var(--theme-text-primary);
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--theme-border-secondary);
+}
+
+.theme-table tbody tr:hover {
+  background-color: var(--theme-overlay-hover);
+}
+
+.theme-table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--theme-overlay-hover);
+}
+
+/* Modal Component */
+.theme-modal {
+  background-color: var(--theme-bg-surface);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+  box-shadow: var(--theme-shadow-xl);
+}
+
+.theme-modal-header {
+  background-color: var(--theme-bg-secondary);
+  border-bottom: 1px solid var(--theme-border-primary);
+  color: var(--theme-text-primary);
+}
+
+.theme-modal-footer {
+  background-color: var(--theme-bg-secondary);
+  border-top: 1px solid var(--theme-border-primary);
+}
+
+/* Alert Component */
+.theme-alert {
+  background-color: var(--theme-bg-surface-variant);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: 0.375rem;
+  padding: 1rem;
+}
+
+.theme-alert-info {
+  background-color: rgba(13, 202, 240, 0.1);
+  border-color: rgba(13, 202, 240, 0.3);
+  color: var(--theme-text-primary);
+}
+
+.theme-alert-success {
+  background-color: rgba(25, 135, 84, 0.1);
+  border-color: rgba(25, 135, 84, 0.3);
+  color: var(--theme-text-primary);
+}
+
+.theme-alert-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.3);
+  color: var(--theme-text-primary);
+}
+
+.theme-alert-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.3);
+  color: var(--theme-text-primary);
+}
+
+/* Badge Component */
+.theme-badge {
+  background-color: var(--theme-bg-tertiary);
+  color: var(--theme-text-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* Code Block */
+.theme-code {
+  background-color: var(--theme-code-bg);
+  color: var(--theme-code-text);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+}
+
+.theme-code-block {
+  background-color: var(--theme-code-bg);
+  color: var(--theme-code-text);
+  padding: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--theme-border-primary);
+  overflow-x: auto;
+}
+
+/* Dropdown Component */
+.theme-dropdown {
+  background-color: var(--theme-bg-surface);
+  border: 1px solid var(--theme-border-primary);
+  box-shadow: var(--theme-shadow-lg);
+}
+
+.theme-dropdown-item {
+  color: var(--theme-text-primary);
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.theme-dropdown-item:hover {
+  background-color: var(--theme-overlay-hover);
+  color: var(--theme-text-primary);
+}
+
+.theme-dropdown-divider {
+  border-top: 1px solid var(--theme-border-secondary);
+  margin: 0.5rem 0;
+}
+
+/* Progress Bar */
+.theme-progress {
+  background-color: var(--theme-bg-tertiary);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.theme-progress-bar {
+  background-color: var(--bs-primary);
+  transition: width 0.3s ease;
+}
+
+/* Tabs Component */
+.theme-tabs {
+  border-bottom: 1px solid var(--theme-border-primary);
+}
+
+.theme-tab {
+  color: var(--theme-text-secondary);
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.theme-tab:hover {
+  color: var(--theme-text-primary);
+  background-color: var(--theme-overlay-hover);
+}
+
+.theme-tab.active {
+  color: var(--bs-primary);
+  border-bottom: 2px solid var(--bs-primary);
+  background-color: transparent;
+}
+
+/* Pagination Component */
+.theme-pagination {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.theme-page-link {
+  background-color: var(--theme-bg-surface);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-primary);
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.theme-page-link:hover {
+  background-color: var(--theme-overlay-hover);
+  color: var(--theme-text-primary);
+}
+
+.theme-page-link.active {
+  background-color: var(--bs-primary);
+  color: white;
+  border-color: var(--bs-primary);
+}
+
+.theme-page-link.disabled {
+  background-color: var(--theme-overlay-hover);
+  color: var(--theme-text-disabled);
+  cursor: not-allowed;
+}
+
+/* Tooltip Component */
+.theme-tooltip {
+  background-color: var(--theme-bg-tertiary);
+  color: var(--theme-text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  box-shadow: var(--theme-shadow-md);
+  font-size: 0.875rem;
+}
+
+/* ========================================
+   HOW TO USE THIS THEMING SYSTEM
+   ======================================== */
+
+/*
+1. USING CSS VARIABLES:
+   When creating custom CSS, use the theme variables:
+   
+   .my-custom-element {
+     background-color: var(--theme-bg-surface);
+     color: var(--theme-text-primary);
+     border: 1px solid var(--theme-border-primary);
+   }
+
+2. USING UTILITY CLASSES:
+   Apply theme-aware classes directly in HTML:
+   
+   <div class="theme-card">
+     <div class="theme-card-header">
+       <h3 class="theme-text">My Title</h3>
+     </div>
+     <div class="theme-card-body">
+       <p class="theme-text-secondary">Content here</p>
+     </div>
+   </div>
+
+3. FOR NEW COMPONENTS:
+   Create your component using theme variables:
+   
+   .my-new-component {
+     background: var(--theme-bg-surface);
+     color: var(--theme-text-primary);
+     border: 1px solid var(--theme-border-primary);
+     box-shadow: var(--theme-shadow-sm);
+   }
+   
+   .my-new-component:hover {
+     background: var(--theme-overlay-hover);
+     box-shadow: var(--theme-shadow-md);
+   }
+
+4. FOR FORM ELEMENTS:
+   <input type="text" class="theme-input" placeholder="Enter text">
+   <button class="theme-btn">Submit</button>
+   <select class="theme-input">
+     <option>Option 1</option>
+   </select>
+
+5. FOR TABLES:
+   <table class="theme-table theme-table-striped">
+     <thead>
+       <tr><th>Header</th></tr>
+     </thead>
+     <tbody>
+       <tr><td>Data</td></tr>
+     </tbody>
+   </table>
+
+6. COMBINING WITH BOOTSTRAP:
+   You can combine theme classes with Bootstrap:
+   
+   <div class="card theme-card">
+     <div class="card-header theme-card-header">
+       Header
+     </div>
+     <div class="card-body">
+       <p class="theme-text">Content</p>
+     </div>
+   </div>
+
+7. JAVASCRIPT INTEGRATION:
+   When creating elements dynamically:
+   
+   const element = document.createElement('div');
+   element.className = 'theme-card p-3';
+   element.innerHTML = '<p class="theme-text">Dynamic content</p>';
+
+IMPORTANT NOTES:
+- All theme classes automatically adapt to dark/light mode
+- Use theme variables for custom CSS to ensure consistency
+- The transition effects are built-in for smooth mode switching
+- You don't need to write separate dark mode styles
+*/

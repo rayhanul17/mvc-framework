@@ -2,8 +2,10 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Nexora.Application.Interfaces;
 using Nexora.Core.Entities;
+using Nexora.Infrastructure.Data;
 using Nexora.Web.Models;
 using System.Security.Claims;
 
@@ -15,25 +17,149 @@ public class HomeController : Controller
     private readonly ILogger<HomeController> _logger;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISiteSettingService _siteSettingService;
+    private readonly ApplicationDbContext _context;
 
     public HomeController(
         ILogger<HomeController> logger,
         UserManager<ApplicationUser> userManager,
-        ISiteSettingService siteSettingService)
+        ISiteSettingService siteSettingService,
+        ApplicationDbContext context)
     {
         _logger = logger;
         _userManager = userManager;
         _siteSettingService = siteSettingService;
+        _context = context;
     }
 
     public async Task<IActionResult> Index()
     {
-        if (User.Identity?.IsAuthenticated == true)
+        // Don't redirect authenticated users - show them the blog landing page too
+        var model = new BlogLandingViewModel();
+        
+        // Get featured posts (most recent published posts)
+        model.FeaturedPosts = await _context.BlogPosts
+            .Include(p => p.Category)
+            .Include(p => p.Author)
+            .Where(p => p.IsPublished)
+            .OrderByDescending(p => p.PublishedDate)
+            .Take(3)
+            .Select(p => new BlogPostSummary
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Slug = p.Slug,
+                Summary = p.Summary ?? "",
+                FeaturedImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+                CategoryName = p.Category.Name,
+                CategorySlug = p.Category.Slug ?? "",
+                AuthorName = p.Author != null ? p.Author.FullName : "Anonymous",
+                PublishedDate = p.PublishedDate ?? p.CreatedAt,
+                ViewCount = p.ViewCount,
+                Tags = new List<string>()
+            })
+            .ToListAsync();
+        
+        // Get recent posts
+        model.RecentPosts = await _context.BlogPosts
+            .Include(p => p.Category)
+            .Include(p => p.Author)
+            .Where(p => p.IsPublished)
+            .OrderByDescending(p => p.PublishedDate)
+            .Skip(3)
+            .Take(6)
+            .Select(p => new BlogPostSummary
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Slug = p.Slug,
+                Summary = p.Summary ?? "",
+                FeaturedImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+                CategoryName = p.Category.Name,
+                CategorySlug = p.Category.Slug ?? "",
+                AuthorName = p.Author != null ? p.Author.FullName : "Anonymous",
+                PublishedDate = p.PublishedDate ?? p.CreatedAt,
+                ViewCount = p.ViewCount,
+                Tags = new List<string>()
+            })
+            .ToListAsync();
+        
+        // Get popular posts (by view count)
+        model.PopularPosts = await _context.BlogPosts
+            .Include(p => p.Category)
+            .Include(p => p.Author)
+            .Where(p => p.IsPublished)
+            .OrderByDescending(p => p.ViewCount)
+            .Take(5)
+            .Select(p => new BlogPostSummary
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Slug = p.Slug,
+                Summary = p.Summary ?? "",
+                CategoryName = p.Category.Name,
+                CategorySlug = p.Category.Slug ?? "",
+                AuthorName = p.Author != null ? p.Author.FullName : "Anonymous",
+                PublishedDate = p.PublishedDate ?? p.CreatedAt,
+                ViewCount = p.ViewCount
+            })
+            .ToListAsync();
+        
+        // Get categories with post counts
+        model.Categories = await _context.BlogCategories
+            .Include(c => c.BlogPosts)
+            .Where(c => c.IsActive)
+            .OrderBy(c => c.DisplayOrder)
+            .Select(c => new CategoryInfo
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Slug = c.Slug ?? "",
+                Description = c.Description ?? "",
+                PostCount = c.BlogPosts.Count(p => p.IsPublished),
+                DisplayOrder = c.DisplayOrder
+            })
+            .ToListAsync();
+        
+        // Get all unique tags from published posts
+        var allTags = await _context.BlogPosts
+            .Where(p => p.IsPublished && !string.IsNullOrEmpty(p.Tags))
+            .Select(p => p.Tags)
+            .ToListAsync();
+        
+        var tagCounts = new Dictionary<string, int>();
+        foreach (var tagString in allTags)
         {
-            return await RedirectToDashboard();
+            if (!string.IsNullOrEmpty(tagString))
+            {
+                var tags = tagString.Split(',').Select(t => t.Trim());
+                foreach (var tag in tags)
+                {
+                    if (!string.IsNullOrEmpty(tag))
+                    {
+                        if (tagCounts.ContainsKey(tag))
+                            tagCounts[tag]++;
+                        else
+                            tagCounts[tag] = 1;
+                    }
+                }
+            }
         }
         
-        return View();
+        model.PopularTags = tagCounts
+            .OrderByDescending(t => t.Value)
+            .Take(15)
+            .Select(t => new TagInfo { Name = t.Key, Count = t.Value })
+            .ToList();
+        
+        // Get site settings
+        var siteSettings = await _siteSettingService.GetAllSettingsAsync();
+        if (siteSettings.IsSuccess && siteSettings.Data != null)
+        {
+            model.SiteName = siteSettings.Data.FirstOrDefault(s => s.Key == "SiteName")?.Value ?? "Nexora Blog";
+            model.SiteDescription = siteSettings.Data.FirstOrDefault(s => s.Key == "SiteDescription")?.Value ?? "Explore insights, tutorials, and industry trends";
+        }
+        
+        return View(model);
     }
 
     public IActionResult NotificationDemo()

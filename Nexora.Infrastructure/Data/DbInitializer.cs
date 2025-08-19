@@ -705,21 +705,115 @@ public static class DbInitializer
             {
                 Title = "Getting Started with ASP.NET Core MVC",
                 Slug = "getting-started-aspnet-core-mvc",
-                Content = @"<p>ASP.NET Core MVC is a powerful framework for building web applications. In this comprehensive guide, we'll explore the fundamental concepts and best practices.</p>
+                Content = @"<p>ASP.NET Core MVC is a powerful, cross-platform framework for building modern web applications. In this comprehensive guide, we'll explore the fundamental concepts, architecture patterns, and best practices that make ASP.NET Core MVC the go-to choice for enterprise web development.</p>
+                           
                            <h2>What is ASP.NET Core MVC?</h2>
-                           <p>ASP.NET Core MVC provides a patterns-based way to build dynamic websites that enables a clean separation of concerns.</p>
-                           <h2>Key Features</h2>
+                           <p>ASP.NET Core MVC is a rich framework for building web apps and APIs using the Model-View-Controller design pattern. It provides a patterns-based way to build dynamic websites that enables a clean separation of concerns, giving you full control over markup while supporting test-driven development and using the latest web standards.</p>
+                           
+                           <div class=""alert alert-info"">
+                               <strong>Did you know?</strong> ASP.NET Core MVC is built on top of ASP.NET Core runtime, which makes it incredibly fast and lightweight compared to traditional .NET Framework applications.
+                           </div>
+                           
+                           <h2>Key Features and Benefits</h2>
                            <ul>
-                               <li>Cross-platform support</li>
-                               <li>High performance</li>
-                               <li>Built-in dependency injection</li>
-                               <li>Modular framework</li>
-                           </ul>",
+                               <li><strong>Cross-platform support:</strong> Runs on Windows, macOS, and Linux</li>
+                               <li><strong>High performance:</strong> Optimized for speed and scalability</li>
+                               <li><strong>Built-in dependency injection:</strong> Clean, testable code architecture</li>
+                               <li><strong>Modular framework:</strong> Include only what you need</li>
+                               <li><strong>Cloud-ready:</strong> Built for modern cloud deployment scenarios</li>
+                               <li><strong>Open source:</strong> Transparent development and community contributions</li>
+                           </ul>
+                           
+                           <h2>MVC Architecture Pattern</h2>
+                           <p>The Model-View-Controller (MVC) architectural pattern separates an application into three main logical components:</p>
+                           <table class=""table table-striped"">
+                               <thead>
+                                   <tr>
+                                       <th>Component</th>
+                                       <th>Responsibility</th>
+                                       <th>Example</th>
+                                   </tr>
+                               </thead>
+                               <tbody>
+                                   <tr>
+                                       <td><strong>Model</strong></td>
+                                       <td>Represents data and business logic</td>
+                                       <td>User, Product, Order entities</td>
+                                   </tr>
+                                   <tr>
+                                       <td><strong>View</strong></td>
+                                       <td>Handles the display logic and user interface</td>
+                                       <td>Razor pages, HTML templates</td>
+                                   </tr>
+                                   <tr>
+                                       <td><strong>Controller</strong></td>
+                                       <td>Handles user input and coordinates Model and View</td>
+                                       <td>HomeController, AccountController</td>
+                                   </tr>
+                               </tbody>
+                           </table>
+                           
+                           <h2>Getting Started - Your First Application</h2>
+                           <p>To start building your first ASP.NET Core MVC application, you'll need:</p>
+                           <ol>
+                               <li><strong>.NET SDK:</strong> Download from <a href=""https://dotnet.microsoft.com/download"" target=""_blank"">dotnet.microsoft.com</a></li>
+                               <li><strong>IDE:</strong> Visual Studio, Visual Studio Code, or JetBrains Rider</li>
+                               <li><strong>Basic C# knowledge:</strong> Understanding of object-oriented programming</li>
+                           </ol>
+                           
+                           <h3>Creating Your Project</h3>
+                           <pre><code>dotnet new mvc -n MyFirstMvcApp
+cd MyFirstMvcApp
+dotnet run</code></pre>
+                           
+                           <p>This creates a new MVC project with a basic structure including controllers, views, and models. The application will be available at <code>https://localhost:5001</code> by default.</p>
+                           
+                           <h2>Best Practices for Success</h2>
+                           <blockquote class=""blockquote"">
+                               <p>""The key to successful ASP.NET Core MVC development lies in understanding the separation of concerns and leveraging the framework's built-in features effectively.""</p>
+                               <footer class=""blockquote-footer"">Industry Expert</footer>
+                           </blockquote>
+                           
+                           <ul>
+                               <li>Keep controllers thin - business logic belongs in services</li>
+                               <li>Use dependency injection for better testability</li>
+                               <li>Implement proper error handling and logging</li>
+                               <li>Follow RESTful conventions for your routes</li>
+                               <li>Use model validation attributes</li>
+                               <li>Implement security best practices from day one</li>
+                           </ul>
+                           
+                           <h2>Next Steps</h2>
+                           <p>Once you have your basic MVC application running, consider exploring these advanced topics:</p>
+                           <div class=""row"">
+                               <div class=""col-md-6"">
+                                   <h4>Backend Topics</h4>
+                                   <ul>
+                                       <li>Entity Framework Core</li>
+                                       <li>Authentication & Authorization</li>
+                                       <li>Web APIs and RESTful services</li>
+                                       <li>Middleware pipeline</li>
+                                   </ul>
+                               </div>
+                               <div class=""col-md-6"">
+                                   <h4>Frontend Topics</h4>
+                                   <ul>
+                                       <li>Razor Pages and Views</li>
+                                       <li>Client-side libraries integration</li>
+                                       <li>Responsive design with Bootstrap</li>
+                                       <li>JavaScript and AJAX</li>
+                                   </ul>
+                               </div>
+                           </div>",
                 Summary = "Learn the basics of ASP.NET Core MVC framework and start building modern web applications.",
-                FeaturedImageUrl = "/images/blog/aspnet-core-mvc.jpg",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=400&fit=crop",
                 CategoryId = tutorialCategory?.Id ?? 1,
                 AuthorId = adminUser.Id,
-                ViewCount = 245,
+                Tags = "ASP.NET Core,MVC,Web Development,C#,Tutorial",
+                MetaTitle = "Getting Started with ASP.NET Core MVC - Complete Guide",
+                MetaDescription = "Learn ASP.NET Core MVC from scratch with this comprehensive tutorial. Build modern web applications with best practices.",
+                MetaKeywords = "ASP.NET Core, MVC, Tutorial, Web Development",
+                ViewCount = 2456,
                 IsPublished = true,
                 PublishedDate = DateTime.UtcNow.AddDays(-30),
                 CreatedAt = DateTime.UtcNow.AddDays(-30)
@@ -730,17 +824,84 @@ public static class DbInitializer
                 Slug = "best-practices-entity-framework-core",
                 Content = @"<p>Entity Framework Core is a modern object-database mapper for .NET. Here are the top 10 best practices to follow.</p>
                            <h2>1. Use Async Methods</h2>
-                           <p>Always use async methods when querying the database to improve application scalability.</p>
+                           <p>Always use async methods when querying the database to improve application scalability. This prevents blocking threads and improves overall application throughput.</p>
                            <h2>2. Optimize Your Queries</h2>
-                           <p>Use projection to select only the fields you need, reducing data transfer and improving performance.</p>",
+                           <p>Use projection to select only the fields you need, reducing data transfer and improving performance. Avoid the N+1 query problem by using Include() for eager loading.</p>
+                           <h2>3. Use No-Tracking Queries for Read-Only Operations</h2>
+                           <p>When you're only reading data and not planning to update it, use AsNoTracking() to improve performance.</p>
+                           <h2>4. Batch Your Operations</h2>
+                           <p>Instead of saving changes after each operation, batch multiple operations and call SaveChanges() once.</p>",
                 Summary = "Discover the best practices for using Entity Framework Core effectively in your applications.",
-                FeaturedImageUrl = "/images/blog/ef-core-best-practices.jpg",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop",
                 CategoryId = techCategory?.Id ?? 1,
                 AuthorId = blogAuthor?.Id ?? adminUser.Id,
-                ViewCount = 532,
+                Tags = "Entity Framework,EF Core,Database,ORM,Performance,Best Practices",
+                MetaTitle = "10 Best Practices for Entity Framework Core - Expert Guide",
+                MetaDescription = "Master Entity Framework Core with these 10 essential best practices for better performance and maintainability.",
+                MetaKeywords = "Entity Framework Core, EF Core, Best Practices, Performance",
+                ViewCount = 5324,
                 IsPublished = true,
                 PublishedDate = DateTime.UtcNow.AddDays(-20),
                 CreatedAt = DateTime.UtcNow.AddDays(-20)
+            },
+            new BlogPost
+            {
+                Title = "Building a Scalable Microservices Architecture",
+                Slug = "building-scalable-microservices-architecture",
+                Content = @"<p>Microservices architecture has become the go-to solution for building scalable, maintainable applications. Let's explore how to design and implement a robust microservices system.</p>
+                           <h2>Understanding Microservices</h2>
+                           <p>Microservices are small, independent services that work together to form a complete application. Each service is responsible for a specific business capability.</p>
+                           <h2>Key Principles</h2>
+                           <ul>
+                               <li>Single Responsibility: Each service should do one thing well</li>
+                               <li>Autonomous: Services should be independently deployable</li>
+                               <li>Decentralized: Avoid shared databases and centralized governance</li>
+                               <li>Failure Isolation: One service failure shouldn't bring down the entire system</li>
+                           </ul>
+                           <h2>Communication Patterns</h2>
+                           <p>Services can communicate through REST APIs, message queues, or event streaming platforms like Kafka.</p>",
+                Summary = "Learn how to design and build scalable microservices architecture with practical examples.",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=400&fit=crop",
+                CategoryId = techCategory?.Id ?? 1,
+                AuthorId = adminUser.Id,
+                Tags = "Microservices,Architecture,Cloud,Docker,Kubernetes,DevOps",
+                MetaTitle = "Building Scalable Microservices Architecture - Complete Guide",
+                MetaDescription = "Learn how to build scalable microservices architecture with best practices and real-world examples.",
+                MetaKeywords = "Microservices, Architecture, Scalability, Cloud Native",
+                ViewCount = 3891,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-25),
+                CreatedAt = DateTime.UtcNow.AddDays(-25)
+            },
+            new BlogPost
+            {
+                Title = "Modern Authentication with JWT in ASP.NET Core",
+                Slug = "modern-authentication-jwt-aspnet-core",
+                Content = @"<p>JSON Web Tokens (JWT) have become the standard for modern API authentication. Let's implement secure JWT authentication in ASP.NET Core.</p>
+                           <h2>What is JWT?</h2>
+                           <p>JWT is an open standard (RFC 7519) that defines a compact way for securely transmitting information between parties as a JSON object.</p>
+                           <h2>JWT Structure</h2>
+                           <p>A JWT consists of three parts: Header, Payload, and Signature, separated by dots (xxxxx.yyyyy.zzzzz).</p>
+                           <h2>Implementation Steps</h2>
+                           <ol>
+                               <li>Install required NuGet packages</li>
+                               <li>Configure JWT in Startup.cs</li>
+                               <li>Create token generation service</li>
+                               <li>Implement login endpoint</li>
+                               <li>Protect API endpoints with [Authorize] attribute</li>
+                           </ol>",
+                Summary = "Implement secure JWT authentication in your ASP.NET Core applications with this comprehensive guide.",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&h=400&fit=crop",
+                CategoryId = tutorialCategory?.Id ?? 1,
+                AuthorId = blogAuthor?.Id ?? adminUser.Id,
+                Tags = "JWT,Authentication,Security,ASP.NET Core,API",
+                MetaTitle = "JWT Authentication in ASP.NET Core - Complete Implementation Guide",
+                MetaDescription = "Learn how to implement secure JWT authentication in ASP.NET Core with step-by-step instructions.",
+                MetaKeywords = "JWT, Authentication, ASP.NET Core, Security",
+                ViewCount = 4123,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-18),
+                CreatedAt = DateTime.UtcNow.AddDays(-18)
             },
             new BlogPost
             {
@@ -749,13 +910,25 @@ public static class DbInitializer
                 Content = @"<p>A robust customer support system is essential for any business. Let's explore how to build one from scratch.</p>
                            <h2>Core Components</h2>
                            <p>Every support system needs ticket management, user authentication, and reporting capabilities.</p>
+                           <h2>Ticket Management Features</h2>
+                           <ul>
+                               <li>Ticket creation and tracking</li>
+                               <li>Priority and category assignment</li>
+                               <li>Agent assignment and escalation</li>
+                               <li>Customer communication history</li>
+                               <li>SLA tracking and alerts</li>
+                           </ul>
                            <h2>Implementation Strategy</h2>
-                           <p>Start with a solid architecture and gradually add features based on business requirements.</p>",
+                           <p>Start with a solid architecture and gradually add features based on business requirements. Use a modular approach to ensure scalability.</p>",
                 Summary = "Step-by-step guide to building a comprehensive customer support system.",
-                FeaturedImageUrl = "/images/blog/support-system.jpg",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=400&fit=crop",
                 CategoryId = businessCategory?.Id ?? 1,
                 AuthorId = adminUser.Id,
-                ViewCount = 189,
+                Tags = "Customer Support,Business,SaaS,Ticketing System",
+                MetaTitle = "Building a Customer Support System - Complete Guide",
+                MetaDescription = "Learn how to build a comprehensive customer support system with ticketing, reporting, and communication features.",
+                MetaKeywords = "Customer Support, Ticketing System, Business Software",
+                ViewCount = 1897,
                 IsPublished = true,
                 PublishedDate = DateTime.UtcNow.AddDays(-15),
                 CreatedAt = DateTime.UtcNow.AddDays(-15)
@@ -766,27 +939,97 @@ public static class DbInitializer
                 Slug = "understanding-dependency-injection-dotnet",
                 Content = @"<p>Dependency Injection (DI) is a design pattern that helps create loosely coupled applications.</p>
                            <h2>Why Use Dependency Injection?</h2>
-                           <p>DI makes your code more testable, maintainable, and flexible.</p>",
+                           <p>DI makes your code more testable, maintainable, and flexible. It's a fundamental principle of SOLID design.</p>
+                           <h2>Types of Dependency Injection</h2>
+                           <ul>
+                               <li>Constructor Injection (most common and recommended)</li>
+                               <li>Property Injection</li>
+                               <li>Method Injection</li>
+                           </ul>
+                           <h2>Service Lifetimes in .NET Core</h2>
+                           <p>Understanding service lifetimes is crucial: Transient, Scoped, and Singleton. Each has its use cases and implications.</p>",
                 Summary = "Master the concepts of dependency injection in .NET applications.",
-                FeaturedImageUrl = "/images/blog/dependency-injection.jpg",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1517180102446-f3fb51b5f9f9?w=800&h=400&fit=crop",
                 CategoryId = tutorialCategory?.Id ?? 1,
                 AuthorId = blogAuthor?.Id ?? adminUser.Id,
-                ViewCount = 412,
+                Tags = "Dependency Injection,DI,Design Patterns,.NET,SOLID",
+                MetaTitle = "Understanding Dependency Injection in .NET - Complete Guide",
+                MetaDescription = "Master dependency injection in .NET with practical examples and best practices.",
+                MetaKeywords = "Dependency Injection, DI, .NET, Design Patterns",
+                ViewCount = 4127,
                 IsPublished = true,
                 PublishedDate = DateTime.UtcNow.AddDays(-10),
                 CreatedAt = DateTime.UtcNow.AddDays(-10)
             },
             new BlogPost
             {
-                Title = "Draft: Microservices Architecture Guide",
-                Slug = "microservices-architecture-guide",
-                Content = @"<p>This is a draft post about microservices architecture...</p>",
-                Summary = "Comprehensive guide to microservices architecture (Draft)",
+                Title = "Cloud Migration Strategies for Enterprise Applications",
+                Slug = "cloud-migration-strategies-enterprise",
+                Content = @"<p>Moving enterprise applications to the cloud requires careful planning and execution. Let's explore proven migration strategies.</p>
+                           <h2>The 6 R's of Cloud Migration</h2>
+                           <ul>
+                               <li>Rehost (Lift and Shift)</li>
+                               <li>Replatform (Lift, Tinker, and Shift)</li>
+                               <li>Repurchase (Drop and Shop)</li>
+                               <li>Refactor/Re-architect</li>
+                               <li>Retire</li>
+                               <li>Retain</li>
+                           </ul>
+                           <h2>Choosing the Right Strategy</h2>
+                           <p>Consider factors like business goals, technical debt, compliance requirements, and available resources when selecting your migration approach.</p>",
+                Summary = "Comprehensive guide to cloud migration strategies for enterprise applications.",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=400&fit=crop",
+                CategoryId = businessCategory?.Id ?? 1,
+                AuthorId = adminUser.Id,
+                Tags = "Cloud Migration,AWS,Azure,Enterprise,DevOps",
+                MetaTitle = "Cloud Migration Strategies for Enterprise Applications",
+                MetaDescription = "Learn proven cloud migration strategies for moving enterprise applications to AWS, Azure, or Google Cloud.",
+                MetaKeywords = "Cloud Migration, Enterprise, AWS, Azure",
+                ViewCount = 2341,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-8),
+                CreatedAt = DateTime.UtcNow.AddDays(-8)
+            },
+            new BlogPost
+            {
+                Title = "Real-time Applications with SignalR in ASP.NET Core",
+                Slug = "realtime-applications-signalr-aspnet-core",
+                Content = @"<p>SignalR makes it incredibly easy to add real-time web functionality to your applications. Let's build a real-time chat application.</p>
+                           <h2>What is SignalR?</h2>
+                           <p>SignalR is a library that simplifies adding real-time web functionality to apps. Real-time web functionality enables server-side code to push content to clients instantly.</p>
+                           <h2>Use Cases</h2>
+                           <ul>
+                               <li>Chat applications</li>
+                               <li>Real-time dashboards</li>
+                               <li>Collaborative editing</li>
+                               <li>Live notifications</li>
+                               <li>Gaming applications</li>
+                           </ul>",
+                Summary = "Build real-time applications with SignalR in ASP.NET Core.",
+                FeaturedImageUrl = "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=800&h=400&fit=crop",
+                CategoryId = tutorialCategory?.Id ?? 1,
+                AuthorId = blogAuthor?.Id ?? adminUser.Id,
+                Tags = "SignalR,Real-time,WebSockets,ASP.NET Core,Chat",
+                MetaTitle = "Real-time Applications with SignalR in ASP.NET Core",
+                MetaDescription = "Learn how to build real-time applications using SignalR in ASP.NET Core with practical examples.",
+                MetaKeywords = "SignalR, Real-time, WebSockets, ASP.NET Core",
+                ViewCount = 3567,
+                IsPublished = true,
+                PublishedDate = DateTime.UtcNow.AddDays(-5),
+                CreatedAt = DateTime.UtcNow.AddDays(-5)
+            },
+            new BlogPost
+            {
+                Title = "Draft: Advanced Caching Strategies in .NET",
+                Slug = "advanced-caching-strategies-dotnet",
+                Content = @"<p>This is a draft post about advanced caching strategies in .NET applications...</p>",
+                Summary = "Explore advanced caching strategies to improve application performance (Draft)",
                 CategoryId = techCategory?.Id ?? 1,
                 AuthorId = adminUser.Id,
+                Tags = "Caching,Performance,Redis,.NET",
                 ViewCount = 0,
                 IsPublished = false,
-                CreatedAt = DateTime.UtcNow.AddDays(-5)
+                CreatedAt = DateTime.UtcNow.AddDays(-3)
             }
         };
 

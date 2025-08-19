@@ -42,6 +42,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     
     // File Management Entities
     public DbSet<FileDocument> FileDocuments { get; set; }
+    
+    // Comment Entities
+    public DbSet<Comment> Comments { get; set; }
+    public DbSet<CommentAttachment> CommentAttachments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -1,0 +1,65 @@
+@using Microsoft.AspNetCore.Identity
+@using Nexora.Core.Entities
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "System Documentation";
+    
+    // Get current user's IsSuperAdmin status
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isSuperAdmin = currentUser?.IsSuperAdmin ?? false;
+    
+    // Redirect if not SuperAdmin
+    if (!isSuperAdmin)
+    {
+        Context.Response.Redirect(Url.Action("Index", "Home"));
+        return;
+    }
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="fas fa-book text-primary me-2"></i>System Documentation
+                </h2>
+                <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Admin
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documentation Content -->
+    @await Html.PartialAsync("_DocumentationTabs")
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize documentation tabs
+            if ($('#documentationTabs').length > 0) {
+                $('.theme-card').hide().show(0);
+                
+                // Initialize Bootstrap tabs manually if needed
+                var triggerTabList = [].slice.call(document.querySelectorAll('#documentationTabs button'))
+                triggerTabList.forEach(function (triggerEl) {
+                    var tabTrigger = new bootstrap.Tab(triggerEl)
+                    
+                    triggerEl.addEventListener('click', function (event) {
+                        event.preventDefault()
+                        tabTrigger.show()
+                    })
+                });
+                
+                // Ensure first tab is active
+                var firstTab = document.querySelector('#documentationTabs button.nav-link.active');
+                if (firstTab) {
+                    var tab = new bootstrap.Tab(firstTab);
+                    tab.show();
+                }
+            }
+        });
+    </script>
+}

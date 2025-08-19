@@ -30,6 +30,19 @@ public class AdminController : BaseController
         return View();
     }
 
+    [HttpGet]
+    public IActionResult Documentation()
+    {
+        // Check if user is SuperAdmin
+        var user = HttpContext.User;
+        if (!user.Identity?.IsAuthenticated ?? true)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        return View();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ReseedData()

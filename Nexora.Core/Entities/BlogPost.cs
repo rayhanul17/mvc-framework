@@ -47,4 +47,11 @@ public class BlogPost : BaseEntity
     public virtual BlogCategory Category { get; set; } = null!;
     
     public virtual ApplicationUser? Author { get; set; }
+    
+    // Comments
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    
+    // Comment settings
+    public bool CommentsEnabled { get; set; } = true;
+    public bool RequireCommentApproval { get; set; } = false;
 }

@@ -58,6 +58,7 @@
     <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
     
     <!-- Site Styles -->
+    <link rel="stylesheet" href="~/css/theme-variables.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Nexora.Web.styles.css" asp-append-version="true" />
@@ -207,6 +208,23 @@
         </div>
     </div>
 
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        var layoutUser = await UserManager.GetUserAsync(User);
+        var isLayoutSuperAdmin = layoutUser?.IsSuperAdmin ?? false;
+        
+        @if (isLayoutSuperAdmin)
+        {
+            <!-- Floating Documentation Button for Super Admin -->
+            <div class="floating-doc-btn">
+                <a href="@Url.Action("Documentation", "Admin")" 
+                   class="btn btn-primary rounded-circle">
+                    <i class="fas fa-book fa-lg"></i>
+                </a>
+            </div>
+        }
+    }
+    
     <!-- Global Loading Mask -->
     <div id="loadingMask" class="loading-mask" style="display: none;">
         <div class="loading-content">
