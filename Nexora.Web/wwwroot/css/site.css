@@ -64,7 +64,105 @@ body {
   background-color: transparent !important;
 }
 
-/* Responsive improvements */
+/* Tablet/iPad specific improvements */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Better spacing for tablets */
+  .container, .container-fluid {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  /* Optimize card layouts for tablets */
+  .row > [class*="col-"] {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Better button sizes for touch */
+  .btn {
+    min-height: 44px;
+    padding: 0.5rem 1.25rem;
+  }
+  
+  /* Improve form controls for touch */
+  .form-control, .form-select {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Grid system adjustments for tablets */
+  .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  
+  .col-md-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  
+  /* Table improvements for tablets */
+  .table {
+    font-size: 0.95rem;
+  }
+  
+  /* Modal adjustments */
+  .modal-dialog {
+    max-width: 90%;
+    margin: 1.75rem auto;
+  }
+  
+  /* Dashboard cards optimization */
+  .card {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Better typography for reading */
+  p, .lead {
+    line-height: 1.7;
+  }
+  
+  /* Optimize images */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Portrait tablet specific */
+@media (min-width: 768px) and (max-width: 991.98px) and (orientation: portrait) {
+  /* Single column layout for better readability */
+  .col-md-3, .col-md-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  /* Larger text for portrait reading */
+  body {
+    font-size: 1.05rem;
+  }
+  
+  /* More padding for touch targets */
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+/* Landscape tablet specific */
+@media (min-width: 768px) and (max-width: 991.98px) and (orientation: landscape) {
+  /* Optimize for wider screens */
+  .col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+  
+  /* Reduce vertical spacing in landscape */
+  .my-4, .my-md-4 {
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* Small mobile improvements */
 @media (max-width: 575.98px) {
   .display-5 {
     font-size: 2rem;
@@ -81,6 +179,55 @@ body {
   
   .p-md-5 {
     padding: 1.5rem !important;
+  }
+  
+  /* Remove card padding on mobile */
+  .card-body {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .card {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 0;
+  }
+}
+
+/* Mobile card adjustments */
+@media (max-width: 767.98px) {
+  /* Remove horizontal padding from cards */
+  .card-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Full width cards on mobile */
+  .card {
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
+  }
+  
+  /* Adjust container padding to compensate */
+  .main-content {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  /* Keep padding for non-card content */
+  .main-content > .container,
+  .main-content > .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Full width for cards inside containers */
+  .container .card,
+  .container-fluid .card {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    width: calc(100% + 2rem);
   }
 }
 
@@ -150,6 +297,48 @@ body {
   
   .table-responsive .table {
     margin-bottom: 0;
+  }
+}
+
+/* DataTables responsive improvements for tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  /* Better DataTables display on tablets */
+  .dataTables_wrapper {
+    padding: 0.5rem;
+  }
+  
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+  }
+  
+  .dataTables_wrapper .dataTables_filter input {
+    min-height: 44px;
+    font-size: 16px;
+    width: 250px;
+  }
+  
+  .dataTables_wrapper .dataTables_length select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  
+  /* Better pagination for touch */
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem;
+    margin: 0 0.25rem;
+  }
+  
+  /* Responsive priority for important columns */
+  table.dataTable th.tablet-l-50 { display: table-cell !important; }
+  table.dataTable td.tablet-l-50 { display: table-cell !important; }
+  
+  /* Hide less important columns on portrait tablets */
+  @media (orientation: portrait) {
+    table.dataTable th.tablet-p-50 { display: none !important; }
+    table.dataTable td.tablet-p-50 { display: none !important; }
   }
 }
 

@@ -269,11 +269,39 @@
                 localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
             });
             
-            // Mobile responsive
-            if (window.innerWidth <= 768) {
-                sidebar.classList.add('collapsed');
-                content.classList.add('expanded');
+            // Responsive behavior based on screen size
+            function handleResponsive() {
+                const width = window.innerWidth;
+                const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+                
+                if (width < 768) {
+                    // Mobile phones
+                    sidebar.classList.add('collapsed');
+                    content.classList.add('expanded');
+                } else if (width >= 768 && width < 992) {
+                    // Tablets (iPad)
+                    if (isPortrait) {
+                        // Portrait mode - behave like mobile
+                        sidebar.classList.add('collapsed');
+                        content.classList.add('expanded');
+                    } else {
+                        // Landscape mode - show sidebar by default
+                        const savedState = localStorage.getItem('sidebarCollapsed');
+                        if (savedState !== 'true') {
+                            sidebar.classList.remove('collapsed');
+                            content.classList.remove('expanded');
+                        }
+                    }
+                }
+                // Desktop (>= 992px) - respect saved state
             }
+            
+            // Initial check
+            handleResponsive();
+            
+            // Handle orientation change for tablets
+            window.addEventListener('orientationchange', handleResponsive);
+            window.addEventListener('resize', handleResponsive);
             
             // Theme toggle - handle both desktop and mobile theme toggles
             const themeToggle = document.getElementById('theme-toggle');
@@ -478,7 +506,11 @@
         
         // Handle window resize
         window.addEventListener('resize', function() {
-            if (window.innerWidth >= 992) {
+            const width = window.innerWidth;
+            const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+            
+            // Close mobile menu on desktop and landscape tablets
+            if (width >= 992 || (width >= 768 && width < 992 && !isPortrait)) {
                 closeMobileMenu();
             }
         });
