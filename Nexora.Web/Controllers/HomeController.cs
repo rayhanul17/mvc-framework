@@ -33,6 +33,14 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
+        // Fix Dashboard menu if needed (temporary fix)
+        var dashboardMenu = await _context.Menus.FirstOrDefaultAsync(m => m.Name == "Dashboard" && m.Controller == "Home");
+        if (dashboardMenu != null && dashboardMenu.Action == "Index")
+        {
+            dashboardMenu.Action = "Dashboard";
+            await _context.SaveChangesAsync();
+        }
+        
         // Don't redirect authenticated users - show them the blog landing page too
         var model = new BlogLandingViewModel();
         

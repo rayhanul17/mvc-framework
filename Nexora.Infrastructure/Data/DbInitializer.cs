@@ -182,7 +182,7 @@ public static class DbInitializer
                 Name = "Dashboard",
                 DisplayName = "Dashboard",
                 Controller = "Home",
-                Action = "Index",
+                Action = "Dashboard",
                 Icon = "fas fa-tachometer-alt",
                 Order = 1,
                 IsActive = true
