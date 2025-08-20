@@ -32,7 +32,9 @@
       "WebFetch(domain:cdn.datatables.net)",
       "Bash(curl:*)",
       "Bash(dir:*)",
-      "Bash(dotnet remove:*)"
+      "Bash(dotnet remove:*)",
+      "Bash(mv:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }
