@@ -12,6 +12,9 @@ public class CustomerServiceRoleMapping : BaseEntity
     [StringLength(100)]
     public string AspNetRoleName { get; set; } = string.Empty;
     
+    [StringLength(450)]
+    public string? AspNetRoleId { get; set; }
+    
     [StringLength(500)]
     public string? Description { get; set; }
     

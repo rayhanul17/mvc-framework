@@ -66,6 +66,9 @@ public class BlogPostController : BaseController
                 return NotFound();
             }
 
+            // Increment view count
+            await _postService.IncrementViewCountAsync(id);
+
             System.Console.WriteLine("Returning view with post data");
             return View(post);
         }
@@ -303,6 +306,28 @@ public class BlogPostController : BaseController
         }
 
         return Json(new { success = false, message = result.ErrorMessage });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleCommentsVisibility(int id, bool visible)
+    {
+        var result = await _postService.GetByIdAsync(id);
+        if (!result.IsSuccess || result.Data == null)
+        {
+            return Json(new { success = false, message = "Post not found" });
+        }
+
+        var post = result.Data;
+        post.CommentsVisible = visible;
+        
+        var updateResult = await _postService.UpdateAsync(post);
+        if (updateResult.IsSuccess)
+        {
+            return Json(new { success = true });
+        }
+
+        return Json(new { success = false, message = updateResult.ErrorMessage });
     }
 
     private async Task LoadCategories()

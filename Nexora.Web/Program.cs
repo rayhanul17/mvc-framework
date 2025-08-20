@@ -64,6 +64,9 @@ builder.Services.AddScoped<IFileDocumentService, FileDocumentService>();
 // Add Comment Service
 builder.Services.AddScoped<ICommentService, CommentService>();
 
+// Add Role Authorization Service
+builder.Services.AddScoped<IRoleAuthorizationService, RoleAuthorizationService>();
+
 // Add Background Services
 builder.Services.AddHostedService<Nexora.Web.Services.LogArchiveBackgroundService>();
 builder.Services.AddHostedService<Nexora.Web.Services.HeartbeatService>();

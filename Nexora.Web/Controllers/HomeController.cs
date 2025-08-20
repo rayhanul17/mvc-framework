@@ -36,12 +36,13 @@ public class HomeController : Controller
         // Don't redirect authenticated users - show them the blog landing page too
         var model = new BlogLandingViewModel();
         
-        // Get featured posts (most recent published posts)
+        // Get featured posts (popular recent posts - balancing recency and views)
         model.FeaturedPosts = await _context.BlogPosts
             .Include(p => p.Category)
             .Include(p => p.Author)
             .Where(p => p.IsPublished)
-            .OrderByDescending(p => p.PublishedDate)
+            .OrderByDescending(p => p.ViewCount)
+            .ThenByDescending(p => p.PublishedDate)
             .Take(3)
             .Select(p => new BlogPostSummary
             {

@@ -15,4 +15,5 @@ public interface ICommentService
     Task<Result<bool>> RejectCommentAsync(int commentId, string? moderatorNotes = null);
     Task<Result<IEnumerable<Comment>>> GetPendingCommentsAsync();
     Task<Result<IEnumerable<Comment>>> GetCommentRepliesAsync(int parentCommentId);
+    Task<CommentAttachment?> GetAttachmentByIdAsync(int attachmentId);
 }

@@ -54,4 +54,5 @@ public class BlogPost : BaseEntity
     // Comment settings
     public bool CommentsEnabled { get; set; } = true;
     public bool RequireCommentApproval { get; set; } = false;
+    public bool CommentsVisible { get; set; } = true;
 }

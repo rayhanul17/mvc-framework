@@ -262,4 +262,18 @@ public class CommentService : ICommentService
             return Result<IEnumerable<Comment>>.Failure("Error retrieving comment replies");
         }
     }
+
+    public async Task<CommentAttachment?> GetAttachmentByIdAsync(int attachmentId)
+    {
+        try
+        {
+            return await _context.CommentAttachments
+                .FirstOrDefaultAsync(a => a.Id == attachmentId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting attachment {AttachmentId}", attachmentId);
+            return null;
+        }
+    }
 }

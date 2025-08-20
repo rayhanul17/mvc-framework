@@ -260,7 +260,7 @@
                             buttons += '<i class="fas fa-eye"></i></button>';
                             
                             // Delete button (if user has permission)
-                            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                            @if (await RoleAuthService.IsAdminAsync(User))
                             {
                                 @Html.Raw("buttons += '<button class=\"btn btn-danger delete-file\" data-id=\"' + row.id + '\" title=\"Delete\">';");
                                 @Html.Raw("buttons += '<i class=\"fas fa-trash\"></i></button>';");

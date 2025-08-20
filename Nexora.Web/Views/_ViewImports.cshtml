@@ -1,4 +1,9 @@
 @using Nexora.Web
 @using Nexora.Web.Models
 @using Nexora.Core.Entities
+@using Nexora.Core.Constants
+@using Nexora.Web.Extensions
+@using Nexora.Application.Services
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Nexora.Web
+@inject IRoleAuthorizationService RoleAuthService

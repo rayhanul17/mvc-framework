@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using Nexora.Application.Interfaces;
+using Nexora.Application.Services;
+using Nexora.Core.Constants;
 using Nexora.Core.Entities;
 using System.Security.Claims;
 
@@ -13,15 +16,21 @@ public class CommentController : Controller
     private readonly ICommentService _commentService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CommentController> _logger;
+    private readonly IRoleAuthorizationService _roleAuthService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
     public CommentController(
         ICommentService commentService,
         UserManager<ApplicationUser> userManager,
-        ILogger<CommentController> logger)
+        ILogger<CommentController> logger,
+        IRoleAuthorizationService roleAuthService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _commentService = commentService;
         _userManager = userManager;
         _logger = logger;
+        _roleAuthService = roleAuthService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     [HttpGet]
@@ -44,7 +53,10 @@ public class CommentController : Controller
                 {
                     id = a.Id,
                     fileName = a.FileName,
-                    filePath = a.FilePath
+                    filePath = a.FilePath,
+                    contentType = a.ContentType,
+                    fileSize = a.FileSize,
+                    isImage = IsImageFile(a.ContentType)
                 })
             });
             
@@ -114,7 +126,10 @@ public class CommentController : Controller
                         attachments = result.Data.Attachments?.Select(a => new {
                             id = a.Id,
                             fileName = a.FileName,
-                            filePath = a.FilePath
+                            filePath = a.FilePath,
+                            contentType = a.ContentType,
+                            fileSize = a.FileSize,
+                            isImage = IsImageFile(a.ContentType)
                         })
                     }
                 });
@@ -223,7 +238,8 @@ public class CommentController : Controller
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Only allow the author or admins to delete
-            if (comment.UserId != userId && !User.IsInRole("Administrator") && !User.IsInRole("SuperAdmin"))
+            var isAdmin = await _roleAuthService.IsAdminAsync(User);
+            if (comment.UserId != userId && !isAdmin)
             {
                 return Json(new { success = false, message = "You are not authorized to delete this comment" });
             }
@@ -245,24 +261,96 @@ public class CommentController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> DownloadAttachment(int attachmentId)
+    [AllowAnonymous]
+    public async Task<IActionResult> DownloadAttachment(int id)
     {
         try
         {
-            // This would need to be implemented with proper security checks
-            // For now, return a placeholder
-            return NotFound();
+            var attachment = await _commentService.GetAttachmentByIdAsync(id);
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, attachment.FilePath.TrimStart('/', '\\'));
+            
+            if (!System.IO.File.Exists(filePath))
+            {
+                _logger.LogWarning("Attachment file not found: {FilePath}", filePath);
+                return NotFound();
+            }
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+
+            var contentType = attachment.ContentType ?? "application/octet-stream";
+            
+            // For images, return inline so they can be displayed
+            if (IsImageFile(contentType))
+            {
+                return File(memory, contentType);
+            }
+            
+            // For other files, force download
+            return File(memory, contentType, attachment.FileName);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error downloading attachment {AttachmentId}", attachmentId);
+            _logger.LogError(ex, "Error downloading attachment {AttachmentId}", id);
             return NotFound();
         }
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> PreviewAttachment(int id)
+    {
+        try
+        {
+            var attachment = await _commentService.GetAttachmentByIdAsync(id);
+            if (attachment == null)
+            {
+                return NotFound();
+            }
+
+            // Only preview images
+            if (!IsImageFile(attachment.ContentType))
+            {
+                return BadRequest("File is not an image");
+            }
+
+            var filePath = Path.Combine(_webHostEnvironment.WebRootPath, attachment.FilePath.TrimStart('/', '\\'));
+            
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound();
+            }
+
+            var imageBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+            return File(imageBytes, attachment.ContentType ?? "image/jpeg");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error previewing attachment {AttachmentId}", id);
+            return NotFound();
+        }
+    }
+
+    private bool IsImageFile(string? contentType)
+    {
+        if (string.IsNullOrEmpty(contentType))
+            return false;
+            
+        return contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+    }
+
     // Admin endpoints
     [HttpGet]
-    [Authorize(Roles = "Administrator,SuperAdmin")]
+    [Authorize]
     public async Task<IActionResult> GetPendingComments()
     {
         var result = await _commentService.GetPendingCommentsAsync();
@@ -276,7 +364,7 @@ public class CommentController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Administrator,SuperAdmin")]
+    [Authorize]
     public async Task<IActionResult> ApproveComment(int commentId)
     {
         var result = await _commentService.ApproveCommentAsync(commentId);
@@ -290,7 +378,7 @@ public class CommentController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Administrator,SuperAdmin")]
+    [Authorize]
     public async Task<IActionResult> RejectComment(int commentId, string? moderatorNotes = null)
     {
         var result = await _commentService.RejectCommentAsync(commentId, moderatorNotes);

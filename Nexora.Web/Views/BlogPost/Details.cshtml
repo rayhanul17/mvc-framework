@@ -57,9 +57,9 @@
     @Html.Raw("</nav>")
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-8">
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
             <article class="blog-post">
                 <header class="blog-post-header mb-4">
                     @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
@@ -82,6 +82,8 @@
                                 <span class="mx-2">|</span>
                                 <i class="fas fa-folder"></i> @Model.Category.Name
                             }
+                            <span class="mx-2">|</span>
+                            <i class="fas fa-eye"></i> @Model.ViewCount views
                         </small>
                     </div>
 
@@ -113,17 +115,28 @@
             @if (Model.CommentsEnabled)
             {
                 <section class="comments-section mt-5">
-                    <h3 class="comments-title mb-4">
-                        <i class="fas fa-comments"></i> Comments
-                        <span id="comments-count" class="badge bg-primary ms-2">0</span>
-                    </h3>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="comments-title mb-0">
+                            <i class="fas fa-comments"></i> Comments
+                            <span id="comments-count" class="badge bg-primary ms-2">0</span>
+                        </h3>
+                        @if (User.Identity?.IsAuthenticated == true && await RoleAuthService.IsAdminAsync(User))
+                        {
+                            <button id="toggle-comments-visibility" class="btn btn-sm btn-outline-secondary" data-visible="@Model.CommentsVisible.ToString().ToLower()">
+                                <i class="fas fa-eye@(!Model.CommentsVisible ? "-slash" : "")"></i>
+                                @(Model.CommentsVisible ? "Hide" : "Show") Comments
+                            </button>
+                        }
+                    </div>
 
-                    <!-- Comment Form -->
-                    <div class="comment-form mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Leave a Comment</h5>
-                                <form id="comment-form">
+                    <!-- Comment Form and List -->
+                    <div id="comments-container" style="@(!Model.CommentsVisible ? "display: none;" : "")">
+                        <div class="comment-form mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Leave a Comment</h5>
+                                    <form id="comment-form">
+                                        @Html.AntiForgeryToken()
                                     @if (!User.Identity!.IsAuthenticated)
                                     {
                                         <div class="row mb-3">
@@ -150,11 +163,12 @@
                         </div>
                     </div>
 
-                    <!-- Comments List -->
-                    <div id="comments-list" class="comments-list">
-                        <div class="text-center py-4">
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading comments...</span>
+                        <!-- Comments List -->
+                        <div id="comments-list" class="comments-list">
+                            <div class="text-center py-4">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading comments...</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -166,36 +180,33 @@
                     <i class="fas fa-info-circle"></i> Comments are disabled for this post.
                 </div>
             }
-        </div>
-
-        <div class="col-lg-4">
-            <div class="sidebar">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Post Information</h5>
+            
+            <!-- Post Information and Admin Actions -->
+            <div class="mt-5 pt-4 border-top">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Post Information</h5>
                         <ul class="list-unstyled">
                             <li><strong>Published:</strong> @Model.PublishedDate?.ToString("MMM dd, yyyy")</li>
                             <li><strong>Category:</strong> @(Model.Category?.Name ?? "Uncategorized")</li>
                             <li><strong>Author:</strong> @(Model.Author?.FullName ?? "Unknown")</li>
+                            <li><strong>Views:</strong> @Model.ViewCount</li>
                             @if (Model.UpdatedAt.HasValue && Model.UpdatedAt != Model.CreatedAt)
                             {
                                 <li><strong>Last Updated:</strong> @Model.UpdatedAt.Value.ToString("MMM dd, yyyy")</li>
                             }
                         </ul>
                     </div>
-                </div>
-
-                @if (User.Identity.IsAuthenticated && (User.IsInRole("Administrator") || User.IsInRole("SuperAdmin")))
-                {
-                    <div class="card mt-3">
-                        <div class="card-body">
-                            <h5 class="card-title">Admin Actions</h5>
+                    @if (User.Identity?.IsAuthenticated == true && await RoleAuthService.IsAdminAsync(User))
+                    {
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Admin Actions</h5>
                             <a href="@Url.Action("CreateEdit", "BlogPost", new { id = Model.Id })" class="btn btn-sm btn-warning">
                                 <i class="fas fa-edit"></i> Edit Post
                             </a>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -215,6 +226,36 @@
             $('#comment-form').on('submit', function(e) {
                 e.preventDefault();
                 submitComment();
+            });
+            
+            // Handle toggle comments visibility (admin only)
+            $('#toggle-comments-visibility').on('click', function() {
+                const button = $(this);
+                const isVisible = button.data('visible') === 'true';
+                
+                $.ajax({
+                    url: '/BlogPost/ToggleCommentsVisibility',
+                    type: 'POST',
+                    data: { 
+                        id: blogPostId,
+                        visible: !isVisible,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            const newVisibility = !isVisible;
+                            button.data('visible', newVisibility.toString());
+                            
+                            if (newVisibility) {
+                                $('#comments-container').slideDown();
+                                button.html('<i class="fas fa-eye"></i> Hide Comments');
+                            } else {
+                                $('#comments-container').slideUp();
+                                button.html('<i class="fas fa-eye-slash"></i> Show Comments');
+                            }
+                        }
+                    }
+                });
             });
             
             function loadComments() {
@@ -277,12 +318,42 @@
                 html += '<div class="comment-content">' + escapeHtml(comment.content) + '</div>';
                 
                 if (comment.attachments && comment.attachments.length > 0) {
-                    html += '<div class="comment-attachments mt-2">';
-                    comment.attachments.forEach(function(attachment) {
-                        html += '<a href="/Comment/DownloadAttachment/' + attachment.id + '" class="btn btn-sm btn-outline-secondary me-2">';
-                        html += '<i class="fas fa-paperclip"></i> ' + escapeHtml(attachment.fileName);
-                        html += '</a>';
-                    });
+                    html += '<div class="comment-attachments mt-3">';
+                    
+                    // Separate images from other attachments
+                    var images = comment.attachments.filter(a => a.isImage);
+                    var files = comment.attachments.filter(a => !a.isImage);
+                    
+                    // Display image previews
+                    if (images.length > 0) {
+                        html += '<div class="attachment-images mb-2">';
+                        images.forEach(function(attachment) {
+                            html += '<div class="image-preview-wrapper d-inline-block me-2 mb-2">';
+                            html += '<a href="/Comment/PreviewAttachment/' + attachment.id + '" target="_blank" class="d-block">';
+                            html += '<img src="/Comment/PreviewAttachment/' + attachment.id + '" ';
+                            html += 'class="img-thumbnail" style="max-width: 200px; max-height: 200px; cursor: pointer;" ';
+                            html += 'alt="' + escapeHtml(attachment.fileName) + '" ';
+                            html += 'title="Click to view full size" />';
+                            html += '</a>';
+                            html += '<small class="d-block text-center text-muted">' + escapeHtml(attachment.fileName) + '</small>';
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    }
+                    
+                    // Display other file attachments
+                    if (files.length > 0) {
+                        html += '<div class="attachment-files">';
+                        files.forEach(function(attachment) {
+                            html += '<a href="/Comment/DownloadAttachment/' + attachment.id + '" ';
+                            html += 'class="btn btn-sm btn-outline-secondary me-2 mb-2" download>';
+                            html += '<i class="fas fa-download"></i> ' + escapeHtml(attachment.fileName);
+                            html += ' (' + formatFileSize(attachment.fileSize) + ')';
+                            html += '</a>';
+                        });
+                        html += '</div>';
+                    }
+                    
                     html += '</div>';
                 }
                 
@@ -382,6 +453,14 @@
                 return div.innerHTML;
             }
             
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+            }
+            
             function showAlert(type, message) {
                 var alertHtml = '<div class="alert alert-' + type + ' alert-dismissible fade show" role="alert">';
                 alertHtml += message;
@@ -410,6 +489,9 @@
 }
 else
 {
+    @Html.Raw("<!-- jQuery needs to be loaded before our scripts -->")
+    @Html.Raw("<script src=\"https://code.jquery.com/jquery-3.6.0.min.js\"></script>")
+    
     <!-- Script for non-authenticated users (no layout) -->
     <script>
         $(document).ready(function() {
@@ -484,12 +566,42 @@ else
                 html += '<div class="comment-content">' + escapeHtml(comment.content) + '</div>';
                 
                 if (comment.attachments && comment.attachments.length > 0) {
-                    html += '<div class="comment-attachments mt-2">';
-                    comment.attachments.forEach(function(attachment) {
-                        html += '<a href="/Comment/DownloadAttachment/' + attachment.id + '" class="btn btn-sm btn-outline-secondary me-2">';
-                        html += '<i class="fas fa-paperclip"></i> ' + escapeHtml(attachment.fileName);
-                        html += '</a>';
-                    });
+                    html += '<div class="comment-attachments mt-3">';
+                    
+                    // Separate images from other attachments
+                    var images = comment.attachments.filter(a => a.isImage);
+                    var files = comment.attachments.filter(a => !a.isImage);
+                    
+                    // Display image previews
+                    if (images.length > 0) {
+                        html += '<div class="attachment-images mb-2">';
+                        images.forEach(function(attachment) {
+                            html += '<div class="image-preview-wrapper d-inline-block me-2 mb-2">';
+                            html += '<a href="/Comment/PreviewAttachment/' + attachment.id + '" target="_blank" class="d-block">';
+                            html += '<img src="/Comment/PreviewAttachment/' + attachment.id + '" ';
+                            html += 'class="img-thumbnail" style="max-width: 200px; max-height: 200px; cursor: pointer;" ';
+                            html += 'alt="' + escapeHtml(attachment.fileName) + '" ';
+                            html += 'title="Click to view full size" />';
+                            html += '</a>';
+                            html += '<small class="d-block text-center text-muted">' + escapeHtml(attachment.fileName) + '</small>';
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    }
+                    
+                    // Display other file attachments
+                    if (files.length > 0) {
+                        html += '<div class="attachment-files">';
+                        files.forEach(function(attachment) {
+                            html += '<a href="/Comment/DownloadAttachment/' + attachment.id + '" ';
+                            html += 'class="btn btn-sm btn-outline-secondary me-2 mb-2" download>';
+                            html += '<i class="fas fa-download"></i> ' + escapeHtml(attachment.fileName);
+                            html += ' (' + formatFileSize(attachment.fileSize) + ')';
+                            html += '</a>';
+                        });
+                        html += '</div>';
+                    }
+                    
                     html += '</div>';
                 }
                 
@@ -574,6 +686,14 @@ else
                 var div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
             }
             
             function showAlert(type, message) {
@@ -665,12 +785,40 @@ else
         padding-bottom: 0.5rem;
         margin-bottom: 1rem;
     }
+    
+    .image-preview-wrapper {
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+    }
+    
+    .image-preview-wrapper img {
+        border: 2px solid #dee2e6;
+        border-radius: 4px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .image-preview-wrapper img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-color: #007bff;
+    }
+    
+    .attachment-images {
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    
+    .attachment-files .btn {
+        margin-bottom: 5px;
+    }
 </style>
 
 @if (Layout == null)
 {
-    @Html.Raw("<!-- jQuery and Bootstrap JS -->")
-    @Html.Raw("<script src=\"https://code.jquery.com/jquery-3.6.0.min.js\"></script>")
+    @Html.Raw("<!-- Bootstrap JS (jQuery already loaded above) -->")
     @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js\"></script>")
     
     @Html.Raw("</body>")

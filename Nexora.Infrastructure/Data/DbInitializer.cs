@@ -410,6 +410,18 @@ public static class DbInitializer
                     ParentId = supportMenu.Id,
                     Order = 3,
                     IsActive = true
+                },
+                new Menu
+                {
+                    Name = "Configuration",
+                    DisplayName = "Configuration",
+                    Area = "CustomerSupport",
+                    Controller = "Configuration",
+                    Action = "Index",
+                    Icon = "fas fa-cog",
+                    ParentId = supportMenu.Id,
+                    Order = 4,
+                    IsActive = true
                 }
             };
             

@@ -14,7 +14,7 @@
             <a asp-action="Footer" class="btn btn-info">
                 <i class="fas fa-shoe-prints"></i> Footer
             </a>
-            @if (User.IsInRole("SuperAdmin"))
+            @if (await RoleAuthService.IsSuperAdminAsync(User))
             {
                 <a asp-action="CreateEdit" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Add Setting
@@ -176,7 +176,7 @@
                                                    class="btn btn-outline-primary btn-sm" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                @if (User.IsInRole("SuperAdmin") && !setting.IsSystemSetting)
+                                                @if (await RoleAuthService.IsSuperAdminAsync(User) && !setting.IsSystemSetting)
                                                 {
                                                     <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
                                                             onclick="return showDeleteModal('@Url.Action("Delete", "SiteSetting", new { id = setting.Id })', @Html.Raw(Json.Serialize(setting.Key)), 'site setting', @Html.Raw(Json.Serialize($"<small class='text-muted'>{setting.Description ?? ""}</small>")))">
@@ -199,7 +199,7 @@
         <div class="text-center py-5">
             <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
             <p class="text-muted">No site settings found.</p>
-            @if (User.IsInRole("SuperAdmin"))
+            @if (await RoleAuthService.IsSuperAdminAsync(User))
             {
                 <a asp-action="CreateEdit" class="btn btn-primary">Create First Setting</a>
             }
@@ -208,7 +208,7 @@
 </div>
 
 <!-- Reset Confirmation Modal -->
-@if (User.IsInRole("SuperAdmin"))
+@if (await RoleAuthService.IsSuperAdminAsync(User))
 {
     <div class="modal fade" id="resetModal" tabindex="-1">
         <div class="modal-dialog">
