@@ -1,0 +1,213 @@
+@model Nexora.Web.Models.CategoryViewModel
+@{
+    ViewData["Title"] = Model.CategoryName;
+    Layout = "_Layout";
+}
+
+<style>
+    .category-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        margin-top: -1.5rem;
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+    }
+    
+    .category-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+    }
+    
+    .category-description {
+        font-size: 1.1rem;
+        opacity: 0.95;
+        margin-top: 0.5rem;
+    }
+    
+    .posts-container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.5rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .post-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 200px;
+    }
+    
+    .post-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .post-content {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .post-title {
+        font-size: 1.5rem;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .post-title:hover {
+        color: #667eea;
+    }
+    
+    .post-summary {
+        color: #6c757d;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+    }
+    
+    .post-meta {
+        display: flex;
+        gap: 1.5rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .post-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .tag {
+        background: #f0f2f5;
+        color: #495057;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    .tag:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .no-posts {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    @@media (max-width: 768px) {
+        .category-header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .post-card {
+            grid-template-columns: 1fr;
+        }
+        
+        .post-image {
+            height: 200px;
+        }
+        
+        .post-content {
+            padding: 1rem;
+        }
+        
+        .post-title {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<div class="category-header">
+    <div class="container">
+        <h1>@Model.CategoryName</h1>
+        @if (!string.IsNullOrEmpty(Model.CategoryDescription))
+        {
+            <p class="category-description">@Model.CategoryDescription</p>
+        }
+        <p class="category-description">@Model.Posts.Count posts in this category</p>
+    </div>
+</div>
+
+<div class="container">
+    <a href="/" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+    
+    @if (Model.Posts.Any())
+    {
+        <div class="posts-container">
+            @foreach (var post in Model.Posts)
+            {
+                <div class="post-card">
+                    <div>
+                        <img src="@post.FeaturedImageUrl" alt="@post.Title" class="post-image" />
+                    </div>
+                    <div class="post-content">
+                        <a href="/BlogPost/Details/@post.Id/@post.Slug" class="post-title">
+                            @post.Title
+                        </a>
+                        <p class="post-summary">@post.Summary</p>
+                        <div class="post-meta">
+                            <span><i class="fas fa-user"></i> @post.AuthorName</span>
+                            <span><i class="fas fa-calendar"></i> @(post.PublishedDate?.ToString("MMM dd, yyyy") ?? "Not published")</span>
+                            <span><i class="fas fa-eye"></i> @post.ViewCount views</span>
+                        </div>
+                        @if (post.Tags != null && post.Tags.Any())
+                        {
+                            <div class="post-tags">
+                                @foreach (var tag in post.Tags.Take(5))
+                                {
+                                    <a href="/Home/Tag/@tag" class="tag">@tag</a>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="no-posts">
+            <i class="fas fa-folder-open fa-3x" style="color: #dee2e6; margin-bottom: 1rem;"></i>
+            <h3>No posts in this category yet</h3>
+            <p>Check back later for new content!</p>
+        </div>
+    }
+</div>

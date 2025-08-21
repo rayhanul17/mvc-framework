@@ -15,6 +15,18 @@
     }
 }
 
+<style>
+    .featured-image-container {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .featured-image-container img {
+        max-width: 100%;
+        height: auto;
+        display: inline-block;
+    }
+</style>
+
 @if (Layout == null)
 {
     @Html.Raw("<!DOCTYPE html>")
@@ -34,6 +46,8 @@
     @Html.Raw("<style>")
     @Html.Raw("body { padding-top: 20px; background-color: #f8f9fa; }")
     @Html.Raw(".navbar-simple { background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.1); padding: 1rem 0; margin-bottom: 2rem; }")
+    @Html.Raw(".featured-image-container { text-align: center; margin-bottom: 2rem; }")
+    @Html.Raw(".featured-image-container img { max-width: 100%; height: auto; display: inline-block; }")
     @Html.Raw("</style>")
     @Html.Raw("</head>")
     @Html.Raw("<body>")
@@ -64,7 +78,9 @@
                 <header class="blog-post-header mb-4">
                     @if (!string.IsNullOrEmpty(Model.FeaturedImageUrl))
                     {
-                        <img src="@Model.FeaturedImageUrl" alt="@Model.Title" class="img-fluid rounded mb-3" />
+                        <div class="featured-image-container">
+                            <img src="@Model.FeaturedImageUrl" alt="@Model.Title" class="img-fluid rounded" />
+                        </div>
                     }
                     
                     <h1 class="blog-post-title">@Model.Title</h1>

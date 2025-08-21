@@ -205,25 +205,13 @@ using (var scope = app.Services.CreateScope())
         Log.Information("Starting database initialization...");
         try
         {
-            var seedTask = Nexora.Infrastructure.Data.DbInitializer.InitializeAsync(services);
-            if (await Task.WhenAny(seedTask, Task.Delay(TimeSpan.FromSeconds(30))) == seedTask)
-            {
-                await seedTask; // Ensure any exceptions are observed
-                Log.Information("Database initialization completed");
-            }
-            else
-            {
-                Log.Warning("Database initialization is taking longer than expected, continuing...");
-            }
+            await Nexora.Infrastructure.Data.DbInitializer.InitializeAsync(services);
+            Log.Information("Database initialization completed");
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Failed to initialize database");
-            // Don't throw in production - allow app to start even if seeding fails
-            if (app.Environment.IsDevelopment())
-            {
-                throw;
-            }
+            Log.Error(ex, "Failed to initialize database: {Message}", ex.Message);
+            // Continue even if seeding fails - app can still work
         }
         
         // Ensure Site Settings menu exists and is assigned to SuperAdmin
@@ -248,28 +236,31 @@ using (var scope = app.Services.CreateScope())
 }
 
     Log.Information("Starting application...");
-    Log.Information($"Application URLs: {string.Join(", ", app.Urls)}");
     Log.Information("Application is ready. Navigate to http://localhost:5266 in your browser.");
     
-    // Open browser manually on Windows
+    // Launch browser in background after a short delay
     if (app.Environment.IsDevelopment() && OperatingSystem.IsWindows())
     {
-        try
+        _ = Task.Run(async () =>
         {
-            var psi = new System.Diagnostics.ProcessStartInfo
+            await Task.Delay(3000); // Wait for server to start
+            try
             {
-                FileName = "cmd",
-                Arguments = "/c start http://localhost:5266",
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-            System.Diagnostics.Process.Start(psi);
-            Log.Information("Browser launch initiated");
-        }
-        catch (Exception ex)
-        {
-            Log.Warning(ex, "Could not open browser automatically");
-        }
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd",
+                    Arguments = "/c start http://localhost:5266",
+                    CreateNoWindow = true,
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(psi);
+                Log.Information("Browser opened successfully");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex, "Could not open browser automatically");
+            }
+        });
     }
     
     app.Run();

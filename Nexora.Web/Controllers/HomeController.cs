@@ -7,6 +7,7 @@ using Nexora.Application.Interfaces;
 using Nexora.Core.Entities;
 using Nexora.Infrastructure.Data;
 using Nexora.Web.Models;
+using Nexora.Web.Models.ViewModels;
 using System.Security.Claims;
 
 namespace Nexora.Web.Controllers;
@@ -266,6 +267,121 @@ public class HomeController : Controller
         }
 
         return model;
+    }
+
+    [AllowAnonymous]
+    public async Task<IActionResult> Category(string slug)
+    {
+        if (string.IsNullOrEmpty(slug))
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        var category = await _context.BlogCategories
+            .FirstOrDefaultAsync(c => c.Slug == slug && c.IsActive);
+
+        if (category == null)
+        {
+            return NotFound();
+        }
+
+        // Debug logging
+        _logger.LogInformation($"Category found: {category.Name} (ID: {category.Id})");
+        
+        var posts = await _context.BlogPosts
+            .Include(p => p.Category)
+            .Include(p => p.Author)
+            .Where(p => p.CategoryId == category.Id && p.IsPublished)
+            .OrderByDescending(p => p.PublishedDate)
+            .Select(p => new BlogPostViewModel
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Slug = p.Slug ?? "",
+                Summary = p.Summary ?? "",
+                FeaturedImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+                CategoryName = p.Category != null ? p.Category.Name : "",
+                CategorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
+                AuthorName = p.Author != null ? p.Author.FullName : "Anonymous",
+                PublishedDate = p.PublishedDate ?? p.CreatedAt,
+                ViewCount = p.ViewCount,
+                Tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
+            })
+            .ToListAsync();
+
+        // Get site settings
+        var siteSettings = await _siteSettingService.GetAllSettingsAsync();
+        var siteName = "Nexora Framework";
+        if (siteSettings.IsSuccess && siteSettings.Data != null)
+        {
+            siteName = siteSettings.Data.FirstOrDefault(s => s.Key == "SiteName")?.Value ?? "Nexora Framework";
+        }
+
+        _logger.LogInformation($"Returning {posts.Count} posts for category {category.Name}");
+        
+        var model = new CategoryViewModel
+        {
+            CategoryName = category.Name,
+            CategorySlug = category.Slug ?? "",
+            CategoryDescription = category.Description ?? "",
+            Posts = posts,
+            SiteName = siteName
+        };
+
+        return View(model);
+    }
+
+    [AllowAnonymous]
+    public async Task<IActionResult> Tag(string tag)
+    {
+        if (string.IsNullOrEmpty(tag))
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Decode URL encoded characters
+        tag = System.Net.WebUtility.UrlDecode(tag);
+        
+        _logger.LogInformation($"Searching for posts with tag: {tag}");
+
+        var posts = await _context.BlogPosts
+            .Include(p => p.Category)
+            .Include(p => p.Author)
+            .Where(p => p.IsPublished && p.Tags != null && p.Tags.Contains(tag))
+            .OrderByDescending(p => p.PublishedDate)
+            .Select(p => new BlogPostViewModel
+            {
+                Id = p.Id,
+                Title = p.Title,
+                Slug = p.Slug ?? "",
+                Summary = p.Summary ?? "",
+                FeaturedImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+                CategoryName = p.Category != null ? p.Category.Name : "",
+                CategorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
+                AuthorName = p.Author != null ? p.Author.FullName : "Anonymous",
+                PublishedDate = p.PublishedDate ?? p.CreatedAt,
+                ViewCount = p.ViewCount,
+                Tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
+            })
+            .ToListAsync();
+
+        // Get site settings
+        var siteSettings = await _siteSettingService.GetAllSettingsAsync();
+        var siteName = "Nexora Framework";
+        if (siteSettings.IsSuccess && siteSettings.Data != null)
+        {
+            siteName = siteSettings.Data.FirstOrDefault(s => s.Key == "SiteName")?.Value ?? "Nexora Framework";
+        }
+
+        var model = new TagViewModel
+        {
+            TagName = tag,
+            Posts = posts,
+            SiteName = siteName,
+            PostCount = posts.Count
+        };
+
+        return View(model);
     }
 
     public IActionResult Privacy()

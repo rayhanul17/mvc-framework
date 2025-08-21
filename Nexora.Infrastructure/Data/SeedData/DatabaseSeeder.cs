@@ -39,6 +39,14 @@ public static class DatabaseSeeder
             // 4. Seed Site Settings (essential for app configuration)
             logger.LogInformation("Seeding site settings...");
             await SiteSettingSeeder.SeedAsync(context);
+            
+            // 5. Seed Blog Categories
+            logger.LogInformation("Seeding blog categories...");
+            await BlogCategorySeeder.SeedAsync(context);
+            
+            // 6. Seed Blog Posts (depends on Categories and Users)
+            logger.LogInformation("Seeding blog posts...");
+            await BlogPostSeeder.SeedAsync(context, userManager);
 
             logger.LogInformation("Database seeding completed successfully.");
         }

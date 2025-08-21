@@ -39,7 +39,7 @@ public class BlogPostViewModel
     
     [StringLength(500, ErrorMessage = "Tags cannot exceed 500 characters")]
     [Display(Name = "Tags (comma separated)")]
-    public string? Tags { get; set; }
+    public string? TagsString { get; set; }
     
     [StringLength(200, ErrorMessage = "Meta title cannot exceed 200 characters")]
     [Display(Name = "Meta Title (SEO)")]
@@ -49,13 +49,17 @@ public class BlogPostViewModel
     [Display(Name = "Meta Description (SEO)")]
     public string? MetaDescription { get; set; }
     
+    // Display properties for view models
+    public string CategoryName { get; set; } = string.Empty;
+    public string CategorySlug { get; set; } = string.Empty;
+    public string AuthorName { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public int ViewCount { get; set; }
+    public List<string> Tags { get; set; } = new();
+    
     [StringLength(500, ErrorMessage = "Meta keywords cannot exceed 500 characters")]
     [Display(Name = "Meta Keywords (SEO)")]
     public string? MetaKeywords { get; set; }
-    
-    public string? CategoryName { get; set; }
-    public string? AuthorName { get; set; }
-    public int ViewCount { get; set; }
     
     [Display(Name = "Enable Comments")]
     public bool CommentsEnabled { get; set; } = true;

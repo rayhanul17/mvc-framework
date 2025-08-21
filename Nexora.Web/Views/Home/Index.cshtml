@@ -297,12 +297,21 @@
             padding: 4px 12px;
             border-radius: 15px;
             font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .tag:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
         }
 
         /* Categories Sidebar */
         .two-column {
             display: grid;
-            grid-template-columns: 1fr 300px;
+            grid-template-columns: 1fr 350px;
             gap: 2rem;
         }
 
@@ -332,7 +341,7 @@
         }
 
         .category-item {
-            padding: 0.75rem;
+            padding: 0.75rem 1rem;
             border-radius: 10px;
             margin-bottom: 0.5rem;
             background: #f8f9fa;
@@ -341,6 +350,8 @@
             align-items: center;
             transition: all 0.3s;
             cursor: pointer;
+            text-decoration: none;
+            color: #333;
         }
 
         .category-item:hover {
@@ -877,10 +888,10 @@
             <div class="blog-grid" id="blogGrid">
                 @foreach (var post in Model.FeaturedPosts.Concat(Model.RecentPosts))
                 {
-                    <div class="blog-card" onclick='showPostDetail(@Html.Raw(Json.Serialize(post)))'>
+                    <div class="blog-card" onclick='showPostDetail(@Html.Raw(Json.Serialize(new { id = post.Id, slug = post.Slug })))'>
                         <div style="position: relative;">
                             <img src="@post.FeaturedImageUrl" alt="@post.Title" class="blog-image">
-                            <span class="blog-category">@post.CategoryName</span>
+                            <a href="/Home/Category/@post.CategorySlug" class="blog-category" onclick="event.stopPropagation();">@post.CategoryName</a>
                         </div>
                         <div class="blog-content">
                             <h3 class="blog-title">@post.Title</h3>
@@ -895,7 +906,7 @@
                                 <div class="blog-tags">
                                     @foreach (var tag in post.Tags.Take(3))
                                     {
-                                        <span class="tag">@tag</span>
+                                        <a href="/Home/Tag/@tag" class="tag" onclick="event.stopPropagation();">@tag</a>
                                     }
                                 </div>
                             }
@@ -911,18 +922,20 @@
                 <div>
                     <h2 style="margin-bottom: 2rem; color: #2c3e50;">Browse by Category</h2>
                     <div class="blog-grid" id="categoryPosts">
-                        <!-- Posts will be loaded here when category is selected -->
+                        <p style="color: #6c757d; text-align: center; padding: 2rem;">Select a category from the right to view posts</p>
                     </div>
                 </div>
                 <div class="sidebar">
                     <div class="sidebar-widget">
                         <h3 class="widget-title">Categories</h3>
-                        <ul class="category-list">
+                        <ul class="category-list" style="list-style: none; padding: 0;">
                             @foreach (var category in Model.Categories)
                             {
-                                <li class="category-item" onclick="loadCategoryPosts('@category.Slug', '@category.Name')">
-                                    <span>@category.Name</span>
-                                    <span class="category-count">@category.PostCount</span>
+                                <li>
+                                    <a href="/Home/Category/@category.Slug" class="category-item">
+                                        <span>@category.Name</span>
+                                        <span class="category-count">@category.PostCount</span>
+                                    </a>
                                 </li>
                             }
                         </ul>
@@ -933,9 +946,9 @@
                         <div class="tag-cloud">
                             @foreach (var tag in Model.PopularTags)
                             {
-                                <span class="tag-cloud-item" onclick="searchByTag('@tag.Name')" style="font-size: @(14 + Math.Min(tag.Count * 2, 10))px">
+                                <a href="/Home/Tag/@tag.Name" class="tag-cloud-item" style="font-size: @(14 + Math.Min(tag.Count * 2, 10))px">
                                     @tag.Name
-                                </span>
+                                </a>
                             }
                         </div>
                     </div>
@@ -945,7 +958,7 @@
                         @foreach (var post in Model.PopularPosts)
                         {
                             <div style="padding: 0.75rem 0; border-bottom: 1px solid #f0f2f5; cursor: pointer;" 
-                                 onclick='showPostDetail(@Html.Raw(Json.Serialize(new { post.Title, post.Slug, Summary = post.Summary, CategoryName = post.CategoryName, AuthorName = post.AuthorName, PublishedDate = post.PublishedDate, ViewCount = post.ViewCount })))'>
+                                 onclick='showPostDetail(@Html.Raw(Json.Serialize(new { id = post.Id, slug = post.Slug })))'>
                                 <h4 style="font-size: 1rem; margin-bottom: 0.5rem; color: #2c3e50;">@post.Title</h4>
                                 <div style="font-size: 0.85rem; color: #6c757d;">
                                     <span>@post.PublishedDate.ToString("MMM dd")</span> • 
@@ -1089,7 +1102,9 @@
         // Post detail modal
         function showPostDetail(post) {
             // Redirect to the blog post details page with comments
-            window.location.href = `/BlogPost/Details/${post.id}/${post.slug || ''}`;
+            if (post && post.id) {
+                window.location.href = `/BlogPost/Details/${post.id}/${post.slug || ''}`;
+            }
         }
 
         function closeModal() {

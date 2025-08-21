@@ -270,18 +270,6 @@ public static class MenuSeeder
                     Order = 2,
                     IsActive = true
                 },
-                new Menu
-                {
-                    Name = "SupportConfiguration",
-                    DisplayName = "Configuration",
-                    Area = "CustomerSupport",
-                    Controller = "Configuration",
-                    Action = "Index",
-                    Icon = "fas fa-cogs",
-                    ParentId = supportMenu.Id,
-                    Order = 3,
-                    IsActive = true
-                }
             };
 
             await context.Menus.AddRangeAsync(supportSubMenus);

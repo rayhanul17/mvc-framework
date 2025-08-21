@@ -104,7 +104,7 @@ public class BlogPostController : BaseController
                 Content = result.Data.Content,
                 CategoryId = result.Data.CategoryId,
                 FeaturedImageUrl = result.Data.FeaturedImageUrl,
-                Tags = result.Data.Tags,
+                TagsString = result.Data.Tags,
                 MetaTitle = result.Data.MetaTitle,
                 MetaDescription = result.Data.MetaDescription,
                 MetaKeywords = result.Data.MetaKeywords,
@@ -144,7 +144,7 @@ public class BlogPostController : BaseController
                 Content = model.Content,
                 CategoryId = model.CategoryId,
                 FeaturedImageUrl = model.FeaturedImageUrl,
-                Tags = model.Tags,
+                Tags = model.TagsString,
                 MetaTitle = model.MetaTitle,
                 MetaDescription = model.MetaDescription,
                 MetaKeywords = model.MetaKeywords,
@@ -206,7 +206,7 @@ public class BlogPostController : BaseController
             post.Content = model.Content;
             post.CategoryId = model.CategoryId;
             post.FeaturedImageUrl = model.FeaturedImageUrl;
-            post.Tags = model.Tags;
+            post.Tags = model.TagsString;
             post.MetaTitle = model.MetaTitle;
             post.MetaDescription = model.MetaDescription;
             post.MetaKeywords = model.MetaKeywords;
