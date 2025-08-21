@@ -204,6 +204,11 @@ $(document).ready(function() {
                 xhr.setRequestHeader('RequestVerificationToken', token);
             }
             
+            // Skip loading mask if explicitly disabled
+            if (settings.skipLoadingMask) {
+                return true;
+            }
+            
             // Skip loading mask for DataTables requests (they handle their own processing indicator)
             const isDataTablesRequest = settings.url && (
                 settings.url.includes('GetLogs') || 
@@ -211,13 +216,21 @@ $(document).ready(function() {
                 settings.data && typeof settings.data === 'string' && settings.data.includes('draw=')
             );
             
-            // Show loading mask for non-GET requests or if specified, but not for DataTables
-            if (!isDataTablesRequest && (settings.type !== 'GET' || settings.showLoading)) {
+            // Skip loading mask for image uploads (they handle their own)
+            const isImageUpload = settings.url && settings.url.includes('UploadImage');
+            
+            // Show loading mask for non-GET requests or if specified, but not for DataTables or image uploads
+            if (!isDataTablesRequest && !isImageUpload && (settings.type !== 'GET' || settings.showLoading)) {
                 const loadingMessage = settings.loadingMessage || 'Processing...';
                 LoadingMask.show({ message: loadingMessage });
             }
         },
         complete: function(xhr, status) {
+            // Skip if explicitly disabled
+            if (this.skipLoadingMask) {
+                return;
+            }
+            
             // Only hide loading mask if it was shown (not for DataTables)
             const isDataTablesRequest = this.url && (
                 this.url.includes('GetLogs') || 
@@ -225,11 +238,19 @@ $(document).ready(function() {
                 this.data && typeof this.data === 'string' && this.data.includes('draw=')
             );
             
-            if (!isDataTablesRequest) {
+            // Skip for image uploads (they handle their own)
+            const isImageUpload = this.url && this.url.includes('UploadImage');
+            
+            if (!isDataTablesRequest && !isImageUpload) {
                 LoadingMask.hide();
             }
         },
         error: function(xhr, status, error) {
+            // Skip if explicitly disabled
+            if (this.skipLoadingMask) {
+                return;
+            }
+            
             // Only hide loading mask if it was shown (not for DataTables)
             const isDataTablesRequest = this.url && (
                 this.url.includes('GetLogs') || 
@@ -237,7 +258,10 @@ $(document).ready(function() {
                 this.data && typeof this.data === 'string' && this.data.includes('draw=')
             );
             
-            if (!isDataTablesRequest) {
+            // Skip for image uploads (they handle their own)
+            const isImageUpload = this.url && this.url.includes('UploadImage');
+            
+            if (!isDataTablesRequest && !isImageUpload) {
                 LoadingMask.hide();
             }
             

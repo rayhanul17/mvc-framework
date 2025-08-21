@@ -34,7 +34,11 @@
       "Bash(dir:*)",
       "Bash(dotnet remove:*)",
       "Bash(mv:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(for:*)",
+      "Bash(do sed -i '/@{await Html.RenderPartialAsync(\"\"_ValidationScriptsPartial\"\");}/d' \"$file\")",
+      "Bash(done)",
+      "Bash(do sed -i '/@{await Html.RenderPartialAsync(\"\"_ValidationScriptsPartial\"\");}/d' \"$file\")"
     ],
     "deny": []
   }

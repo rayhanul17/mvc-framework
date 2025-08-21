@@ -71,7 +71,14 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label asp-for="FeaturedImageUrl" class="form-label"></label>
-                            <input asp-for="FeaturedImageUrl" class="form-control" />
+                            <div class="input-group">
+                                <input asp-for="FeaturedImageUrl" class="form-control" id="featured-image-url" />
+                                <button class="btn btn-outline-secondary" type="button" id="upload-featured-btn">
+                                    <i class="fas fa-upload"></i> Upload
+                                </button>
+                            </div>
+                            <input type="file" id="featured-image-file" class="d-none" accept="image/*" />
+                            <div id="featured-image-preview" class="mt-2"></div>
                             <span asp-validation-for="FeaturedImageUrl" class="text-danger"></span>
                         </div>
                     </div>
@@ -153,8 +160,8 @@
 </div>
 
 @section Styles {
-    <!-- Summernote CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
+    <!-- Summernote CSS (Local) -->
+    <link href="~/lib/summernote/summernote-bs5.min.css" rel="stylesheet" asp-append-version="true">
     <style>
         .note-editor.note-frame {
             border: 1px solid #dee2e6;
@@ -167,24 +174,8 @@
 }
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <!-- Ensure jQuery is loaded first -->
-    <script>
-        if (typeof jQuery === 'undefined') {
-            document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
-        }
-    </script>
-    
-    <!-- Summernote JS -->
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
-    
-    <!-- Fallback for Summernote if CDN fails -->
-    <script>
-        if (typeof $.fn.summernote === 'undefined') {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-bs5.min.js"><\/script>');
-        }
-    </script>
+    <!-- Summernote JS (Local) -->
+    <script src="~/lib/summernote/summernote-bs5.min.js" asp-append-version="true"></script>
     
     <script>
         // Wait for jQuery and page to be ready
@@ -274,6 +265,34 @@
                     $('#MetaDescription').val($(this).val());
                 }
             });
+            
+            // Featured image upload handling
+            $('#upload-featured-btn').on('click', function() {
+                $('#featured-image-file').click();
+            });
+            
+            $('#featured-image-file').on('change', function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    uploadFeaturedImage(file);
+                }
+            });
+            
+            // Show preview if URL exists
+            var existingUrl = $('#featured-image-url').val();
+            if (existingUrl) {
+                showFeaturedImagePreview(existingUrl);
+            }
+            
+            // Update preview when URL changes manually
+            $('#featured-image-url').on('change', function() {
+                var url = $(this).val();
+                if (url) {
+                    showFeaturedImagePreview(url);
+                } else {
+                    $('#featured-image-preview').empty();
+                }
+            });
         });
         
         function uploadImage(file, editor) {
@@ -281,13 +300,105 @@
             var data = new FormData();
             data.append('file', file);
             
-            // You can implement image upload to server here
-            // For now, we'll use a placeholder
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $(editor).summernote('insertImage', e.target.result);
-            };
-            reader.readAsDataURL(file);
+            // Show loading indicator in editor
+            var loadingText = '<p>Uploading image...</p>';
+            $(editor).summernote('pasteHTML', loadingText);
+            
+            // Show loading mask
+            LoadingMask.show({ message: 'Uploading image...' });
+            
+            // Upload to server using FileDocumentController
+            $.ajax({
+                url: '@Url.Action("UploadImage", "FileDocument")',
+                type: 'POST',
+                data: data,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    // Prevent default loading mask from $.ajaxSetup
+                    return true;
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Remove loading text and insert image
+                        $(editor).summernote('undo');
+                        $(editor).summernote('insertImage', response.url, function($image) {
+                            $image.css('max-width', '100%');
+                            $image.addClass('img-fluid');
+                        });
+                        toastr.success('Image uploaded successfully');
+                    } else {
+                        // Remove loading text and show error
+                        $(editor).summernote('undo');
+                        toastr.error(response.message || 'Failed to upload image');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Remove loading text and show error
+                    $(editor).summernote('undo');
+                    toastr.error('Error uploading image: ' + error);
+                },
+                complete: function() {
+                    // Always hide loading mask when done
+                    LoadingMask.hide();
+                }
+            });
+        }
+        
+        function uploadFeaturedImage(file) {
+            // Check if it's an image
+            if (!file.type.startsWith('image/')) {
+                toastr.error('Please select an image file');
+                return;
+            }
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                toastr.error('Image size must be less than 5MB');
+                return;
+            }
+            
+            var data = new FormData();
+            data.append('file', file);
+            
+            // Show loading
+            $('#upload-featured-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+            LoadingMask.show({ message: 'Uploading featured image...' });
+            
+            $.ajax({
+                url: '@Url.Action("UploadImage", "FileDocument")',
+                type: 'POST',
+                data: data,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    // Prevent default loading mask from $.ajaxSetup
+                    return true;
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#featured-image-url').val(response.url);
+                        showFeaturedImagePreview(response.url);
+                        toastr.success('Featured image uploaded successfully');
+                    } else {
+                        toastr.error(response.message || 'Failed to upload image');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    toastr.error('Error uploading image: ' + error);
+                },
+                complete: function() {
+                    // Always hide loading mask
+                    LoadingMask.hide();
+                    $('#upload-featured-btn').prop('disabled', false).html('<i class="fas fa-upload"></i> Upload');
+                    $('#featured-image-file').val('');
+                }
+            });
+        }
+        
+        function showFeaturedImagePreview(url) {
+            var preview = $('#featured-image-preview');
+            preview.html('<img src="' + url + '" class="img-thumbnail" style="max-height: 200px; max-width: 100%;" />');
         }
     </script>
 }

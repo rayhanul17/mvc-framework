@@ -12,11 +12,13 @@ public class FileDocumentController : BaseController
 {
     private readonly IFileDocumentService _fileDocumentService;
     private readonly IWebHostEnvironment _environment;
+    private readonly ILogger<FileDocumentController> _logger;
 
-    public FileDocumentController(IFileDocumentService fileDocumentService, IWebHostEnvironment environment)
+    public FileDocumentController(IFileDocumentService fileDocumentService, IWebHostEnvironment environment, ILogger<FileDocumentController> logger)
     {
         _fileDocumentService = fileDocumentService;
         _environment = environment;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index()
@@ -166,6 +168,46 @@ public class FileDocumentController : BaseController
 
         TempData["ErrorMessage"] = result.ErrorMessage;
         return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UploadImage(IFormFile file)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                return Json(new { success = false, message = "No file uploaded" });
+            }
+
+            // Check if it's an image
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                return Json(new { success = false, message = "File must be an image" });
+            }
+
+            // Check file size (max 5MB for images)
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                return Json(new { success = false, message = "Image size must be less than 5MB" });
+            }
+
+            var uploadedBy = User.FindFirstValue(ClaimTypes.Name) ?? "Anonymous";
+            var result = await _fileDocumentService.UploadFileAsync(file, "BlogImages", "Blog post image", null, uploadedBy);
+
+            if (result.IsSuccess && result.Data != null)
+            {
+                var imageUrl = result.Data.FilePath;
+                return Json(new { success = true, url = imageUrl });
+            }
+
+            return Json(new { success = false, message = result.ErrorMessage ?? "Upload failed" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading image");
+            return Json(new { success = false, message = "An error occurred while uploading the image" });
+        }
     }
 
     [HttpGet]
