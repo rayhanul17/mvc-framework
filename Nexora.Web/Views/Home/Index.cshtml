@@ -49,11 +49,23 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            flex-shrink: 0;
         }
 
         .nav-buttons {
             display: flex;
             gap: 1rem;
+            align-items: center;
+        }
+        
+        .welcome-text {
+            color: #333;
+            margin-right: 1rem;
+            white-space: nowrap;
+        }
+        
+        .welcome-text-mobile {
+            display: none;
         }
 
         .btn {
@@ -524,19 +536,101 @@
 
         /* Responsive */
         @@media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2rem;
+            /* Header adjustments */
+            .nav-container {
+                padding: 0.75rem 1rem;
             }
             
+            .logo {
+                font-size: 1.1rem;
+            }
+            
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+            
+            /* Hide welcome text, show icon instead */
+            .welcome-text {
+                display: none;
+            }
+            
+            .welcome-text-mobile {
+                display: block;
+                color: #667eea;
+                font-size: 1.2rem;
+            }
+            
+            /* Show only icons on buttons */
+            .btn .btn-text {
+                display: none;
+            }
+            
+            .btn {
+                padding: 0.5rem;
+                font-size: 1rem;
+                min-width: 40px;
+            }
+            
+            .btn i {
+                margin: 0 !important;
+            }
+            
+            /* Hero adjustments */
+            .hero {
+                padding: 100px 0 60px;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+                line-height: 1.2;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .hero-content {
+                padding: 0 1rem;
+            }
+            
+            /* Search box adjustments */
+            .search-box {
+                flex-direction: column;
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            .search-input {
+                padding: 12px 16px;
+                margin-bottom: 0.5rem;
+                border-radius: 10px;
+                background: #f8f9fa;
+            }
+            
+            .search-btn {
+                width: 100%;
+                padding: 12px 20px;
+                border-radius: 10px;
+            }
+            
+            /* Container adjustments */
+            .container {
+                padding: 1rem;
+            }
+            
+            /* Tabs adjustments */
             .tabs {
                 flex-wrap: wrap;
                 gap: 0.5rem;
+                padding: 0 1rem;
             }
             
             .tab {
                 padding: 0.75rem 1rem;
+                font-size: 0.9rem;
             }
             
+            /* Grid adjustments */
             .two-column {
                 grid-template-columns: 1fr;
             }
@@ -547,6 +641,123 @@
             
             .blog-grid {
                 grid-template-columns: 1fr;
+                padding: 0 1rem;
+            }
+            
+            /* Modal adjustments */
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+            
+            .post-full-image {
+                height: 250px;
+            }
+        }
+        
+        /* Small mobile devices */
+        @@media (max-width: 480px) {
+            /* Header for small screens */
+            .nav-container {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .logo {
+                font-size: 1rem;
+                white-space: nowrap;
+            }
+            
+            .nav-buttons {
+                gap: 0.25rem;
+            }
+            
+            .btn {
+                padding: 0.4rem;
+                font-size: 0.9rem;
+                min-width: 36px;
+                border-radius: 8px;
+            }
+            
+            .welcome-text-mobile {
+                font-size: 1rem;
+                margin-right: 0.25rem;
+            }
+            
+            /* Hero for small screens */
+            .hero {
+                padding: 90px 0 50px;
+            }
+            
+            .hero h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .hero p {
+                font-size: 0.9rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            /* Tabs for small screens */
+            .tabs {
+                gap: 0.25rem;
+            }
+            
+            .tab {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+            
+            /* Blog cards for small screens */
+            .blog-card {
+                border-radius: 10px;
+            }
+            
+            .blog-content {
+                padding: 1rem;
+            }
+            
+            .blog-title {
+                font-size: 1.1rem;
+            }
+            
+            .blog-summary {
+                font-size: 0.9rem;
+            }
+            
+            .blog-meta {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Extra small devices */
+        @@media (max-width: 360px) {
+            /* Header for extra small screens */
+            .nav-container {
+                padding: 0.5rem;
+            }
+            
+            .logo {
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                padding: 0.35rem;
+                min-width: 32px;
+                font-size: 0.85rem;
+            }
+            
+            .welcome-text-mobile {
+                font-size: 0.9rem;
+            }
+            
+            /* Hero for extra small screens */
+            .hero h1 {
+                font-size: 1.3rem;
+            }
+            
+            .hero p {
+                font-size: 0.85rem;
             }
         }
 
@@ -593,23 +804,26 @@
             <div class="nav-buttons">
                 @if (User.Identity!.IsAuthenticated)
                 {
-                    <div style="color: #333; margin-right: 1rem;">
+                    <div class="welcome-text">
                         Welcome, <strong>@User.Identity.Name</strong>
                     </div>
-                    <button class="btn btn-primary" onclick="window.location.href='/Home/UserDashboard'">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <div class="welcome-text-mobile">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <button class="btn btn-primary btn-dashboard" onclick="window.location.href='/Home/UserDashboard'">
+                        <i class="fas fa-tachometer-alt"></i> <span class="btn-text">Dashboard</span>
                     </button>
-                    <button class="btn btn-outline" onclick="performLogout()">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                    <button class="btn btn-outline btn-logout" onclick="performLogout()">
+                        <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Logout</span>
                     </button>
                 }
                 else
                 {
-                    <button class="btn btn-outline" onclick="window.location.href='/Account/Login'">
-                        <i class="fas fa-sign-in-alt"></i> Login
+                    <button class="btn btn-outline btn-login" onclick="window.location.href='/Account/Login'">
+                        <i class="fas fa-sign-in-alt"></i> <span class="btn-text">Login</span>
                     </button>
-                    <button class="btn btn-primary" onclick="window.location.href='/Account/Register'">
-                        <i class="fas fa-user-plus"></i> Register
+                    <button class="btn btn-primary btn-register" onclick="window.location.href='/Account/Register'">
+                        <i class="fas fa-user-plus"></i> <span class="btn-text">Register</span>
                     </button>
                 }
             </div>
