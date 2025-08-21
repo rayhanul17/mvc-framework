@@ -433,6 +433,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                     }
                 }
                 
+                // Get the entity's version number
+                int entityVersionNumber = 1;
+                if (auditEntry.EntityEntry?.Entity is BaseEntity baseEntity)
+                {
+                    entityVersionNumber = baseEntity.VersionNumber;
+                }
+                
                 var log = new Log
                 {
                     TableName = auditEntry.TableName,
@@ -441,6 +448,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                     OldValues = auditEntry.OldValues,
                     NewValues = auditEntry.NewValues,
                     Changes = auditEntry.Changes,
+                    EntityVersionNumber = entityVersionNumber,
                     UserId = auditEntry.UserId,
                     IpAddress = auditEntry.IpAddress,
                     UserAgent = auditEntry.UserAgent,
@@ -459,6 +467,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
 
     private void UpdateTimestamps(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
     {
+        // Handle BaseEntity properties
+        if (entry.Entity is BaseEntity baseEntity)
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    baseEntity.CreatedAt = DateTime.UtcNow;
+                    baseEntity.VersionNumber = 1; // Initialize version number for new entities
+                    break;
+                case EntityState.Modified:
+                    baseEntity.UpdatedAt = DateTime.UtcNow;
+                    baseEntity.VersionNumber++; // Increment version number on updates
+                    break;
+            }
+            return;
+        }
+        
+        // Handle non-BaseEntity types
         switch (entry.State)
         {
             case EntityState.Added:
@@ -466,32 +492,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
                     user.CreatedAt = DateTime.UtcNow;
                 else if (entry.Entity is ApplicationRole role)
                     role.CreatedAt = DateTime.UtcNow;
-                else if (entry.Entity is Menu menu)
-                    menu.CreatedAt = DateTime.UtcNow;
-                else if (entry.Entity is RoleMenu roleMenu)
-                    roleMenu.CreatedAt = DateTime.UtcNow;
-                else if (entry.Entity is BlogCategory category)
-                    category.CreatedAt = DateTime.UtcNow;
-                else if (entry.Entity is BlogPost post)
-                    post.CreatedAt = DateTime.UtcNow;
-                else if (entry.Entity is SiteSetting setting)
-                    setting.CreatedAt = DateTime.UtcNow;
                 break;
             case EntityState.Modified:
                 if (entry.Entity is ApplicationUser modUser)
                     modUser.UpdatedAt = DateTime.UtcNow;
                 else if (entry.Entity is ApplicationRole modRole)
                     modRole.UpdatedAt = DateTime.UtcNow;
-                else if (entry.Entity is Menu modMenu)
-                    modMenu.UpdatedAt = DateTime.UtcNow;
-                else if (entry.Entity is RoleMenu modRoleMenu)
-                    modRoleMenu.UpdatedAt = DateTime.UtcNow;
-                else if (entry.Entity is BlogCategory modCategory)
-                    modCategory.UpdatedAt = DateTime.UtcNow;
-                else if (entry.Entity is BlogPost modPost)
-                    modPost.UpdatedAt = DateTime.UtcNow;
-                else if (entry.Entity is SiteSetting modSetting)
-                    modSetting.UpdatedAt = DateTime.UtcNow;
                 break;
         }
     }

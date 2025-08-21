@@ -24,6 +24,8 @@ public class Log : BaseEntity
     [Column(TypeName = "TEXT")]
     public string? Changes { get; set; } // Summary of changes
     
+    public int EntityVersionNumber { get; set; } // Version number of the entity at the time of this log
+    
     [StringLength(50)]
     public string? IpAddress { get; set; }
     

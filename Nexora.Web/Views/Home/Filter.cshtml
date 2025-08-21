@@ -1,0 +1,558 @@
+@{
+    ViewData["Title"] = "Blog Posts";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Nexora</title>
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        .navbar-simple {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            margin-top: -2rem;
+        }
+        
+        .filter-header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        
+        .filter-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin-left: 1rem;
+        }
+        
+        .content-area {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+        
+        /* Sidebar */
+        .sidebar-widget {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .widget-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .category-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .category-item {
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-item:hover, .category-item.active {
+            background: #667eea;
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .category-count {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+        
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag-cloud-item {
+            background: #f0f2f5;
+            color: #495057;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        
+        .tag-cloud-item:hover, .tag-cloud-item.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Posts Grid */
+        .posts-container {
+            min-height: 400px;
+        }
+        
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+        }
+        
+        .post-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .post-content {
+            padding: 1.5rem;
+        }
+        
+        .post-title {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .post-title:hover {
+            color: #667eea;
+        }
+        
+        .post-summary {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .post-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            background: #f0f2f5;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tag:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .no-posts {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        
+        .popular-post-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f2f5;
+            cursor: pointer;
+        }
+        
+        .popular-post-item:hover .popular-post-title {
+            color: #667eea;
+        }
+        
+        .popular-post-title {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            margin-bottom: 0.25rem;
+            transition: color 0.3s;
+        }
+        
+        .popular-post-meta {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        @@media (max-width: 992px) {
+            .content-area {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @@media (max-width: 768px) {
+            .post-card {
+                grid-template-columns: 1fr;
+            }
+            
+            .post-image {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Simple Navigation -->
+    <nav class="navbar navbar-simple">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-building me-2"></i>
+                <strong>Nexora</strong>
+            </a>
+            <div class="d-flex">
+                <a href="/" class="btn btn-outline-primary btn-sm me-2">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="/Account/Login" class="btn btn-primary btn-sm">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Filter Header -->
+    <div class="filter-header">
+        <div class="container">
+            <h1 id="filter-title">
+                All Posts
+            </h1>
+            <p id="filter-description"></p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="content-area">
+            <!-- Left Sidebar -->
+            <div class="sidebar">
+                <!-- Categories Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Categories</h3>
+                    <ul class="category-list" id="category-list">
+                        <li class="text-center py-2">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Tags Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Popular Tags</h3>
+                    <div class="tag-cloud" id="tag-cloud">
+                        <div class="text-center w-100">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Popular Posts Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Popular Posts</h3>
+                    <div id="popular-posts">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Posts Area -->
+            <div class="posts-container" id="posts-container">
+                <div class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading posts...</span>
+                    </div>
+                    <p class="mt-2">Loading posts...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        let currentFilter = { type: null, value: null };
+        
+        // Get filter from URL
+        function getFilterFromUrl() {
+            const path = window.location.pathname;
+            const segments = path.split('/').filter(s => s);
+            
+            if (segments.length >= 3) {
+                if (segments[1].toLowerCase() === 'category') {
+                    return { type: 'category', value: segments[2] };
+                } else if (segments[1].toLowerCase() === 'tag') {
+                    return { type: 'tag', value: decodeURIComponent(segments[2]) };
+                }
+            }
+            return { type: null, value: null };
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+        
+        // Load sidebar data
+        function loadSidebar() {
+            $.get('/Home/GetSidebarData', function(data) {
+                // Load categories
+                let categoriesHtml = '';
+                data.categories.forEach(cat => {
+                    const isActive = currentFilter.type === 'category' && currentFilter.value === cat.slug;
+                    categoriesHtml += `
+                        <li class="category-item ${isActive ? 'active' : ''}" 
+                            onclick="filterByCategory('${cat.slug}', '${cat.name}')">
+                            <span>${cat.name}</span>
+                            <span class="category-count">${cat.postCount}</span>
+                        </li>`;
+                });
+                $('#category-list').html(categoriesHtml);
+                
+                // Load tags
+                let tagsHtml = '';
+                data.popularTags.forEach(tag => {
+                    const isActive = currentFilter.type === 'tag' && currentFilter.value === tag.name;
+                    tagsHtml += `
+                        <span class="tag-cloud-item ${isActive ? 'active' : ''}" 
+                              onclick="filterByTag('${tag.name}')"
+                              style="font-size: ${14 + Math.min(tag.count * 2, 10)}px">
+                            ${tag.name}
+                        </span>`;
+                });
+                $('#tag-cloud').html(tagsHtml);
+                
+                // Load popular posts
+                let popularHtml = '';
+                data.popularPosts.forEach(post => {
+                    popularHtml += `
+                        <div class="popular-post-item" onclick="viewPost(${post.id}, '${post.slug}')">
+                            <div class="popular-post-title">${post.title}</div>
+                            <div class="popular-post-meta">
+                                ${formatDate(post.publishedDate)} • ${post.viewCount} views
+                            </div>
+                        </div>`;
+                });
+                $('#popular-posts').html(popularHtml);
+            });
+        }
+        
+        // Load posts
+        function loadPosts() {
+            $('#posts-container').html(`
+                <div class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading posts...</span>
+                    </div>
+                    <p class="mt-2">Loading posts...</p>
+                </div>`);
+            
+            let url = '';
+            let data = {};
+            
+            if (currentFilter.type === 'category') {
+                url = '/Home/GetPostsByCategory';
+                data = { slug: currentFilter.value };
+            } else if (currentFilter.type === 'tag') {
+                url = '/Home/GetPostsByTag';
+                data = { tag: currentFilter.value };
+            } else {
+                // Load all posts - use the home page data
+                loadAllPosts();
+                return;
+            }
+            
+            $.post(url, data, function(response) {
+                if (response.success) {
+                    // Update title
+                    if (currentFilter.type === 'category') {
+                        $('#filter-title').html(`Category: <span class="filter-badge">${response.categoryName}</span>`);
+                        $('#filter-description').text(`${response.posts.length} posts in this category`);
+                    } else if (currentFilter.type === 'tag') {
+                        $('#filter-title').html(`Tag: <span class="filter-badge">${response.tagName}</span>`);
+                        $('#filter-description').text(`${response.posts.length} posts with this tag`);
+                    }
+                    
+                    // Display posts
+                    if (response.posts.length > 0) {
+                        let postsHtml = '';
+                        response.posts.forEach(post => {
+                            const tagsHtml = post.tags && post.tags.length > 0 
+                                ? post.tags.slice(0, 3).map(tag => 
+                                    `<span class="tag" onclick="event.stopPropagation(); filterByTag('${tag}')">${tag}</span>`
+                                  ).join('')
+                                : '';
+                            
+                            postsHtml += `
+                                <div class="post-card">
+                                    <img src="${post.featuredImageUrl}" alt="${post.title}" class="post-image" />
+                                    <div class="post-content">
+                                        <h3 class="post-title" onclick="viewPost(${post.id}, '${post.slug}')">${post.title}</h3>
+                                        <p class="post-summary">${post.summary}</p>
+                                        <div class="post-meta">
+                                            <span><i class="fas fa-user"></i> ${post.authorName}</span>
+                                            <span><i class="fas fa-calendar"></i> ${formatDate(post.publishedDate)}</span>
+                                            <span><i class="fas fa-eye"></i> ${post.viewCount} views</span>
+                                        </div>
+                                        ${tagsHtml ? `<div class="post-tags">${tagsHtml}</div>` : ''}
+                                    </div>
+                                </div>`;
+                        });
+                        $('#posts-container').html(postsHtml);
+                    } else {
+                        $('#posts-container').html(`
+                            <div class="no-posts">
+                                <i class="fas fa-folder-open fa-3x mb-3" style="color: #dee2e6;"></i>
+                                <h3>No posts found</h3>
+                                <p>Try selecting a different category or tag</p>
+                            </div>`);
+                    }
+                } else {
+                    $('#posts-container').html(`
+                        <div class="no-posts">
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                            <h3>Error loading posts</h3>
+                            <p>${response.message || 'Please try again later'}</p>
+                        </div>`);
+                }
+            }).fail(function() {
+                $('#posts-container').html(`
+                    <div class="no-posts">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #dc3545;"></i>
+                        <h3>Error loading posts</h3>
+                        <p>Please check your connection and try again</p>
+                    </div>`);
+            });
+        }
+        
+        // Load all posts (default view)
+        function loadAllPosts() {
+            // For now, just show a message
+            $('#filter-title').text('All Posts');
+            $('#filter-description').text('Browse all blog posts or select a category/tag to filter');
+            $('#posts-container').html(`
+                <div class="no-posts">
+                    <i class="fas fa-list fa-3x mb-3" style="color: #667eea;"></i>
+                    <h3>Welcome to our Blog</h3>
+                    <p>Select a category or tag from the sidebar to view posts</p>
+                </div>`);
+        }
+        
+        // Filter functions
+        function filterByCategory(slug, name) {
+            currentFilter = { type: 'category', value: slug };
+            window.history.pushState({}, '', `/Home/Category/${slug}`);
+            
+            // Update active states
+            $('.category-item').removeClass('active');
+            $('.tag-cloud-item').removeClass('active');
+            event.target.closest('.category-item').classList.add('active');
+            
+            loadPosts();
+        }
+        
+        function filterByTag(tag) {
+            currentFilter = { type: 'tag', value: tag };
+            window.history.pushState({}, '', `/Home/Tag/${encodeURIComponent(tag)}`);
+            
+            // Update active states
+            $('.category-item').removeClass('active');
+            $('.tag-cloud-item').removeClass('active');
+            $(event.target).addClass('active');
+            
+            loadPosts();
+        }
+        
+        // View post
+        function viewPost(id, slug) {
+            window.location.href = `/BlogPost/Details/${id}/${slug || ''}`;
+        }
+        
+        // Initialize on page load
+        $(document).ready(function() {
+            currentFilter = getFilterFromUrl();
+            loadSidebar();
+            loadPosts();
+        });
+        
+        // Handle browser back/forward
+        window.addEventListener('popstate', function() {
+            currentFilter = getFilterFromUrl();
+            loadSidebar();
+            loadPosts();
+        });
+    </script>
+</body>
+</html>

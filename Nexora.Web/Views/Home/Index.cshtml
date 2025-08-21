@@ -311,7 +311,7 @@
         /* Categories Sidebar */
         .two-column {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 350px 1fr;
             gap: 2rem;
         }
 
@@ -382,18 +382,18 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
 
-        .form-group {
+        .landing-form-group {
             margin-bottom: 1.5rem;
         }
 
-        .form-label {
+        .landing-form-label {
             display: block;
             margin-bottom: 0.5rem;
             color: #495057;
             font-weight: 500;
         }
 
-        .form-control {
+        .landing-form-control {
             width: 100%;
             padding: 0.75rem;
             border: 2px solid #e9ecef;
@@ -402,7 +402,7 @@
             transition: all 0.3s;
         }
 
-        .form-control:focus {
+        .landing-form-control:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -536,7 +536,23 @@
             transform: translateY(-2px);
         }
 
+        /* Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
         /* Animations */
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @@keyframes fadeIn {
             from {
                 opacity: 0;
@@ -919,12 +935,6 @@
         <!-- Categories Section -->
         <div id="categories" class="content-section">
             <div class="two-column">
-                <div>
-                    <h2 style="margin-bottom: 2rem; color: #2c3e50;">Browse by Category</h2>
-                    <div class="blog-grid" id="categoryPosts">
-                        <p style="color: #6c757d; text-align: center; padding: 2rem;">Select a category from the right to view posts</p>
-                    </div>
-                </div>
                 <div class="sidebar">
                     <div class="sidebar-widget">
                         <h3 class="widget-title">Categories</h3>
@@ -932,7 +942,7 @@
                             @foreach (var category in Model.Categories)
                             {
                                 <li>
-                                    <a href="/Home/Category/@category.Slug" class="category-item">
+                                    <a href="javascript:void(0)" onclick="filterByCategory('@category.Slug', '@category.Name')" class="category-item">
                                         <span>@category.Name</span>
                                         <span class="category-count">@category.PostCount</span>
                                     </a>
@@ -946,7 +956,7 @@
                         <div class="tag-cloud">
                             @foreach (var tag in Model.PopularTags)
                             {
-                                <a href="/Home/Tag/@tag.Name" class="tag-cloud-item" style="font-size: @(14 + Math.Min(tag.Count * 2, 10))px">
+                                <a href="javascript:void(0)" onclick="filterByTag('@tag.Name')" class="tag-cloud-item" style="font-size: @(14 + Math.Min(tag.Count * 2, 10))px">
                                     @tag.Name
                                 </a>
                             }
@@ -968,6 +978,12 @@
                         }
                     </div>
                 </div>
+                <div>
+                    <h2 style="margin-bottom: 2rem; color: #2c3e50;">Browse by Category</h2>
+                    <div class="blog-grid" id="categoryPosts">
+                        <p style="color: #6c757d; text-align: center; padding: 2rem;">Select a category or tag from the left to view posts</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -979,13 +995,13 @@
                 <h2 style="text-align: center; margin-bottom: 2rem; color: #2c3e50;">Welcome Back</h2>
                 <div id="loginAlert"></div>
                 <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="loginEmail" required placeholder="Enter your email">
+                    <div class="landing-form-group">
+                        <label class="landing-form-label">Email Address</label>
+                        <input type="email" class="landing-form-control" id="loginEmail" required placeholder="Enter your email">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" id="loginPassword" required placeholder="Enter your password">
+                    <div class="landing-form-group">
+                        <label class="landing-form-label">Password</label>
+                        <input type="password" class="landing-form-control" id="loginPassword" required placeholder="Enter your password">
                     </div>
                     <div class="form-check">
                         <input type="checkbox" id="rememberMe">
@@ -1008,21 +1024,21 @@
                 <h2 style="text-align: center; margin-bottom: 2rem; color: #2c3e50;">Create Account</h2>
                 <div id="registerAlert"></div>
                 <form id="registerForm" onsubmit="handleRegister(event)">
-                    <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="registerName" required placeholder="Enter your full name">
+                    <div class="landing-form-group">
+                        <label class="landing-form-label">Full Name</label>
+                        <input type="text" class="landing-form-control" id="registerName" required placeholder="Enter your full name">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="registerEmail" required placeholder="Enter your email">
+                    <div class="landing-form-group">
+                        <label class="landing-form-label">Email Address</label>
+                        <input type="email" class="landing-form-control" id="registerEmail" required placeholder="Enter your email">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" id="registerPassword" required placeholder="Create a password">
+                    <div class="landing-form-group">
+                        <label class="landing-form-label">Password</label>
+                        <input type="password" class="landing-form-control" id="registerPassword" required placeholder="Create a password">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" id="confirmPassword" required placeholder="Confirm your password">
+                    <div class="landing-form-group">
+                        <label class="landing-form-label">Confirm Password</label>
+                        <input type="password" class="landing-form-control" id="confirmPassword" required placeholder="Confirm your password">
                     </div>
                     <div class="form-check">
                         <input type="checkbox" id="agreeTerms" required>
@@ -1107,48 +1123,109 @@
             }
         }
 
-        function closeModal() {
-            document.getElementById('postModal').classList.remove('active');
-        }
-
-        // Category posts loading
-        function loadCategoryPosts(slug, name) {
+        // Filter by category with AJAX
+        function filterByCategory(slug, name) {
             const container = document.getElementById('categoryPosts');
             container.innerHTML = '<div class="spinner"></div>';
             
-            // Simulate loading posts for category
-            setTimeout(() => {
-                container.innerHTML = `
-                    <h3 style="margin-bottom: 1.5rem; color: #2c3e50;">Posts in "${name}"</h3>
-                    <p style="color: #6c757d;">Showing all posts in the ${name} category...</p>
-                `;
-                
-                // In real app, filter posts by category
-                const allPosts = @Html.Raw(Json.Serialize(Model.FeaturedPosts.Concat(Model.RecentPosts)));
-                const categoryPosts = allPosts.filter(p => p.categorySlug === slug || p.categoryName === name);
-                
-                if (categoryPosts.length > 0) {
-                    container.innerHTML += '<div class="blog-grid">' + 
-                        categoryPosts.map(post => `
-                            <div class="blog-card" onclick='showPostDetail(${JSON.stringify(post)})'>
-                                <div style="position: relative;">
-                                    <img src="${post.featuredImageUrl}" alt="${post.title}" class="blog-image">
-                                    <span class="blog-category">${post.categoryName}</span>
-                                </div>
-                                <div class="blog-content">
-                                    <h3 class="blog-title">${post.title}</h3>
-                                    <p class="blog-summary">${post.summary}</p>
-                                    <div class="blog-meta">
-                                        <span><i class="fas fa-user"></i> ${post.authorName}</span>
-                                        <span><i class="fas fa-calendar"></i> ${new Date(post.publishedDate).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('') + '</div>';
+            // Get anti-forgery token if it exists
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            const tokenValue = token ? token.value : '';
+            
+            fetch(`/Home/GetPostsByCategory`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `slug=${encodeURIComponent(slug)}&__RequestVerificationToken=${encodeURIComponent(tokenValue)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayFilteredPosts(data.posts, `Posts in "${data.categoryName}"`);
                 } else {
-                    container.innerHTML += '<p>No posts found in this category.</p>';
+                    container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 2rem;">Failed to load posts</p>';
                 }
-            }, 500);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 2rem;">Error loading posts</p>';
+            });
+        }
+
+        // Filter by tag with AJAX
+        function filterByTag(tag) {
+            const container = document.getElementById('categoryPosts');
+            container.innerHTML = '<div class="spinner"></div>';
+            
+            // Get anti-forgery token if it exists
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            const tokenValue = token ? token.value : '';
+            
+            fetch(`/Home/GetPostsByTag`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `tag=${encodeURIComponent(tag)}&__RequestVerificationToken=${encodeURIComponent(tokenValue)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayFilteredPosts(data.posts, `Posts tagged with "${data.tagName}"`);
+                } else {
+                    container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 2rem;">Failed to load posts</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.innerHTML = '<p style="color: #dc3545; text-align: center; padding: 2rem;">Error loading posts</p>';
+            });
+        }
+
+        // Display filtered posts
+        function displayFilteredPosts(posts, title) {
+            const container = document.getElementById('categoryPosts');
+            
+            if (posts.length === 0) {
+                container.innerHTML = `
+                    <h3 style="margin-bottom: 1.5rem; color: #2c3e50;">${title}</h3>
+                    <p style="color: #6c757d; text-align: center; padding: 2rem;">No posts found</p>
+                `;
+                return;
+            }
+
+            let html = `<h3 style="margin-bottom: 1.5rem; color: #2c3e50;">${title}</h3><div class="blog-grid">`;
+            
+            posts.forEach(post => {
+                const date = new Date(post.publishedDate);
+                const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                
+                html += `
+                    <div class="blog-card" onclick='showPostDetail(${JSON.stringify({id: post.id, slug: post.slug})})'>
+                        <div style="position: relative;">
+                            <img src="${post.featuredImageUrl}" alt="${post.title}">
+                            <span class="category-badge">${post.categoryName}</span>
+                        </div>
+                        <div class="blog-card-content">
+                            <h3>${post.title}</h3>
+                            <p>${post.summary}</p>
+                            <div class="blog-meta">
+                                <span><i class="fas fa-user"></i> ${post.authorName}</span>
+                                <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+                                <span><i class="fas fa-eye"></i> ${post.viewCount} views</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function closeModal() {
+            document.getElementById('postModal').classList.remove('active');
         }
 
         // Authentication handlers

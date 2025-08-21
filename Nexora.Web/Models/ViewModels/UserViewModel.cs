@@ -16,12 +16,17 @@ public class UserViewModel
     public string Email { get; set; } = string.Empty;
 
     [Display(Name = "Phone Number")]
+    [Phone(ErrorMessage = "Invalid phone number format")]
+    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? PhoneNumber { get; set; }
 
     [Display(Name = "Avatar URL")]
+    [Url(ErrorMessage = "Invalid URL format")]
+    [StringLength(500, ErrorMessage = "Avatar URL cannot exceed 500 characters")]
     public string? AvatarUrl { get; set; }
 
     [Display(Name = "Description")]
+    [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
     public string? Description { get; set; }
 
     [Display(Name = "Active")]
@@ -69,12 +74,17 @@ public class CreateUserViewModel
     public string ConfirmPassword { get; set; } = string.Empty;
 
     [Display(Name = "Phone Number")]
+    [Phone(ErrorMessage = "Invalid phone number format")]
+    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? PhoneNumber { get; set; }
 
     [Display(Name = "Avatar URL")]
+    [Url(ErrorMessage = "Invalid URL format")]
+    [StringLength(500, ErrorMessage = "Avatar URL cannot exceed 500 characters")]
     public string? AvatarUrl { get; set; }
 
     [Display(Name = "Description")]
+    [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
     public string? Description { get; set; }
 
     [Display(Name = "Active")]
@@ -101,12 +111,17 @@ public class EditUserViewModel
     public string Email { get; set; } = string.Empty;
 
     [Display(Name = "Phone Number")]
+    [Phone(ErrorMessage = "Invalid phone number format")]
+    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? PhoneNumber { get; set; }
 
     [Display(Name = "Avatar URL")]
+    [Url(ErrorMessage = "Invalid URL format")]
+    [StringLength(500, ErrorMessage = "Avatar URL cannot exceed 500 characters")]
     public string? AvatarUrl { get; set; }
 
     [Display(Name = "Description")]
+    [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
     public string? Description { get; set; }
 
     [Display(Name = "Active")]
@@ -165,12 +180,17 @@ public class UserCreateEditViewModel
     public string? ConfirmPassword { get; set; }
 
     [Display(Name = "Phone Number")]
+    [Phone(ErrorMessage = "Invalid phone number format")]
+    [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters")]
     public string? PhoneNumber { get; set; }
 
     [Display(Name = "Avatar URL")]
+    [Url(ErrorMessage = "Invalid URL format")]
+    [StringLength(500, ErrorMessage = "Avatar URL cannot exceed 500 characters")]
     public string? AvatarUrl { get; set; }
 
     [Display(Name = "Description")]
+    [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
     public string? Description { get; set; }
 
     [Display(Name = "Active")]

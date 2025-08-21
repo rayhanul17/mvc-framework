@@ -67,6 +67,45 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 // Add Role Authorization Service
 builder.Services.AddScoped<IRoleAuthorizationService, RoleAuthorizationService>();
 
+// Configure Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+    // Super Admin policy
+    options.AddPolicy("SuperAdminOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim("IsSuperAdmin", "true")));
+    
+    // Admin policy (SuperAdmin or Administrator)
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim("IsSuperAdmin", "true") ||
+            context.User.IsInRole("Administrator")));
+    
+    // Customer Support policies
+    options.AddPolicy("CustomerSupportAccess", policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole("CustomerSupportAdmin") ||
+            context.User.IsInRole("CustomerSupportManager") ||
+            context.User.IsInRole("CustomerSupportAgent")));
+    
+    options.AddPolicy("CustomerSupportManager", policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole("CustomerSupportAdmin") ||
+            context.User.IsInRole("CustomerSupportManager")));
+    
+    // Content management policy
+    options.AddPolicy("ContentManagement", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim("IsSuperAdmin", "true") ||
+            context.User.IsInRole("Administrator") ||
+            context.User.IsInRole("ContentManager") ||
+            context.User.IsInRole("Editor")));
+    
+    // Default authenticated policy
+    options.AddPolicy("Authenticated", policy =>
+        policy.RequireAuthenticatedUser());
+});
+
 // Add Background Services
 builder.Services.AddHostedService<Nexora.Web.Services.LogArchiveBackgroundService>();
 builder.Services.AddHostedService<Nexora.Web.Services.HeartbeatService>();

@@ -270,11 +270,26 @@ public class HomeController : Controller
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Category(string slug)
+    public IActionResult Category(string slug)
+    {
+        // The Filter view will handle everything via AJAX
+        return View("Filter");
+    }
+
+    [AllowAnonymous]
+    public IActionResult Tag(string tag)
+    {
+        // The Filter view will handle everything via AJAX
+        return View("Filter");
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    public async Task<IActionResult> GetPostsByCategory(string slug)
     {
         if (string.IsNullOrEmpty(slug))
         {
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = false, message = "Category slug is required" });
         }
 
         var category = await _context.BlogCategories
@@ -282,106 +297,138 @@ public class HomeController : Controller
 
         if (category == null)
         {
-            return NotFound();
+            return Json(new { success = false, message = "Category not found" });
         }
 
-        // Debug logging
-        _logger.LogInformation($"Category found: {category.Name} (ID: {category.Id})");
-        
         var posts = await _context.BlogPosts
             .Include(p => p.Category)
             .Include(p => p.Author)
             .Where(p => p.CategoryId == category.Id && p.IsPublished)
             .OrderByDescending(p => p.PublishedDate)
-            .Select(p => new BlogPostViewModel
+            .Select(p => new
             {
-                Id = p.Id,
-                Title = p.Title,
-                Slug = p.Slug ?? "",
-                Summary = p.Summary ?? "",
-                FeaturedImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
-                CategoryName = p.Category != null ? p.Category.Name : "",
-                CategorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
-                AuthorName = p.Author != null ? p.Author.FullName : "Anonymous",
-                PublishedDate = p.PublishedDate ?? p.CreatedAt,
-                ViewCount = p.ViewCount,
-                Tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
+                id = p.Id,
+                title = p.Title,
+                slug = p.Slug ?? "",
+                summary = p.Summary ?? "",
+                featuredImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+                categoryName = p.Category != null ? p.Category.Name : "",
+                categorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
+                authorName = p.Author != null ? p.Author.FullName : "Anonymous",
+                publishedDate = p.PublishedDate ?? p.CreatedAt,
+                viewCount = p.ViewCount,
+                tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
             })
             .ToListAsync();
 
-        // Get site settings
-        var siteSettings = await _siteSettingService.GetAllSettingsAsync();
-        var siteName = "Nexora Framework";
-        if (siteSettings.IsSuccess && siteSettings.Data != null)
-        {
-            siteName = siteSettings.Data.FirstOrDefault(s => s.Key == "SiteName")?.Value ?? "Nexora Framework";
-        }
-
-        _logger.LogInformation($"Returning {posts.Count} posts for category {category.Name}");
-        
-        var model = new CategoryViewModel
-        {
-            CategoryName = category.Name,
-            CategorySlug = category.Slug ?? "",
-            CategoryDescription = category.Description ?? "",
-            Posts = posts,
-            SiteName = siteName
-        };
-
-        return View(model);
+        return Json(new { success = true, posts = posts, categoryName = category.Name });
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> Tag(string tag)
+    [HttpPost]
+    public async Task<IActionResult> GetPostsByTag(string tag)
     {
         if (string.IsNullOrEmpty(tag))
         {
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = false, message = "Tag is required" });
         }
 
         // Decode URL encoded characters
         tag = System.Net.WebUtility.UrlDecode(tag);
-        
-        _logger.LogInformation($"Searching for posts with tag: {tag}");
 
         var posts = await _context.BlogPosts
             .Include(p => p.Category)
             .Include(p => p.Author)
             .Where(p => p.IsPublished && p.Tags != null && p.Tags.Contains(tag))
             .OrderByDescending(p => p.PublishedDate)
-            .Select(p => new BlogPostViewModel
+            .Select(p => new
             {
-                Id = p.Id,
-                Title = p.Title,
-                Slug = p.Slug ?? "",
-                Summary = p.Summary ?? "",
-                FeaturedImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
-                CategoryName = p.Category != null ? p.Category.Name : "",
-                CategorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
-                AuthorName = p.Author != null ? p.Author.FullName : "Anonymous",
-                PublishedDate = p.PublishedDate ?? p.CreatedAt,
-                ViewCount = p.ViewCount,
-                Tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
+                id = p.Id,
+                title = p.Title,
+                slug = p.Slug ?? "",
+                summary = p.Summary ?? "",
+                featuredImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+                categoryName = p.Category != null ? p.Category.Name : "",
+                categorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
+                authorName = p.Author != null ? p.Author.FullName : "Anonymous",
+                publishedDate = p.PublishedDate ?? p.CreatedAt,
+                viewCount = p.ViewCount,
+                tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
             })
             .ToListAsync();
 
-        // Get site settings
-        var siteSettings = await _siteSettingService.GetAllSettingsAsync();
-        var siteName = "Nexora Framework";
-        if (siteSettings.IsSuccess && siteSettings.Data != null)
+        return Json(new { success = true, posts = posts, tagName = tag });
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> GetSidebarData()
+    {
+        // Get categories
+        var categories = await _context.BlogCategories
+            .Where(c => c.IsActive)
+            .OrderBy(c => c.DisplayOrder)
+            .Select(c => new
+            {
+                name = c.Name,
+                slug = c.Slug ?? "",
+                postCount = _context.BlogPosts.Count(p => p.CategoryId == c.Id && p.IsPublished)
+            })
+            .ToListAsync();
+
+        // Get popular tags
+        var allTags = await _context.BlogPosts
+            .Where(p => p.IsPublished && p.Tags != null && p.Tags != "")
+            .Select(p => p.Tags)
+            .ToListAsync();
+
+        var tagCounts = new Dictionary<string, int>();
+        foreach (var tagString in allTags)
         {
-            siteName = siteSettings.Data.FirstOrDefault(s => s.Key == "SiteName")?.Value ?? "Nexora Framework";
+            if (!string.IsNullOrEmpty(tagString))
+            {
+                var tags = tagString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var tag in tags)
+                {
+                    var trimmedTag = tag.Trim();
+                    if (!string.IsNullOrEmpty(trimmedTag))
+                    {
+                        if (tagCounts.ContainsKey(trimmedTag))
+                            tagCounts[trimmedTag]++;
+                        else
+                            tagCounts[trimmedTag] = 1;
+                    }
+                }
+            }
         }
 
-        var model = new TagViewModel
-        {
-            TagName = tag,
-            Posts = posts,
-            SiteName = siteName,
-            PostCount = posts.Count
-        };
+        var popularTags = tagCounts
+            .OrderByDescending(kvp => kvp.Value)
+            .Take(15)
+            .Select(kvp => new { name = kvp.Key, count = kvp.Value })
+            .ToList();
 
-        return View(model);
+        // Get popular posts
+        var popularPosts = await _context.BlogPosts
+            .Where(p => p.IsPublished)
+            .OrderByDescending(p => p.ViewCount)
+            .Take(5)
+            .Select(p => new
+            {
+                id = p.Id,
+                title = p.Title,
+                slug = p.Slug ?? "",
+                publishedDate = p.PublishedDate ?? p.CreatedAt,
+                viewCount = p.ViewCount
+            })
+            .ToListAsync();
+
+        return Json(new
+        {
+            categories = categories,
+            popularTags = popularTags,
+            popularPosts = popularPosts
+        });
     }
 
     public IActionResult Privacy()
