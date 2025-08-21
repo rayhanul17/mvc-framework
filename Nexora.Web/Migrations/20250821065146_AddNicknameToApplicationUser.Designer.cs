@@ -12,8 +12,8 @@ using Nexora.Infrastructure.Data;
 namespace Nexora.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250820035959_AddAspNetRoleIdToCustomerServiceRoleMapping")]
-    partial class AddAspNetRoleIdToCustomerServiceRoleMapping
+    [Migration("20250821065146_AddNicknameToApplicationUser")]
+    partial class AddNicknameToApplicationUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,6 +203,9 @@ namespace Nexora.Web.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Nickname")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
@@ -312,6 +315,9 @@ namespace Nexora.Web.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("CommentsEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("CommentsVisible")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Content")

@@ -20,7 +20,14 @@ public class HeartbeatService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Log initial heartbeat on startup
-        LogHeartbeat();
+        try
+        {
+            LogHeartbeat();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred during initial heartbeat logging");
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -37,17 +44,17 @@ public class HeartbeatService : BackgroundService
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred during heartbeat logging");
+                // Add a delay to prevent rapid error logging
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
     }
 
     private void LogHeartbeat()
     {
-        _heartbeatCounter++;
-        
-        using (var scope = _serviceProvider.CreateScope())
+        try
         {
-            var httpContextAccessor = scope.ServiceProvider.GetService<IHttpContextAccessor>();
+            _heartbeatCounter++;
             
             // Get system information
             var process = Process.GetCurrentProcess();
@@ -82,6 +89,11 @@ public class HeartbeatService : BackgroundService
                 gen2Collections,
                 DateTime.UtcNow
             );
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't throw - prevent cascading failures
+            _logger.LogError(ex, "Failed to log heartbeat");
         }
     }
 

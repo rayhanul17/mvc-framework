@@ -263,7 +263,7 @@ public class LogController : BaseController
     }
     
     [HttpPost]
-    [Authorize(Roles = "SuperAdmin,Admin")]
+    [Authorize(Roles = "SuperAdmin,Administrator")]
     public async Task<IActionResult> ArchiveLogs()
     {
         var result = await _logService.ArchiveOldLogsAsync();

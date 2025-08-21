@@ -38,7 +38,8 @@
       "Bash(for:*)",
       "Bash(do sed -i '/@{await Html.RenderPartialAsync(\"\"_ValidationScriptsPartial\"\");}/d' \"$file\")",
       "Bash(done)",
-      "Bash(do sed -i '/@{await Html.RenderPartialAsync(\"\"_ValidationScriptsPartial\"\");}/d' \"$file\")"
+      "Bash(do sed -i '/@{await Html.RenderPartialAsync(\"\"_ValidationScriptsPartial\"\");}/d' \"$file\")",
+      "Bash(start http://localhost:5266)"
     ],
     "deny": []
   }

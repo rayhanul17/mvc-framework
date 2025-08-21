@@ -43,6 +43,7 @@ public class ProfileController : BaseController
             UserName = user.UserName!,
             Email = user.Email!,
             FullName = user.FullName,
+            Nickname = user.Nickname,
             PhoneNumber = user.PhoneNumber,
             Description = user.Description,
             CurrentAvatarUrl = _fileUploadService.GetImageUrl(user.AvatarUrl)
@@ -113,6 +114,7 @@ public class ProfileController : BaseController
 
         // Update user information
         user.FullName = model.FullName;
+        user.Nickname = model.Nickname;
         user.Email = model.Email;
         user.UserName = model.Email; // Keep username same as email
         user.PhoneNumber = model.PhoneNumber;

@@ -133,7 +133,6 @@ namespace Nexora.Web.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
@@ -199,6 +198,9 @@ namespace Nexora.Web.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Nickname")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -489,57 +491,6 @@ namespace Nexora.Web.Migrations
                     b.HasIndex("CommentId");
 
                     b.ToTable("CommentAttachments");
-                });
-
-            modelBuilder.Entity("Nexora.Core.Entities.CustomerServiceRoleMapping", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AspNetRoleId")
-                        .HasMaxLength(450)
-                        .HasColumnType("varchar(450)");
-
-                    b.Property<string>("AspNetRoleName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("CustomerServiceRole")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AspNetRoleName");
-
-                    b.HasIndex("CustomerServiceRole")
-                        .IsUnique();
-
-                    b.ToTable("CustomerServiceRoleMappings", (string)null);
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.FileDocument", b =>
@@ -1401,18 +1352,6 @@ namespace Nexora.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Comment");
-                });
-
-            modelBuilder.Entity("Nexora.Core.Entities.CustomerServiceRoleMapping", b =>
-                {
-                    b.HasOne("Nexora.Core.Entities.ApplicationRole", "AspNetRole")
-                        .WithMany()
-                        .HasForeignKey("AspNetRoleName")
-                        .HasPrincipalKey("Name")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AspNetRole");
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.Log", b =>

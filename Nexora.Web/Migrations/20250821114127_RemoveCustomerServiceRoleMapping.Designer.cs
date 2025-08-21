@@ -12,8 +12,8 @@ using Nexora.Infrastructure.Data;
 namespace Nexora.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250813094741_CustomerServiceImplementation")]
-    partial class CustomerServiceImplementation
+    [Migration("20250821114127_RemoveCustomerServiceRoleMapping")]
+    partial class RemoveCustomerServiceRoleMapping
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -136,7 +136,6 @@ namespace Nexora.Web.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
@@ -202,6 +201,9 @@ namespace Nexora.Web.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Nickname")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -311,6 +313,12 @@ namespace Nexora.Web.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("CommentsEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("CommentsVisible")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -345,6 +353,9 @@ namespace Nexora.Web.Migrations
 
                     b.Property<DateTime?>("PublishedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("RequireCommentApproval")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Slug")
                         .HasMaxLength(300)
@@ -388,7 +399,7 @@ namespace Nexora.Web.Migrations
                     b.ToTable("BlogPosts", (string)null);
                 });
 
-            modelBuilder.Entity("Nexora.Core.Entities.CustomerServiceRoleMapping", b =>
+            modelBuilder.Entity("Nexora.Core.Entities.Comment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -396,10 +407,110 @@ namespace Nexora.Web.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AspNetRoleName")
+                    b.Property<string>("AuthorEmail")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("AuthorName")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("BlogPostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ModeratorNotes")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("ParentCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlogPostId");
+
+                    b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.CommentAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CommentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContentType")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.ToTable("CommentAttachments");
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.FileDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -407,32 +518,55 @@ namespace Nexora.Web.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("CustomerServiceRole")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("DownloadCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("LastDownloadedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("ModifiedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Tags")
                         .HasColumnType("longtext");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("UploadedBy")
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AspNetRoleName");
-
-                    b.HasIndex("CustomerServiceRole")
-                        .IsUnique();
-
-                    b.ToTable("CustomerServiceRoleMappings", (string)null);
+                    b.ToTable("FileDocuments");
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.Log", b =>
@@ -1189,16 +1323,38 @@ namespace Nexora.Web.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Nexora.Core.Entities.CustomerServiceRoleMapping", b =>
+            modelBuilder.Entity("Nexora.Core.Entities.Comment", b =>
                 {
-                    b.HasOne("Nexora.Core.Entities.ApplicationRole", "AspNetRole")
-                        .WithMany()
-                        .HasForeignKey("AspNetRoleName")
-                        .HasPrincipalKey("Name")
+                    b.HasOne("Nexora.Core.Entities.BlogPost", "BlogPost")
+                        .WithMany("Comments")
+                        .HasForeignKey("BlogPostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AspNetRole");
+                    b.HasOne("Nexora.Core.Entities.Comment", "ParentComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentCommentId");
+
+                    b.HasOne("Nexora.Core.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("BlogPost");
+
+                    b.Navigation("ParentComment");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.CommentAttachment", b =>
+                {
+                    b.HasOne("Nexora.Core.Entities.Comment", "Comment")
+                        .WithMany("Attachments")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.Log", b =>
@@ -1397,6 +1553,18 @@ namespace Nexora.Web.Migrations
             modelBuilder.Entity("Nexora.Core.Entities.BlogCategory", b =>
                 {
                     b.Navigation("BlogPosts");
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.BlogPost", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.Comment", b =>
+                {
+                    b.Navigation("Attachments");
+
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.Menu", b =>

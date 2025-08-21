@@ -151,10 +151,10 @@
                                 }
                                 else
                                 {
-                                    @(currentUser?.FullName?.FirstOrDefault() ?? User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                                    @(currentUser?.DisplayName?.FirstOrDefault() ?? User.Identity?.Name?.FirstOrDefault() ?? 'U')
                                 }
                             </div>
-                            <span class="user-name">@(currentUser?.FullName ?? User.Identity?.Name)</span>
+                            <span class="user-name">@(currentUser?.DisplayName ?? User.Identity?.Name)</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
                             <li><a class="dropdown-item" asp-controller="Profile" asp-action="Update"><i class="fas fa-user me-2"></i>Profile</a></li>

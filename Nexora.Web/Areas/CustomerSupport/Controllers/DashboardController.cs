@@ -299,18 +299,11 @@ public class DashboardController : BaseController
 
     private async Task<List<string>> GetUserCustomerServiceRoles()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return new List<string>();
         
-        var userRoles = await _userManager.GetRolesAsync(user);
-        
-        var csRoleMappings = await _context.CustomerServiceRoleMappings
-            .Where(m => m.IsActive && userRoles.Contains(m.AspNetRoleName))
-            .Select(m => m.CustomerServiceRole)
-            .ToListAsync();
-        
-        return csRoleMappings;
+        // Return all user roles directly without filtering
+        return (await _userManager.GetRolesAsync(user)).ToList();
     }
 
     [HttpPost]

@@ -19,6 +19,10 @@ public class ProfileUpdateViewModel
     [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
     public string FullName { get; set; } = string.Empty;
 
+    [Display(Name = "Nickname")]
+    [StringLength(50, ErrorMessage = "The {0} must be at max {1} characters long.")]
+    public string? Nickname { get; set; }
+
     [Phone]
     [Display(Name = "Phone Number")]
     public string? PhoneNumber { get; set; }

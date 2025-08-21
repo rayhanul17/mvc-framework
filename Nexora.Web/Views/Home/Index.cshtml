@@ -1,4 +1,7 @@
 @model Nexora.Web.Models.BlogLandingViewModel
+@using Microsoft.AspNetCore.Identity
+@using Nexora.Core.Entities
+@inject UserManager<ApplicationUser> UserManager
 @{
     Layout = null;
 }
@@ -804,8 +807,11 @@
             <div class="nav-buttons">
                 @if (User.Identity!.IsAuthenticated)
                 {
+                    var currentUser = await UserManager.GetUserAsync(User);
+                    var displayName = currentUser?.DisplayName ?? User.Identity.Name;
+                    
                     <div class="welcome-text">
-                        Welcome, <strong>@User.Identity.Name</strong>
+                        Welcome, <strong>@displayName</strong>
                     </div>
                     <div class="welcome-text-mobile">
                         <i class="fas fa-user-circle"></i>
