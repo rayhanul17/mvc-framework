@@ -344,23 +344,40 @@
             width: 100%;
         }
         
-        #categoryPosts .blog-card .blog-content {
-            padding: 1rem;
+        #categoryPosts .blog-card .blog-content,
+        #categoryPosts .blog-card .blog-card-content {
+            padding: 1.25rem;
         }
         
+        #categoryPosts .blog-card h3,
         #categoryPosts .blog-card .blog-title {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            color: #2c3e50;
         }
         
+        #categoryPosts .blog-card p,
         #categoryPosts .blog-card .blog-summary {
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            color: #6c757d;
         }
         
         #categoryPosts .blog-card .blog-meta {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+        
+        #categoryPosts .blog-card .category-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
         }
 
         .sidebar-widget {
@@ -740,15 +757,18 @@
                 right: 0.5rem;
             }
             
-            #categoryPosts .blog-card .blog-content {
+            #categoryPosts .blog-card .blog-content,
+            #categoryPosts .blog-card .blog-card-content {
                 padding: 1rem;
             }
             
+            #categoryPosts .blog-card h3,
             #categoryPosts .blog-card .blog-title {
                 font-size: 1.1rem;
                 margin-bottom: 0.5rem;
             }
             
+            #categoryPosts .blog-card p,
             #categoryPosts .blog-card .blog-summary {
                 font-size: 0.9rem;
                 display: -webkit-box;
@@ -761,12 +781,22 @@
                 font-size: 0.8rem;
             }
             
+            #categoryPosts .blog-card .category-badge {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+            }
+            
             #categoryPosts .blog-card .blog-tags {
                 display: block;
             }
             
             /* Hide sidebar on mobile when filtered posts are shown */
             .sidebar.mobile-hidden {
+                display: none;
+            }
+            
+            /* Hide category page title on mobile */
+            .category-page-title {
                 display: none;
             }
             
@@ -805,14 +835,17 @@
                 gap: 1rem;
             }
             
-            #categoryPosts .blog-card .blog-content {
+            #categoryPosts .blog-card .blog-content,
+            #categoryPosts .blog-card .blog-card-content {
                 padding: 1rem;
             }
             
+            #categoryPosts .blog-card h3,
             #categoryPosts .blog-card .blog-title {
                 font-size: 1.1rem;
             }
             
+            #categoryPosts .blog-card p,
             #categoryPosts .blog-card .blog-summary {
                 font-size: 0.9rem;
                 display: -webkit-box;
@@ -828,6 +861,11 @@
             
             .mobile-back-btn.show {
                 display: block;
+            }
+            
+            /* Hide category page title on small tablets */
+            .category-page-title {
+                display: none;
             }
         }
         
@@ -903,6 +941,13 @@
             
             .blog-meta {
                 font-size: 0.8rem;
+            }
+        }
+        
+        /* Desktop devices */
+        @@media (min-width: 1025px) {
+            .category-page-title {
+                display: block !important;
             }
         }
         
@@ -1129,7 +1174,7 @@
                     </div>
                 </div>
                 <div style="width: 100%; min-height: 400px;">
-                    <h2 style="margin-bottom: 2rem; color: #2c3e50;">Browse by Category</h2>
+                    <h2 class="category-page-title" style="margin-bottom: 2rem; color: #2c3e50;">Browse by Category</h2>
                     <button class="mobile-back-btn" onclick="showCategorySidebar()">
                         <i class="fas fa-arrow-left"></i> Back to Categories
                     </button>

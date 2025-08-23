@@ -6,28 +6,28 @@
 
 <div class="row justify-content-center mt-5">
     <div class="col-md-5">
-        <div class="card">
-            <div class="card-header">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
                 <h3 class="mb-0">Register</h3>
             </div>
             <div class="card-body">
                 <form asp-action="Register" method="post">
                     <div asp-validation-summary="All" class="text-danger"></div>
                     
-                    <div class="form-group mb-3">
-                        <label asp-for="FullName"></label>
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label"></label>
                         <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
                         <span asp-validation-for="FullName" class="text-danger"></span>
                     </div>
                     
-                    <div class="form-group mb-3">
-                        <label asp-for="Email"></label>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
                         <input asp-for="Email" class="form-control" placeholder="Enter your email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     
-                    <div class="form-group mb-3">
-                        <label asp-for="Password"></label>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
                         <div class="input-group">
                             <input asp-for="Password" class="form-control" placeholder="Enter your password" />
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('Password')">
@@ -37,8 +37,8 @@
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     
-                    <div class="form-group mb-3">
-                        <label asp-for="ConfirmPassword"></label>
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label"></label>
                         <div class="input-group">
                             <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" />
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('ConfirmPassword')">
@@ -48,24 +48,29 @@
                         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
                     
-                    <div class="form-group mb-3">
-                        <label asp-for="Description"></label>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
                         <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional description"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </button>
+                    </div>
                 </form>
             </div>
             <div class="card-footer text-center">
-                <p class="mb-0">Already have an account? <a asp-action="Login">Login here</a></p>
+                <small>Already have an account? <a asp-action="Login" class="text-decoration-none">Login here</a></small>
             </div>
         </div>
     </div>
 </div>
 
+
 @section Scripts {
-    
+    <partial name="_ValidationScriptsPartial" />
     <script>
         $(document).ready(function() {
             // Always hide loading mask when page loads
