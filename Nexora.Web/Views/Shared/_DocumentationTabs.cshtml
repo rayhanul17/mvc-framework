@@ -322,7 +322,7 @@ public IActionResult AdminPanel()
 }
 
 // Razor View
-@@if (await RoleAuthService.IsAdminAsync(User))
+@@if (await RoleAuthService.IsSuperAdminAsync(User))
 {
     &lt;button class="btn btn-danger"&gt;Delete&lt;/button&gt;
 }</code></pre>

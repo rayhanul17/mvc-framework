@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Nexora.Application.Interfaces;
 using Nexora.Application.Services;
-using Nexora.Core.Constants;
 using Nexora.Core.Entities;
 using System.Security.Claims;
 
@@ -238,7 +237,7 @@ public class CommentController : Controller
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Only allow the author or admins to delete
-            var isAdmin = await _roleAuthService.IsAdminAsync(User);
+            var isAdmin = await _roleAuthService.IsSuperAdminAsync(User);
             if (comment.UserId != userId && !isAdmin)
             {
                 return Json(new { success = false, message = "You are not authorized to delete this comment" });

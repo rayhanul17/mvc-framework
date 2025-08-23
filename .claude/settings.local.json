@@ -39,11 +39,14 @@
       "Bash(do sed -i '/@{await Html.RenderPartialAsync(\"\"_ValidationScriptsPartial\"\");}/d' \"$file\")",
       "Bash(done)",
       "Bash(do sed -i '/@{await Html.RenderPartialAsync(\"\"_ValidationScriptsPartial\"\");}/d' \"$file\")",
-      "Bash(start http://localhost:5266)"
+      "Bash(start http://localhost:5266)",
+      "Bash(mysql:*)",
+      "Bash(start http://localhost:5266/CustomerSupport/Home)"
     ],
     "deny": [],
     "additionalDirectories": [
-      "D:\\mnt\\d\\mvc-framework"
+      "D:\\mnt\\d\\mvc-framework",
+      "D:\\"
     ]
   }
 }

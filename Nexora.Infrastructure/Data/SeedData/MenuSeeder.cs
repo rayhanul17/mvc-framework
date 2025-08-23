@@ -13,16 +13,36 @@ public static class MenuSeeder
 
         var menus = new List<Menu>
         {
-            // Dashboard
+            // Home - Public menu
+            new Menu
+            {
+                Name = "Home",
+                DisplayName = "Home",
+                Controller = "Home",
+                Action = "Index",
+                Url = "/",
+                ActiveMenuUrl = "/",
+                Icon = "fas fa-home",
+                Order = 0,
+                IsActive = true,
+                AllowAnonymous = true,
+                RequireAuthentication = false
+            },
+            
+            // Dashboard - Requires authentication
             new Menu
             {
                 Name = "Dashboard",
                 DisplayName = "Dashboard",
                 Controller = "Home",
                 Action = "Dashboard",
+                Url = "/Home/Dashboard",
+                ActiveMenuUrl = "/Home/Dashboard",
                 Icon = "fas fa-tachometer-alt",
                 Order = 1,
-                IsActive = true
+                IsActive = true,
+                AllowAnonymous = false,
+                RequireAuthentication = true
             },
             
             // Blog Management (for Admin)
@@ -32,7 +52,10 @@ public static class MenuSeeder
                 DisplayName = "Blog Management",
                 Icon = "fas fa-blog",
                 Order = 2,
-                IsActive = true
+                IsActive = true,
+                AllowAnonymous = false,
+                RequireAuthentication = false,
+                ActiveMenuUrl = "/Blog"
             },
             
             // User Management (for SuperAdmin only)
@@ -42,7 +65,10 @@ public static class MenuSeeder
                 DisplayName = "User Management",
                 Icon = "fas fa-users",
                 Order = 3,
-                IsActive = true
+                IsActive = true,
+                AllowAnonymous = false,
+                RequireAuthentication = false,
+                ActiveMenuUrl = "/User"
             },
             
             // Settings (for SuperAdmin only)
@@ -52,10 +78,13 @@ public static class MenuSeeder
                 DisplayName = "Settings",
                 Icon = "fas fa-cog",
                 Order = 4,
-                IsActive = true
+                IsActive = true,
+                AllowAnonymous = false,
+                RequireAuthentication = false,
+                ActiveMenuUrl = "/SiteSetting"
             },
             
-            // Customer Support (for SuperAdmin only)
+            // Customer Support (for Support roles)
             new Menu
             {
                 Name = "CustomerSupport",
@@ -63,7 +92,10 @@ public static class MenuSeeder
                 Area = "CustomerSupport",
                 Icon = "fas fa-headset",
                 Order = 5,
-                IsActive = true
+                IsActive = true,
+                AllowAnonymous = false,
+                RequireAuthentication = false,
+                ActiveMenuUrl = "/CustomerSupport"
             },
             
             // Audit Logs (for SuperAdmin only)
@@ -73,9 +105,13 @@ public static class MenuSeeder
                 DisplayName = "Audit Logs",
                 Controller = "Log",
                 Action = "Index",
+                Url = "/Log",
+                ActiveMenuUrl = "/Log",
                 Icon = "fas fa-history",
                 Order = 6,
-                IsActive = true
+                IsActive = true,
+                AllowAnonymous = false,
+                RequireAuthentication = false
             }
         };
 
@@ -111,10 +147,14 @@ public static class MenuSeeder
                     DisplayName = "Posts",
                     Controller = "BlogPost",
                     Action = "Index",
+                    Url = "/BlogPost",
+                    ActiveMenuUrl = "/BlogPost",
                     Icon = "fas fa-file-alt",
                     ParentId = blogMenu.Id,
                     Order = 1,
-                    IsActive = true
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = false
                 },
                 new Menu
                 {
@@ -122,10 +162,14 @@ public static class MenuSeeder
                     DisplayName = "Categories",
                     Controller = "BlogCategory",
                     Action = "Index",
+                    Url = "/BlogCategory",
+                    ActiveMenuUrl = "/BlogCategory",
                     Icon = "fas fa-folder",
                     ParentId = blogMenu.Id,
                     Order = 2,
-                    IsActive = true
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = false
                 },
                 new Menu
                 {
@@ -133,10 +177,14 @@ public static class MenuSeeder
                     DisplayName = "Tags",
                     Controller = "BlogTag",
                     Action = "Index",
+                    Url = "/BlogTag",
+                    ActiveMenuUrl = "/BlogTag",
                     Icon = "fas fa-tags",
                     ParentId = blogMenu.Id,
                     Order = 3,
-                    IsActive = true
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = false
                 },
                 new Menu
                 {
@@ -195,6 +243,17 @@ public static class MenuSeeder
                     ParentId = userManagementMenu.Id,
                     Order = 3,
                     IsActive = true
+                },
+                new Menu
+                {
+                    Name = "Permissions",
+                    DisplayName = "Permission Management",
+                    Controller = "Permission",
+                    Action = "Index",
+                    Icon = "fas fa-shield-alt",
+                    ParentId = userManagementMenu.Id,
+                    Order = 4,
+                    IsActive = true
                 }
             };
 
@@ -248,28 +307,116 @@ public static class MenuSeeder
             {
                 new Menu
                 {
+                    Name = "SupportHome",
+                    DisplayName = "Overview",
+                    Area = "CustomerSupport",
+                    Controller = "Home",
+                    Action = "Index",
+                    Url = "/CustomerSupport/Home",
+                    ActiveMenuUrl = "/CustomerSupport/Home",
+                    Icon = "fas fa-home",
+                    ParentId = supportMenu.Id,
+                    Order = 1,
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = true
+                },
+                new Menu
+                {
                     Name = "SupportDashboard",
-                    DisplayName = "Dashboard",
+                    DisplayName = "Support Dashboard",
                     Area = "CustomerSupport",
                     Controller = "Dashboard",
                     Action = "Index",
-                    Icon = "fas fa-chart-line",
+                    Url = "/CustomerSupport/Dashboard",
+                    ActiveMenuUrl = "/CustomerSupport/Dashboard",
+                    Icon = "fas fa-tachometer-alt",
                     ParentId = supportMenu.Id,
-                    Order = 1,
-                    IsActive = true
+                    Order = 2,
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = true
+                },
+                new Menu
+                {
+                    Name = "TicketManagement",
+                    DisplayName = "Tickets",
+                    Area = "CustomerSupport",
+                    Controller = "Ticket",
+                    Action = "Index",
+                    Url = "/CustomerSupport/Ticket",
+                    ActiveMenuUrl = "/CustomerSupport/Ticket",
+                    Icon = "fas fa-ticket-alt",
+                    ParentId = supportMenu.Id,
+                    Order = 3,
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = true
+                },
+                new Menu
+                {
+                    Name = "ManageTickets",
+                    DisplayName = "Manage Tickets",
+                    Area = "CustomerSupport",
+                    Controller = "ManageTicket",
+                    Action = "Index",
+                    Url = "/CustomerSupport/ManageTicket",
+                    ActiveMenuUrl = "/CustomerSupport/ManageTicket",
+                    Icon = "fas fa-tasks",
+                    ParentId = supportMenu.Id,
+                    Order = 4,
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = true
                 },
                 new Menu
                 {
                     Name = "SupportTickets",
-                    DisplayName = "Tickets",
+                    DisplayName = "My Support Tickets",
                     Area = "CustomerSupport",
-                    Controller = "ManageTicket",
-                    Action = "Index",
-                    Icon = "fas fa-ticket-alt",
+                    Controller = "SupportTicket",
+                    Action = "MyTickets",
+                    Url = "/CustomerSupport/SupportTicket/MyTickets",
+                    ActiveMenuUrl = "/CustomerSupport/SupportTicket",
+                    Icon = "fas fa-user-circle",
                     ParentId = supportMenu.Id,
-                    Order = 2,
-                    IsActive = true
+                    Order = 5,
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = true
                 },
+                new Menu
+                {
+                    Name = "TicketDashboard",
+                    DisplayName = "Analytics",
+                    Area = "CustomerSupport",
+                    Controller = "Ticket",
+                    Action = "Dashboard",
+                    Url = "/CustomerSupport/Ticket/Dashboard",
+                    ActiveMenuUrl = "/CustomerSupport/Ticket/Dashboard",
+                    Icon = "fas fa-chart-pie",
+                    ParentId = supportMenu.Id,
+                    Order = 6,
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = true
+                },
+                new Menu
+                {
+                    Name = "SupportConfiguration",
+                    DisplayName = "Configuration",
+                    Area = "CustomerSupport", 
+                    Controller = "Configuration",
+                    Action = "Index",
+                    Url = "/CustomerSupport/Configuration",
+                    ActiveMenuUrl = "/CustomerSupport/Configuration",
+                    Icon = "fas fa-cog",
+                    ParentId = supportMenu.Id,
+                    Order = 7,
+                    IsActive = true,
+                    AllowAnonymous = false,
+                    RequireAuthentication = true
+                }
             };
 
             await context.Menus.AddRangeAsync(supportSubMenus);

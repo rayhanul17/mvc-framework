@@ -14,11 +14,14 @@
             <a asp-action="Footer" class="btn btn-info">
                 <i class="fas fa-shoe-prints"></i> Footer
             </a>
-            @if (await RoleAuthService.IsSuperAdminAsync(User))
+            @if (await User.CanAccessUrlAsync("/SiteSetting/CreateEdit"))
             {
                 <a asp-action="CreateEdit" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Add Setting
                 </a>
+            }
+            @if (await User.CanAccessUrlAsync("/SiteSetting/ResetDefaults"))
+            {
                 <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#resetModal">
                     <i class="fas fa-undo"></i> Reset Defaults
                 </button>
@@ -199,7 +202,7 @@
         <div class="text-center py-5">
             <i class="fas fa-cogs fa-3x text-muted mb-3"></i>
             <p class="text-muted">No site settings found.</p>
-            @if (await RoleAuthService.IsSuperAdminAsync(User))
+            @if (await User.CanAccessUrlAsync("/SiteSetting/CreateEdit"))
             {
                 <a asp-action="CreateEdit" class="btn btn-primary">Create First Setting</a>
             }
@@ -208,7 +211,7 @@
 </div>
 
 <!-- Reset Confirmation Modal -->
-@if (await RoleAuthService.IsSuperAdminAsync(User))
+@if (await User.CanAccessUrlAsync("/SiteSetting/ResetDefaults"))
 {
     <div class="modal fade" id="resetModal" tabindex="-1">
         <div class="modal-dialog">

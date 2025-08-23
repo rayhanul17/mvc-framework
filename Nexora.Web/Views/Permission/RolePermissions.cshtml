@@ -1,0 +1,271 @@
+@using Nexora.Web.Models.ViewModels
+@model List<RolePermissionViewModel>
+@{
+    ViewData["Title"] = "Role Permissions";
+    var allPermissions = ViewBag.AllPermissions as List<Nexora.Core.Entities.Permission>;
+    var groupedPermissions = allPermissions?.GroupBy(p => p.Area ?? "Root") ?? Enumerable.Empty<IGrouping<string, Nexora.Core.Entities.Permission>>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Role Permissions Management</h2>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Permissions
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var rolePermission in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-tag"></i> @rolePermission.Role.Name
+                        </h5>
+                        <small>@rolePermission.Role.Description</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Current Permissions:</strong> 
+                            <span class="badge bg-info">@rolePermission.Permissions.Count</span>
+                        </div>
+                        
+                        <button type="button" class="btn btn-sm btn-primary edit-permissions" 
+                                data-role-id="@rolePermission.Role.Id" 
+                                data-role-name="@rolePermission.Role.Name">
+                            <i class="fas fa-edit"></i> Edit Permissions
+                        </button>
+                        
+                        <button type="button" class="btn btn-sm btn-success bulk-assign" 
+                                data-role-id="@rolePermission.Role.Id" 
+                                data-role-name="@rolePermission.Role.Name">
+                            <i class="fas fa-check-double"></i> Bulk Assign
+                        </button>
+                        
+                        <div class="mt-3">
+                            <h6>Assigned Permissions:</h6>
+                            @if (rolePermission.Permissions.Any())
+                            {
+                                <div class="permission-tags">
+                                    @foreach (var permission in rolePermission.Permissions.OrderBy(p => p.Area).ThenBy(p => p.Controller))
+                                    {
+                                        <span class="badge bg-secondary me-1 mb-1">
+                                            @(!string.IsNullOrEmpty(permission.Area) ? $"{permission.Area}/" : "")@permission.Controller/@permission.Action
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No permissions assigned</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Edit Permissions Modal -->
+<div class="modal fade" id="editPermissionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Role Permissions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="permissionsForm">
+                    <input type="hidden" id="roleId" name="roleId" />
+                    
+                    @foreach (var areaGroup in groupedPermissions)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <input type="checkbox" class="form-check-input area-checkbox me-2" data-area="@areaGroup.Key" />
+                                    @(areaGroup.Key == "Root" ? "Root Controllers" : $"{areaGroup.Key} Area")
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @foreach (var permission in areaGroup.OrderBy(p => p.Controller).ThenBy(p => p.Action))
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input permission-checkbox" 
+                                                       data-area="@areaGroup.Key"
+                                                       name="permissionIds" 
+                                                       value="@permission.Id" 
+                                                       id="perm_@permission.Id" />
+                                                <label class="form-check-label" for="perm_@permission.Id">
+                                                    <strong>@permission.Controller/@permission.Action</strong>
+                                                    @if (!string.IsNullOrEmpty(permission.Description))
+                                                    {
+                                                        <br />
+                                                        <small class="text-muted">@permission.Description</small>
+                                                    }
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="savePermissions">Save Permissions</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Assign Modal -->
+<div class="modal fade" id="bulkAssignModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Assign Permissions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="bulkRoleId" />
+                <p>Select an area to assign all its permissions to <strong id="bulkRoleName"></strong>:</p>
+                <select id="bulkArea" class="form-select">
+                    <option value="">-- Select Area --</option>
+                    @foreach (var areaGroup in groupedPermissions)
+                    {
+                        <option value="@areaGroup.Key">
+                            @(areaGroup.Key == "Root" ? "Root Controllers" : $"{areaGroup.Key} Area")
+                            (@areaGroup.Count() permissions)
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmBulkAssign">Assign All</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var currentRolePermissions = {};
+            
+            @foreach (var rolePermission in Model)
+            {
+                @:currentRolePermissions['@rolePermission.Role.Id'] = [@string.Join(",", rolePermission.Permissions.Select(p => p.Id))];
+            }
+            
+            // Area checkbox toggle
+            $('.area-checkbox').on('change', function() {
+                var area = $(this).data('area');
+                var isChecked = $(this).is(':checked');
+                $('.permission-checkbox[data-area="' + area + '"]').prop('checked', isChecked);
+            });
+            
+            // Update area checkbox when individual permissions change
+            $('.permission-checkbox').on('change', function() {
+                var area = $(this).data('area');
+                var areaPermissions = $('.permission-checkbox[data-area="' + area + '"]');
+                var checkedPermissions = areaPermissions.filter(':checked');
+                var areaCheckbox = $('.area-checkbox[data-area="' + area + '"]');
+                
+                if (checkedPermissions.length === 0) {
+                    areaCheckbox.prop('checked', false).prop('indeterminate', false);
+                } else if (checkedPermissions.length === areaPermissions.length) {
+                    areaCheckbox.prop('checked', true).prop('indeterminate', false);
+                } else {
+                    areaCheckbox.prop('checked', false).prop('indeterminate', true);
+                }
+            });
+            
+            // Edit permissions
+            $('.edit-permissions').on('click', function() {
+                var roleId = $(this).data('role-id');
+                var roleName = $(this).data('role-name');
+                
+                $('#roleId').val(roleId);
+                $('#editPermissionsModal .modal-title').text('Edit Permissions for ' + roleName);
+                
+                // Reset all checkboxes
+                $('.permission-checkbox').prop('checked', false);
+                $('.area-checkbox').prop('checked', false).prop('indeterminate', false);
+                
+                // Check current permissions
+                if (currentRolePermissions[roleId]) {
+                    currentRolePermissions[roleId].forEach(function(permId) {
+                        $('#perm_' + permId).prop('checked', true).trigger('change');
+                    });
+                }
+                
+                $('#editPermissionsModal').modal('show');
+            });
+            
+            // Save permissions
+            $('#savePermissions').on('click', function() {
+                var roleId = $('#roleId').val();
+                var permissionIds = [];
+                
+                $('.permission-checkbox:checked').each(function() {
+                    permissionIds.push(parseInt($(this).val()));
+                });
+                
+                $.post('@Url.Action("UpdateRolePermissions", "Permission")', 
+                    { roleId: roleId, permissionIds: permissionIds }, 
+                    function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                );
+            });
+            
+            // Bulk assign
+            $('.bulk-assign').on('click', function() {
+                var roleId = $(this).data('role-id');
+                var roleName = $(this).data('role-name');
+                
+                $('#bulkRoleId').val(roleId);
+                $('#bulkRoleName').text(roleName);
+                $('#bulkArea').val('');
+                
+                $('#bulkAssignModal').modal('show');
+            });
+            
+            // Confirm bulk assign
+            $('#confirmBulkAssign').on('click', function() {
+                var roleId = $('#bulkRoleId').val();
+                var area = $('#bulkArea').val();
+                
+                if (!area) {
+                    alert('Please select an area');
+                    return;
+                }
+                
+                $.post('@Url.Action("BulkAssign", "Permission")', 
+                    { roleId: roleId, area: area }, 
+                    function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                );
+            });
+        });
+    </script>
+}

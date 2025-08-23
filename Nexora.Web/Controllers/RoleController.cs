@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nexora.Application.Interfaces;
+using Nexora.Application.Services;
 using Nexora.Web.Models.ViewModels;
 
 namespace Nexora.Web.Controllers;
@@ -9,10 +10,12 @@ namespace Nexora.Web.Controllers;
 public class RoleController : BaseController
 {
     private readonly IRoleService _roleService;
+    private readonly ICacheManagementService _cacheManagement;
 
-    public RoleController(IRoleService roleService)
+    public RoleController(IRoleService roleService, ICacheManagementService cacheManagement)
     {
         _roleService = roleService;
+        _cacheManagement = cacheManagement;
     }
 
     public async Task<IActionResult> Index()
@@ -96,6 +99,9 @@ public class RoleController : BaseController
                 return View("CreateEdit", model);
             }
 
+            // Clear cache after role creation
+            _cacheManagement.ClearAllPermissionCaches();
+
             SetSuccessMessage("Role created successfully");
             return RedirectToAction(nameof(Index));
         }
@@ -107,6 +113,9 @@ public class RoleController : BaseController
                 AddErrorsToModelState(result);
                 return View("CreateEdit", model);
             }
+
+            // Clear cache after role update
+            _cacheManagement.ClearAllPermissionCaches();
 
             SetSuccessMessage("Role updated successfully");
             return RedirectToAction(nameof(Index));
@@ -124,6 +133,9 @@ public class RoleController : BaseController
         }
         else
         {
+            // Clear cache after role deletion
+            _cacheManagement.ClearAllPermissionCaches();
+            
             SetSuccessMessage("Role deleted successfully");
         }
 
@@ -139,6 +151,13 @@ public class RoleController : BaseController
         }
 
         var result = await _roleService.AssignRoleToUserAsync(model.UserId, model.RoleId);
+        
+        if (result.IsSuccess)
+        {
+            // Clear cache after role assignment
+            _cacheManagement.ClearUserCache(model.UserId);
+        }
+        
         return HandleResult(result);
     }
 
@@ -151,6 +170,13 @@ public class RoleController : BaseController
         }
 
         var result = await _roleService.RemoveRoleFromUserAsync(model.UserId, model.RoleId);
+        
+        if (result.IsSuccess)
+        {
+            // Clear cache after role removal
+            _cacheManagement.ClearUserCache(model.UserId);
+        }
+        
         return HandleResult(result);
     }
 }

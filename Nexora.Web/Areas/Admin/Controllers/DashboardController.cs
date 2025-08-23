@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace Nexora.Web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles = "Administrator,SuperAdmin")]
+[Authorize]
 public class DashboardController : BaseController
 {
     private readonly ApplicationDbContext _context;

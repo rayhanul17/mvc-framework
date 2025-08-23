@@ -56,6 +56,48 @@ public class MenuService : BaseService<Menu>, IMenuService
         }
     }
 
+    public async Task<Result<IEnumerable<Menu>>> GetAnonymousMenusAsync()
+    {
+        try
+        {
+            var anonymousMenus = await _unitOfWork.Repository<Menu>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Include(m => m.Children)
+                .Where(m => m.IsActive && m.AllowAnonymous)
+                .OrderBy(m => m.Order)
+                .ToListAsync();
+                
+            var menuHierarchy = BuildMenuHierarchy(anonymousMenus);
+            return Result<IEnumerable<Menu>>.Success(menuHierarchy);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<Menu>>.Failure($"Error retrieving anonymous menus: {ex.Message}");
+        }
+    }
+    
+    public async Task<Result<IEnumerable<Menu>>> GetAuthenticatedMenusAsync()
+    {
+        try
+        {
+            var authenticatedMenus = await _unitOfWork.Repository<Menu>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Include(m => m.Children)
+                .Where(m => m.IsActive && (m.AllowAnonymous || m.RequireAuthentication))
+                .OrderBy(m => m.Order)
+                .ToListAsync();
+                
+            var menuHierarchy = BuildMenuHierarchy(authenticatedMenus);
+            return Result<IEnumerable<Menu>>.Success(menuHierarchy);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<Menu>>.Failure($"Error retrieving authenticated menus: {ex.Message}");
+        }
+    }
+
     public async Task<Result<IEnumerable<Menu>>> GetUserMenusAsync(string userId)
     {
         try
@@ -69,7 +111,7 @@ public class MenuService : BaseService<Menu>, IMenuService
             if (user != null && user.IsSuperAdmin)
             {
                 // SuperAdmin gets all active menus - use AsNoTracking for fresh data
-                var allMenus = await _unitOfWork.Repository<Menu>()
+                var superAdminMenus = await _unitOfWork.Repository<Menu>()
                     .GetQueryable()
                     .AsNoTracking()
                     .Include(m => m.Children)
@@ -77,35 +119,124 @@ public class MenuService : BaseService<Menu>, IMenuService
                     .OrderBy(m => m.Order)
                     .ToListAsync();
                 
-                var allMenuHierarchy = BuildMenuHierarchy(allMenus);
-                return Result<IEnumerable<Menu>>.Success(allMenuHierarchy);
+                var superAdminMenuHierarchy = BuildMenuHierarchy(superAdminMenus);
+                return Result<IEnumerable<Menu>>.Success(superAdminMenuHierarchy);
             }
             
-            // Regular users get menus based on their roles - use AsNoTracking for fresh data
+            // Get user's active roles
+            var now = DateTime.UtcNow;
             var userRoles = await _unitOfWork.Repository<UserRole>()
                 .GetQueryable()
                 .AsNoTracking()
-                .Where(ur => ur.UserId == userId)
+                .Where(ur => ur.UserId == userId && 
+                            ur.IsActive && 
+                            (ur.ExpiresAt == null || ur.ExpiresAt > now))
                 .Select(ur => ur.RoleId)
                 .ToListAsync();
 
-            var menus = await _unitOfWork.Repository<Menu>()
+            // Get all active menus
+            var allMenus = await _unitOfWork.Repository<Menu>()
                 .GetQueryable()
                 .AsNoTracking()
                 .Include(m => m.Children)
                 .Include(m => m.RoleMenus)
-                .Where(m => m.RoleMenus.Any(rm => userRoles.Contains(rm.RoleId) && rm.CanView) && m.IsActive)
-                .Distinct()
-                .OrderBy(m => m.Order)
+                .Where(m => m.IsActive)
                 .ToListAsync();
 
-            var menuHierarchy = BuildMenuHierarchy(menus);
+            // Filter menus based on permissions
+            var visibleMenus = new List<Menu>();
+            
+            foreach (var menu in allMenus)
+            {
+                bool shouldInclude = false;
+                
+                // Check if menu allows anonymous access
+                if (menu.AllowAnonymous)
+                {
+                    shouldInclude = true;
+                }
+                // Check if menu requires authentication only
+                else if (menu.RequireAuthentication && user != null)
+                {
+                    shouldInclude = true;
+                }
+                // Check if user has permission through roles
+                else if (userRoles.Any() && menu.RoleMenus.Any(rm => userRoles.Contains(rm.RoleId) && rm.CanView))
+                {
+                    shouldInclude = true;
+                }
+                // Check if user has permission through controller/action permissions
+                else if (!string.IsNullOrEmpty(menu.Controller) && !string.IsNullOrEmpty(menu.Action))
+                {
+                    shouldInclude = await CheckUserHasPermissionForMenuAsync(userId, userRoles, menu.Area, menu.Controller, menu.Action);
+                }
+                
+                if (shouldInclude)
+                {
+                    visibleMenus.Add(menu);
+                }
+            }
+
+            var menuHierarchy = BuildMenuHierarchy(visibleMenus);
             return Result<IEnumerable<Menu>>.Success(menuHierarchy);
         }
         catch (Exception ex)
         {
             return Result<IEnumerable<Menu>>.Failure($"Error retrieving user menus: {ex.Message}");
         }
+    }
+    
+    private async Task<bool> CheckUserHasPermissionForMenuAsync(string userId, List<string> userRoleIds, string? area, string controller, string action)
+    {
+        if (!userRoleIds.Any())
+            return false;
+            
+        // Check if any of user's roles have permission for this action
+        var hasPermission = await _unitOfWork.Repository<RolePermission>()
+            .GetQueryable()
+            .AsNoTracking()
+            .Include(rp => rp.Permission)
+            .Where(rp => userRoleIds.Contains(rp.RoleId) && 
+                        rp.IsActive && 
+                        rp.Permission.IsActive)
+            .AnyAsync(rp => 
+                (string.IsNullOrEmpty(rp.Permission.Area) || rp.Permission.Area == area) &&
+                rp.Permission.Controller == controller &&
+                rp.Permission.Action == action);
+
+        // If no exact match, check for wildcard action permission
+        if (!hasPermission)
+        {
+            hasPermission = await _unitOfWork.Repository<RolePermission>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Include(rp => rp.Permission)
+                .Where(rp => userRoleIds.Contains(rp.RoleId) && 
+                            rp.IsActive && 
+                            rp.Permission.IsActive)
+                .AnyAsync(rp => 
+                    (string.IsNullOrEmpty(rp.Permission.Area) || rp.Permission.Area == area) &&
+                    rp.Permission.Controller == controller &&
+                    rp.Permission.Action == "*");
+        }
+
+        // If still no match, check for area-wide permission
+        if (!hasPermission && !string.IsNullOrEmpty(area))
+        {
+            hasPermission = await _unitOfWork.Repository<RolePermission>()
+                .GetQueryable()
+                .AsNoTracking()
+                .Include(rp => rp.Permission)
+                .Where(rp => userRoleIds.Contains(rp.RoleId) && 
+                            rp.IsActive && 
+                            rp.Permission.IsActive)
+                .AnyAsync(rp => 
+                    rp.Permission.Area == area &&
+                    rp.Permission.Controller == "*" &&
+                    rp.Permission.Action == "*");
+        }
+
+        return hasPermission;
     }
 
     public async Task<Result<Menu>> CreateMenuWithPermissionsAsync(Menu menu, List<string> roleIds)

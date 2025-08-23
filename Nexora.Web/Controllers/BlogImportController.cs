@@ -9,7 +9,7 @@ using System.Drawing;
 
 namespace Nexora.Web.Controllers;
 
-[Authorize(Roles = "Administrator,SuperAdmin")]
+[Authorize]
 public class BlogImportController : BaseController
 {
     private readonly IBlogImportService _importService;

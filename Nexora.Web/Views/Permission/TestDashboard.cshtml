@@ -1,0 +1,384 @@
+@using Nexora.Web.Models.ViewModels
+@model PermissionTestDashboardViewModel
+@{
+    ViewData["Title"] = "Permission Testing Dashboard";
+    var isSuperAdmin = await UserPermissionExtensions.IsSuperAdminAsync(User);
+}
+
+@if (!isSuperAdmin)
+{
+    <div class="alert alert-danger">
+        <h4>Access Denied</h4>
+        <p>Only SuperAdmin users can access the Permission Testing Dashboard.</p>
+    </div>
+    return;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Permission Testing Dashboard</h2>
+        <div>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Permissions
+            </a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <strong>Testing Environment:</strong> This dashboard allows you to test permissions for different users without affecting the actual system.
+        Use this to verify that your permission configuration is working correctly.
+    </div>
+
+    <div class="row">
+        <!-- Single User Test -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-check"></i> Single User Permission Test
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="singleTestForm">
+                        <div class="mb-3">
+                            <label for="testUserId" class="form-label">Select User:</label>
+                            <select id="testUserId" class="form-select" required>
+                                <option value="">-- Select User --</option>
+                                @foreach (var user in Model.Users)
+                                {
+                                    <option value="@user.Id" data-email="@user.Email">
+                                        @user.FullName (@user.Email)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="testArea" class="form-label">Area:</label>
+                                <select id="testArea" class="form-select">
+                                    <option value="">-- None (Root) --</option>
+                                    @foreach (var area in Model.Permissions.Keys.Where(k => k != "Root"))
+                                    {
+                                        <option value="@area">@area</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="testController" class="form-label">Controller:</label>
+                                <select id="testController" class="form-select" required>
+                                    <option value="">-- Select Controller --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="testAction" class="form-label">Action:</label>
+                                <select id="testAction" class="form-select" required>
+                                    <option value="">-- Select Action --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Test Permission
+                        </button>
+                    </form>
+
+                    <div id="singleTestResult" class="mt-4" style="display: none;">
+                        <h6>Test Result:</h6>
+                        <div class="alert" id="singleResultAlert">
+                            <div id="singleResultContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk User Test -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users-cog"></i> Bulk Permission Test
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="bulkTestForm">
+                        <div class="mb-3">
+                            <label class="form-label">Select Users:</label>
+                            <div style="max-height: 150px; overflow-y: auto; border: 1px solid #dee2e6; padding: 10px; border-radius: 5px;">
+                                @foreach (var user in Model.Users)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input bulk-user-checkbox" type="checkbox" 
+                                               value="@user.Id" id="bulkUser_@user.Id">
+                                        <label class="form-check-label" for="bulkUser_@user.Id">
+                                            @user.FullName (@user.Email)
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="selectAllUsers">
+                                <label class="form-check-label" for="selectAllUsers">
+                                    <strong>Select All Users</strong>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="bulkTestArea" class="form-label">Area:</label>
+                                <select id="bulkTestArea" class="form-select">
+                                    <option value="">-- None (Root) --</option>
+                                    @foreach (var area in Model.Permissions.Keys.Where(k => k != "Root"))
+                                    {
+                                        <option value="@area">@area</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="bulkTestController" class="form-label">Controller:</label>
+                                <select id="bulkTestController" class="form-select" required>
+                                    <option value="">-- Select Controller --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="bulkTestAction" class="form-label">Action:</label>
+                                <select id="bulkTestAction" class="form-select" required>
+                                    <option value="">-- Select Action --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-play"></i> Test Bulk Permissions
+                        </button>
+                    </form>
+
+                    <div id="bulkTestResult" class="mt-4" style="display: none;">
+                        <h6>Bulk Test Results:</h6>
+                        <div id="bulkResultContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permission Data for JavaScript -->
+    <script type="application/json" id="permissionData">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Permissions.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value.Select(p => new {
+                controller = p.Controller,
+                action = p.Action,
+                name = p.Name,
+                description = p.Description
+            }).ToList()
+        )))
+    </script>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load permission data
+            const permissionData = JSON.parse($('#permissionData').text());
+            
+            // Helper function to populate controller dropdown
+            function populateControllers(areaSelect, controllerSelect) {
+                const selectedArea = $(areaSelect).val() || 'Root';
+                const $controllerSelect = $(controllerSelect);
+                
+                $controllerSelect.empty().append('<option value="">-- Select Controller --</option>');
+                
+                if (permissionData[selectedArea]) {
+                    const controllers = [...new Set(permissionData[selectedArea].map(p => p.controller))];
+                    controllers.forEach(controller => {
+                        $controllerSelect.append(`<option value="${controller}">${controller}</option>`);
+                    });
+                }
+            }
+            
+            // Helper function to populate action dropdown
+            function populateActions(areaSelect, controllerSelect, actionSelect) {
+                const selectedArea = $(areaSelect).val() || 'Root';
+                const selectedController = $(controllerSelect).val();
+                const $actionSelect = $(actionSelect);
+                
+                $actionSelect.empty().append('<option value="">-- Select Action --</option>');
+                
+                if (permissionData[selectedArea] && selectedController) {
+                    const actions = permissionData[selectedArea]
+                        .filter(p => p.controller === selectedController)
+                        .map(p => p.action);
+                    
+                    [...new Set(actions)].forEach(action => {
+                        $actionSelect.append(`<option value="${action}">${action}</option>`);
+                    });
+                }
+            }
+            
+            // Single test form handlers
+            $('#testArea').on('change', function() {
+                populateControllers('#testArea', '#testController');
+                $('#testAction').empty().append('<option value="">-- Select Action --</option>');
+            });
+            
+            $('#testController').on('change', function() {
+                populateActions('#testArea', '#testController', '#testAction');
+            });
+            
+            // Bulk test form handlers
+            $('#bulkTestArea').on('change', function() {
+                populateControllers('#bulkTestArea', '#bulkTestController');
+                $('#bulkTestAction').empty().append('<option value="">-- Select Action --</option>');
+            });
+            
+            $('#bulkTestController').on('change', function() {
+                populateActions('#bulkTestArea', '#bulkTestController', '#bulkTestAction');
+            });
+            
+            // Select all users checkbox
+            $('#selectAllUsers').on('change', function() {
+                $('.bulk-user-checkbox').prop('checked', $(this).is(':checked'));
+            });
+            
+            // Initialize with Root area
+            populateControllers('#testArea', '#testController');
+            populateControllers('#bulkTestArea', '#bulkTestController');
+            
+            // Single permission test
+            $('#singleTestForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const data = {
+                    userId: $('#testUserId').val(),
+                    area: $('#testArea').val() || null,
+                    controller: $('#testController').val(),
+                    action: $('#testAction').val()
+                };
+                
+                if (!data.userId || !data.controller || !data.action) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                $.ajax({
+                    url: '@Url.Action("TestPermission", "Permission")',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        if (response.success) {
+                            const alertClass = response.hasPermission ? 'alert-success' : 'alert-danger';
+                            const icon = response.hasPermission ? 'fas fa-check-circle' : 'fas fa-times-circle';
+                            const result = response.hasPermission ? 'GRANTED' : 'DENIED';
+                            
+                            $('#singleResultContent').html(`
+                                <div class="d-flex align-items-center">
+                                    <i class="${icon} fa-2x me-3"></i>
+                                    <div>
+                                        <h5 class="mb-1">Permission ${result}</h5>
+                                        <p class="mb-1"><strong>User:</strong> ${response.testDetails.userName}</p>
+                                        <p class="mb-1"><strong>Permission:</strong> ${response.testDetails.permissionString}</p>
+                                        <p class="mb-1"><strong>Roles:</strong> ${response.userRoles.join(', ') || 'None'}</p>
+                                        <p class="mb-0"><strong>SuperAdmin:</strong> ${response.isSuperAdmin ? 'Yes' : 'No'}</p>
+                                        ${response.testDetails.area !== 'None' ? `<p class="mb-0"><strong>Area Permission:</strong> ${response.hasAreaPermission ? 'Yes' : 'No'}</p>` : ''}
+                                    </div>
+                                </div>
+                            `);
+                            $('#singleResultAlert').removeClass('alert-success alert-danger').addClass(alertClass);
+                            $('#singleTestResult').show();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error testing permission. Please try again.');
+                    }
+                });
+            });
+            
+            // Bulk permission test
+            $('#bulkTestForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const selectedUsers = $('.bulk-user-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+                
+                if (selectedUsers.length === 0) {
+                    alert('Please select at least one user');
+                    return;
+                }
+                
+                const data = {
+                    userIds: selectedUsers,
+                    area: $('#bulkTestArea').val() || null,
+                    controller: $('#bulkTestController').val(),
+                    action: $('#bulkTestAction').val()
+                };
+                
+                if (!data.controller || !data.action) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+                
+                $.ajax({
+                    url: '@Url.Action("TestBulkPermissions", "Permission")',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        if (response.success) {
+                            let resultsHtml = `
+                                <div class="alert alert-info">
+                                    <h6>Test Summary:</h6>
+                                    <p><strong>Permission:</strong> ${response.testDetails.area !== 'None' ? response.testDetails.area + '/' : ''}${response.testDetails.controller}/${response.testDetails.action}</p>
+                                    <p><strong>Users Tested:</strong> ${response.testDetails.testedUsers}</p>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Permission</th>
+                                                <th>Roles</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                            `;
+                            
+                            response.results.forEach(function(result) {
+                                const statusClass = result.hasPermission ? 'text-success' : 'text-danger';
+                                const statusIcon = result.hasPermission ? 'fas fa-check' : 'fas fa-times';
+                                const statusText = result.hasPermission ? 'GRANTED' : 'DENIED';
+                                
+                                resultsHtml += `
+                                    <tr>
+                                        <td>${result.userName}</td>
+                                        <td class="${statusClass}">
+                                            <i class="${statusIcon}"></i> ${statusText}
+                                        </td>
+                                        <td>${result.roles.join(', ') || 'None'}</td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            resultsHtml += '</tbody></table></div>';
+                            
+                            $('#bulkResultContent').html(resultsHtml);
+                            $('#bulkTestResult').show();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function() {
+                        alert('Error testing bulk permissions. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+}

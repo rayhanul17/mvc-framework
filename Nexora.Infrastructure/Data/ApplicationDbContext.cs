@@ -44,6 +44,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     // Comment Entities
     public DbSet<Comment> Comments { get; set; }
     public DbSet<CommentAttachment> CommentAttachments { get; set; }
+    
+    // Permission Entities
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<RolePermission> RolePermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -210,7 +214,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.Property(e => e.Description).IsRequired();
             entity.Property(e => e.TicketNumber).HasMaxLength(50).IsRequired();
             entity.Property(e => e.Category).HasMaxLength(100);
+            entity.Property(e => e.SubCategory).HasMaxLength(100);
             entity.Property(e => e.ResolutionNotes).HasMaxLength(500);
+            entity.Property(e => e.DueDate);
+            entity.Property(e => e.ResponseTimeHours);
+            entity.Property(e => e.ResolutionTimeHours);
             entity.Property(e => e.Priority).HasConversion<string>();
             entity.Property(e => e.Status).HasConversion<string>();
 
@@ -227,6 +235,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasOne(e => e.AssignedBy)
                 .WithMany()
                 .HasForeignKey(e => e.AssignedById)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.LastModifiedBy)
+                .WithMany()
+                .HasForeignKey(e => e.LastModifiedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasIndex(e => e.TicketNumber).IsUnique();
@@ -374,6 +387,52 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.LoggedAt);
             entity.HasIndex(e => e.ArchivedAt);
             entity.HasIndex(e => new { e.TableName, e.EntityId });
+        });
+        
+        // Permission Configuration
+        builder.Entity<Permission>(entity =>
+        {
+            entity.ToTable("Permissions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Area).HasMaxLength(50);
+            entity.Property(e => e.Controller).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Action).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(200);
+            
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.HasIndex(e => new { e.Area, e.Controller, e.Action }).IsUnique();
+        });
+        
+        // RolePermission Configuration
+        builder.Entity<RolePermission>(entity =>
+        {
+            entity.ToTable("RolePermissions");
+            entity.HasKey(e => e.Id);
+            
+            entity.HasOne(e => e.Role)
+                .WithMany()
+                .HasForeignKey(e => e.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(e => e.PermissionId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasIndex(e => new { e.RoleId, e.PermissionId }).IsUnique();
+        });
+        
+        // UserRole additional configuration
+        builder.Entity<UserRole>(entity =>
+        {
+            entity.Property(e => e.ExpiresAt);
+            entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt);
+            
+            entity.HasIndex(e => e.ExpiresAt);
+            entity.HasIndex(e => e.IsActive);
         });
     }
 

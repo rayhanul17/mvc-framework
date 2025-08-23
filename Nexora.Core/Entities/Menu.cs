@@ -8,10 +8,13 @@ public class Menu : BaseEntity
     public string? Controller { get; set; }
     public string? Action { get; set; }
     public string? Url { get; set; }
+    public string? ActiveMenuUrl { get; set; }
     public string? Icon { get; set; }
     public int? ParentId { get; set; }
     public int Order { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool AllowAnonymous { get; set; } = false;
+    public bool RequireAuthentication { get; set; } = false;
     
     public virtual Menu? Parent { get; set; }
     public virtual ICollection<Menu> Children { get; set; } = new List<Menu>();

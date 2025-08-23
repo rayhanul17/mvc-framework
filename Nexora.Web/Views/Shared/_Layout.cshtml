@@ -280,6 +280,12 @@
             document.documentElement.style.setProperty('--bs-success', '@settings.SuccessColor');
             document.documentElement.style.setProperty('--bs-danger', '@settings.DangerColor');
             document.documentElement.style.setProperty('--bs-warning', '@settings.WarningColor');
+            
+            // Always hide loading mask on page load
+            // This handles cases where form submission resulted in a server-side redirect
+            if (typeof LoadingMask !== 'undefined') {
+                LoadingMask.hide();
+            }
         });
     </script>
     

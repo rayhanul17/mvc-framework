@@ -64,25 +64,37 @@
                                     <td>@(item.PublishedDate?.ToString("dd/MM/yyyy") ?? "-")</td>
                                     <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
                                     <td>
-                                        <a asp-action="CreateEdit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        @if (!item.IsPublished)
+                                        @* Using URL-based permission checking *@
+                                        @if (await User.CanAccessUrlAsync($"/BlogPost/CreateEdit/{item.Id}"))
                                         {
-                                            <button class="btn btn-sm btn-success publish-btn" data-id="@item.Id">
-                                                <i class="fas fa-check"></i>
+                                            <a asp-action="CreateEdit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        }
+                                        
+                                        @if (await User.CanAccessUrlAsync("/BlogPost/Publish"))
+                                        {
+                                            @if (!item.IsPublished)
+                                            {
+                                                <button class="btn btn-sm btn-success publish-btn" data-id="@item.Id">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-sm btn-secondary unpublish-btn" data-id="@item.Id">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            }
+                                        }
+                                        
+                                        @if (await User.CanAccessUrlAsync($"/BlogPost/Delete/{item.Id}"))
+                                        {
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="return showDeleteModal('@Url.Action("Delete", "BlogPost", new { id = item.Id })', @Html.Raw(Json.Serialize(item.Title)), 'blog post', null)">
+                                                <i class="fas fa-trash"></i>
                                             </button>
                                         }
-                                        else
-                                        {
-                                            <button class="btn btn-sm btn-secondary unpublish-btn" data-id="@item.Id">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        }
-                                        <button type="button" class="btn btn-sm btn-danger"
-                                                onclick="return showDeleteModal('@Url.Action("Delete", "BlogPost", new { id = item.Id })', @Html.Raw(Json.Serialize(item.Title)), 'blog post', null)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
                                     </td>
                                 </tr>
                             }

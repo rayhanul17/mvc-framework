@@ -7,9 +7,12 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Menu Management</h2>
-        <a asp-action="CreateEdit" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Create New Menu
-        </a>
+        @if (await User.CanAccessUrlAsync("/Menu/CreateEdit"))
+        {
+            <a asp-action="CreateEdit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Create New Menu
+            </a>
+        }
     </div>
 
     <div class="card">
@@ -89,13 +92,19 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <a asp-action="CreateEdit" asp-route-id="@menu.Id" class="btn btn-outline-primary btn-sm" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
-                                                    onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = menu.Id })', @Html.Raw(Json.Serialize(menu.Name)), 'menu item', @Html.Raw(Json.Serialize("<small class='text-warning'>⚠️ This will also delete all child menu items.</small>")))">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            @if (await User.CanAccessUrlAsync($"/Menu/CreateEdit/{menu.Id}"))
+                                            {
+                                                <a asp-action="CreateEdit" asp-route-id="@menu.Id" class="btn btn-outline-primary btn-sm" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            }
+                                            @if (await User.CanAccessUrlAsync($"/Menu/Delete/{menu.Id}"))
+                                            {
+                                                <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
+                                                        onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = menu.Id })', @Html.Raw(Json.Serialize(menu.Name)), 'menu item', @Html.Raw(Json.Serialize("<small class='text-warning'>⚠️ This will also delete all child menu items.</small>")))">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -159,13 +168,19 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a asp-action="CreateEdit" asp-route-id="@child.Id" class="btn btn-outline-primary btn-sm" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
-                                                        onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = child.Id })', @Html.Raw(Json.Serialize(child.Name)), 'menu item', @Html.Raw(Json.Serialize("<small class='text-warning'>⚠️ This will also delete all child menu items.</small>")))">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                @if (await User.CanAccessUrlAsync($"/Menu/CreateEdit/{child.Id}"))
+                                                {
+                                                    <a asp-action="CreateEdit" asp-route-id="@child.Id" class="btn btn-outline-primary btn-sm" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                }
+                                                @if (await User.CanAccessUrlAsync($"/Menu/Delete/{child.Id}"))
+                                                {
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" title="Delete"
+                                                            onclick="return showDeleteModal('@Url.Action("Delete", "Menu", new { id = child.Id })', @Html.Raw(Json.Serialize(child.Name)), 'menu item', @Html.Raw(Json.Serialize("<small class='text-warning'>⚠️ This will also delete all child menu items.</small>")))">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                }
                                             </div>
                                         </td>
                                     </tr>
@@ -180,7 +195,10 @@
                 <div class="text-center py-5">
                     <i class="fas fa-bars fa-3x text-muted mb-3"></i>
                     <p class="text-muted">No menu items found.</p>
-                    <a asp-action="CreateEdit" class="btn btn-primary">Create First Menu Item</a>
+                    @if (await User.CanAccessUrlAsync("/Menu/CreateEdit"))
+                    {
+                        <a asp-action="CreateEdit" class="btn btn-primary">Create First Menu Item</a>
+                    }
                 </div>
             }
         </div>

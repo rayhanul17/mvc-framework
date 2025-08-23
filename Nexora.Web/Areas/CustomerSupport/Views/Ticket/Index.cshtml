@@ -10,9 +10,12 @@
             <h2>@ViewData["Title"]</h2>
         </div>
         <div class="col-md-6 text-end">
-            <a asp-action="Create" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Create New Ticket
-            </a>
+            @if (await User.CanAccessUrlAsync("/CustomerSupport/Ticket/Create"))
+            {
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create New Ticket
+                </a>
+            }
         </div>
     </div>
 
@@ -98,9 +101,20 @@
                                 }
                             </td>
                             <td>
-                                <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i>
-                                </a>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (ViewBag.IsAgent == true && ticket.Status != Nexora.Core.Entities.TicketStatus.Closed)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-warning" onclick="showAssignModal(@ticket.Id, '@ticket.TicketNumber')" title="Assign Ticket">
+                                            <i class="fas fa-user-check"></i>
+                                        </button>
+                                    }
+                                    <a asp-action="Track" asp-route-ticketNumber="@ticket.TicketNumber" class="btn btn-sm btn-success" title="Track Ticket">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -126,7 +140,10 @@
     {
         <div class="alert alert-info">
             <i class="fas fa-info-circle"></i> No tickets found. 
-            <a asp-action="Create">Create your first ticket</a>
+            @if (await User.CanAccessUrlAsync("/CustomerSupport/Ticket/Create"))
+            {
+                <a asp-action="Create">Create your first ticket</a>
+            }
         </div>
     }
 </div>
@@ -159,6 +176,51 @@
     }
 }
 
+@if (ViewBag.IsAgent == true)
+{
+    <!-- Assign Ticket Modal -->
+    <div class="modal fade" id="assignModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignModalLabel">Assign Ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="assignForm">
+                        <input type="hidden" id="assignTicketId" />
+                        <div class="mb-3">
+                            <label class="form-label">Ticket Number</label>
+                            <input type="text" class="form-control" id="assignTicketNumber" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label for="assignToUserId" class="form-label">Assign To</label>
+                            <select class="form-select" id="assignToUserId" required>
+                                <option value="">Select Agent</option>
+                                @if (ViewBag.SupportAgents != null)
+                                {
+                                    @foreach (var agent in ViewBag.SupportAgents as List<Nexora.Core.Entities.ApplicationUser>)
+                                    {
+                                        <option value="@agent.Id">@agent.FullName (@agent.Email)</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="assignNotes" class="form-label">Notes (Optional)</label>
+                            <textarea class="form-control" id="assignNotes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="assignTicket()">Assign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @section Scripts {
     <script>
         $(document).ready(function() {
@@ -168,7 +230,7 @@
                 columnDefs: [
                     { orderable: false, targets: [7] }, // Disable sorting on Actions column
                     { searchable: false, targets: [7] }, // Disable searching on Actions column
-                    { width: "100px", targets: [7] } // Set fixed width for Actions column
+                    { width: "150px", targets: [7] } // Set fixed width for Actions column
                 ],
                 pageLength: 25,
                 lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -183,5 +245,48 @@
                 }
             });
         });
+        
+        function showAssignModal(ticketId, ticketNumber) {
+            $('#assignTicketId').val(ticketId);
+            $('#assignTicketNumber').val(ticketNumber);
+            $('#assignToUserId').val('');
+            $('#assignNotes').val('');
+            $('#assignModal').modal('show');
+        }
+        
+        function assignTicket() {
+            var ticketId = $('#assignTicketId').val();
+            var assignToUserId = $('#assignToUserId').val();
+            var notes = $('#assignNotes').val();
+            
+            if (!assignToUserId) {
+                toastr.error('Please select an agent to assign the ticket');
+                return;
+            }
+            
+            $.ajax({
+                url: '@Url.Action("Assign", "Ticket", new { area = "CustomerSupport" })',
+                type: 'POST',
+                data: {
+                    id: ticketId,
+                    assignToUserId: assignToUserId,
+                    notes: notes
+                },
+                success: function(result) {
+                    if (result.success) {
+                        toastr.success(result.message);
+                        $('#assignModal').modal('hide');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        toastr.error(result.message || 'Failed to assign ticket');
+                    }
+                },
+                error: function() {
+                    toastr.error('An error occurred while assigning the ticket');
+                }
+            });
+        }
     </script>
 }

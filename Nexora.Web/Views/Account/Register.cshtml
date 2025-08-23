@@ -67,6 +67,24 @@
 @section Scripts {
     
     <script>
+        $(document).ready(function() {
+            // Always hide loading mask when page loads
+            if (typeof LoadingMask !== 'undefined') {
+                LoadingMask.hide();
+            }
+            
+            // Add loading mask to register form
+            $('form').on('submit', function(e) {
+                // Only show loading if form is valid
+                if ($(this).valid()) {
+                    LoadingMask.show({
+                        message: 'Creating your account...',
+                        animation: 'pulse'
+                    });
+                }
+            });
+        });
+        
         function togglePassword(fieldId) {
             const passwordField = document.getElementById(fieldId);
             const iconId = fieldId === 'Password' ? 'togglePasswordIcon' : 'toggleConfirmPasswordIcon';

@@ -48,11 +48,12 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
 
     public async Task<T> AddAsync(T entity)
     {
-        // Set CreatedBy and CreatedAt if entity inherits from BaseEntity
+        // Set CreatedBy, CreatedAt and VersionNumber if entity inherits from BaseEntity
         if (entity is BaseEntity baseEntity)
         {
             baseEntity.CreatedAt = DateTime.UtcNow;
             baseEntity.CreatedBy = CurrentUserId;
+            baseEntity.VersionNumber = 1; // Initialize version number for new entities
         }
         
         await _dbSet.AddAsync(entity);
@@ -60,7 +61,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         // Log the creation if entity is BaseEntity and not a Log itself
         if (entity is BaseEntity baseEntity2 && !(entity is Log) && !(entity is LogArchive))
         {
-            await LogEntityChangeAsync("Create", null, entity, baseEntity2.Id);
+            await LogEntityChangeAsync("Create", null, entity, baseEntity2.Id, baseEntity2.VersionNumber);
         }
         
         return entity;
@@ -70,13 +71,14 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         var entityList = entities.ToList();
         
-        // Set CreatedBy and CreatedAt for BaseEntity types
+        // Set CreatedBy, CreatedAt and VersionNumber for BaseEntity types
         foreach (var entity in entityList)
         {
             if (entity is BaseEntity baseEntity)
             {
                 baseEntity.CreatedAt = DateTime.UtcNow;
                 baseEntity.CreatedBy = CurrentUserId;
+                baseEntity.VersionNumber = 1; // Initialize version number
             }
         }
         
@@ -101,6 +103,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
             
             baseEntity.UpdatedAt = DateTime.UtcNow;
             baseEntity.ModifiedBy = CurrentUserId;
+            baseEntity.VersionNumber++; // Increment version number on update
         }
         
         _dbSet.Update(entity);
@@ -108,7 +111,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         // Log the update if entity is BaseEntity and not a Log itself
         if (entity is BaseEntity baseEntity2 && !(entity is Log) && !(entity is LogArchive) && originalEntity != null)
         {
-            LogEntityChangeAsync("Update", originalEntity, entity, baseEntity2.Id).GetAwaiter().GetResult();
+            LogEntityChangeAsync("Update", originalEntity, entity, baseEntity2.Id, baseEntity2.VersionNumber).GetAwaiter().GetResult();
         }
     }
 
@@ -116,13 +119,14 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         var entityList = entities.ToList();
         
-        // Set ModifiedBy and UpdatedAt for BaseEntity types
+        // Set ModifiedBy, UpdatedAt and increment VersionNumber for BaseEntity types
         foreach (var entity in entityList)
         {
             if (entity is BaseEntity baseEntity)
             {
                 baseEntity.UpdatedAt = DateTime.UtcNow;
                 baseEntity.ModifiedBy = CurrentUserId;
+                baseEntity.VersionNumber++; // Increment version number
             }
         }
         
@@ -134,7 +138,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         // Log the deletion if entity is BaseEntity and not a Log itself
         if (entity is BaseEntity baseEntity && !(entity is Log) && !(entity is LogArchive))
         {
-            LogEntityChangeAsync("Delete", entity, null, baseEntity.Id).GetAwaiter().GetResult();
+            LogEntityChangeAsync("Delete", entity, null, baseEntity.Id, baseEntity.VersionNumber).GetAwaiter().GetResult();
         }
         
         _dbSet.Remove(entity);
@@ -163,7 +167,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return _dbSet.AsQueryable();
     }
     
-    private async Task LogEntityChangeAsync(string action, T? oldEntity, T? newEntity, int entityId)
+    private async Task LogEntityChangeAsync(string action, T? oldEntity, T? newEntity, int entityId, int versionNumber = 1)
     {
         try
         {
@@ -188,6 +192,7 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
                 OldValues = oldValues,
                 NewValues = newValues,
                 Changes = changes,
+                EntityVersionNumber = versionNumber,
                 IpAddress = httpContext?.Connection?.RemoteIpAddress?.ToString(),
                 UserAgent = httpContext?.Request?.Headers["User-Agent"].ToString(),
                 LoggedAt = DateTime.UtcNow,

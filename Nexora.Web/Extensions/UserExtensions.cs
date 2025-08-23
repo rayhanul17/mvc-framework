@@ -1,5 +1,4 @@
 using Nexora.Application.Services;
-using Nexora.Core.Constants;
 using System.Security.Claims;
 
 namespace Nexora.Web.Extensions;
@@ -21,14 +20,6 @@ public static class UserExtensions
         return await _roleAuthService.IsInRoleAsync(user, role);
     }
     
-    public static async Task<bool> IsAdminAsync(this ClaimsPrincipal user)
-    {
-        if (_roleAuthService == null)
-            throw new InvalidOperationException("RoleAuthorizationService not configured");
-            
-        return await _roleAuthService.IsAdminAsync(user);
-    }
-    
     public static async Task<bool> IsSuperAdminAsync(this ClaimsPrincipal user)
     {
         if (_roleAuthService == null)
@@ -37,11 +28,11 @@ public static class UserExtensions
         return await _roleAuthService.IsSuperAdminAsync(user);
     }
     
-    public static async Task<bool> IsSupportStaffAsync(this ClaimsPrincipal user)
+    public static async Task<bool> HasPermissionAsync(this ClaimsPrincipal user, string area, string controller, string action)
     {
         if (_roleAuthService == null)
             throw new InvalidOperationException("RoleAuthorizationService not configured");
             
-        return await _roleAuthService.IsSupportStaffAsync(user);
+        return await _roleAuthService.HasPermissionAsync(user, area, controller, action);
     }
 }

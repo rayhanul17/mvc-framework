@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,65 +11,92 @@ public class PermissionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<PermissionMiddleware> _logger;
 
-    public PermissionMiddleware(RequestDelegate next, IServiceProvider serviceProvider)
+    public PermissionMiddleware(RequestDelegate next, IServiceProvider serviceProvider, ILogger<PermissionMiddleware> logger)
     {
         _next = next;
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (context.User.Identity?.IsAuthenticated == true)
+        var endpoint = context.GetEndpoint();
+        if (endpoint == null)
         {
-            var endpoint = context.GetEndpoint();
-            if (endpoint != null)
+            await _next(context);
+            return;
+        }
+
+        // Check for AllowAnonymous attribute - skip all checks
+        var allowAnonymous = endpoint.Metadata.GetMetadata<AllowAnonymousAttribute>() != null;
+        if (allowAnonymous)
+        {
+            await _next(context);
+            return;
+        }
+
+        // Check for Authorize attribute
+        var authorizeAttribute = endpoint.Metadata.GetMetadata<AuthorizeAttribute>();
+        var controllerActionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+        
+        // If no Authorize attribute and no controller action, continue
+        if (authorizeAttribute == null && controllerActionDescriptor == null)
+        {
+            await _next(context);
+            return;
+        }
+
+        // If user is not authenticated and Authorize attribute exists, redirect to login
+        if (!context.User.Identity?.IsAuthenticated == true)
+        {
+            if (authorizeAttribute != null)
             {
-                var controllerActionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
-                if (controllerActionDescriptor != null)
+                context.Response.Redirect("/Account/Login");
+                return;
+            }
+            await _next(context);
+            return;
+        }
+
+        // User is authenticated, now check permissions
+        if (controllerActionDescriptor != null)
+        {
+            var area = controllerActionDescriptor.RouteValues.ContainsKey("area") 
+                ? controllerActionDescriptor.RouteValues["area"] 
+                : string.Empty;
+            var controller = controllerActionDescriptor.ControllerName;
+            var action = controllerActionDescriptor.ActionName;
+
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                
+                if (string.IsNullOrEmpty(userId))
                 {
-                    var area = controllerActionDescriptor.RouteValues.ContainsKey("area") 
-                        ? controllerActionDescriptor.RouteValues["area"] 
-                        : null;
-                    var controller = controllerActionDescriptor.ControllerName;
-                    var action = controllerActionDescriptor.ActionName;
+                    context.Response.Redirect("/Account/Login");
+                    return;
+                }
 
-                    // Skip permission check for certain controllers
-                    var skipControllers = new[] { "Home", "Account", "Profile", "Admin", "Help" };
-                    if (skipControllers.Any(c => controller.Equals(c, StringComparison.OrdinalIgnoreCase)))
+                // Check if user has permission
+                var hasPermission = await CheckUserPermissionAsync(dbContext, userId, area, controller, action);
+                
+                if (!hasPermission)
+                {
+                    _logger.LogWarning($"Access denied for user {userId} to {area}/{controller}/{action}");
+                    
+                    if (context.Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
-                        await _next(context);
-                        return;
+                        context.Response.StatusCode = 403;
+                        await context.Response.WriteAsync("Access Denied");
                     }
-
-                    using (var scope = _serviceProvider.CreateScope())
+                    else
                     {
-                        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                        
-                        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                        if (!string.IsNullOrEmpty(userId))
-                        {
-                            // Quick check for SuperAdmin first to avoid unnecessary database queries
-                            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                            if (user != null && user.IsSuperAdmin)
-                            {
-                                await _next(context);
-                                return;
-                            }
-                            
-                            var hasPermission = await CheckUserPermissionAsync(dbContext, userId, area, controller, action, user);
-                            
-                            if (!hasPermission)
-                            {
-                                // Log the access denied for debugging
-                                var logger = scope.ServiceProvider.GetService<ILogger<PermissionMiddleware>>();
-                                logger?.LogWarning($"Access denied for user {userId} to {area}/{controller}/{action}");
-                                
-                                context.Response.Redirect("/Account/AccessDenied");
-                                return;
-                            }
-                        }
+                        context.Response.Redirect("/Error/AccessDenied");
                     }
+                    return;
                 }
             }
         }
@@ -77,81 +104,73 @@ public class PermissionMiddleware
         await _next(context);
     }
 
-    private async Task<bool> CheckUserPermissionAsync(ApplicationDbContext dbContext, string userId, string? area, string controller, string action, Nexora.Core.Entities.ApplicationUser? user = null)
+    private async Task<bool> CheckUserPermissionAsync(ApplicationDbContext dbContext, string userId, string? area, string controller, string action)
     {
-        // If user was already fetched, use it, otherwise fetch it
+        // First check if user exists and has IsSuperAdmin flag
+        var user = await dbContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == userId);
+        
         if (user == null)
-        {
-            user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        }
+            return false;
         
-        // First check if user has IsSuperAdmin flag - This overrides all permissions
-        if (user != null && user.IsSuperAdmin)
-            return true; // User with IsSuperAdmin flag has access to everything
+        // SuperAdmin bypasses all permission checks
+        if (user.IsSuperAdmin)
+            return true;
         
-        // Then check if user is in SuperAdmin role
-        var isSuperAdmin = await dbContext.UserRoles
-            .Join(dbContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, r.Name })
-            .AnyAsync(x => x.UserId == userId && x.Name == "SuperAdmin");
+        // Check if user is active
+        if (!user.IsActive)
+            return false;
         
-        if (isSuperAdmin)
-            return true; // SuperAdmin role has access to everything
-        
+        // Get user's active roles (considering expiration)
+        var now = DateTime.UtcNow;
         var userRoleIds = await dbContext.UserRoles
-            .Where(ur => ur.UserId == userId)
+            .Where(ur => ur.UserId == userId && 
+                        ur.IsActive && 
+                        (ur.ExpiresAt == null || ur.ExpiresAt > now))
             .Select(ur => ur.RoleId)
             .ToListAsync();
 
         if (!userRoleIds.Any())
             return false;
 
-        var query = dbContext.RoleMenus
-            .Include(rm => rm.Menu)
-            .Where(rm => userRoleIds.Contains(rm.RoleId) && rm.CanView && rm.Menu.IsActive);
+        // Check if any of user's roles have permission for this action
+        var hasPermission = await dbContext.RolePermissions
+            .Include(rp => rp.Permission)
+            .Where(rp => userRoleIds.Contains(rp.RoleId) && 
+                        rp.IsActive && 
+                        rp.Permission.IsActive)
+            .AnyAsync(rp => 
+                (string.IsNullOrEmpty(rp.Permission.Area) || rp.Permission.Area == area) &&
+                rp.Permission.Controller == controller &&
+                rp.Permission.Action == action);
 
-        if (!string.IsNullOrEmpty(area))
-        {
-            query = query.Where(rm => rm.Menu.Area == area);
-        }
-        else
-        {
-            query = query.Where(rm => string.IsNullOrEmpty(rm.Menu.Area));
-        }
-
-        // Check for exact match first
-        var hasPermission = await query
-            .AnyAsync(rm => rm.Menu.Controller == controller && 
-                          (string.IsNullOrEmpty(rm.Menu.Action) || rm.Menu.Action == action));
-
-        // If no exact match, check if user has access to the controller (any action)
+        // If no exact match, check for wildcard action permission (all actions in controller)
         if (!hasPermission)
         {
-            hasPermission = await query
-                .AnyAsync(rm => rm.Menu.Controller == controller && string.IsNullOrEmpty(rm.Menu.Action));
+            hasPermission = await dbContext.RolePermissions
+                .Include(rp => rp.Permission)
+                .Where(rp => userRoleIds.Contains(rp.RoleId) && 
+                            rp.IsActive && 
+                            rp.Permission.IsActive)
+                .AnyAsync(rp => 
+                    (string.IsNullOrEmpty(rp.Permission.Area) || rp.Permission.Area == area) &&
+                    rp.Permission.Controller == controller &&
+                    rp.Permission.Action == "*"); // Wildcard for all actions
         }
 
-        // If still no match, check if user has access to parent menu for the area
+        // If still no match, check for area-wide permission
         if (!hasPermission && !string.IsNullOrEmpty(area))
         {
-            hasPermission = await query
-                .AnyAsync(rm => string.IsNullOrEmpty(rm.Menu.Controller) && 
-                              string.IsNullOrEmpty(rm.Menu.Action) && 
-                              rm.Menu.Area == area);
-        }
-
-        // If still no match, check if user has general access to the area
-        if (!hasPermission)
-        {
-            hasPermission = await query
-                .AnyAsync(rm => string.IsNullOrEmpty(rm.Menu.Controller) && string.IsNullOrEmpty(rm.Menu.Action));
-        }
-        
-        // Special case: If user has access to ManageTicket controller, they should have access to all its actions
-        if (!hasPermission && controller == "ManageTicket" && area == "CustomerSupport")
-        {
-            hasPermission = await query
-                .AnyAsync(rm => rm.Menu.Controller == "ManageTicket" || 
-                              (rm.Menu.Area == "CustomerSupport" && string.IsNullOrEmpty(rm.Menu.Controller)));
+            hasPermission = await dbContext.RolePermissions
+                .Include(rp => rp.Permission)
+                .Where(rp => userRoleIds.Contains(rp.RoleId) && 
+                            rp.IsActive && 
+                            rp.Permission.IsActive)
+                .AnyAsync(rp => 
+                    rp.Permission.Area == area &&
+                    rp.Permission.Controller == "*" &&
+                    rp.Permission.Action == "*"); // Wildcard for all controllers and actions in area
         }
 
         return hasPermission;

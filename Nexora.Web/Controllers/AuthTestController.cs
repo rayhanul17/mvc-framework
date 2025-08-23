@@ -33,7 +33,7 @@ public class AuthTestController : Controller
         });
     }
 
-    [Authorize(Roles = "Administrator,SuperAdmin")]
+    [Authorize]
     public IActionResult AdminOnly()
     {
         return Json(new
@@ -48,7 +48,7 @@ public class AuthTestController : Controller
         });
     }
 
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize]
     public IActionResult SuperAdminOnly()
     {
         return Json(new

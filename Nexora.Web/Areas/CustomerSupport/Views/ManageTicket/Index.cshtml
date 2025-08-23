@@ -297,20 +297,26 @@
                                             </td>
                                             <td>
                                                 <div class="btn-group btn-group-sm" role="group">
-                                                    <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-outline-primary" title="View Details">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                    @if (ticket.AssignedToId == null)
+                                                    @if (await User.CanAccessUrlAsync($"/CustomerSupport/ManageTicket/Details/{ticket.Id}"))
                                                     {
-                                                        <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-outline-success" title="Assign">
-                                                            <i class="fas fa-user-plus"></i>
+                                                        <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-outline-primary" title="View Details">
+                                                            <i class="fas fa-eye"></i>
                                                         </a>
                                                     }
-                                                    else
+                                                    @if (await User.CanAccessUrlAsync($"/CustomerSupport/ManageTicket/Assign/{ticket.Id}"))
                                                     {
-                                                        <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-outline-warning" title="Reassign">
-                                                            <i class="fas fa-user-edit"></i>
-                                                        </a>
+                                                        @if (ticket.AssignedToId == null)
+                                                        {
+                                                            <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-outline-success" title="Assign">
+                                                                <i class="fas fa-user-plus"></i>
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-outline-warning" title="Reassign">
+                                                                <i class="fas fa-user-edit"></i>
+                                                            </a>
+                                                        }
                                                     }
                                                     @if (ticket.Status != Nexora.Core.Entities.TicketStatus.Resolved && ticket.Status != Nexora.Core.Entities.TicketStatus.Closed)
                                                     {

@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nexora.Application.Interfaces;
+using Nexora.Web.Attributes;
 using Nexora.Web.Models;
 
 namespace Nexora.Web.Controllers;
 
-[Authorize]
+[DynamicPermissionAuthorize]
 public class LogController : BaseController
 {
     private readonly ILogService _logService;
@@ -263,7 +264,7 @@ public class LogController : BaseController
     }
     
     [HttpPost]
-    [Authorize(Roles = "SuperAdmin,Administrator")]
+    [PermissionAuthorize(area: "", controller: "Log", action: "Archive")]
     public async Task<IActionResult> ArchiveLogs()
     {
         var result = await _logService.ArchiveOldLogsAsync();
@@ -281,7 +282,7 @@ public class LogController : BaseController
     }
     
     [HttpPost]
-    [Authorize(Roles = "SuperAdmin")]
+    [PermissionAuthorize(area: "", controller: "Log", action: "Cleanup")]
     public async Task<IActionResult> CleanupArchives()
     {
         var result = await _logService.CleanupArchivedLogsAsync();

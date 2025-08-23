@@ -5,6 +5,7 @@ using Nexora.Application.Services;
 using Nexora.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Nexora.Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
 using Serilog;
 using Serilog.Events;
 
@@ -67,44 +68,25 @@ builder.Services.AddScoped<ICommentService, CommentService>();
 // Add Role Authorization Service
 builder.Services.AddScoped<IRoleAuthorizationService, RoleAuthorizationService>();
 
-// Configure Authorization Policies
-builder.Services.AddAuthorization(options =>
-{
-    // Super Admin policy
-    options.AddPolicy("SuperAdminOnly", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim("IsSuperAdmin", "true")));
-    
-    // Admin policy (SuperAdmin or Administrator)
-    options.AddPolicy("AdminOnly", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim("IsSuperAdmin", "true") ||
-            context.User.IsInRole("Administrator")));
-    
-    // Customer Support policies
-    options.AddPolicy("CustomerSupportAccess", policy =>
-        policy.RequireAssertion(context =>
-            context.User.IsInRole("CustomerSupportAdmin") ||
-            context.User.IsInRole("CustomerSupportManager") ||
-            context.User.IsInRole("CustomerSupportAgent")));
-    
-    options.AddPolicy("CustomerSupportManager", policy =>
-        policy.RequireAssertion(context =>
-            context.User.IsInRole("CustomerSupportAdmin") ||
-            context.User.IsInRole("CustomerSupportManager")));
-    
-    // Content management policy
-    options.AddPolicy("ContentManagement", policy =>
-        policy.RequireAssertion(context =>
-            context.User.HasClaim("IsSuperAdmin", "true") ||
-            context.User.IsInRole("Administrator") ||
-            context.User.IsInRole("ContentManager") ||
-            context.User.IsInRole("Editor")));
-    
-    // Default authenticated policy
-    options.AddPolicy("Authenticated", policy =>
-        policy.RequireAuthenticatedUser());
-});
+// Add Permission Service with caching
+builder.Services.AddMemoryCache(); // Add memory cache service
+builder.Services.AddSingleton<ICacheManagementService, CacheManagementService>(); // Cache management service
+builder.Services.AddScoped<PermissionService>(); // Register the base service
+builder.Services.AddScoped<IPermissionService, CachedPermissionService>(); // Use cached implementation
+
+// Add Permission Audit Services
+builder.Services.AddScoped<IPermissionAuditService, PermissionAuditService>();
+builder.Services.AddScoped<IPermissionAuditReportService, PermissionAuditReportService>();
+
+// Add HttpContextAccessor for tag helpers
+builder.Services.AddHttpContextAccessor();
+
+// Register authorization handlers
+builder.Services.AddScoped<IAuthorizationHandler, Nexora.Application.Services.SuperAdminAuthorizationHandler>();
+
+// Configure Authorization
+// No hardcoded policies - permissions are checked dynamically by PermissionMiddleware
+builder.Services.AddAuthorization();
 
 // Add Background Services
 builder.Services.AddHostedService<Nexora.Web.Services.LogArchiveBackgroundService>();
@@ -159,6 +141,14 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
+// Initialize view permission extensions
+using (var scope = app.Services.CreateScope())
+{
+    Nexora.Web.Extensions.ViewPermissionExtensions.Initialize(scope.ServiceProvider);
+    Nexora.Web.Extensions.UserPermissionExtensions.Initialize(scope.ServiceProvider);
+    Nexora.Web.Extensions.UrlPermissionExtensions.Initialize(scope.ServiceProvider);
+}
+
     // Add Serilog request logging
     app.UseSerilogRequestLogging(options =>
     {
@@ -197,6 +187,9 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Add Permission Validation Middleware (additional security layer)
+app.UsePermissionValidation();
 
 // Add Permission Middleware
 app.UseMiddleware<PermissionMiddleware>();

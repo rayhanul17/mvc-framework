@@ -44,9 +44,12 @@
                 <div class="card-header">
                     <h3 class="card-title">@ViewData["Title"]</h3>
                     <div class="card-tools">
-                        <a href="@Url.Action("Upload", "FileDocument")" class="btn btn-primary btn-sm">
-                            <i class="fas fa-upload"></i> Upload File
-                        </a>
+                        @if (await User.CanAccessUrlAsync("/FileDocument/Upload"))
+                        {
+                            <a href="@Url.Action("Upload", "FileDocument")" class="btn btn-primary btn-sm">
+                                <i class="fas fa-upload"></i> Upload File
+                            </a>
+                        }
                     </div>
                 </div>
                 <div class="card-body">
@@ -260,7 +263,7 @@
                             buttons += '<i class="fas fa-eye"></i></button>';
                             
                             // Delete button (if user has permission)
-                            @if (await RoleAuthService.IsAdminAsync(User))
+                            @if (await User.CanAccessUrlAsync("/FileDocument/Delete"))
                             {
                                 @Html.Raw("buttons += '<button class=\"btn btn-danger delete-file\" data-id=\"' + row.id + '\" title=\"Delete\">';");
                                 @Html.Raw("buttons += '<i class=\"fas fa-trash\"></i></button>';");

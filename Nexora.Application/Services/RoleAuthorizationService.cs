@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Nexora.Core.Constants;
 using Nexora.Core.Entities;
 using System.Security.Claims;
 
@@ -9,9 +8,8 @@ public interface IRoleAuthorizationService
 {
     Task<bool> IsInRoleAsync(ClaimsPrincipal user, string role);
     Task<bool> IsInAnyRoleAsync(ClaimsPrincipal user, params string[] roles);
-    Task<bool> IsAdminAsync(ClaimsPrincipal user);
     Task<bool> IsSuperAdminAsync(ClaimsPrincipal user);
-    Task<bool> IsSupportStaffAsync(ClaimsPrincipal user);
+    Task<bool> HasPermissionAsync(ClaimsPrincipal user, string area, string controller, string action);
     Task<List<string>> GetUserRolesAsync(ClaimsPrincipal user);
 }
 
@@ -54,19 +52,28 @@ public class RoleAuthorizationService : IRoleAuthorizationService
         return false;
     }
 
-    public async Task<bool> IsAdminAsync(ClaimsPrincipal user)
-    {
-        return await IsInAnyRoleAsync(user, RoleConstants.AdminRoles);
-    }
-
     public async Task<bool> IsSuperAdminAsync(ClaimsPrincipal user)
     {
-        return await IsInRoleAsync(user, RoleConstants.SuperAdmin);
+        if (user?.Identity?.IsAuthenticated != true)
+            return false;
+
+        var appUser = await _userManager.GetUserAsync(user);
+        if (appUser == null)
+            return false;
+
+        // Check the IsSuperAdmin field directly
+        return appUser.IsSuperAdmin;
     }
 
-    public async Task<bool> IsSupportStaffAsync(ClaimsPrincipal user)
+    public async Task<bool> HasPermissionAsync(ClaimsPrincipal user, string area, string controller, string action)
     {
-        return await IsInAnyRoleAsync(user, RoleConstants.SupportRoles);
+        // This method would check the Permission table
+        // For now, we check if user is SuperAdmin or has specific roles
+        if (await IsSuperAdminAsync(user))
+            return true;
+
+        // Additional permission logic would go here
+        return false;
     }
 
     public async Task<List<string>> GetUserRolesAsync(ClaimsPrincipal user)

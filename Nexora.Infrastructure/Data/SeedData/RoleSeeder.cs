@@ -12,6 +12,7 @@ public static class RoleSeeder
         { 
             "SuperAdmin",     // Full system access
             "Administrator",  // Admin access
+            "Manager",        // Manager with extended permissions
             "User"           // Regular user access
         };
         

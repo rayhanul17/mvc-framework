@@ -1,0 +1,237 @@
+@{
+    ViewData["Title"] = "Customer Support Center";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = ViewBag.User as Nexora.Core.Entities.ApplicationUser;
+    var isAgent = ViewBag.IsAgent ?? false;
+    var isSuperAdmin = user?.IsSuperAdmin ?? false;
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4"><i class="fas fa-headset"></i> Customer Support Center</h1>
+            <p class="lead">Welcome to our comprehensive support system. How can we help you today?</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Create Ticket</h5>
+                    <p class="card-text">Submit a new support request</p>
+                    <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Ticket
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-list-alt fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">My Tickets</h5>
+                    <p class="card-text">View your support tickets</p>
+                    <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Index" class="btn btn-info">
+                        <i class="fas fa-list"></i> View Tickets
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-search fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Track Ticket</h5>
+                    <p class="card-text">Check ticket status by number</p>
+                    <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Track" class="btn btn-success">
+                        <i class="fas fa-map-marker-alt"></i> Track
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-book fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Knowledge Base</h5>
+                    <p class="card-text">Find answers to common questions</p>
+                    <a href="#" class="btn btn-warning">
+                        <i class="fas fa-book-open"></i> Browse KB
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (isAgent || isSuperAdmin)
+    {
+        <!-- Agent Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3><i class="fas fa-user-shield"></i> Support Agent Tools</h3>
+                <hr />
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tachometer-alt fa-2x text-primary mb-2"></i>
+                        <h6>Dashboard</h6>
+                        <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Dashboard" class="btn btn-sm btn-primary stretched-link">
+                            View Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <i class="fas fa-tasks fa-2x text-info mb-2"></i>
+                        <h6>Manage Tickets</h6>
+                        <a asp-area="CustomerSupport" asp-controller="ManageTicket" asp-action="Index" class="btn btn-sm btn-info stretched-link">
+                            Manage
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                        <h6>Unassigned</h6>
+                        <a asp-area="CustomerSupport" asp-controller="ManageTicket" asp-action="Unassigned" class="btn btn-sm btn-warning stretched-link">
+                            View Unassigned
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-2x text-success mb-2"></i>
+                        <h6>Statistics</h6>
+                        <a asp-area="CustomerSupport" asp-controller="ManageTicket" asp-action="Statistics" class="btn btn-sm btn-success stretched-link">
+                            View Stats
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (isSuperAdmin)
+    {
+        <!-- Admin Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3><i class="fas fa-cogs"></i> System Administration</h3>
+                <hr />
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-cog"></i> Configuration</h5>
+                        <p class="card-text">Manage support system settings, SLAs, and automation rules</p>
+                        <a asp-area="CustomerSupport" asp-controller="Configuration" asp-action="Index" class="btn btn-danger">
+                            <i class="fas fa-wrench"></i> Configure System
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-secondary">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-users"></i> Team Management</h5>
+                        <p class="card-text">Manage support agents and their permissions</p>
+                        <a href="#" class="btn btn-secondary">
+                            <i class="fas fa-users-cog"></i> Manage Team
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-dark">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-file-alt"></i> Reports</h5>
+                        <p class="card-text">Generate detailed reports and analytics</p>
+                        <a href="#" class="btn btn-dark">
+                            <i class="fas fa-chart-line"></i> View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Quick Stats -->
+    <div class="row">
+        <div class="col-12">
+            <h3><i class="fas fa-info-circle"></i> Support Information</h3>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Business Hours</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Monday - Friday:</strong> 9:00 AM - 6:00 PM</p>
+                    <p><strong>Saturday:</strong> 10:00 AM - 4:00 PM</p>
+                    <p><strong>Sunday:</strong> Closed</p>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-info-circle"></i> All times are in your local timezone
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-hourglass-half"></i> Response Times</h5>
+                </div>
+                <div class="card-body">
+                    <p><span class="badge bg-danger">Critical</span> Within 1 hour</p>
+                    <p><span class="badge bg-warning text-dark">Urgent</span> Within 2 hours</p>
+                    <p><span class="badge bg-info">High</span> Within 4 hours</p>
+                    <p><span class="badge bg-primary">Medium</span> Within 8 hours</p>
+                    <p class="mb-0"><span class="badge bg-secondary">Low</span> Within 24 hours</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Information -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h5><i class="fas fa-phone-alt"></i> Need Immediate Help?</h5>
+                    <p class="mb-0">
+                        Call our support hotline: <strong>1-800-SUPPORT</strong> | 
+                        Email: <strong>support@example.com</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any specific JavaScript for the support center landing page
+        });
+    </script>
+}

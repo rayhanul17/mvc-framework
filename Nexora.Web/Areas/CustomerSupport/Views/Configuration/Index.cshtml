@@ -1,0 +1,468 @@
+@model Nexora.Web.Areas.CustomerSupport.Models.ConfigurationViewModel
+
+@{
+    ViewData["Title"] = "Support Configuration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-cogs"></i> Customer Support Configuration</h2>
+            <p class="text-muted">Configure ticket management settings, SLAs, and automation rules</p>
+        </div>
+    </div>
+
+    <!-- Configuration Tabs -->
+    <ul class="nav nav-tabs" id="configTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="categories-tab" data-bs-toggle="tab" href="#categories" role="tab">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="sla-tab" data-bs-toggle="tab" href="#sla" role="tab">
+                <i class="fas fa-clock"></i> SLA Settings
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="assignment-tab" data-bs-toggle="tab" href="#assignment" role="tab">
+                <i class="fas fa-user-check"></i> Auto-Assignment
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="notifications-tab" data-bs-toggle="tab" href="#notifications" role="tab">
+                <i class="fas fa-bell"></i> Notifications
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="hours-tab" data-bs-toggle="tab" href="#hours" role="tab">
+                <i class="fas fa-business-time"></i> Business Hours
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="agents-tab" data-bs-toggle="tab" href="#agents" role="tab">
+                <i class="fas fa-users"></i> Support Agents
+            </a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content mt-4" id="configTabContent">
+        <!-- Categories Tab -->
+        <div class="tab-pane fade show active" id="categories" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Ticket Categories</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Add New Category</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="newCategory" placeholder="Enter category name">
+                                    <button class="btn btn-primary" onclick="addCategory()">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="categoriesList">
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <div class="category-item d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                                        <span>@category</span>
+                                        <button class="btn btn-sm btn-danger" onclick="removeCategory('@category')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-info">
+                                <h6>Category Guidelines</h6>
+                                <ul>
+                                    <li>Keep categories broad and clear</li>
+                                    <li>Examples: Technical Support, Billing, Account Issues</li>
+                                    <li>Avoid overly specific categories</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLA Settings Tab -->
+        <div class="tab-pane fade" id="sla" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Service Level Agreements (SLA)</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Priority</th>
+                                <th>Response Time (Hours)</th>
+                                <th>Resolution Time (Hours)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sla in Model.PrioritySLAs)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-@GetPriorityColor(sla.Priority)">@sla.Priority</span>
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" id="response_@sla.Priority" value="@sla.ResponseTimeHours">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" id="resolution_@sla.Priority" value="@sla.ResolutionTimeHours">
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success" onclick="saveSLA('@sla.Priority')">
+                                            <i class="fas fa-save"></i> Save
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto-Assignment Tab -->
+        <div class="tab-pane fade" id="assignment" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Automatic Ticket Assignment</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="autoAssignEnabled" @(Model.AutoAssignmentEnabled ? "checked" : "")>
+                                <label class="form-check-label" for="autoAssignEnabled">
+                                    Enable Auto-Assignment
+                                </label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Assignment Method</label>
+                                <select class="form-select" id="assignmentMethod">
+                                    <option value="RoundRobin" selected="@(Model.DefaultAssignmentMethod == "RoundRobin")">Round Robin</option>
+                                    <option value="LeastActive" selected="@(Model.DefaultAssignmentMethod == "LeastActive")">Least Active Tickets</option>
+                                    <option value="Expertise" selected="@(Model.DefaultAssignmentMethod == "Expertise")">By Expertise</option>
+                                    <option value="Random" selected="@(Model.DefaultAssignmentMethod == "Random")">Random</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveAutoAssignment()">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Current Agent Workload</h6>
+                            <div id="agentWorkload">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div class="tab-pane fade" id="notifications" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Notification Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="emailNotifications" @(Model.EmailNotificationsEnabled ? "checked" : "")>
+                                <label class="form-check-label" for="emailNotifications">
+                                    Enable Email Notifications
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="smsNotifications" @(Model.SmsNotificationsEnabled ? "checked" : "")>
+                                <label class="form-check-label" for="smsNotifications">
+                                    Enable SMS Notifications
+                                </label>
+                            </div>
+                            <button class="btn btn-primary" onclick="saveNotificationSettings()">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-warning">
+                                <h6>Notification Events</h6>
+                                <ul>
+                                    <li>New ticket created</li>
+                                    <li>Ticket assigned</li>
+                                    <li>Status changes</li>
+                                    <li>Customer replies</li>
+                                    <li>SLA breaches</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Hours Tab -->
+        <div class="tab-pane fade" id="hours" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Business Hours</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Start Time</label>
+                                <input type="time" class="form-control" id="startTime" value="@Model.BusinessHoursStart">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">End Time</label>
+                                <input type="time" class="form-control" id="endTime" value="@Model.BusinessHoursEnd">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Working Days</label>
+                                @{
+                                    var days = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+                                    var workingDays = Model.WorkingDays.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                                }
+                                @foreach (var day in days)
+                                {
+                                    <div class="form-check">
+                                        <input class="form-check-input working-day" type="checkbox" value="@day" id="day_@day" @(workingDays.Contains(day) ? "checked" : "")>
+                                        <label class="form-check-label" for="day_@day">
+                                            @day
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <button class="btn btn-primary" onclick="saveBusinessHours()">
+                                <i class="fas fa-save"></i> Save Business Hours
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Agents Tab -->
+        <div class="tab-pane fade" id="agents" role="tabpanel">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Support Team Members</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Agent Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var agent in Model.SupportAgents)
+                            {
+                                <tr>
+                                    <td>@agent.FullName</td>
+                                    <td>@agent.Email</td>
+                                    <td>
+                                        <span class="badge bg-info">Support Agent</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@(agent.IsActive ? "success" : "danger")">
+                                            @(agent.IsActive ? "Active" : "Inactive")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Load agent workload on page load
+        $(document).ready(function() {
+            loadAgentWorkload();
+        });
+
+        function loadAgentWorkload() {
+            $.get('/CustomerSupport/Configuration/GetAgentWorkload', function(data) {
+                var html = '<table class="table table-sm">';
+                html += '<thead><tr><th>Agent</th><th>Active Tickets</th><th>Avg Response</th></tr></thead><tbody>';
+                data.forEach(function(agent) {
+                    html += '<tr>';
+                    html += '<td>' + agent.agentName + '</td>';
+                    html += '<td><span class="badge bg-primary">' + agent.activeTickets + '</span></td>';
+                    html += '<td>' + agent.avgResponseTime + ' hrs</td>';
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                $('#agentWorkload').html(html);
+            });
+        }
+
+        function addCategory() {
+            var category = $('#newCategory').val();
+            if (!category) return;
+            
+            // Add to UI
+            var html = '<div class="category-item d-flex justify-content-between align-items-center mb-2 p-2 border rounded">';
+            html += '<span>' + category + '</span>';
+            html += '<button class="btn btn-sm btn-danger" onclick="removeCategory(\'' + category + '\')">';
+            html += '<i class="fas fa-trash"></i></button></div>';
+            $('#categoriesList').append(html);
+            $('#newCategory').val('');
+            
+            // Save categories
+            saveCategories();
+        }
+
+        function removeCategory(category) {
+            event.target.closest('.category-item').remove();
+            saveCategories();
+        }
+
+        function saveCategories() {
+            var categories = [];
+            $('#categoriesList .category-item span').each(function() {
+                categories.push($(this).text());
+            });
+            
+            $.ajax({
+                url: '/CustomerSupport/Configuration/SaveCategories',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(categories),
+                success: function(result) {
+                    if (result.success) {
+                        toastr.success(result.message);
+                    }
+                }
+            });
+        }
+
+        function saveSLA(priority) {
+            var response = $('#response_' + priority).val();
+            var resolution = $('#resolution_' + priority).val();
+            
+            $.ajax({
+                url: '/CustomerSupport/Configuration/SavePrioritySLA',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    priority: priority,
+                    responseTimeHours: parseInt(response),
+                    resolutionTimeHours: parseInt(resolution)
+                }),
+                success: function(result) {
+                    if (result.success) {
+                        toastr.success(result.message);
+                    }
+                }
+            });
+        }
+
+        function saveAutoAssignment() {
+            var enabled = $('#autoAssignEnabled').is(':checked');
+            var method = $('#assignmentMethod').val();
+            
+            $.ajax({
+                url: '/CustomerSupport/Configuration/SaveAutoAssignment',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    enabled: enabled,
+                    method: method
+                }),
+                success: function(result) {
+                    if (result.success) {
+                        toastr.success(result.message);
+                    }
+                }
+            });
+        }
+
+        function saveNotificationSettings() {
+            var emailEnabled = $('#emailNotifications').is(':checked');
+            var smsEnabled = $('#smsNotifications').is(':checked');
+            
+            $.ajax({
+                url: '/CustomerSupport/Configuration/SaveNotificationSettings',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    emailEnabled: emailEnabled,
+                    smsEnabled: smsEnabled
+                }),
+                success: function(result) {
+                    if (result.success) {
+                        toastr.success(result.message);
+                    }
+                }
+            });
+        }
+
+        function saveBusinessHours() {
+            var startTime = $('#startTime').val();
+            var endTime = $('#endTime').val();
+            var workingDays = [];
+            $('.working-day:checked').each(function() {
+                workingDays.push($(this).val());
+            });
+            
+            $.ajax({
+                url: '/CustomerSupport/Configuration/SaveBusinessHours',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    startTime: startTime,
+                    endTime: endTime,
+                    workingDays: workingDays
+                }),
+                success: function(result) {
+                    if (result.success) {
+                        toastr.success(result.message);
+                    }
+                }
+            });
+        }
+    </script>
+}
+
+@functions {
+    string GetPriorityColor(string priority)
+    {
+        return priority switch
+        {
+            "Critical" => "danger",
+            "Urgent" => "warning",
+            "High" => "info",
+            "Medium" => "primary",
+            "Low" => "secondary",
+            _ => "light"
+        };
+    }
+}

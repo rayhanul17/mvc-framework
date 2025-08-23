@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Nexora.Application.Services;
-using Nexora.Core.Constants;
 
 namespace Nexora.Web.TagHelpers;
 
@@ -43,14 +42,10 @@ public class RoleAuthorizationTagHelper : TagHelper
 
         bool hasAccess = false;
 
-        // Handle special role keywords
-        if (requiredRoles.Contains("Admin"))
+        // Check if user is SuperAdmin first
+        if (await _roleAuthService.IsSuperAdminAsync(user))
         {
-            hasAccess = await _roleAuthService.IsAdminAsync(user);
-        }
-        else if (requiredRoles.Contains("Support"))
-        {
-            hasAccess = await _roleAuthService.IsSupportStaffAsync(user);
+            hasAccess = true;
         }
         else
         {

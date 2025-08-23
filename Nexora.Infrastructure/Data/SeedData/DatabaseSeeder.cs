@@ -32,19 +32,27 @@ public static class DatabaseSeeder
             logger.LogInformation("Seeding users...");
             await UserSeeder.SeedAsync(userManager);
             
-            // 3. Seed Menus (depends on Roles)
+            // 3. Seed Permissions (depends on nothing)
+            logger.LogInformation("Seeding permissions...");
+            await PermissionSeeder.SeedAsync(context);
+            
+            // 4. Seed Menus (depends on Roles)
             logger.LogInformation("Seeding menus...");
             await MenuSeeder.SeedAsync(context, roleManager);
             
-            // 4. Seed Site Settings (essential for app configuration)
+            // 5. Assign Permissions to Roles (depends on Permissions and Roles)
+            logger.LogInformation("Assigning permissions to roles...");
+            await PermissionSeeder.AssignPermissionsToRolesAsync(context);
+            
+            // 6. Seed Site Settings (essential for app configuration)
             logger.LogInformation("Seeding site settings...");
             await SiteSettingSeeder.SeedAsync(context);
             
-            // 5. Seed Blog Categories
+            // 7. Seed Blog Categories
             logger.LogInformation("Seeding blog categories...");
             await BlogCategorySeeder.SeedAsync(context);
             
-            // 6. Seed Blog Posts (depends on Categories and Users)
+            // 8. Seed Blog Posts (depends on Categories and Users)
             logger.LogInformation("Seeding blog posts...");
             await BlogPostSeeder.SeedAsync(context, userManager);
 

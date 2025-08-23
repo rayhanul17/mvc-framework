@@ -745,6 +745,12 @@ namespace Nexora.Web.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<string>("ActiveMenuUrl")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("AllowAnonymous")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Area")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
@@ -784,6 +790,9 @@ namespace Nexora.Web.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("RequireAuthentication")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -801,6 +810,68 @@ namespace Nexora.Web.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Menus", (string)null);
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Area")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Controller")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Area", "Controller", "Action")
+                        .IsUnique();
+
+                    b.ToTable("Permissions", (string)null);
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.RoleMenu", b =>
@@ -853,6 +924,50 @@ namespace Nexora.Web.Migrations
                         .IsUnique();
 
                     b.ToTable("RoleMenus", (string)null);
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.RolePermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("varchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("VersionNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId", "PermissionId")
+                        .IsUnique();
+
+                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.SiteSetting", b =>
@@ -972,11 +1087,8 @@ namespace Nexora.Web.Migrations
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("LastModifiedById")
-                        .HasColumnType("varchar(255)");
-
                     b.Property<string>("LastModifiedByUserId")
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("longtext");
@@ -1035,7 +1147,7 @@ namespace Nexora.Web.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("LastModifiedById");
+                    b.HasIndex("LastModifiedByUserId");
 
                     b.HasIndex("Priority");
 
@@ -1301,7 +1413,23 @@ namespace Nexora.Web.Migrations
                     b.Property<string>("RoleId")
                         .HasColumnType("varchar(255)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("IsActive");
 
                     b.HasIndex("RoleId");
 
@@ -1445,6 +1573,25 @@ namespace Nexora.Web.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Nexora.Core.Entities.RolePermission", b =>
+                {
+                    b.HasOne("Nexora.Core.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Nexora.Core.Entities.ApplicationRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Nexora.Core.Entities.Ticket", b =>
                 {
                     b.HasOne("Nexora.Core.Entities.ApplicationUser", "AssignedBy")
@@ -1465,7 +1612,8 @@ namespace Nexora.Web.Migrations
 
                     b.HasOne("Nexora.Core.Entities.ApplicationUser", "LastModifiedBy")
                         .WithMany()
-                        .HasForeignKey("LastModifiedById");
+                        .HasForeignKey("LastModifiedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("AssignedBy");
 
@@ -1611,6 +1759,11 @@ namespace Nexora.Web.Migrations
                     b.Navigation("Children");
 
                     b.Navigation("RoleMenus");
+                });
+
+            modelBuilder.Entity("Nexora.Core.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("Nexora.Core.Entities.Ticket", b =>

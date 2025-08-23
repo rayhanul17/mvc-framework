@@ -116,7 +116,7 @@
                                             <div class="col-sm-9"><code>@Model.ExceptionType</code></div>
                                         </div>
                                     }
-                                    @if (!string.IsNullOrEmpty(Model.ErrorMessage) && await RoleAuthService.IsAdminAsync(User))
+                                    @if (!string.IsNullOrEmpty(Model.ErrorMessage) && await User.CanAccessUrlAsync("/Admin/Dashboard"))
                                     {
                                         <div class="row">
                                             <div class="col-sm-3"><strong>Message:</strong></div>

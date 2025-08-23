@@ -68,5 +68,55 @@ public static class UserSeeder
                 await userManager.AddToRoleAsync(adminUser, "Administrator");
             }
         }
+        
+        // Create Manager User
+        var managerUser = await userManager.FindByEmailAsync("manager@example.com");
+        if (managerUser == null)
+        {
+            managerUser = new ApplicationUser
+            {
+                UserName = "manager@example.com",
+                Email = "manager@example.com",
+                EmailConfirmed = true,
+                FullName = "Manager User",
+                Nickname = "Manager",
+                CreatedAt = DateTime.UtcNow,
+                Description = "Manager with extended permissions",
+                IsActive = true,
+                IsSuperAdmin = false
+            };
+
+            var result = await userManager.CreateAsync(managerUser, "Manager@123");
+            
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(managerUser, "Manager");
+            }
+        }
+        
+        // Create regular user for testing
+        var regularUser = await userManager.FindByEmailAsync("user@example.com");
+        if (regularUser == null)
+        {
+            regularUser = new ApplicationUser
+            {
+                UserName = "user@example.com",
+                Email = "user@example.com",
+                EmailConfirmed = true,
+                FullName = "Regular User",
+                Nickname = "User",
+                CreatedAt = DateTime.UtcNow,
+                Description = "Regular user with basic permissions",
+                IsActive = true,
+                IsSuperAdmin = false
+            };
+
+            var result = await userManager.CreateAsync(regularUser, "User@123");
+            
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(regularUser, "User");
+            }
+        }
     }
 }
