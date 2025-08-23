@@ -285,6 +285,7 @@ public class HomeController : Controller
 
     [AllowAnonymous]
     [HttpPost]
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> GetPostsByCategory(string slug)
     {
         if (string.IsNullOrEmpty(slug))
@@ -300,32 +301,34 @@ public class HomeController : Controller
             return Json(new { success = false, message = "Category not found" });
         }
 
-        var posts = await _context.BlogPosts
+        var postsData = await _context.BlogPosts
             .Include(p => p.Category)
             .Include(p => p.Author)
             .Where(p => p.CategoryId == category.Id && p.IsPublished)
             .OrderByDescending(p => p.PublishedDate)
-            .Select(p => new
-            {
-                id = p.Id,
-                title = p.Title,
-                slug = p.Slug ?? "",
-                summary = p.Summary ?? "",
-                featuredImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
-                categoryName = p.Category != null ? p.Category.Name : "",
-                categorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
-                authorName = p.Author != null ? p.Author.FullName : "Anonymous",
-                publishedDate = p.PublishedDate ?? p.CreatedAt,
-                viewCount = p.ViewCount,
-                tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
-            })
             .ToListAsync();
+        
+        var posts = postsData.Select(p => new
+        {
+            id = p.Id,
+            title = p.Title,
+            slug = p.Slug ?? "",
+            summary = p.Summary ?? "",
+            featuredImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+            categoryName = p.Category != null ? p.Category.Name : "",
+            categorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
+            authorName = p.Author != null ? p.Author.FullName : "Anonymous",
+            publishedDate = p.PublishedDate ?? p.CreatedAt,
+            viewCount = p.ViewCount,
+            tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',').Select(t => t.Trim()).ToList()
+        }).ToList();
 
         return Json(new { success = true, posts = posts, categoryName = category.Name });
     }
 
     [AllowAnonymous]
     [HttpPost]
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> GetPostsByTag(string tag)
     {
         if (string.IsNullOrEmpty(tag))
@@ -336,26 +339,27 @@ public class HomeController : Controller
         // Decode URL encoded characters
         tag = System.Net.WebUtility.UrlDecode(tag);
 
-        var posts = await _context.BlogPosts
+        var postsData = await _context.BlogPosts
             .Include(p => p.Category)
             .Include(p => p.Author)
             .Where(p => p.IsPublished && p.Tags != null && p.Tags.Contains(tag))
             .OrderByDescending(p => p.PublishedDate)
-            .Select(p => new
-            {
-                id = p.Id,
-                title = p.Title,
-                slug = p.Slug ?? "",
-                summary = p.Summary ?? "",
-                featuredImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
-                categoryName = p.Category != null ? p.Category.Name : "",
-                categorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
-                authorName = p.Author != null ? p.Author.FullName : "Anonymous",
-                publishedDate = p.PublishedDate ?? p.CreatedAt,
-                viewCount = p.ViewCount,
-                tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToList()
-            })
             .ToListAsync();
+        
+        var posts = postsData.Select(p => new
+        {
+            id = p.Id,
+            title = p.Title,
+            slug = p.Slug ?? "",
+            summary = p.Summary ?? "",
+            featuredImageUrl = p.FeaturedImageUrl ?? "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop",
+            categoryName = p.Category != null ? p.Category.Name : "",
+            categorySlug = p.Category != null ? p.Category.Slug ?? "" : "",
+            authorName = p.Author != null ? p.Author.FullName : "Anonymous",
+            publishedDate = p.PublishedDate ?? p.CreatedAt,
+            viewCount = p.ViewCount,
+            tags = string.IsNullOrEmpty(p.Tags) ? new List<string>() : p.Tags.Split(',').Select(t => t.Trim()).ToList()
+        }).ToList();
 
         return Json(new { success = true, posts = posts, tagName = tag });
     }

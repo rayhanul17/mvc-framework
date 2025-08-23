@@ -270,30 +270,7 @@ using (var scope = app.Services.CreateScope())
     Log.Information("Starting application...");
     Log.Information("Application is ready. Navigate to http://localhost:5266 in your browser.");
     
-    // Launch browser in background after a short delay
-    if (app.Environment.IsDevelopment() && OperatingSystem.IsWindows())
-    {
-        _ = Task.Run(async () =>
-        {
-            await Task.Delay(3000); // Wait for server to start
-            try
-            {
-                var psi = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = "cmd",
-                    Arguments = "/c start http://localhost:5266",
-                    CreateNoWindow = true,
-                    UseShellExecute = true
-                };
-                System.Diagnostics.Process.Start(psi);
-                Log.Information("Browser opened successfully");
-            }
-            catch (Exception ex)
-            {
-                Log.Warning(ex, "Could not open browser automatically");
-            }
-        });
-    }
+    // Browser is launched via launchSettings.json, no need to launch it here
     
     app.Run();
 }

@@ -236,6 +236,9 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             transition: all 0.3s;
             cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .blog-card:hover {
@@ -263,6 +266,9 @@
 
         .blog-content {
             padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .blog-title {
@@ -275,6 +281,7 @@
             color: #6c757d;
             margin-bottom: 1rem;
             line-height: 1.6;
+            flex-grow: 1;
         }
 
         .blog-meta {
@@ -311,14 +318,49 @@
         /* Categories Sidebar */
         .two-column {
             display: grid;
-            grid-template-columns: 350px 1fr;
+            grid-template-columns: 300px 1fr;
             gap: 2rem;
+            align-items: start;
         }
 
         .sidebar {
             position: sticky;
             top: 100px;
             height: fit-content;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        
+        /* Filtered Posts Container */
+        #categoryPosts {
+            width: 100%;
+            padding: 0 0.5rem;
+        }
+        
+        #categoryPosts .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+            width: 100%;
+        }
+        
+        #categoryPosts .blog-card .blog-content {
+            padding: 1rem;
+        }
+        
+        #categoryPosts .blog-card .blog-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        #categoryPosts .blog-card .blog-summary {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+        
+        #categoryPosts .blog-card .blog-meta {
+            font-size: 0.8rem;
         }
 
         .sidebar-widget {
@@ -663,15 +705,86 @@
             /* Grid adjustments */
             .two-column {
                 grid-template-columns: 1fr;
+                gap: 1.5rem;
             }
             
             .sidebar {
                 position: static;
+                max-height: none;
+                overflow-y: visible;
             }
             
             .blog-grid {
                 grid-template-columns: 1fr;
                 padding: 0 1rem;
+            }
+            
+            #categoryPosts .blog-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0;
+            }
+            
+            #categoryPosts .blog-card {
+                border-radius: 10px;
+            }
+            
+            #categoryPosts .blog-card .blog-image {
+                height: 150px;
+            }
+            
+            #categoryPosts .blog-card .blog-category {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            
+            #categoryPosts .blog-card .blog-content {
+                padding: 1rem;
+            }
+            
+            #categoryPosts .blog-card .blog-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            #categoryPosts .blog-card .blog-summary {
+                font-size: 0.9rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            
+            #categoryPosts .blog-card .blog-meta {
+                font-size: 0.8rem;
+            }
+            
+            #categoryPosts .blog-card .blog-tags {
+                display: block;
+            }
+            
+            /* Hide sidebar on mobile when filtered posts are shown */
+            .sidebar.mobile-hidden {
+                display: none;
+            }
+            
+            /* Back button for mobile */
+            .mobile-back-btn {
+                display: none;
+                margin-bottom: 1rem;
+                padding: 0.75rem 1rem;
+                background: #667eea;
+                color: white;
+                border-radius: 10px;
+                border: none;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+            
+            .mobile-back-btn.show {
+                display: block;
             }
             
             /* Modal adjustments */
@@ -682,6 +795,39 @@
             
             .post-full-image {
                 height: 250px;
+            }
+        }
+        
+        /* Small tablets (portrait) */
+        @@media (min-width: 481px) and (max-width: 767px) {
+            #categoryPosts .blog-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            #categoryPosts .blog-card .blog-content {
+                padding: 1rem;
+            }
+            
+            #categoryPosts .blog-card .blog-title {
+                font-size: 1.1rem;
+            }
+            
+            #categoryPosts .blog-card .blog-summary {
+                font-size: 0.9rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            
+            /* Show/hide sidebar on small tablets too */
+            .sidebar.mobile-hidden {
+                display: none;
+            }
+            
+            .mobile-back-btn.show {
+                display: block;
             }
         }
         
@@ -757,6 +903,19 @@
             
             .blog-meta {
                 font-size: 0.8rem;
+            }
+        }
+        
+        /* Medium devices (tablets) */
+        @@media (min-width: 768px) and (max-width: 1024px) {
+            .two-column {
+                grid-template-columns: 280px 1fr;
+                gap: 1.5rem;
+            }
+            
+            #categoryPosts .blog-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
             }
         }
         
@@ -969,10 +1128,13 @@
                         }
                     </div>
                 </div>
-                <div>
+                <div style="width: 100%; min-height: 400px;">
                     <h2 style="margin-bottom: 2rem; color: #2c3e50;">Browse by Category</h2>
-                    <div class="blog-grid" id="categoryPosts">
-                        <p style="color: #6c757d; text-align: center; padding: 2rem;">Select a category or tag from the left to view posts</p>
+                    <button class="mobile-back-btn" onclick="showCategorySidebar()">
+                        <i class="fas fa-arrow-left"></i> Back to Categories
+                    </button>
+                    <div id="categoryPosts">
+                        <p style="color: #6c757d; text-align: center; padding: 2rem;">Select a category or tag from the sidebar to view posts</p>
                     </div>
                 </div>
             </div>
@@ -1075,6 +1237,11 @@
                 section.classList.remove('active');
             });
             document.getElementById(tabName).classList.add('active');
+            
+            // Reset sidebar visibility when switching to categories tab
+            if (tabName === 'categories' && isMobile()) {
+                showCategorySidebar();
+            }
         }
 
         // Search functionality
@@ -1175,9 +1342,33 @@
             });
         }
 
+        // Check if mobile
+        function isMobile() {
+            return window.innerWidth <= 767;
+        }
+
+        // Show categories sidebar on mobile
+        function showCategorySidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const backBtn = document.querySelector('.mobile-back-btn');
+            const categoryPosts = document.getElementById('categoryPosts');
+            
+            if (sidebar) sidebar.classList.remove('mobile-hidden');
+            if (backBtn) backBtn.classList.remove('show');
+            categoryPosts.innerHTML = '<p style="color: #6c757d; text-align: center; padding: 2rem;">Select a category or tag from the sidebar to view posts</p>';
+        }
+
         // Display filtered posts
         function displayFilteredPosts(posts, title) {
             const container = document.getElementById('categoryPosts');
+            
+            // On mobile, hide sidebar and show back button
+            if (isMobile()) {
+                const sidebar = document.querySelector('.sidebar');
+                const backBtn = document.querySelector('.mobile-back-btn');
+                if (sidebar) sidebar.classList.add('mobile-hidden');
+                if (backBtn) backBtn.classList.add('show');
+            }
             
             if (posts.length === 0) {
                 container.innerHTML = `
