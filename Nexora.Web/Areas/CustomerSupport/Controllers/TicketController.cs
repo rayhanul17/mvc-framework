@@ -445,18 +445,24 @@ public class TicketController : BaseController
                                t.Status != TicketStatus.Closed && t.Status != TicketStatus.Resolved)
         };
         
-        // Calculate average times
-        model.AverageResolutionTime = await _context.Tickets
+        // Calculate average times - fetch data first then calculate in memory
+        var resolutionTimes = await _context.Tickets
             .Where(t => t.ResolutionTimeHours.HasValue)
-            .Select(t => t.ResolutionTimeHours!.Value)
-            .DefaultIfEmpty(0)
-            .AverageAsync();
+            .Select(t => t.ResolutionTimeHours)
+            .ToListAsync();
+        
+        model.AverageResolutionTime = resolutionTimes.Any() 
+            ? resolutionTimes.Average(t => t!.Value) 
+            : 0;
             
-        model.FirstResponseTime = await _context.Tickets
+        var responseTimes = await _context.Tickets
             .Where(t => t.ResponseTimeHours.HasValue)
-            .Select(t => t.ResponseTimeHours!.Value)
-            .DefaultIfEmpty(0)
-            .AverageAsync();
+            .Select(t => t.ResponseTimeHours)
+            .ToListAsync();
+            
+        model.FirstResponseTime = responseTimes.Any() 
+            ? responseTimes.Average(t => t!.Value) 
+            : 0;
         
         // Get agent performance
         model.TopPerformers = await GetAgentPerformanceAsync();
