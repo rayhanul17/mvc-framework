@@ -166,19 +166,19 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="card">
+    <div class="card no-print">
         <div class="card-header">
             <h5 class="mb-0">Actions</h5>
         </div>
         <div class="card-body">
             <div class="btn-group" role="group">
-                <button class="btn btn-outline-primary" onclick="exportReport('pdf')">
+                <a href="/Export/ExportStatisticsPdf" class="btn btn-outline-primary">
                     <i class="fas fa-file-pdf"></i> Export PDF Report
-                </button>
-                <button class="btn btn-outline-success" onclick="exportReport('excel')">
+                </a>
+                <button class="btn btn-outline-success" data-export="excel" data-url="/Export/ExportTicketsExcel">
                     <i class="fas fa-file-excel"></i> Export to Excel
                 </button>
-                <button class="btn btn-outline-info" onclick="window.print()">
+                <button class="btn btn-outline-info" data-print="page">
                     <i class="fas fa-print"></i> Print Report
                 </button>
             </div>

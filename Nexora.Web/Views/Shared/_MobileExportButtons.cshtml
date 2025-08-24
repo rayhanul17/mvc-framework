@@ -1,0 +1,66 @@
+@* Mobile Export Floating Action Button *@
+<div class="export-buttons-mobile mobile-only">
+    <div class="export-menu-mobile" id="exportMenuMobile">
+        <button class="btn btn-outline-danger btn-sm mb-2" onclick="exportPDF()">
+            <i class="fas fa-file-pdf me-2"></i> Export PDF
+        </button>
+        <button class="btn btn-outline-success btn-sm mb-2" onclick="exportExcel()">
+            <i class="fas fa-file-excel me-2"></i> Export Excel
+        </button>
+        <button class="btn btn-outline-info btn-sm mb-2" onclick="window.print()">
+            <i class="fas fa-print me-2"></i> Print
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="exportCSV()">
+            <i class="fas fa-file-csv me-2"></i> Export CSV
+        </button>
+    </div>
+    <button class="export-fab" id="exportFab" onclick="toggleExportMenu()">
+        <i class="fas fa-download"></i>
+    </button>
+</div>
+
+<script>
+    function toggleExportMenu() {
+        const menu = document.getElementById('exportMenuMobile');
+        const fab = document.getElementById('exportFab');
+        
+        if (menu.classList.contains('show')) {
+            menu.classList.remove('show');
+            fab.innerHTML = '<i class="fas fa-download"></i>';
+        } else {
+            menu.classList.add('show');
+            fab.innerHTML = '<i class="fas fa-times"></i>';
+        }
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('exportMenuMobile');
+        const fab = document.getElementById('exportFab');
+        
+        if (menu && fab && !menu.contains(event.target) && !fab.contains(event.target)) {
+            menu.classList.remove('show');
+            fab.innerHTML = '<i class="fas fa-download"></i>';
+        }
+    });
+    
+    function exportPDF() {
+        const url = window.location.pathname + '/export/pdf';
+        window.open(url, '_blank');
+        toggleExportMenu();
+    }
+    
+    function exportExcel() {
+        const url = window.location.pathname + '/export/excel';
+        window.location.href = url;
+        toggleExportMenu();
+    }
+    
+    function exportCSV() {
+        // Implement CSV export
+        if (typeof PrintExport !== 'undefined') {
+            PrintExport.exportCsv();
+        }
+        toggleExportMenu();
+    }
+</script>

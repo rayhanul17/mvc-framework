@@ -15,10 +15,25 @@
                         </h2>
                         <p class="text-muted">Comprehensive ticket management dashboard for support staff</p>
                     </div>
-                    <div>
+                    <div class="btn-group no-print">
                         <a asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Create" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>Create New Ticket
                         </a>
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/Export/ExportTicketListPdf" target="_blank">
+                                <i class="fas fa-file-pdf text-danger me-2"></i> Export as PDF
+                            </a></li>
+                            <li><a class="dropdown-item" href="/Export/ExportTicketsExcel">
+                                <i class="fas fa-file-excel text-success me-2"></i> Export as Excel
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" data-print="page">
+                                <i class="fas fa-print text-info me-2"></i> Print Page
+                            </a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -184,7 +199,131 @@
                 <div class="card-body p-0">
                     @if (Model.Tickets.Any())
                     {
-                        <div class="table-responsive">
+                        <!-- Mobile Ticket Cards (Visible on Mobile Only) -->
+                        <div class="mobile-ticket-cards d-lg-none p-3">
+                            @foreach (var ticket in Model.Tickets)
+                            {
+                                var overdue = ticket.DueDate.HasValue && ticket.DueDate.Value < DateTime.Now && 
+                                             ticket.Status != Nexora.Core.Entities.TicketStatus.Closed && 
+                                             ticket.Status != Nexora.Core.Entities.TicketStatus.Resolved;
+                                
+                                <div class="ticket-card-mobile @(overdue ? "border-warning" : "") @(ticket.Priority == Nexora.Core.Entities.TicketPriority.Critical ? "border-danger" : "")">
+                                    <div class="ticket-header">
+                                        <div>
+                                            <span class="ticket-number">#@(ticket.TicketNumber ?? $"T{ticket.Id:D6}")</span>
+                                            @if (overdue)
+                                            {
+                                                <span class="badge bg-danger ms-2">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Overdue
+                                                </span>
+                                            }
+                                        </div>
+                                        <span class="badge bg-@(GetStatusBadgeClass(ticket.Status)) ticket-status">
+                                            @ticket.Status.ToString().Replace("InProgress", "In Progress")
+                                        </span>
+                                    </div>
+                                    
+                                    <h5 class="ticket-title">@ticket.Title</h5>
+                                    
+                                    @if (!string.IsNullOrEmpty(ticket.Category))
+                                    {
+                                        <div class="text-muted small mb-2">
+                                            <i class="fas fa-tag me-1"></i>@ticket.Category
+                                        </div>
+                                    }
+                                    
+                                    <div class="ticket-meta">
+                                        <div class="ticket-meta-item">
+                                            <i class="fas fa-flag text-@(GetPriorityBadgeClass(ticket.Priority))"></i>
+                                            <span>@ticket.Priority</span>
+                                        </div>
+                                        
+                                        @if (ticket.Customer != null)
+                                        {
+                                            <div class="ticket-meta-item">
+                                                <i class="fas fa-user text-info"></i>
+                                                <span>@ticket.Customer.FullName</span>
+                                            </div>
+                                        }
+                                        
+                                        @if (ticket.AssignedTo != null)
+                                        {
+                                            <div class="ticket-meta-item">
+                                                <i class="fas fa-user-check text-success"></i>
+                                                <span>@ticket.AssignedTo.FullName</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="ticket-meta-item">
+                                                <i class="fas fa-user-slash text-secondary"></i>
+                                                <span>Unassigned</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="ticket-meta text-muted small">
+                                        <div class="ticket-meta-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Created @ticket.CreatedAt.ToString("MMM dd, HH:mm")</span>
+                                        </div>
+                                        @if (ticket.UpdatedAt.HasValue)
+                                        {
+                                            <div class="ticket-meta-item">
+                                                <i class="fas fa-history"></i>
+                                                <span>Updated @ticket.UpdatedAt.Value.ToString("MMM dd, HH:mm")</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    
+                                    <div class="ticket-actions mt-3">
+                                        @if (await User.CanAccessUrlAsync($"/CustomerSupport/ManageTicket/Details/{ticket.Id}"))
+                                        {
+                                            <a asp-action="Details" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </a>
+                                        }
+                                        
+                                        @if (await User.CanAccessUrlAsync($"/CustomerSupport/ManageTicket/Assign/{ticket.Id}"))
+                                        {
+                                            @if (ticket.AssignedToId == null)
+                                            {
+                                                <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-user-plus me-1"></i>Assign
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a asp-action="Assign" asp-route-id="@ticket.Id" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-user-edit me-1"></i>Reassign
+                                                </a>
+                                            }
+                                        }
+                                        
+                                        <div class="dropdown d-inline-block">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" asp-area="CustomerSupport" asp-controller="Ticket" asp-action="Edit" asp-route-id="@ticket.Id">
+                                                    <i class="fas fa-edit me-2"></i>Edit
+                                                </a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="#" onclick="quickStatusUpdate(@ticket.Id, 'Resolved')">
+                                                    <i class="fas fa-check me-2"></i>Mark Resolved
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="quickStatusUpdate(@ticket.Id, 'Closed')">
+                                                    <i class="fas fa-times me-2"></i>Close Ticket
+                                                </a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        <!-- Desktop Table (Hidden on Mobile) -->
+                        <div class="table-responsive d-none d-lg-block">
                             <table id="ticketsTable" class="table table-hover mb-0">
                                 <thead class="table-light">
                                     <tr>
@@ -374,6 +513,9 @@
         </div>
     </div>
 </div>
+
+<!-- Mobile Export Button -->
+<partial name="_MobileExportButtons" />
 
 @section Scripts {
     <script>

@@ -1,0 +1,306 @@
+/* Print Styles for Nexora Application */
+@media print {
+    /* Hide unnecessary elements */
+    .sidebar,
+    .navbar,
+    .footer,
+    .no-print,
+    .btn-group,
+    .action-buttons,
+    .breadcrumb,
+    nav,
+    .pagination,
+    .modal,
+    .toast,
+    .alert-dismissible .btn-close,
+    button[onclick*="print"],
+    button[onclick*="export"],
+    .export-buttons {
+        display: none !important;
+    }
+    
+    /* Reset body and container */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        color: #000 !important;
+        background: white !important;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .container,
+    .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Page breaks */
+    .page-break {
+        page-break-after: always;
+    }
+    
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+    
+    /* Headers and titles */
+    h1, h2, h3, h4, h5, h6 {
+        color: #000 !important;
+        page-break-after: avoid;
+        margin-top: 15pt;
+        margin-bottom: 10pt;
+    }
+    
+    h1 { font-size: 24pt; }
+    h2 { font-size: 20pt; }
+    h3 { font-size: 16pt; }
+    h4 { font-size: 14pt; }
+    h5, h6 { font-size: 12pt; }
+    
+    /* Tables */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        page-break-inside: auto;
+    }
+    
+    thead {
+        display: table-header-group;
+    }
+    
+    tfoot {
+        display: table-footer-group;
+    }
+    
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+    
+    th, td {
+        border: 1px solid #ddd !important;
+        padding: 8pt !important;
+        text-align: left;
+    }
+    
+    th {
+        background-color: #f5f5f5 !important;
+        font-weight: bold;
+        color: #000 !important;
+    }
+    
+    /* Cards and panels */
+    .card {
+        border: 1px solid #000 !important;
+        margin-bottom: 15pt !important;
+        page-break-inside: avoid;
+    }
+    
+    .card-header {
+        background-color: #f5f5f5 !important;
+        color: #000 !important;
+        font-weight: bold;
+        padding: 10pt !important;
+        border-bottom: 1px solid #000 !important;
+    }
+    
+    .card-body {
+        padding: 10pt !important;
+    }
+    
+    /* Badges and labels */
+    .badge {
+        border: 1px solid #000 !important;
+        color: #000 !important;
+        background: white !important;
+        padding: 2pt 4pt !important;
+    }
+    
+    /* Status colors in print */
+    .status-open { background-color: #fff3cd !important; }
+    .status-progress { background-color: #cfe2ff !important; }
+    .status-resolved { background-color: #d1e7dd !important; }
+    .status-closed { background-color: #f8f9fa !important; }
+    
+    .priority-low { background-color: #d1e7dd !important; }
+    .priority-medium { background-color: #fff3cd !important; }
+    .priority-high { background-color: #f8d7da !important; }
+    .priority-urgent { 
+        background-color: #842029 !important; 
+        color: white !important;
+    }
+    
+    /* Links */
+    a {
+        color: #000 !important;
+        text-decoration: underline !important;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 80%;
+    }
+    
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+    
+    /* Images */
+    img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+    
+    /* Forms - make them readable but not interactive */
+    input, textarea, select {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: #000 !important;
+    }
+    
+    /* Specific print layouts */
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20pt;
+        border-bottom: 2px solid #000;
+        padding-bottom: 10pt;
+    }
+    
+    .print-footer {
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 10pt;
+        color: #666;
+        border-top: 1px solid #000;
+        padding-top: 5pt;
+    }
+    
+    /* Ticket specific styles */
+    .ticket-details {
+        page-break-inside: avoid;
+    }
+    
+    .ticket-header {
+        border-bottom: 2px solid #000;
+        margin-bottom: 15pt;
+        padding-bottom: 10pt;
+    }
+    
+    .ticket-comments {
+        margin-top: 20pt;
+        border-top: 1px solid #000;
+        padding-top: 15pt;
+    }
+    
+    .comment-box {
+        border: 1px solid #666;
+        padding: 10pt;
+        margin-bottom: 10pt;
+        page-break-inside: avoid;
+    }
+    
+    /* Statistics and charts */
+    .chart-container {
+        page-break-inside: avoid;
+        margin: 15pt 0;
+    }
+    
+    canvas {
+        max-height: 300pt !important;
+    }
+    
+    /* Blog post printing */
+    .blog-post {
+        max-width: 100%;
+    }
+    
+    .blog-meta {
+        font-style: italic;
+        color: #666 !important;
+        margin-bottom: 15pt;
+    }
+    
+    .blog-content {
+        text-align: justify;
+        line-height: 1.6;
+    }
+    
+    /* User list printing */
+    .user-list-print {
+        font-size: 10pt;
+    }
+    
+    /* Watermark for drafts */
+    .draft-watermark {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 72pt;
+        color: rgba(0,0,0,0.1);
+        z-index: -1;
+    }
+    
+    /* Page numbers */
+    @page {
+        margin: 1in;
+        size: letter;
+    }
+    
+    @page :first {
+        margin-top: 0.5in;
+    }
+    
+    /* Show print-only elements */
+    .print-only {
+        display: block !important;
+    }
+    
+    /* Optimize text */
+    p {
+        orphans: 3;
+        widows: 3;
+    }
+    
+    /* QR codes or barcodes */
+    .qr-code,
+    .barcode {
+        page-break-inside: avoid;
+        margin: 10pt 0;
+    }
+}
+
+/* Print preview helper classes */
+.print-preview {
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 800px;
+}
+
+/* Utility classes for print control */
+.always-print {
+    display: block !important;
+}
+
+.never-print {
+    display: none !important;
+}
+
+.new-page {
+    page-break-before: always;
+}
+
+.keep-together {
+    page-break-inside: avoid;
+}

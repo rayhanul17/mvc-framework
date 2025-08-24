@@ -42,6 +42,9 @@ try
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add SignalR for real-time notifications
+builder.Services.AddSignalR();
+
 // Add HttpContextAccessor for accessing current user in repositories
 builder.Services.AddHttpContextAccessor();
 
@@ -207,6 +210,9 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Map SignalR hub
+app.MapHub<Nexora.Application.Services.NotificationHub>("/notificationHub");
 
 // Initialize database and apply migrations
 using (var scope = app.Services.CreateScope())

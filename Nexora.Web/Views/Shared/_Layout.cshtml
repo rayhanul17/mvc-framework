@@ -57,10 +57,12 @@
     <!-- Toastr Notifications -->
     <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
     
-    <!-- Site Styles -->
+    <!-- Site Styles - Mobile First -->
     <link rel="stylesheet" href="~/css/theme-variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/mobile-first.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/print.css" asp-append-version="true" media="print" />
     <link rel="stylesheet" href="~/Nexora.Web.styles.css" asp-append-version="true" />
     
     @await RenderSectionAsync("Styles", required: false)
@@ -142,6 +144,7 @@
                             <span class="theme-text">Dark Mode</span>
                         </button>
                     </div>
+                    
                     <div class="dropdown">
                         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
                             <div class="user-avatar">
@@ -177,6 +180,25 @@
         <div id="content" class="content">
 
 
+            <!-- Mobile-First Top Bar -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="top-bar safe-area-top">
+                    <div class="breadcrumb-mobile">
+                        <span class="text-muted">@ViewData["Title"]</span>
+                    </div>
+                    <div class="top-bar-actions">
+                        <!-- Notification Bell -->
+                        <partial name="_NotificationDropdown" />
+                        
+                        <!-- Print Button (Desktop) -->
+                        <button class="mobile-print-btn desktop-only" onclick="window.print()" title="Print">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    </div>
+                </div>
+            }
+            
             <!-- Main content -->
             <main role="main" class="main-content">
                 @* Server-side notification messages for toastr *@
@@ -270,6 +292,14 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/sidebar-menu.js" asp-append-version="true"></script>
     <script src="~/js/enhanced-validation.js" asp-append-version="true"></script>
+    <script src="~/js/print-export.js" asp-append-version="true"></script>
+    
+    <!-- SignalR and Notifications -->
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/lib/signalr/signalr.min.js" asp-append-version="true"></script>
+        <script src="~/js/notification-client.js" asp-append-version="true"></script>
+    }
     
     <script>
         // Initialize brand colors only - sidebar-menu.js handles everything else
