@@ -127,23 +127,34 @@ const NotificationClient = {
     // Load initial notifications
     loadNotifications: async function() {
         try {
-            const response = await fetch('/api/notifications/unread');
-            if (response.ok) {
-                const notifications = await response.json();
-                this.displayNotifications(notifications);
+            // Load unread count
+            const countResponse = await fetch('/Notifications/GetUnreadCount');
+            if (countResponse.ok) {
+                const data = await countResponse.json();
+                const badge = document.getElementById('notificationCount');
+                if (badge) {
+                    badge.textContent = data.count || 0;
+                    const badgeContainer = badge.closest('.notification-badge');
+                    if (badgeContainer) {
+                        badgeContainer.style.display = data.count > 0 ? 'block' : 'none';
+                    }
+                }
             }
         } catch (err) {
-            console.error('Failed to load notifications:', err);
+            console.error('Failed to load notification count:', err);
         }
     },
     
     // Update notification badge
     updateNotificationBadge: function() {
-        const badge = document.querySelector('.notification-badge');
-        if (badge) {
-            const count = parseInt(badge.textContent || '0') + 1;
-            badge.textContent = count;
-            badge.style.display = count > 0 ? 'inline-block' : 'none';
+        const countElement = document.getElementById('notificationCount');
+        if (countElement) {
+            const count = parseInt(countElement.textContent || '0') + 1;
+            countElement.textContent = count;
+            const badge = countElement.closest('.notification-badge');
+            if (badge) {
+                badge.style.display = count > 0 ? 'block' : 'none';
+            }
         }
     },
     
@@ -230,11 +241,14 @@ const NotificationClient = {
                 }
                 
                 // Update badge count
-                const badge = document.querySelector('.notification-badge');
-                if (badge) {
-                    const count = Math.max(0, parseInt(badge.textContent || '0') - 1);
-                    badge.textContent = count;
-                    badge.style.display = count > 0 ? 'inline-block' : 'none';
+                const countElement = document.getElementById('notificationCount');
+                if (countElement) {
+                    const count = Math.max(0, parseInt(countElement.textContent || '0') - 1);
+                    countElement.textContent = count;
+                    const badge = countElement.closest('.notification-badge');
+                    if (badge) {
+                        badge.style.display = count > 0 ? 'block' : 'none';
+                    }
                 }
             }
         } catch (err) {
@@ -245,11 +259,12 @@ const NotificationClient = {
     // Mark all as read
     markAllAsRead: async function() {
         try {
-            const response = await fetch('/api/notifications/read-all', {
+            const response = await fetch('/Notifications/MarkAllAsRead', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
                 }
             });
             
@@ -259,11 +274,19 @@ const NotificationClient = {
                     item.classList.remove('unread');
                 });
                 
-                // Clear badge
-                const badge = document.querySelector('.notification-badge');
-                if (badge) {
-                    badge.textContent = '0';
-                    badge.style.display = 'none';
+                // Clear badge count
+                const countElement = document.getElementById('notificationCount');
+                if (countElement) {
+                    countElement.textContent = '0';
+                    const badge = countElement.closest('.notification-badge');
+                    if (badge) {
+                        badge.style.display = 'none';
+                    }
+                }
+                
+                // Reload the dropdown list
+                if (typeof loadNotificationDropdown === 'function') {
+                    loadNotificationDropdown();
                 }
             }
         } catch (err) {

@@ -3,7 +3,7 @@
     <button class="btn btn-link position-relative" type="button" id="notificationDropdown" 
             data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-bell fa-lg"></i>
-        <span class="notification-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        <span class="notification-badge badge rounded-pill bg-danger">
             <span id="notificationCount">0</span>
             <span class="visually-hidden">unread notifications</span>
         </span>
@@ -54,14 +54,20 @@
     }
     
     .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
         font-size: 0.625rem;
         padding: 0.25em 0.4em;
         min-width: 1.5em;
+        z-index: 10;
     }
     
-    .notification-badge:empty,
-    .notification-badge #notificationCount:empty,
-    #notificationCount:contains("0") ~ .notification-badge {
+    .notification-badge:empty {
+        display: none;
+    }
+    
+    #notificationCount:empty {
         display: none;
     }
     
@@ -269,6 +275,11 @@
     }
     
     function markNotificationAsRead(notificationId) {
+        if (!notificationId) {
+            console.error('Invalid notification ID');
+            return;
+        }
+        
         fetch(`/api/notifications/${notificationId}/read`, {
             method: 'POST',
             headers: {
@@ -303,7 +314,7 @@
             // Hide badge if count is 0
             const badge = countElement.closest('.notification-badge');
             if (badge) {
-                badge.style.display = currentCount > 0 ? 'inline-block' : 'none';
+                badge.style.display = currentCount > 0 ? 'block' : 'none';
             }
         }
     }

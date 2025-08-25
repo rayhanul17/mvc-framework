@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Nexora.Application.Services;
 using Nexora.Core.Entities;
 using Nexora.Web.Models.ViewModels;
 
@@ -11,11 +12,16 @@ public class AccountController : BaseController
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly INotificationService _notificationService;
 
-    public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    public AccountController(
+        UserManager<ApplicationUser> userManager, 
+        SignInManager<ApplicationUser> signInManager,
+        INotificationService notificationService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _notificationService = notificationService;
     }
 
     [HttpGet]
@@ -82,6 +88,14 @@ public class AccountController : BaseController
         
         if (result.Succeeded)
         {
+            // Send welcome notification
+            await _notificationService.SendTicketNotificationAsync(
+                user.Id,
+                "Welcome to Our Platform!",
+                $"Hi {user.FullName}, welcome aboard! We're excited to have you join our community. Explore the features and let us know if you need any help getting started.",
+                NotificationType.Info
+            );
+            
             await _signInManager.SignInAsync(user, isPersistent: false);
             SetSuccessMessage("Registration successful!");
             return RedirectToAction("Index", "Home");

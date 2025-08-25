@@ -440,6 +440,20 @@ function submitFormWithLoading(formId, message) {
 }
 
 // ========================================
+// Simple Print Function
+// ========================================
+function printDiv(divId) {
+    const printContent = document.getElementById(divId);
+    if (!printContent) {
+        console.error('Element with ID "' + divId + '" not found');
+        return;
+    }
+    
+    // Open the browser's default print dialog
+    window.print();
+}
+
+// ========================================
 // Export for use in other modules
 // ========================================
 window.LoadingMask = LoadingMask;
@@ -448,3 +462,4 @@ window.hideLoading = hideLoading;
 window.executeWithLoading = executeWithLoading;
 window.ajaxWithLoading = ajaxWithLoading;
 window.submitFormWithLoading = submitFormWithLoading;
+window.printDiv = printDiv;

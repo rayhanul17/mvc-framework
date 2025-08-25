@@ -55,6 +55,10 @@ public static class DatabaseSeeder
             // 8. Seed Blog Posts (depends on Categories and Users)
             logger.LogInformation("Seeding blog posts...");
             await BlogPostSeeder.SeedAsync(context, userManager);
+            
+            // 9. Seed Notifications (depends on Users)
+            logger.LogInformation("Seeding notifications...");
+            await NotificationSeeder.SeedAsync(context, userManager);
 
             logger.LogInformation("Database seeding completed successfully.");
         }

@@ -19,11 +19,11 @@ public class TicketNotification : BaseEntity
     public DateTime? ReadAt { get; set; }
     
     // Foreign Keys
-    public int TicketId { get; set; }
+    public int? TicketId { get; set; }  // Made nullable for general notifications
     public string UserId { get; set; } = string.Empty;
     
     // Navigation Properties
-    public virtual Ticket Ticket { get; set; } = null!;
+    public virtual Ticket? Ticket { get; set; }  // Made nullable
     public virtual ApplicationUser User { get; set; } = null!;
 }
 
