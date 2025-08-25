@@ -1,61 +1,267 @@
 @model Nexora.Web.Models.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Login";
-    Layout = "_Layout";
+    Layout = null;
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h3 class="mb-0">Login</h3>
-            </div>
-            <div class="card-body">
-                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" id="loginForm">
-                    <div asp-validation-summary="All" class="text-danger"></div>
-                    
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label"></label>
-                        <input asp-for="Email" class="form-control" placeholder="Enter your email" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow-x: hidden;
+    }
+    
+    .login-container {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        position: relative;
+    }
+    
+    @@media (min-width: 768px) and (max-width: 1024px) {
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+    
+    .login-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .login-header h2 {
+        color: white;
+        font-weight: 600;
+        margin: 0;
+        font-size: 1.75rem;
+    }
+    
+    .login-header p {
+        color: rgba(255, 255, 255, 0.9);
+        margin-top: 0.5rem;
+        margin-bottom: 0;
+    }
+    
+    .form-floating label {
+        color: #6c757d;
+    }
+    
+    .password-wrapper {
+        position: relative;
+    }
+    
+    .password-wrapper .form-control {
+        padding-right: 3rem;
+    }
+    
+    @@media (max-width: 576px) {
+        .form-floating > label {
+            font-size: 0.875rem;
+        }
+        
+        .form-floating label i {
+            display: none;
+        }
+        
+        .password-wrapper label {
+            max-width: calc(100% - 3rem);
+        }
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        font-weight: 500;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 1px;
+        top: 1px;
+        bottom: 1px;
+        height: calc(100% - 2px);
+        border: none;
+        background: transparent;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        z-index: 10;
+        padding: 0 1rem;
+        border-radius: 0 0.375rem 0.375rem 0;
+    }
+    
+    .password-toggle:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+    
+    .password-wrapper {
+        position: relative;
+    }
+    
+    .password-wrapper .form-control {
+        padding-right: 3rem;
+    }
+    
+    .validation-summary-valid {
+        display: none !important;
+    }
+    
+    .validation-summary-errors {
+        display: block !important;
+    }
+    
+    .field-validation-error {
+        display: none;
+    }
+    
+    .field-validation-error:not(:empty) {
+        display: block;
+    }
+    
+    .alert-danger.validation-summary-valid ul:empty,
+    .alert-danger.validation-summary-valid ul li:only-child[style*="display:none"] {
+        display: none !important;
+    }
+    
+    .alert-danger.validation-summary-valid:has(ul:empty),
+    .alert-danger.validation-summary-valid:has(ul li:only-child[style*="display:none"]) {
+        display: none !important;
+    }
+    
+    
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    .link-primary {
+        color: #667eea !important;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .link-primary:hover {
+        color: #764ba2 !important;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-9">
+                <div class="login-card">
+                    <div class="login-header">
+                        <h2>Welcome Back</h2>
+                        <p>Please login to your account</p>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label"></label>
-                        <div class="input-group">
-                            <input asp-for="Password" class="form-control" placeholder="Enter your password" />
-                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('Password')">
-                                <i class="fas fa-eye" id="togglePasswordIcon"></i>
-                            </button>
-                        </div>
-                        <span asp-validation-for="Password" class="text-danger"></span>
+                    <div class="card-body p-4">
+                        <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" id="loginForm">
+                            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                            
+                            <div class="form-floating mb-3">
+                                <input asp-for="Email" class="form-control" id="floatingEmail" placeholder=" " />
+                                <label for="floatingEmail">
+                                    <i class="fas fa-envelope me-2"></i>Email address
+                                </label>
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-floating password-wrapper">
+                                    <input asp-for="Password" class="form-control" id="floatingPassword" placeholder=" " />
+                                    <label for="floatingPassword">
+                                        <i class="fas fa-lock me-2"></i>Password
+                                    </label>
+                                    <button class="btn password-toggle" type="button" onclick="togglePassword('floatingPassword')">
+                                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input asp-for="RememberMe" class="form-check-input" id="rememberCheck" />
+                                    <label class="form-check-label" for="rememberCheck">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="#" class="link-primary small">Forgot password?</a>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-login">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input asp-for="RememberMe" class="form-check-input" />
-                            <label asp-for="RememberMe" class="form-check-label"></label>
-                        </div>
+                    <div class="card-footer bg-light text-center py-3">
+                        <span class="text-muted">Don't have an account?</span>
+                        <a asp-action="Register" class="link-primary fw-semibold ms-1">Sign up</a>
                     </div>
-                    
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-sign-in-alt me-2"></i>Login
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center">
-                <small>Don't have an account? <a asp-action="Register" class="text-decoration-none">Register here</a></small>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script>
         function togglePassword(fieldId) {
             const passwordField = document.getElementById(fieldId);
             const toggleIcon = document.getElementById('togglePasswordIcon');
@@ -87,6 +293,8 @@
                     });
                 }
             });
+            
         });
     </script>
-}
+</body>
+</html>

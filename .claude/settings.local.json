@@ -43,7 +43,9 @@
       "Bash(mysql:*)",
       "Bash(start http://localhost:5266/CustomerSupport/Home)",
       "Read(/D:\\d\\mvc-framework/**)",
-      "Read(/D:\\d\\mvc-framework/**)"
+      "Read(/D:\\d\\mvc-framework/**)",
+      "Read(/C:\\Users\\rayha/**)",
+      "Read(/C:\\Users\\rayha\\Downloads/**)"
     ],
     "deny": [],
     "additionalDirectories": [
