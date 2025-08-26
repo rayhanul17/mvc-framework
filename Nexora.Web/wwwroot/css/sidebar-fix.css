@@ -1,0 +1,147 @@
+/* Sidebar-specific fixes - Scoped to avoid breaking content pages */
+
+/* Sidebar menu visibility */
+.sidebar .sidebar-nav,
+.sidebar .sidebar-nav ul,
+.sidebar .sidebar-nav li {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  list-style: none !important;
+}
+
+.sidebar .sidebar-nav {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.sidebar .sidebar-item {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar .sidebar-link {
+  display: flex !important;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+  padding: 0.75rem 1rem;
+  color: var(--sidebar-text);
+  text-decoration: none;
+}
+
+.sidebar .sidebar-dropdown {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Sidebar footer visibility */
+.sidebar .sidebar-footer {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.sidebar .sidebar-user-footer {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Sidebar search */
+.sidebar .sidebar-search-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.sidebar .sidebar-search {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Sidebar collapsed state */
+.sidebar.collapsed .sidebar-link {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .sidebar-link i {
+  display: inline-block !important;
+}
+
+/* Header specific buttons */
+.layout-header .btn-icon,
+.layout-header .theme-toggle,
+.layout-header .hamburger-menu {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+
+.mobile-header button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+
+/* Sidebar specific buttons */
+.sidebar .sidebar-collapse-btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+}
+
+/* Dropdown menu fixes */
+.dropdown-menu {
+  z-index: 1100;
+}
+
+.dropdown-menu.show {
+  display: block !important;
+}
+
+/* User menu dropdown specific */
+.user-menu-dropdown {
+  display: block !important;
+}
+
+.user-menu-btn {
+  display: flex !important;
+  cursor: pointer !important;
+}
+
+/* Notification dropdown specific */
+.notification-dropdown button {
+  display: flex !important;
+  cursor: pointer !important;
+}
+
+/* Z-index hierarchy */
+.sidebar {
+  z-index: 1000;
+}
+
+.layout-header {
+  z-index: 100;
+}
+
+.mobile-header {
+  z-index: 100;
+}
+
+/* Ensure clickable elements in header/sidebar */
+#header-theme-toggle,
+#sidebarCollapse,
+#desktopMenuToggle,
+#mobileMenuBtn {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}

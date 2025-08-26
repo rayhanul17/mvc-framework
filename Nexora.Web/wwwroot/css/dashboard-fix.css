@@ -1,0 +1,198 @@
+/* Dashboard Page Fixes */
+
+/* Fix for content page headers to avoid conflicts with layout header */
+.main-content .page-header {
+  position: relative !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-bottom: 1rem !important;
+  height: auto !important;
+  min-height: auto !important;
+  display: block !important;
+  z-index: 1 !important;
+}
+
+/* Dashboard specific page header */
+.main-content .page-header .d-flex {
+  flex-wrap: wrap;
+}
+
+/* Ensure dropdowns in content are visible */
+.main-content .dropdown-menu {
+  position: absolute !important;
+  z-index: 1050 !important;
+}
+
+/* Fix button styles in content */
+.main-content .btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.main-content .btn i {
+  margin-right: 0.25rem;
+}
+
+.main-content .btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Fix heading styles */
+.main-content h1.h2 {
+  font-size: 1.75rem !important;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem !important;
+}
+
+.main-content .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* Ensure content is not hidden behind header */
+.main-content > .row:first-child {
+  margin-top: 0 !important;
+}
+
+/* Fix gap utilities */
+.main-content .gap-2 {
+  gap: 0.5rem !important;
+}
+
+/* Dashboard cards styling */
+.main-content .card {
+  border: 1px solid var(--sidebar-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+}
+
+/* Fix notification visibility */
+.toastr-container,
+[data-notification-success],
+[data-notification-error],
+[data-notification-info],
+[data-notification-warning] {
+  z-index: 9999 !important;
+  position: fixed !important;
+}
+
+/* Ensure notifications appear above everything */
+#toast-container {
+  z-index: 9999 !important;
+}
+
+.toast {
+  z-index: 9999 !important;
+}
+
+/* Fix dropdown menu positioning */
+.main-content .dropdown {
+  position: relative;
+}
+
+.main-content .dropdown-menu {
+  margin-top: 0.25rem;
+  border: 1px solid var(--sidebar-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.375rem;
+}
+
+.main-content .dropdown-item {
+  padding: 0.5rem 1rem;
+  display: flex !important;
+  align-items: center;
+}
+
+.main-content .dropdown-item i {
+  width: 1.25rem;
+  text-align: center;
+}
+
+.main-content .dropdown-header {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+}
+
+.main-content .dropdown-divider {
+  margin: 0.25rem 0;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+  .main-content .page-header .d-flex {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  .main-content .page-header .d-flex > div:last-child {
+    margin-top: 1rem;
+    width: 100%;
+  }
+  
+  .main-content .page-header .d-flex.gap-2 {
+    width: 100%;
+  }
+  
+  .main-content .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .main-content .dropdown {
+    width: 100%;
+  }
+  
+  .main-content .dropdown-toggle {
+    width: 100%;
+  }
+}
+
+/* Fix layout header to not interfere with content */
+body > .wrapper > .content > .page-header {
+  position: fixed !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+
+/* Ensure main content doesn't overlap with fixed header */
+.main-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Fix specific dashboard elements */
+.main-content small {
+  font-size: 0.875rem;
+}
+
+.main-content .mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.main-content .mb-1 {
+  margin-bottom: 0.25rem !important;
+}
+
+.main-content .me-1 {
+  margin-right: 0.25rem !important;
+}
+
+.main-content .me-2 {
+  margin-right: 0.5rem !important;
+}
+
+/* Ensure icons display properly */
+.main-content .fas,
+.main-content .far,
+.main-content .fab {
+  display: inline-block;
+  vertical-align: middle;
+}

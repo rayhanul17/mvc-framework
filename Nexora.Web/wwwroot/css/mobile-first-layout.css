@@ -1,0 +1,393 @@
+/* Mobile-First Layout CSS */
+/* Base styles for mobile devices */
+
+/* Hide desktop elements on mobile */
+@media (max-width: 991px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Hide mobile elements on desktop */
+@media (min-width: 992px) {
+  .mobile-header {
+    display: none !important;
+  }
+  
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+}
+
+/* ===========================
+   MOBILE STYLES (Default)
+   =========================== */
+
+/* Mobile Header */
+.mobile-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark-theme .mobile-header {
+  background: #1f2937;
+  border-bottom-color: #374151;
+}
+
+.mobile-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-menu-toggle {
+  background: transparent;
+  border: none;
+  padding: 8px;
+  font-size: 1.25rem;
+  color: #374151;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.mobile-menu-toggle:hover,
+.mobile-menu-toggle:active {
+  background: #f3f4f6;
+}
+
+.dark-theme .mobile-menu-toggle {
+  color: #d1d5db;
+}
+
+.dark-theme .mobile-menu-toggle:hover {
+  background: #374151;
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #111827;
+  font-size: 1.125rem;
+}
+
+.mobile-logo i {
+  color: #2563eb;
+  font-size: 1.25rem;
+}
+
+.dark-theme .mobile-logo {
+  color: #f3f4f6;
+}
+
+.mobile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mobile-notification-btn {
+  position: relative;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  font-size: 1.125rem;
+  color: #374151;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.mobile-notification-btn:hover {
+  background: #f3f4f6;
+}
+
+.dark-theme .mobile-notification-btn {
+  color: #d1d5db;
+}
+
+.dark-theme .mobile-notification-btn:hover {
+  background: #374151;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+.dark-theme .notification-dot {
+  border-color: #1f2937;
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.mobile-menu-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile Sidebar */
+@media (max-width: 991px) {
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    z-index: 1050;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+  }
+  
+  .dark-theme .sidebar {
+    background: #1f2937;
+    border-right-color: #374151;
+  }
+  
+  .sidebar.mobile-show {
+    transform: translateX(0);
+  }
+  
+  /* Remove desktop-specific sidebar elements on mobile */
+  .sidebar-header,
+  .sidebar-user-section,
+  .sidebar-collapse-btn {
+    display: none !important;
+  }
+  
+  /* Mobile sidebar search */
+  .sidebar-tools {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .dark-theme .sidebar-tools {
+    border-bottom-color: #374151;
+  }
+  
+  /* Mobile content area */
+  .content {
+    margin-left: 0 !important;
+    padding-top: 56px;
+    min-height: 100vh;
+    background: #f9fafb;
+  }
+  
+  .dark-theme .content {
+    background: #111827;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  /* Hide desktop page header on mobile */
+  .page-header {
+    display: none !important;
+  }
+  
+  /* Mobile-optimized menu items */
+  .sidebar-nav {
+    padding: 0.5rem;
+  }
+  
+  .sidebar-link {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    border-radius: 8px;
+    margin-bottom: 0.25rem;
+  }
+  
+  .sidebar-link i {
+    font-size: 1.125rem;
+    width: 24px;
+  }
+  
+  /* Mobile footer */
+  .footer {
+    padding: 1rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* ===========================
+   TABLET STYLES (768px+)
+   =========================== */
+@media (min-width: 768px) and (max-width: 991px) {
+  .mobile-header {
+    padding: 0 1.5rem;
+  }
+  
+  .sidebar {
+    width: 300px;
+  }
+  
+  .main-content {
+    padding: 1.5rem;
+  }
+}
+
+/* ===========================
+   DESKTOP STYLES (992px+)
+   =========================== */
+@media (min-width: 992px) {
+  /* Show desktop elements */
+  .desktop-only {
+    display: block !important;
+  }
+  
+  /* Desktop sidebar */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    transform: translateX(0) !important;
+    z-index: 999;
+  }
+  
+  .sidebar.collapsed {
+    width: 80px;
+  }
+  
+  /* Desktop content area */
+  .content {
+    margin-left: 280px;
+    padding-top: 0;
+  }
+  
+  .content.expanded {
+    margin-left: 80px;
+  }
+  
+  /* Desktop page header */
+  .page-header {
+    display: block !important;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1rem 1.5rem;
+  }
+  
+  .dark-theme .page-header {
+    background: #1f2937;
+    border-bottom-color: #374151;
+  }
+  
+  .main-content {
+    padding: 1.5rem;
+  }
+}
+
+/* ===========================
+   LARGE DESKTOP (1200px+)
+   =========================== */
+@media (min-width: 1200px) {
+  .main-content {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+/* ===========================
+   UTILITY CLASSES
+   =========================== */
+
+/* Ensure proper stacking context */
+.wrapper {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Prevent body scroll when mobile menu is open */
+body.mobile-menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Smooth transitions */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fix for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .mobile-header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(56px + env(safe-area-inset-top));
+  }
+  
+  .sidebar {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .mobile-header,
+  .sidebar,
+  .page-header,
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+  
+  .content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

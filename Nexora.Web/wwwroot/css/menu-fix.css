@@ -1,0 +1,216 @@
+/* Menu and Button Visibility Fix */
+
+/* Reset any hidden states */
+.sidebar-nav,
+.sidebar-nav ul,
+.sidebar-nav li {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.sidebar-item {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.sidebar-link {
+  display: flex !important;
+  align-items: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  padding: 0.75rem 1rem !important;
+  color: var(--sidebar-text) !important;
+  text-decoration: none !important;
+}
+
+.sidebar-dropdown {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure buttons are visible */
+.btn,
+.btn-icon,
+.theme-toggle,
+.hamburger-menu,
+.mobile-menu-toggle,
+.sidebar-collapse-btn,
+button {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix dropdown menus */
+.dropdown-menu {
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix notification dropdown */
+.notification-dropdown button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure header buttons are visible */
+.page-header-actions > * {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix user menu dropdown */
+.user-menu-dropdown {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.user-menu-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix mobile header buttons */
+.mobile-header button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure footer is visible */
+.sidebar-footer {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.sidebar-user-footer {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix search box */
+.sidebar-search-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.sidebar-search {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Override any conflicting styles */
+.sidebar-nav li,
+.sidebar-nav ul {
+  display: block !important;
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure icons are visible */
+.sidebar-link i,
+.btn i,
+.btn-icon i {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Fix collapsed sidebar */
+.sidebar.collapsed .sidebar-link {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .sidebar-link i {
+  display: inline-block !important;
+}
+
+/* Remove any filters or transforms that might hide elements */
+* {
+  filter: none !important;
+}
+
+/* Ensure z-index is proper */
+.sidebar {
+  z-index: 1000 !important;
+}
+
+.page-header {
+  z-index: 100 !important;
+}
+
+.dropdown-menu {
+  z-index: 1100 !important;
+}
+
+/* Ensure all interactive elements are clickable */
+button,
+.btn,
+.btn-icon,
+a.sidebar-link,
+.sidebar-dropdown-toggle,
+.theme-toggle,
+.hamburger-menu,
+.mobile-menu-toggle,
+.sidebar-collapse-btn,
+#header-theme-toggle,
+#sidebarCollapse,
+#desktopMenuToggle,
+#mobileMenuBtn {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Remove any blocking pseudo elements */
+button::before,
+button::after,
+.btn::before,
+.btn::after,
+.btn-icon::before,
+.btn-icon::after {
+  pointer-events: none !important;
+}
+
+/* Fix button hover states */
+button:hover:not(:disabled),
+.btn:hover:not(:disabled),
+.btn-icon:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Ensure buttons are not covered */
+.page-header-actions {
+  position: relative !important;
+  z-index: 20 !important;
+}
+
+.sidebar-logo {
+  position: relative !important;
+  z-index: 20 !important;
+}

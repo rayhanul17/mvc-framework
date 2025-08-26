@@ -45,13 +45,20 @@
       "Read(/D:\\d\\mvc-framework/**)",
       "Read(/D:\\d\\mvc-framework/**)",
       "Read(/C:\\Users\\rayha/**)",
-      "Read(/C:\\Users\\rayha\\Downloads/**)"
+      "Read(/C:\\Users\\rayha\\Downloads/**)",
+      "Read(/C:\\Users\\rayha\\Downloads/**)",
+      "Read(/C:\\Users\\rayha\\Downloads/**)",
+      "Read(/C:\\Users\\rayha\\Downloads/**)",
+      "Read(/C:\\Users\\rayha\\Downloads/**)",
+      "Bash(start http://localhost:5266/Home/Index)",
+      "Bash(start http://localhost:5266/Admin/Dashboard)"
     ],
     "deny": [],
     "additionalDirectories": [
       "D:\\mnt\\d\\mvc-framework",
       "D:\\",
-      "D:\\d"
+      "D:\\d",
+      "D:\\d\\mvc-framework"
     ]
   }
 }

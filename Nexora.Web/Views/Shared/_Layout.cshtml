@@ -57,28 +57,35 @@
     <!-- Toastr Notifications -->
     <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
     
-    <!-- Site Styles - Mobile First -->
+    <!-- Site Styles -->
     <link rel="stylesheet" href="~/css/theme-variables.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/mobile-first.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/complete-layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sidebar-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/header-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/content-full-width.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard-fix.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Nexora.Web.styles.css" asp-append-version="true" />
     
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <!-- Mobile Header Bar -->
-    <div class="mobile-header d-lg-none">
+    <div class="mobile-header">
         <div class="mobile-header-content">
-            <button class="btn btn-link mobile-menu-btn" id="mobileMenuBtn" type="button">
+            <button class="mobile-menu-toggle" id="mobileMenuBtn" type="button">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="mobile-brand">
-                @await Component.InvokeAsync("AppBranding", new { type = "compact" })
+            <div class="mobile-logo">
+                <i class="fas fa-cube"></i>
+                <span>Admin Panel</span>
             </div>
-            <button class="btn btn-link mobile-theme-toggle" id="mobile-theme-toggle" title="Toggle Theme">
-                <i class="fas fa-moon" id="mobile-theme-icon"></i>
-            </button>
+            <div class="mobile-actions">
+                <button class="mobile-notification-btn" type="button">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+            </div>
         </div>
     </div>
     
@@ -88,45 +95,35 @@
     <div class="wrapper">
         <!-- Sidebar -->
         <nav id="sidebar" class="sidebar">
+            <!-- Sidebar Header - Logo Only -->
             <div class="sidebar-header">
-                <a class="sidebar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    @await Component.InvokeAsync("AppBranding", new { type = "compact" })
-                </a>
-                <button type="button" id="sidebarCollapse" class="btn btn-link sidebar-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <div class="sidebar-logo">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="logo-link">
+                        <div class="logo-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <span class="logo-text">Admin Panel</span>
+                    </a>
+                    <button class="sidebar-collapse-btn desktop-only" id="sidebarCollapse">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                </div>
             </div>
             
-            <!-- Sidebar Tools -->
-            <div class="sidebar-tools">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
+            <!-- Search Box -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="sidebar-search-container">
                     <div class="sidebar-search">
-                        <div class="position-relative">
-                            <input class="form-control form-control-sm ps-4" type="text" id="menuSearchInput" placeholder=" Search menu..." aria-label="Search menu">
-                            <i class="fas fa-search position-absolute" style="left: 10px; top: 50%; transform: translateY(-50%); color: #6c757d; font-size: 0.875rem; pointer-events: none;"></i>
-                        </div>
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="menuSearchInput" placeholder="Search menus..." class="search-input">
                     </div>
-                }
-                else
-                {
-                    <div class="sidebar-auth">
-                        <a class="btn btn-sm btn-outline-primary" asp-controller="Account" asp-action="Login">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
-                        </a>
-                        @if (settings.AllowRegistration)
-                        {
-                            <a class="btn btn-sm btn-primary" asp-controller="Account" asp-action="Register">
-                                <i class="fas fa-user-plus me-1"></i>Register
-                            </a>
-                        }
-                    </div>
-                }
-            </div>
+                </div>
+            }
 
+            <!-- Navigation Menu -->
             <div class="sidebar-menu">
                 <ul class="sidebar-nav">
-                    
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         @await Component.InvokeAsync("SidebarMenu", new { currentController, currentAction, currentArea })
@@ -134,42 +131,27 @@
                 </ul>
             </div>
 
+            <!-- Sidebar Footer - User Section -->
             @if (User.Identity?.IsAuthenticated == true)
             {
                 <div class="sidebar-footer">
-                    <div class="sidebar-footer-top d-none d-lg-flex justify-content-center">
-                        <button class="btn btn-link theme-toggle-btn" id="theme-toggle" title="Toggle Theme">
-                            <i class="fas fa-moon" id="theme-icon"></i>
-                            <span class="theme-text">Dark Mode</span>
-                        </button>
-                    </div>
-                    
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-                            <div class="user-avatar">
-                                @if (!string.IsNullOrEmpty(userAvatarUrl) && !userAvatarUrl.EndsWith("default-avatar.svg"))
-                                {
-                                    <img src="@userAvatarUrl" alt="@currentUser?.FullName" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
-                                }
-                                else
-                                {
+                    <div class="sidebar-user-footer">
+                        <div class="user-avatar-section">
+                            @if (!string.IsNullOrEmpty(userAvatarUrl) && !userAvatarUrl.EndsWith("default-avatar.svg"))
+                            {
+                                <img src="@userAvatarUrl" alt="@currentUser?.FullName" class="user-avatar">
+                            }
+                            else
+                            {
+                                <div class="user-avatar-placeholder">
                                     @(currentUser?.DisplayName?.FirstOrDefault() ?? User.Identity?.Name?.FirstOrDefault() ?? 'U')
-                                }
-                            </div>
-                            <span class="user-name">@(currentUser?.DisplayName ?? User.Identity?.Name)</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser">
-                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Update"><i class="fas fa-user me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
+                                </div>
+                            }
+                        </div>
+                        <div class="user-info-text">
+                            <div class="user-name">@(currentUser?.DisplayName ?? User.Identity?.Name ?? "SuperAdmin")</div>
+                            <div class="user-role">admin</div>
+                        </div>
                     </div>
                 </div>
             }
@@ -179,16 +161,59 @@
         <div id="content" class="content">
 
 
-            <!-- Mobile-First Top Bar -->
+            <!-- Page Header Bar -->
             @if (User.Identity?.IsAuthenticated == true)
             {
-                <div class="top-bar safe-area-top">
-                    <div class="breadcrumb-mobile">
-                        <span class="text-muted">@ViewData["Title"]</span>
-                    </div>
-                    <div class="top-bar-actions">
-                        <!-- Notification Bell -->
-                        <partial name="_NotificationDropdown" />
+                <div class="layout-header page-header">
+                    <div class="page-header-content">
+                        <div class="page-header-left">
+                            <button class="hamburger-menu desktop-only" id="desktopMenuToggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h1 class="page-title">@ViewData["Title"]</h1>
+                        </div>
+                        <div class="page-header-actions">
+                            <!-- Theme Toggle -->
+                            <button class="btn-icon theme-toggle" id="header-theme-toggle" title="Toggle Theme">
+                                <i class="fas fa-moon" id="header-theme-icon"></i>
+                            </button>
+                            <!-- Notification Bell -->
+                            <partial name="_NotificationDropdown" />
+                            <!-- User Menu -->
+                            <div class="dropdown user-menu-dropdown">
+                                <button class="btn-icon user-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @if (!string.IsNullOrEmpty(userAvatarUrl) && !userAvatarUrl.EndsWith("default-avatar.svg"))
+                                    {
+                                        <img src="@userAvatarUrl" alt="@currentUser?.FullName" class="user-avatar-img">
+                                    }
+                                    else
+                                    {
+                                        <div class="user-avatar-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    }
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li class="dropdown-header">
+                                        <div class="user-info">
+                                            <div class="user-name">@(currentUser?.DisplayName ?? User.Identity?.Name)</div>
+                                            <div class="user-email">@currentUser?.Email</div>
+                                        </div>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Update"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" asp-controller="SiteSetting" asp-action="Index"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             }
@@ -284,7 +309,7 @@
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/sidebar-menu.js" asp-append-version="true"></script>
+    <script src="~/js/layout-fix.js" asp-append-version="true"></script>
     <script src="~/js/enhanced-validation.js" asp-append-version="true"></script>
     
     <!-- SignalR and Notifications -->
@@ -295,20 +320,86 @@
     }
     
     <script>
-        // Initialize brand colors only - sidebar-menu.js handles everything else
+        // Apply brand colors from settings
         document.addEventListener('DOMContentLoaded', function() {
-            // Apply brand colors
             document.documentElement.style.setProperty('--bs-primary', '@settings.PrimaryColor');
             document.documentElement.style.setProperty('--bs-secondary', '@settings.SecondaryColor');
             document.documentElement.style.setProperty('--bs-success', '@settings.SuccessColor');
             document.documentElement.style.setProperty('--bs-danger', '@settings.DangerColor');
             document.documentElement.style.setProperty('--bs-warning', '@settings.WarningColor');
             
-            // Always hide loading mask on page load
-            // This handles cases where form submission resulted in a server-side redirect
+            // Hide loading mask
             if (typeof LoadingMask !== 'undefined') {
                 LoadingMask.hide();
             }
+            
+            // Fallback button handlers using vanilla JS
+            setTimeout(function() {
+                // Theme toggle fallback
+                var themeBtn = document.getElementById('header-theme-toggle');
+                if (themeBtn && !themeBtn.hasAttribute('data-listener')) {
+                    themeBtn.setAttribute('data-listener', 'true');
+                    themeBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        document.body.classList.toggle('dark-theme');
+                        var isDark = document.body.classList.contains('dark-theme');
+                        var icons = document.querySelectorAll('#header-theme-icon, #mobile-theme-icon');
+                        icons.forEach(function(icon) {
+                            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                        });
+                        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                        console.log('Theme toggled (fallback):', isDark ? 'dark' : 'light');
+                        return false;
+                    };
+                    console.log('Theme button fallback handler attached');
+                }
+                
+                // Sidebar collapse fallback
+                var collapseBtn = document.getElementById('sidebarCollapse');
+                if (collapseBtn && !collapseBtn.hasAttribute('data-listener')) {
+                    collapseBtn.setAttribute('data-listener', 'true');
+                    collapseBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var sidebar = document.getElementById('sidebar');
+                        var content = document.getElementById('content');
+                        if (sidebar && content && window.innerWidth >= 992) {
+                            sidebar.classList.toggle('collapsed');
+                            content.classList.toggle('expanded');
+                            var icon = this.querySelector('i');
+                            if (icon) {
+                                icon.className = sidebar.classList.contains('collapsed') ? 
+                                    'fas fa-angle-right' : 'fas fa-angle-left';
+                            }
+                            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                            console.log('Sidebar toggled (fallback)');
+                        }
+                        return false;
+                    };
+                    console.log('Sidebar button fallback handler attached');
+                }
+                
+                // Desktop menu toggle fallback
+                var menuToggle = document.getElementById('desktopMenuToggle');
+                if (menuToggle && !menuToggle.hasAttribute('data-listener')) {
+                    menuToggle.setAttribute('data-listener', 'true');
+                    menuToggle.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var sidebar = document.getElementById('sidebar');
+                        var content = document.getElementById('content');
+                        if (sidebar && content && window.innerWidth >= 992) {
+                            sidebar.classList.toggle('collapsed');
+                            content.classList.toggle('expanded');
+                            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                            console.log('Menu toggled (fallback)');
+                        }
+                        return false;
+                    };
+                    console.log('Menu toggle fallback handler attached');
+                }
+            }, 100);
         });
     </script>
     

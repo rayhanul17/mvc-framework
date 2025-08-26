@@ -1,0 +1,225 @@
+/* Header Position Fix - Ensures buttons stay visible when sidebar expands/collapses */
+
+/* Fixed header that adjusts with sidebar */
+.layout-header {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: var(--sidebar-width);
+  height: var(--header-height);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--sidebar-border);
+  z-index: 100;
+  transition: left var(--transition-speed) ease;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+/* When sidebar is collapsed, adjust header left position */
+.sidebar.collapsed ~ .content .layout-header {
+  left: var(--sidebar-collapsed-width);
+}
+
+/* Ensure content area has proper padding for fixed header */
+.content {
+  padding-top: var(--header-height);
+}
+
+/* Main content adjustment */
+.main-content {
+  margin-top: 0 !important;
+}
+
+/* Header content should use full available width */
+.page-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+}
+
+/* Left side of header */
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+/* Right side actions - ensure they stay visible */
+.page-header-actions {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
+  padding-right: 0.5rem;
+}
+
+/* Ensure buttons are visible and clickable */
+.page-header-actions > * {
+  flex-shrink: 0;
+}
+
+.page-header-actions .btn-icon,
+.page-header-actions .theme-toggle {
+  width: 40px;
+  height: 40px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-header-actions .btn-icon:hover,
+.page-header-actions .theme-toggle:hover {
+  background: var(--sidebar-hover);
+}
+
+/* User menu specific */
+.user-menu-dropdown {
+  position: relative;
+  display: inline-block !important;
+}
+
+.user-menu-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--sidebar-border);
+  background: var(--header-bg);
+  cursor: pointer;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-avatar-icon {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Notification dropdown specific */
+.notification-dropdown {
+  position: relative;
+  display: inline-block !important;
+}
+
+/* Ensure dropdowns appear correctly */
+.page-header-actions .dropdown-menu {
+  position: absolute !important;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  min-width: 200px;
+  z-index: 1100;
+}
+
+/* Page title responsiveness */
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 991px) {
+  .layout-header {
+    display: none !important;
+  }
+  
+  .content {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    max-width: 200px;
+    font-size: 1.125rem;
+  }
+  
+  .page-header-actions {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    max-width: 120px;
+    font-size: 1rem;
+  }
+}
+
+/* Animation for smooth transitions */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.page-header-actions > * {
+  animation: slideIn 0.3s ease;
+}
+
+/* Dark theme adjustments */
+.dark-theme .layout-header {
+  background: var(--header-bg);
+  border-bottom-color: var(--sidebar-border);
+}
+
+.dark-theme .user-menu-btn {
+  border-color: var(--sidebar-border);
+  background: var(--header-bg);
+}
+
+.dark-theme .page-header-actions .btn-icon:hover,
+.dark-theme .page-header-actions .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure proper layering */
+.layout-header {
+  z-index: 100;
+}
+
+.sidebar {
+  z-index: 1000;
+}
+
+.dropdown-menu {
+  z-index: 1100;
+}
+
+/* Fix for content area to account for fixed header */
+.main-content {
+  min-height: calc(100vh - var(--header-height));
+}

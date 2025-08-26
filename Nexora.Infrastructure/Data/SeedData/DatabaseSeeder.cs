@@ -40,6 +40,10 @@ public static class DatabaseSeeder
             logger.LogInformation("Seeding menus...");
             await MenuSeeder.SeedAsync(context, roleManager);
             
+            // 4a. Fix Dashboard Menus - Remove duplicates and standardize
+            logger.LogInformation("Fixing Dashboard menus...");
+            await FixDashboardMenuSeeder.FixDashboardMenusAsync(context);
+            
             // 5. Assign Permissions to Roles (depends on Permissions and Roles)
             logger.LogInformation("Assigning permissions to roles...");
             await PermissionSeeder.AssignPermissionsToRolesAsync(context);
