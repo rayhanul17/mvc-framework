@@ -1,0 +1,213 @@
+@model List<ModularHost.Web.ViewModels.ModuleViewModel>
+@{
+    ViewData["Title"] = "Module Management";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <h2 class="text-2xl font-bold dark:text-white">
+                <i class="fas fa-puzzle-piece"></i> Module Management
+            </h2>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <button type="button" class="btn btn-success" onclick="applyAllMigrations()">
+                <i class="fas fa-database"></i> Apply All Migrations
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Installed Modules</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Module</th>
+                                    <th>Description</th>
+                                    <th>Version</th>
+                                    <th>Author</th>
+                                    <th>Table Prefix</th>
+                                    <th>Entities</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var module in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input module-toggle" 
+                                                       id="toggle-@module.Name" 
+                                                       data-module="@module.Name"
+                                                       @(module.IsActive ? "checked" : "")>
+                                                <label class="custom-control-label" for="toggle-@module.Name">
+                                                    @if (module.IsActive)
+                                                    {
+                                                        <span class="badge badge-success">Active</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">Inactive</span>
+                                                    }
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <strong>@module.DisplayName</strong>
+                                            <br />
+                                            <small class="text-muted">@module.Name</small>
+                                        </td>
+                                        <td>@module.Description</td>
+                                        <td>
+                                            <span class="badge badge-info">@module.Version</span>
+                                        </td>
+                                        <td>@module.Author</td>
+                                        <td>
+                                            <code>@module.TablePrefix</code>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-primary">@module.EntityCount entities</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-primary" 
+                                                        onclick="updateTables('@module.Name')"
+                                                        title="Apply migrations for this module">
+                                                    <i class="fas fa-sync"></i> Update Tables
+                                                </button>
+                                                <a href="@Url.Action("Details", new { moduleName = module.Name })" 
+                                                   class="btn btn-sm btn-info" title="View module details">
+                                                    <i class="fas fa-info-circle"></i> Details
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.module-toggle').on('change', function() {
+                var moduleName = $(this).data('module');
+                var isActive = $(this).is(':checked');
+                var toggle = this;
+                
+                loader.show('Updating module status...');
+                
+                $.ajax({
+                    url: '@Url.Action("ToggleModule")',
+                    type: 'POST',
+                    data: {
+                        moduleName: moduleName,
+                        isActive: isActive,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        loader.hide();
+                        if (response.success) {
+                            notification.success(response.message);
+                            
+                            // Update badge
+                            var badge = $(toggle).siblings('label').find('.badge');
+                            if (isActive) {
+                                badge.removeClass('badge-secondary').addClass('badge-success').text('Active');
+                            } else {
+                                badge.removeClass('badge-success').addClass('badge-secondary').text('Inactive');
+                            }
+                        } else {
+                            notification.error(response.message);
+                            // Revert toggle
+                            $(toggle).prop('checked', !isActive);
+                        }
+                    },
+                    error: function() {
+                        loader.hide();
+                        notification.error('An error occurred while updating module status');
+                        // Revert toggle
+                        $(toggle).prop('checked', !isActive);
+                    }
+                });
+            });
+        });
+        
+        function updateTables(moduleName) {
+            loader.show('Applying migrations...');
+            
+            $.ajax({
+                url: '@Url.Action("UpdateTables")',
+                type: 'POST',
+                data: {
+                    moduleName: moduleName,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    loader.hide();
+                    if (response.success) {
+                        if (response.migrationsApplied > 0) {
+                            notification.success(response.message);
+                        } else {
+                            notification.info(response.message);
+                        }
+                    } else {
+                        notification.error(response.message);
+                    }
+                },
+                error: function() {
+                    loader.hide();
+                    notification.error('An error occurred while updating tables');
+                }
+            });
+        }
+        
+        function applyAllMigrations() {
+            if (!confirm('Are you sure you want to apply all pending migrations?')) {
+                return;
+            }
+            
+            loader.show('Applying all migrations...');
+            
+            $.ajax({
+                url: '@Url.Action("ApplyAllMigrations")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    loader.hide();
+                    if (response.success) {
+                        if (response.migrationsApplied > 0) {
+                            notification.success(response.message);
+                        } else {
+                            notification.info(response.message);
+                        }
+                    } else {
+                        notification.error(response.message);
+                    }
+                },
+                error: function() {
+                    loader.hide();
+                    notification.error('An error occurred while applying migrations');
+                }
+            });
+        }
+    </script>
+}
