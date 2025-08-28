@@ -51,7 +51,9 @@
       "Read(/C:\\Users\\rayha\\Downloads/**)",
       "Read(/C:\\Users\\rayha\\Downloads/**)",
       "Bash(start http://localhost:5266/Home/Index)",
-      "Bash(start http://localhost:5266/Admin/Dashboard)"
+      "Bash(start http://localhost:5266/Admin/Dashboard)",
+      "Read(/D:\\/**)",
+      "Bash(start http://localhost:5266/RolePermission)"
     ],
     "deny": [],
     "additionalDirectories": [

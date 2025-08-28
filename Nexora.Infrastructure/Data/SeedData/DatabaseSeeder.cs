@@ -63,6 +63,10 @@ public static class DatabaseSeeder
             // 9. Seed Notifications (depends on Users)
             logger.LogInformation("Seeding notifications...");
             await NotificationSeeder.SeedAsync(context, userManager);
+            
+            // 10. Seed Role URL Permissions (depends on Roles)
+            logger.LogInformation("Seeding role URL permissions...");
+            await RoleUrlPermissionSeeder.SeedAsync(context, roleManager);
 
             logger.LogInformation("Database seeding completed successfully.");
         }

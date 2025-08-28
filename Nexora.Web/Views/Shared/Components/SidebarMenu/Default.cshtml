@@ -2,69 +2,71 @@
 
 @foreach (var menu in Model.Menus.Where(m => m.ParentId == null).OrderBy(m => m.Order))
 {
-    if (menu.Children != null && menu.Children.Any())
+    var hasChildren = menu.Children != null && menu.Children.Any();
+    var isActive = IsMenuActive(menu);
+    
+    if (hasChildren)
     {
-        <li class="sidebar-item sidebar-dropdown @(Model.HasActiveChild(menu) ? "active" : "")">
-            <a href="#" class="sidebar-link sidebar-dropdown-toggle">
-                @if (!string.IsNullOrEmpty(menu.Icon))
-                {
-                    <i class="@menu.Icon"></i>
-                }
-                else
-                {
-                    <i class="fas fa-folder"></i>
-                }
-                <span>@menu.Name</span>
+        <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#">
+                <i class="@menu.Icon"></i>
+                <span>@menu.DisplayName</span>
+                <i class="fas fa-chevron-down ms-auto"></i>
             </a>
-            <div class="sidebar-dropdown-menu">
-                @foreach (var child in menu.Children.OrderBy(c => c.Order))
+            <div class="dropdown-menu">
+                @foreach (var child in menu.Children.OrderBy(m => m.Order))
                 {
-                    <a class="sidebar-dropdown-item @(Model.IsMenuActive(child) ? "active" : "")" 
-                       asp-controller="@child.Controller" 
-                       asp-action="@child.Action" 
-                       asp-area="@child.Area">
+                    <a class="dropdown-item @(IsMenuActive(child) ? "active" : "")" 
+                       href="@GetMenuUrl(child)">
                         @if (!string.IsNullOrEmpty(child.Icon))
                         {
                             <i class="@child.Icon me-2"></i>
                         }
-                        @child.Name
+                        @child.DisplayName
                     </a>
                 }
             </div>
-        </li>
+        </div>
     }
     else
     {
-        <li class="sidebar-item @(Model.IsMenuActive(menu) ? "active" : "")">
-            @if (!string.IsNullOrEmpty(menu.Url))
-            {
-                <a class="sidebar-link" href="@menu.Url">
-                    @if (!string.IsNullOrEmpty(menu.Icon))
-                    {
-                        <i class="@menu.Icon"></i>
-                    }
-                    else
-                    {
-                        <i class="fas fa-link"></i>
-                    }
-                    <span>@menu.Name</span>
-                </a>
-            }
-            else
-            {
-                <a class="sidebar-link" asp-controller="@menu.Controller" asp-action="@menu.Action" asp-area="@menu.Area">
-                    @if (!string.IsNullOrEmpty(menu.Icon))
-                    {
-                        <i class="@menu.Icon"></i>
-                    }
-                    else
-                    {
-                        <i class="fas fa-circle"></i>
-                    }
-                    <span>@menu.Name</span>
-                </a>
-            }
-        </li>
+        <div class="nav-item">
+            <a class="nav-link @(isActive ? "active" : "")" href="@GetMenuUrl(menu)">
+                <i class="@menu.Icon"></i>
+                <span>@menu.DisplayName</span>
+            </a>
+        </div>
     }
 }
 
+@functions {
+    private string GetMenuUrl(Nexora.Core.Entities.Menu menu)
+    {
+        if (!string.IsNullOrEmpty(menu.Url))
+            return menu.Url;
+            
+        var url = "/";
+        if (!string.IsNullOrEmpty(menu.Area))
+            url += menu.Area + "/";
+        if (!string.IsNullOrEmpty(menu.Controller))
+            url += menu.Controller + "/";
+        if (!string.IsNullOrEmpty(menu.Action) && menu.Action != "Index")
+            url += menu.Action;
+            
+        return url.TrimEnd('/');
+    }
+    
+    private bool IsMenuActive(Nexora.Core.Entities.Menu menu)
+    {
+        // Check ActiveMenuUrl first
+        if (!string.IsNullOrEmpty(menu.ActiveMenuUrl))
+        {
+            return Model.CurrentPath?.Equals(menu.ActiveMenuUrl, StringComparison.OrdinalIgnoreCase) == true;
+        }
+        
+        // Check current controller/action
+        return menu.Controller?.Equals(Model.CurrentController, StringComparison.OrdinalIgnoreCase) == true &&
+               (string.IsNullOrEmpty(menu.Action) || menu.Action.Equals(Model.CurrentAction, StringComparison.OrdinalIgnoreCase)) &&
+               (string.IsNullOrEmpty(menu.Area) || menu.Area.Equals(Model.CurrentArea, StringComparison.OrdinalIgnoreCase));
+    }
+}

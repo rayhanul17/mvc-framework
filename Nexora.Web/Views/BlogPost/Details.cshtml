@@ -39,9 +39,9 @@
     <meta name="keywords" content="@ViewData["MetaKeywords"]" />
     
     @Html.Raw("<!-- Bootstrap -->")
-    @Html.Raw("<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" />")
+    @Html.Raw("<link rel=\"stylesheet\" href=\"/lib/bootstrap/dist/css/bootstrap.min.css\" />")
     @Html.Raw("<!-- Font Awesome -->")
-    @Html.Raw("<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\" />")
+    @Html.Raw("<link rel=\"stylesheet\" href=\"/css/fontawesome-all.min.css\" />")
     
     @Html.Raw("<style>")
     @Html.Raw("body { padding-top: 20px; background-color: #f8f9fa; }")
@@ -506,7 +506,7 @@
 else
 {
     @Html.Raw("<!-- jQuery needs to be loaded before our scripts -->")
-    @Html.Raw("<script src=\"https://code.jquery.com/jquery-3.6.0.min.js\"></script>")
+    @Html.Raw("<script src=\"/lib/jquery/dist/jquery.min.js\"></script>")
     
     <!-- Script for non-authenticated users (no layout) -->
     <script>
@@ -835,7 +835,7 @@ else
 @if (Layout == null)
 {
     @Html.Raw("<!-- Bootstrap JS (jQuery already loaded above) -->")
-    @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js\"></script>")
+    @Html.Raw("<script src=\"/lib/bootstrap/dist/js/bootstrap.bundle.min.js\"></script>")
     
     @Html.Raw("</body>")
     @Html.Raw("</html>")

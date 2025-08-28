@@ -168,6 +168,10 @@
      * Initialize dropdown menus
      */
     function initializeDropdowns() {
+        // Mark active menu and expand parent dropdowns on page load
+        markActiveMenu();
+        
+        // Handle dropdown toggle clicks
         document.querySelectorAll('.sidebar-dropdown-toggle').forEach(toggle => {
             toggle.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -184,6 +188,82 @@
                 dropdown?.classList.toggle('active');
             });
         });
+        
+        // Handle clicks on non-dropdown menu items (like Dashboard)
+        // These should collapse all dropdowns when clicked
+        document.querySelectorAll('.sidebar-item:not(.sidebar-dropdown) > .sidebar-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Don't prevent default - we want navigation to happen
+                // Just collapse all dropdowns
+                collapseAllDropdowns();
+            });
+        });
+    }
+    
+    /**
+     * Mark active menu based on current URL
+     */
+    function markActiveMenu() {
+        const currentPath = window.location.pathname.toLowerCase();
+        const currentUrl = window.location.pathname + window.location.search;
+        
+        // First, collapse ALL dropdowns
+        document.querySelectorAll('.sidebar-dropdown.active').forEach(dropdown => {
+            dropdown.classList.remove('active');
+        });
+        
+        // Remove all active menu items
+        document.querySelectorAll('.sidebar-item.active').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        // Find and mark active menu
+        let activeFound = false;
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+            
+            const linkPath = href.toLowerCase();
+            const isActive = currentPath === linkPath || currentUrl === href;
+            
+            if (isActive && !activeFound) {
+                const item = link.closest('.sidebar-item');
+                item?.classList.add('active');
+                
+                // ONLY expand parent dropdown if this item is inside a dropdown
+                const parentDropdown = link.closest('.sidebar-dropdown');
+                if (parentDropdown) {
+                    parentDropdown.classList.add('active');
+                }
+                
+                activeFound = true;
+            }
+        });
+        
+        // If no exact match found, try to match by controller/area
+        if (!activeFound) {
+            const pathParts = currentPath.split('/').filter(p => p);
+            if (pathParts.length > 0) {
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (!href) return;
+                    
+                    const linkParts = href.toLowerCase().split('/').filter(p => p);
+                    // Check if first part matches (controller or area)
+                    if (linkParts[0] === pathParts[0]) {
+                        const item = link.closest('.sidebar-item');
+                        item?.classList.add('active');
+                        
+                        const parentDropdown = link.closest('.sidebar-dropdown');
+                        if (parentDropdown) {
+                            parentDropdown.classList.add('active');
+                        }
+                        activeFound = true;
+                        return false; // Break the loop
+                    }
+                });
+            }
+        }
     }
 
     // ========================================
@@ -506,6 +586,12 @@
         const link = e.target.closest('.sidebar-link');
         
         if (link && !link.classList.contains('sidebar-dropdown-toggle')) {
+            // When clicking any non-dropdown link (including those without children like Dashboard),
+            // collapse ALL dropdowns since we're navigating to a different page
+            document.querySelectorAll('.sidebar-dropdown.active').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+            
             // Close mobile menu after navigation (with delay for better UX)
             if (isMobileView()) {
                 setTimeout(closeMobileMenu, 250);
@@ -553,6 +639,15 @@
         document.dispatchEvent(new CustomEvent(eventName, { detail }));
     }
 
+    /**
+     * Collapse all dropdown menus
+     */
+    function collapseAllDropdowns() {
+        document.querySelectorAll('.sidebar-dropdown.active').forEach(dropdown => {
+            dropdown.classList.remove('active');
+        });
+    }
+    
     // ========================================
     // PUBLIC API
     // ========================================
@@ -564,6 +659,8 @@
         closeMobile: closeMobileMenu,
         toggleTheme,
         search: filterMenuItems,
+        collapseAllDropdowns,
+        markActiveMenu,
         getState: () => ({ ...state }),
         isCollapsed: () => state.isCollapsed,
         isMobileOpen: () => state.isMobileMenuOpen

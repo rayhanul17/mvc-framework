@@ -110,16 +110,16 @@ public class MenuService : BaseService<Menu>, IMenuService
             
             if (user != null && user.IsSuperAdmin)
             {
-                // SuperAdmin gets all active menus - use AsNoTracking for fresh data
-                var superAdminMenus = await _unitOfWork.Repository<Menu>()
+                // SuperAdmin gets all active menus - fetch all menus first
+                var allSuperAdminMenus = await _unitOfWork.Repository<Menu>()
                     .GetQueryable()
                     .AsNoTracking()
-                    .Include(m => m.Children)
                     .Where(m => m.IsActive)
                     .OrderBy(m => m.Order)
                     .ToListAsync();
                 
-                var superAdminMenuHierarchy = BuildMenuHierarchy(superAdminMenus);
+                // Build proper hierarchy
+                var superAdminMenuHierarchy = BuildMenuHierarchy(allSuperAdminMenus);
                 return Result<IEnumerable<Menu>>.Success(superAdminMenuHierarchy);
             }
             
@@ -429,10 +429,20 @@ public class MenuService : BaseService<Menu>, IMenuService
 
     private IEnumerable<Menu> BuildMenuHierarchy(IEnumerable<Menu> allMenus)
     {
-        var menuDict = allMenus.ToDictionary(m => m.Id);
+        var menuList = allMenus.ToList();
+        var menuDict = menuList.ToDictionary(m => m.Id);
         var rootMenus = new List<Menu>();
+        
+        // Initialize all Children collections
+        foreach (var menu in menuList)
+        {
+            if (menu.Children == null)
+            {
+                menu.Children = new List<Menu>();
+            }
+        }
 
-        foreach (var menu in allMenus)
+        foreach (var menu in menuList)
         {
             if (menu.ParentId == null)
             {

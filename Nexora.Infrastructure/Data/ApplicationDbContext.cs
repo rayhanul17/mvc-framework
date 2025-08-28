@@ -48,6 +48,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     // Permission Entities
     public DbSet<Permission> Permissions { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
+    public DbSet<RoleUrlPermission> RoleUrlPermissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

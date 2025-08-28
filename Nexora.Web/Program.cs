@@ -77,6 +77,12 @@ builder.Services.AddSingleton<ICacheManagementService, CacheManagementService>()
 builder.Services.AddScoped<PermissionService>(); // Register the base service
 builder.Services.AddScoped<IPermissionService, CachedPermissionService>(); // Use cached implementation
 
+// Add URL Authorization Service
+builder.Services.AddScoped<IUrlAuthorizationService, UrlAuthorizationService>();
+
+// Add Menu Rank Service
+builder.Services.AddScoped<IMenuRankService, MenuRankService>();
+
 // Add Permission Audit Services
 builder.Services.AddScoped<IPermissionAuditService, PermissionAuditService>();
 builder.Services.AddScoped<IPermissionAuditReportService, PermissionAuditReportService>();
@@ -196,6 +202,7 @@ app.UsePermissionValidation();
 
 // Add Permission Middleware
 app.UseMiddleware<PermissionMiddleware>();
+app.UseMiddleware<UrlAuthorizationMiddleware>();
 
 // Blog post details route with slug support
 app.MapControllerRoute(
@@ -259,6 +266,10 @@ using (var scope = app.Services.CreateScope())
         // Update Audit Log menu to use new controller
         Log.Information("Updating Audit Log menu...");
         await Nexora.Web.Data.UpdateAuditLogMenuSeed.UpdateAuditLogMenu(context);
+        
+        // Remove any test/check menus
+        Log.Information("Cleaning up test menus...");
+        await Nexora.Web.Data.CleanupTestMenus.RemoveTestMenusAsync(services);
     }
     catch (Exception ex)
     {

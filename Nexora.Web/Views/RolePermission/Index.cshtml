@@ -1,0 +1,196 @@
+@model List<ApplicationRole>
+@{
+    ViewData["Title"] = "Role & Permission Management";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-user-shield"></i> @ViewData["Title"]</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Create New Role
+        </a>
+    </div>
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    
+    <div class="row">
+        @foreach (var role in Model.OrderBy(r => r.Name))
+        {
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <div class="card h-100 @(role.Name == "SuperAdmin" ? "border-danger" : role.Name == "Administrator" ? "border-warning" : "border-primary")">
+                    <div class="card-header @(role.Name == "SuperAdmin" ? "bg-danger" : role.Name == "Administrator" ? "bg-warning" : "bg-primary") text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-@(role.Name == "SuperAdmin" ? "crown" : role.Name == "Administrator" ? "user-tie" : role.Name == "Manager" ? "user-cog" : "user")"></i> 
+                            @role.Name
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @if (!string.IsNullOrEmpty(role.Description))
+                        {
+                            <p class="text-muted">@role.Description</p>
+                        }
+                        else
+                        {
+                            <p class="text-muted font-italic">No description available</p>
+                        }
+                        
+                        <div class="mb-3">
+                            <strong>Status:</strong>
+                            @if (role.IsActive)
+                            {
+                                <span class="badge bg-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactive</span>
+                            }
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Created:</strong>
+                            <span class="text-muted">@role.CreatedAt.ToString("MMM dd, yyyy")</span>
+                        </div>
+                        
+                        @if (role.UpdatedAt.HasValue)
+                        {
+                            <div class="mb-3">
+                                <strong>Last Updated:</strong>
+                                <span class="text-muted">@role.UpdatedAt.Value.ToString("MMM dd, yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="btn-group w-100" role="group">
+                            @if (role.Name != "SuperAdmin")
+                            {
+                                <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-info" onclick="viewPermissions('@role.Id', '@role.Name')">
+                                    <i class="fas fa-key"></i> Permissions
+                                </button>
+                                @if (role.Name != "Administrator" && role.Name != "User" && role.Name != "Manager")
+                                {
+                                    <a asp-action="Delete" asp-route-id="@role.Id" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-outline-secondary w-100" disabled>
+                                    <i class="fas fa-lock"></i> System Role (Protected)
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Permission View Modal -->
+<div class="modal fade" id="permissionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-key"></i> <span id="roleNameTitle"></span> Permissions
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="permissionsLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="permissionsContent" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> URL-based permissions control access to specific pages and areas.
+                    </div>
+                    <div id="permissionsList" class="list-group"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="editPermissionsBtn" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Permissions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function viewPermissions(roleId, roleName) {
+            $('#roleNameTitle').text(roleName);
+            $('#editPermissionsBtn').attr('href', '@Url.Action("Edit")/' + roleId);
+            $('#permissionsModal').modal('show');
+            
+            // Show loading
+            $('#permissionsLoading').show();
+            $('#permissionsContent').hide();
+            
+            // Fetch permissions
+            $.get('@Url.Action("GetRolePermissions", "RolePermission")/' + roleId, function(data) {
+                $('#permissionsLoading').hide();
+                $('#permissionsContent').show();
+                
+                const permissionsList = $('#permissionsList');
+                permissionsList.empty();
+                
+                if (data && data.length > 0) {
+                    data.forEach(function(permission) {
+                        const item = $('<div class="list-group-item">');
+                        item.html(`
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 text-primary">
+                                        <i class="fas fa-link"></i> ${permission.url}
+                                    </h6>
+                                    ${permission.description ? `<small class="text-muted">${permission.description}</small>` : ''}
+                                </div>
+                                <span class="badge bg-${permission.isActive ? 'success' : 'secondary'}">
+                                    ${permission.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+                        `);
+                        permissionsList.append(item);
+                    });
+                } else {
+                    permissionsList.html(`
+                        <div class="list-group-item text-center text-muted">
+                            <i class="fas fa-lock fa-2x mb-2"></i>
+                            <p>No permissions assigned to this role yet.</p>
+                        </div>
+                    `);
+                }
+            }).fail(function() {
+                $('#permissionsLoading').hide();
+                $('#permissionsContent').show();
+                $('#permissionsList').html(`
+                    <div class="list-group-item text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Failed to load permissions
+                    </div>
+                `);
+            });
+        }
+    </script>
+}

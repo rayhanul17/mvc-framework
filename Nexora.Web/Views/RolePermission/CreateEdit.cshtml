@@ -1,0 +1,308 @@
+@model RolePermissionViewModel
+@{
+    var isEdit = !string.IsNullOrEmpty(Model.RoleId);
+    ViewData["Title"] = isEdit ? "Edit Role Permissions" : "Create Role with Permissions";
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-@(isEdit ? "edit" : "plus-circle")"></i> 
+                    @ViewData["Title"]
+                </h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                    @if (isEdit)
+                    {
+                        <input asp-for="RoleId" type="hidden" />
+                    }
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="RoleName" class="form-label fw-bold"></label>
+                        @if (isEdit)
+                        {
+                            <input asp-for="RoleName" class="form-control form-control-lg" placeholder="Enter role name" readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="RoleName" class="form-control form-control-lg" placeholder="Enter role name" />
+                        }
+                        <span asp-validation-for="RoleName" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label fw-bold"></label>
+                        <textarea asp-for="Description" class="form-control" rows="2" placeholder="Enter role description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">URL Permissions</label>
+                        <div class="card border-secondary">
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                    <input type="text" id="newPermissionUrl" class="form-control" 
+                                           placeholder="Enter permission URL (e.g., /admin/dashboard)" />
+                                    <input type="text" id="newPermissionDesc" class="form-control" 
+                                           placeholder="Description (optional)" />
+                                    <button type="button" class="btn btn-success" onclick="addPermission()">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                                
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        Quick add common permissions:
+                                    </small>
+                                    <div class="btn-group btn-group-sm mt-1" role="group">
+                                        <button type="button" class="btn btn-outline-primary" onclick="quickAdd('/admin/*', 'All admin pages')">Admin All</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="quickAdd('/user/*', 'User management')">User Mgmt</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="quickAdd('/blog/*', 'Blog management')">Blog</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="quickAdd('/report/*', 'Reports')">Reports</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="quickAdd('/profile/*', 'User profile')">Profile</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-shield-alt"></i> Assigned Permissions 
+                            <span class="badge bg-info ms-2" id="permissionCount">0</span>
+                        </label>
+                        <div id="permissionsList" class="card border-primary" style="min-height: 150px; max-height: 400px; overflow-y: auto;">
+                            <div class="card-body">
+                                @if (Model.CurrentPermissions.Any())
+                                {
+                                    @foreach (var permission in Model.CurrentPermissions)
+                                    {
+                                        <div class="permission-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                                            <div>
+                                                <span class="fw-bold text-primary">@permission</span>
+                                                @if (ViewBag.PermissionDescriptions != null && ViewBag.PermissionDescriptions.ContainsKey(permission))
+                                                {
+                                                    <br />
+                                                    <small class="text-muted">@ViewBag.PermissionDescriptions[permission]</small>
+                                                }
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="removePermission('@permission')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted py-4" id="emptyMessage">
+                                        <i class="fas fa-lock fa-3x mb-3"></i>
+                                        <p>No permissions assigned yet. Add URLs above to grant access.</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <input type="hidden" asp-for="PermissionUrls" id="permissionUrlsInput" />
+                        <input type="hidden" id="permissionDescriptions" name="PermissionDescriptions" />
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> @(isEdit ? "Update Role" : "Create Role")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-info-circle"></i> URL Pattern Guide</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="fw-bold">Pattern Types:</h6>
+                <ul class="small">
+                    <li><code>/admin/dashboard</code> - Exact match</li>
+                    <li><code>/admin/*</code> - All under admin</li>
+                    <li><code>/*/edit</code> - All edit actions</li>
+                    <li><code>/*</code> - All pages (use carefully)</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="fw-bold">Common Patterns:</h6>
+                <div class="list-group list-group-flush small">
+                    <a href="#" class="list-group-item list-group-item-action" onclick="quickAdd('/admin/*', 'Full admin access'); return false;">
+                        <strong>/admin/*</strong> - Full admin access
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" onclick="quickAdd('/user/index', 'View users'); return false;">
+                        <strong>/user/index</strong> - View users only
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" onclick="quickAdd('/blog/create', 'Create blogs'); return false;">
+                        <strong>/blog/create</strong> - Create blogs
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action" onclick="quickAdd('/customersupport/*', 'Support area'); return false;">
+                        <strong>/customersupport/*</strong> - Support area
+                    </a>
+                </div>
+                
+                <div class="alert alert-warning mt-3 small">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    <strong>Note:</strong> URLs are case-insensitive. Wildcards (*) match any path segment.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let permissions = {};
+        let descriptions = {};
+        
+        // Initialize with existing permissions
+        @if (Model.CurrentPermissions.Any())
+        {
+            @foreach (var permission in Model.CurrentPermissions)
+            {
+                @:permissions['@permission'] = true;
+                @if (ViewBag.PermissionDescriptions != null && ViewBag.PermissionDescriptions.ContainsKey(permission))
+                {
+                    @:descriptions['@permission'] = '@ViewBag.PermissionDescriptions[permission]';
+                }
+            }
+        }
+        
+        function addPermission() {
+            const urlInput = document.getElementById('newPermissionUrl');
+            const descInput = document.getElementById('newPermissionDesc');
+            const url = urlInput.value.trim().toLowerCase();
+            const desc = descInput.value.trim();
+            
+            if (!url) {
+                showToast('Please enter a URL', 'warning');
+                urlInput.focus();
+                return;
+            }
+            
+            if (!url.startsWith('/')) {
+                showToast('URL must start with /', 'warning');
+                return;
+            }
+            
+            if (permissions[url]) {
+                showToast('This permission already exists', 'info');
+                return;
+            }
+            
+            permissions[url] = true;
+            if (desc) {
+                descriptions[url] = desc;
+            }
+            
+            urlInput.value = '';
+            descInput.value = '';
+            urlInput.focus();
+            updatePermissionsList();
+            showToast('Permission added successfully', 'success');
+        }
+        
+        function quickAdd(url, desc) {
+            if (permissions[url]) {
+                showToast('Permission already exists', 'info');
+                return;
+            }
+            
+            permissions[url] = true;
+            descriptions[url] = desc;
+            updatePermissionsList();
+            showToast('Permission added: ' + url, 'success');
+        }
+        
+        function removePermission(url) {
+            delete permissions[url];
+            delete descriptions[url];
+            updatePermissionsList();
+            showToast('Permission removed', 'success');
+        }
+        
+        function updatePermissionsList() {
+            const container = document.getElementById('permissionsList').querySelector('.card-body');
+            const urlsInput = document.getElementById('permissionUrlsInput');
+            const descInput = document.getElementById('permissionDescriptions');
+            const countBadge = document.getElementById('permissionCount');
+            
+            const permissionArray = Object.keys(permissions);
+            countBadge.textContent = permissionArray.length;
+            
+            if (permissionArray.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4" id="emptyMessage">
+                        <i class="fas fa-lock fa-3x mb-3"></i>
+                        <p>No permissions assigned yet. Add URLs above to grant access.</p>
+                    </div>`;
+                urlsInput.value = '';
+                descInput.value = '';
+            } else {
+                container.innerHTML = permissionArray.map(url => `
+                    <div class="permission-item d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                        <div>
+                            <span class="fw-bold text-primary">${url}</span>
+                            ${descriptions[url] ? `<br><small class="text-muted">${descriptions[url]}</small>` : ''}
+                        </div>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removePermission('${url}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>`
+                ).join('');
+                
+                urlsInput.value = permissionArray.join(',');
+                descInput.value = JSON.stringify(descriptions);
+            }
+        }
+        
+        function showToast(message, type = 'info') {
+            // Simple toast notification (you can enhance this with a library)
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+            toast.style.zIndex = '9999';
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                    ${message}
+                </div>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // Allow Enter key to add permission
+        document.getElementById('newPermissionUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addPermission();
+            }
+        });
+        
+        document.getElementById('newPermissionDesc').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addPermission();
+            }
+        });
+        
+        // Initialize the hidden inputs
+        updatePermissionsList();
+    </script>
+}

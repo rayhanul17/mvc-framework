@@ -1,0 +1,412 @@
+@using Microsoft.AspNetCore.Identity
+@using Nexora.Core.Entities
+@inject Nexora.Application.Services.ISiteSettingHelperService SiteSettings
+@inject UserManager<ApplicationUser> UserManager
+@inject Nexora.Application.Interfaces.IFileUploadService FileUploadService
+@{
+    var settings = await SiteSettings.GetAllSettingsAsync();
+    var pageTitle = ViewData["Title"]?.ToString();
+    var fullTitle = settings.GetFullTitle(pageTitle);
+    
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString();
+    
+    // Get current user for avatar
+    ApplicationUser? currentUser = null;
+    string? userAvatarUrl = null;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        currentUser = await UserManager.GetUserAsync(User);
+        if (currentUser != null)
+        {
+            userAvatarUrl = FileUploadService.GetImageUrl(currentUser.AvatarUrl);
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@fullTitle</title>
+    <meta name="description" content="@settings.MetaDescription" />
+    <meta name="author" content="@settings.OrganizationName" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="@settings.FaviconPath" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome (Local) -->
+    <link rel="stylesheet" href="~/css/fontawesome-all.min.css" />
+    
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- Dynamic Theme Styles -->
+    @await Component.InvokeAsync("ThemeStyles")
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="~/lib/datatables/css/responsive.bootstrap5.min.css" />
+    
+    <!-- Toastr Notifications -->
+    <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
+    
+    <!-- Site Styles -->
+    <link rel="stylesheet" href="~/css/theme-variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/complete-layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/sidebar-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/header-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/content-full-width.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard-fix.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Nexora.Web.styles.css" asp-append-version="true" />
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- Mobile Header Bar -->
+    <div class="mobile-header">
+        <div class="mobile-header-content">
+            <button class="mobile-menu-toggle" id="mobileMenuBtn" type="button">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="mobile-logo">
+                <i class="fas fa-cube"></i>
+                <span>Admin Panel</span>
+            </div>
+            <div class="mobile-actions">
+                <button class="mobile-notification-btn" type="button">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <!-- Sidebar Header - Logo Only -->
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="logo-link">
+                        <div class="logo-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <span class="logo-text">Admin Panel</span>
+                    </a>
+                    <button class="sidebar-collapse-btn desktop-only" id="sidebarCollapse">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search Box -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="sidebar-search-container">
+                    <div class="sidebar-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="menuSearchInput" placeholder="Search menus..." class="search-input">
+                    </div>
+                </div>
+            }
+
+            <!-- Navigation Menu -->
+            <div class="sidebar-menu">
+                <ul class="sidebar-nav">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @await Component.InvokeAsync("SidebarMenu", new { currentController, currentAction, currentArea })
+                    }
+                </ul>
+            </div>
+
+            <!-- Sidebar Footer - User Section -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="sidebar-footer">
+                    <div class="sidebar-user-footer">
+                        <div class="user-avatar-section">
+                            @if (!string.IsNullOrEmpty(userAvatarUrl) && !userAvatarUrl.EndsWith("default-avatar.svg"))
+                            {
+                                <img src="@userAvatarUrl" alt="@currentUser?.FullName" class="user-avatar">
+                            }
+                            else
+                            {
+                                <div class="user-avatar-placeholder">
+                                    @(currentUser?.DisplayName?.FirstOrDefault() ?? User.Identity?.Name?.FirstOrDefault() ?? 'U')
+                                </div>
+                            }
+                        </div>
+                        <div class="user-info-text">
+                            <div class="user-name">@(currentUser?.DisplayName ?? User.Identity?.Name ?? "SuperAdmin")</div>
+                            <div class="user-role">admin</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </nav>
+
+        <!-- Content -->
+        <div id="content" class="content">
+
+
+            <!-- Page Header Bar -->
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="layout-header page-header">
+                    <div class="page-header-content">
+                        <div class="page-header-left">
+                            <button class="hamburger-menu desktop-only" id="desktopMenuToggle">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <h1 class="page-title">@ViewData["Title"]</h1>
+                        </div>
+                        <div class="page-header-actions">
+                            <!-- Theme Toggle -->
+                            <button class="btn-icon theme-toggle" id="header-theme-toggle" title="Toggle Theme">
+                                <i class="fas fa-moon" id="header-theme-icon"></i>
+                            </button>
+                            <!-- Notification Bell -->
+                            <partial name="_NotificationDropdown" />
+                            <!-- User Menu -->
+                            <div class="dropdown user-menu-dropdown">
+                                <button class="btn-icon user-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @if (!string.IsNullOrEmpty(userAvatarUrl) && !userAvatarUrl.EndsWith("default-avatar.svg"))
+                                    {
+                                        <img src="@userAvatarUrl" alt="@currentUser?.FullName" class="user-avatar-img">
+                                    }
+                                    else
+                                    {
+                                        <div class="user-avatar-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    }
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li class="dropdown-header">
+                                        <div class="user-info">
+                                            <div class="user-name">@(currentUser?.DisplayName ?? User.Identity?.Name)</div>
+                                            <div class="user-email">@currentUser?.Email</div>
+                                        </div>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Update"><i class="fas fa-user me-2"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" asp-controller="SiteSetting" asp-action="Index"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- Main content -->
+            <main role="main" class="main-content">
+                @* Server-side notification messages for toastr *@
+                @if (TempData["SuccessMessage"] != null || ViewBag.SuccessMessage != null)
+                {
+                    <div data-notification-success="@(TempData["SuccessMessage"] ?? ViewBag.SuccessMessage)" style="display:none;"></div>
+                }
+                @if (TempData["ErrorMessage"] != null || ViewBag.ErrorMessage != null)
+                {
+                    <div data-notification-error="@(TempData["ErrorMessage"] ?? ViewBag.ErrorMessage)" style="display:none;"></div>
+                }
+                @if (TempData["InfoMessage"] != null || ViewBag.InfoMessage != null)
+                {
+                    <div data-notification-info="@(TempData["InfoMessage"] ?? ViewBag.InfoMessage)" style="display:none;"></div>
+                }
+                @if (TempData["WarningMessage"] != null || ViewBag.WarningMessage != null)
+                {
+                    <div data-notification-warning="@(TempData["WarningMessage"] ?? ViewBag.WarningMessage)" style="display:none;"></div>
+                }
+                
+                
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer">
+                @await Component.InvokeAsync("ThemeFooter")
+            </footer>
+        </div>
+    </div>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        var layoutUser = await UserManager.GetUserAsync(User);
+        var isLayoutSuperAdmin = layoutUser?.IsSuperAdmin ?? false;
+        
+        @if (isLayoutSuperAdmin)
+        {
+            <!-- Floating Documentation Button for Super Admin -->
+            <div class="floating-doc-btn">
+                <a href="@Url.Action("Documentation", "Admin")" 
+                   class="btn btn-primary rounded-circle">
+                    <i class="fas fa-book fa-lg"></i>
+                </a>
+            </div>
+        }
+    }
+    
+    <!-- Global Loading Mask -->
+    <div id="loadingMask" class="loading-mask" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-logo-container">
+                @if (!string.IsNullOrEmpty(settings.LoadingLogoPath))
+                {
+                    <img src="@settings.LoadingLogoPath" alt="Loading" class="loading-logo" />
+                }
+                else
+                {
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="loading-text mt-3">
+                <span class="loading-message">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- DataTables -->
+    <script src="~/lib/datatables/js/dataTables.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/lib/datatables/js/dataTables.responsive.min.js"></script>
+    <script src="~/lib/datatables/js/responsive.bootstrap5.min.js"></script>
+    
+    <!-- Toastr Notifications -->
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    
+    <!-- Notification System -->
+    <script src="~/js/notifications.js" asp-append-version="true"></script>
+    
+    <!-- Validation Scripts (jQuery Validation) -->
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/layout-fix.js" asp-append-version="true"></script>
+    <script src="~/js/enhanced-validation.js" asp-append-version="true"></script>
+    <script src="~/js/sidebar-menu.js" asp-append-version="true"></script>
+    <script src="~/js/menu-fix.js" asp-append-version="true"></script>
+    <script src="~/js/dropdown-fix.js" asp-append-version="true"></script>
+    <script src="~/js/mobile-menu-fix.js" asp-append-version="true"></script>
+    
+    <!-- SignalR and Notifications -->
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/lib/signalr/signalr.min.js" asp-append-version="true"></script>
+        <script src="~/js/notification-client.js" asp-append-version="true"></script>
+    }
+    
+    <script>
+        // Apply brand colors from settings
+        document.addEventListener('DOMContentLoaded', function() {
+            document.documentElement.style.setProperty('--bs-primary', '@settings.PrimaryColor');
+            document.documentElement.style.setProperty('--bs-secondary', '@settings.SecondaryColor');
+            document.documentElement.style.setProperty('--bs-success', '@settings.SuccessColor');
+            document.documentElement.style.setProperty('--bs-danger', '@settings.DangerColor');
+            document.documentElement.style.setProperty('--bs-warning', '@settings.WarningColor');
+            
+            // Hide loading mask
+            if (typeof LoadingMask !== 'undefined') {
+                LoadingMask.hide();
+            }
+            
+            // Fallback button handlers using vanilla JS
+            setTimeout(function() {
+                // Theme toggle fallback
+                var themeBtn = document.getElementById('header-theme-toggle');
+                if (themeBtn && !themeBtn.hasAttribute('data-listener')) {
+                    themeBtn.setAttribute('data-listener', 'true');
+                    themeBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        document.body.classList.toggle('dark-theme');
+                        var isDark = document.body.classList.contains('dark-theme');
+                        var icons = document.querySelectorAll('#header-theme-icon, #mobile-theme-icon');
+                        icons.forEach(function(icon) {
+                            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                        });
+                        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                        console.log('Theme toggled (fallback):', isDark ? 'dark' : 'light');
+                        return false;
+                    };
+                    console.log('Theme button fallback handler attached');
+                }
+                
+                // Sidebar collapse fallback
+                var collapseBtn = document.getElementById('sidebarCollapse');
+                if (collapseBtn && !collapseBtn.hasAttribute('data-listener')) {
+                    collapseBtn.setAttribute('data-listener', 'true');
+                    collapseBtn.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var sidebar = document.getElementById('sidebar');
+                        var content = document.getElementById('content');
+                        if (sidebar && content && window.innerWidth >= 992) {
+                            sidebar.classList.toggle('collapsed');
+                            content.classList.toggle('expanded');
+                            var icon = this.querySelector('i');
+                            if (icon) {
+                                icon.className = sidebar.classList.contains('collapsed') ? 
+                                    'fas fa-angle-right' : 'fas fa-angle-left';
+                            }
+                            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                            console.log('Sidebar toggled (fallback)');
+                        }
+                        return false;
+                    };
+                    console.log('Sidebar button fallback handler attached');
+                }
+                
+                // Desktop menu toggle fallback
+                var menuToggle = document.getElementById('desktopMenuToggle');
+                if (menuToggle && !menuToggle.hasAttribute('data-listener')) {
+                    menuToggle.setAttribute('data-listener', 'true');
+                    menuToggle.onclick = function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var sidebar = document.getElementById('sidebar');
+                        var content = document.getElementById('content');
+                        if (sidebar && content && window.innerWidth >= 992) {
+                            sidebar.classList.toggle('collapsed');
+                            content.classList.toggle('expanded');
+                            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                            console.log('Menu toggled (fallback)');
+                        }
+                        return false;
+                    };
+                    console.log('Menu toggle fallback handler attached');
+                }
+            }, 100);
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
