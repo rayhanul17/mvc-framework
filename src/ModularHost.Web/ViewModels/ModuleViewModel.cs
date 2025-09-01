@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ModularHost.Web.ViewModels
+namespace MRCMS.ViewModels
 {
     public class ModuleViewModel
     {

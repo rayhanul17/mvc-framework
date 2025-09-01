@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using ModularHost.Web.Core.Models;
-using ModularHost.Web.Core.Models.Entities;
+using MRCMS.Core.Models;
+using MRCMS.Core.Models.Entities;
 
-namespace ModularHost.Web.Modules.Blog.Models.Entities
+namespace MRCMS.Modules.Blog.Models.Entities
 {
     public class BlogPost : BaseEntity
     {

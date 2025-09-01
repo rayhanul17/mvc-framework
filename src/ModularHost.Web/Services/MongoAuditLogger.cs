@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using ModularHost.Web.Core.Models.Entities;
-using ModularHost.Web.Services.Interfaces;
+using MRCMS.Core.Models.Entities;
+using MRCMS.Services.Interfaces;
+using MRCMS.ViewModels;
 using MongoDB.Driver;
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Services
+namespace MRCMS.Services
 {
     public class MongoAuditLogger : IAuditLogger
     {
@@ -89,6 +91,54 @@ namespace ModularHost.Web.Services
             {
                 log.CreatedAt = DateTime.UtcNow;
             }
+        }
+
+        public async Task LogAsync(string entityName, string action, string details)
+        {
+            var log = new Log
+            {
+                Level = "Information",
+                Message = $"Entity: {entityName}, Action: {action}",
+                Properties = details,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await LogAsync(log);
+        }
+
+        public async Task<List<AuditLogEntry>> GetLogsAsync(int page, int pageSize)
+        {
+            // Return empty list for now - implement based on your Log entity structure
+            return new List<AuditLogEntry>();
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            // Return 0 for now - implement based on your Log entity structure
+            return 0;
+        }
+
+        public Task ClearOldLogsAsync(int daysToKeep)
+        {
+            // Return completed task for now - implement based on your Log entity structure
+            return Task.CompletedTask;
+        }
+
+        public async Task<LoginStatistics> GetLoginStatisticsAsync(DateTime startDate, DateTime endDate)
+        {
+            // Return empty statistics for now - implement based on your Log entity structure
+            return new LoginStatistics
+            {
+                TotalLogins = 0,
+                UniqueUsers = 0,
+                FailedAttempts = 0
+            };
+        }
+
+        public async Task<List<UserLoginCount>> GetUserLoginCountsAsync(DateTime startDate, DateTime endDate, int topCount)
+        {
+            // Return empty list for now - implement based on your Log entity structure
+            return new List<UserLoginCount>();
         }
     }
 }

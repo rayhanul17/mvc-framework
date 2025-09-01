@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ModularHost.Web.Core.Models.Entities;
-using ModularHost.Web.Modules.Blog.Models.Entities;
-using ModularHost.Web.Core.Extensions;
+using MRCMS.Core.Models.Entities;
+using MRCMS.Modules.Blog.Models.Entities;
+using MRCMS.Core.Extensions;
 
-namespace ModularHost.Web.Core.Infrastructure
+namespace MRCMS.Core.Infrastructure
 {
     public static class DataSeeder
     {
@@ -430,7 +430,30 @@ namespace ModularHost.Web.Core.Infrastructure
                     CreatedAt = DateTime.UtcNow
                 };
 
-                context.Menus.AddRange(dashboardMenu, blogMenu, adminMenu, reportsMenu, settingsMenu, modulesMenu);
+                var toolsMenu = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Tools",
+                    Url = "#",
+                    Icon = "fas fa-tools",
+                    Order = 7,
+                    IsVisible = true,
+                    ClaimType = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var contentMenu = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Content",
+                    Url = "#",
+                    Icon = "fas fa-file-alt",
+                    Order = 8,
+                    IsVisible = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.Menus.AddRange(dashboardMenu, blogMenu, adminMenu, reportsMenu, settingsMenu, modulesMenu, toolsMenu, contentMenu);
                 await context.SaveChangesAsync();
 
                 // Add Blog submenu items
@@ -441,6 +464,7 @@ namespace ModularHost.Web.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "All Posts",
                         Url = "/Blog",
+                        Icon = "fas fa-list",
                         ParentId = blogMenu.Id,
                         Order = 1,
                         IsVisible = true,
@@ -452,6 +476,7 @@ namespace ModularHost.Web.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "Create Post",
                         Url = "/Blog/Create",
+                        Icon = "fas fa-plus",
                         ParentId = blogMenu.Id,
                         Order = 2,
                         IsVisible = true,
@@ -463,7 +488,8 @@ namespace ModularHost.Web.Core.Infrastructure
                     {
                         Id = Guid.NewGuid(),
                         Title = "Categories",
-                        Url = "/Blog/Categories",
+                        Url = "/Category",
+                        Icon = "fas fa-folder",
                         ParentId = blogMenu.Id,
                         Order = 3,
                         IsVisible = true,
@@ -475,7 +501,8 @@ namespace ModularHost.Web.Core.Infrastructure
                     {
                         Id = Guid.NewGuid(),
                         Title = "Tags",
-                        Url = "/Blog/Tags",
+                        Url = "/Tag",
+                        Icon = "fas fa-tags",
                         ParentId = blogMenu.Id,
                         Order = 4,
                         IsVisible = true,
@@ -486,10 +513,24 @@ namespace ModularHost.Web.Core.Infrastructure
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Comments",
+                        Title = "Comments Management",
                         Url = "/Blog/Comments",
+                        Icon = "fas fa-comments",
                         ParentId = blogMenu.Id,
                         Order = 5,
+                        IsVisible = true,
+                        ModuleName = "BlogModule",
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Media Library",
+                        Url = "/Blog/Media",
+                        Icon = "fas fa-photo-video",
+                        ParentId = blogMenu.Id,
+                        Order = 6,
                         IsVisible = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
@@ -505,11 +546,23 @@ namespace ModularHost.Web.Core.Infrastructure
                     new Menu
                     {
                         Id = Guid.NewGuid(),
+                        Title = "Dashboard",
+                        Url = "/Admin",
+                        Icon = "fas fa-tachometer-alt",
+                        ParentId = adminMenu.Id,
+                        Order = 1,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
                         Title = "Users",
                         Url = "/User",
                         Icon = "fas fa-users",
                         ParentId = adminMenu.Id,
-                        Order = 1,
+                        Order = 2,
                         IsVisible = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -521,7 +574,19 @@ namespace ModularHost.Web.Core.Infrastructure
                         Url = "/Role",
                         Icon = "fas fa-user-shield",
                         ParentId = adminMenu.Id,
-                        Order = 2,
+                        Order = 3,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Menus",
+                        Url = "/Menu",
+                        Icon = "fas fa-bars",
+                        ParentId = adminMenu.Id,
+                        Order = 4,
                         IsVisible = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -533,7 +598,7 @@ namespace ModularHost.Web.Core.Infrastructure
                         Url = "/Admin/Permissions",
                         Icon = "fas fa-lock",
                         ParentId = adminMenu.Id,
-                        Order = 3,
+                        Order = 5,
                         IsVisible = true,
                         ClaimType = "SuperAdmin",
                         CreatedAt = DateTime.UtcNow
@@ -545,9 +610,21 @@ namespace ModularHost.Web.Core.Infrastructure
                         Url = "/Admin/AuditLog",
                         Icon = "fas fa-history",
                         ParentId = adminMenu.Id,
-                        Order = 4,
+                        Order = 6,
                         IsVisible = true,
                         ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "System Monitor",
+                        Url = "/Admin/SystemMonitor",
+                        Icon = "fas fa-desktop",
+                        ParentId = adminMenu.Id,
+                        Order = 7,
+                        IsVisible = true,
+                        ClaimType = "SuperAdmin",
                         CreatedAt = DateTime.UtcNow
                     }
                 };
@@ -560,9 +637,9 @@ namespace ModularHost.Web.Core.Infrastructure
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "General",
-                        Url = "/Settings/General",
-                        Icon = "fas fa-sliders-h",
+                        Title = "Settings Overview",
+                        Url = "/Settings",
+                        Icon = "fas fa-cog",
                         ParentId = settingsMenu.Id,
                         Order = 1,
                         IsVisible = true,
@@ -572,9 +649,9 @@ namespace ModularHost.Web.Core.Infrastructure
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Email",
-                        Url = "/Settings/Email",
-                        Icon = "fas fa-envelope",
+                        Title = "General Settings",
+                        Url = "/Settings/General",
+                        Icon = "fas fa-sliders-h",
                         ParentId = settingsMenu.Id,
                         Order = 2,
                         IsVisible = true,
@@ -584,11 +661,59 @@ namespace ModularHost.Web.Core.Infrastructure
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Security",
+                        Title = "Email Settings",
+                        Url = "/Settings/Email",
+                        Icon = "fas fa-envelope",
+                        ParentId = settingsMenu.Id,
+                        Order = 3,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Security Settings",
                         Url = "/Settings/Security",
                         Icon = "fas fa-shield-alt",
                         ParentId = settingsMenu.Id,
-                        Order = 3,
+                        Order = 4,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Database Settings",
+                        Url = "/Settings/Database",
+                        Icon = "fas fa-database",
+                        ParentId = settingsMenu.Id,
+                        Order = 5,
+                        IsVisible = true,
+                        ClaimType = "SuperAdmin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Cache Management",
+                        Url = "/Settings/Cache",
+                        Icon = "fas fa-memory",
+                        ParentId = settingsMenu.Id,
+                        Order = 6,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "File Manager",
+                        Url = "/Settings/FileManager",
+                        Icon = "fas fa-folder",
+                        ParentId = settingsMenu.Id,
+                        Order = 7,
                         IsVisible = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -603,9 +728,9 @@ namespace ModularHost.Web.Core.Infrastructure
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "User Activity",
-                        Url = "/Reports/UserActivity",
-                        Icon = "fas fa-user-clock",
+                        Title = "Reports Dashboard",
+                        Url = "/Reports",
+                        Icon = "fas fa-chart-bar",
                         ParentId = reportsMenu.Id,
                         Order = 1,
                         IsVisible = true,
@@ -615,14 +740,50 @@ namespace ModularHost.Web.Core.Infrastructure
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Blog Stats",
-                        Url = "/Reports/BlogStats",
-                        Icon = "fas fa-chart-line",
+                        Title = "User Activity Report",
+                        Url = "/Reports/UserActivity",
+                        Icon = "fas fa-user-clock",
                         ParentId = reportsMenu.Id,
                         Order = 2,
                         IsVisible = true,
                         ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Blog Statistics",
+                        Url = "/Reports/BlogStats",
+                        Icon = "fas fa-chart-line",
+                        ParentId = reportsMenu.Id,
+                        Order = 3,
+                        IsVisible = true,
+                        ClaimType = "Admin",
                         ModuleName = "BlogModule",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "System Performance",
+                        Url = "/Reports/Performance",
+                        Icon = "fas fa-tachometer-alt",
+                        ParentId = reportsMenu.Id,
+                        Order = 4,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Security Reports",
+                        Url = "/Reports/Security",
+                        Icon = "fas fa-shield-alt",
+                        ParentId = reportsMenu.Id,
+                        Order = 5,
+                        IsVisible = true,
+                        ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
                     new Menu
@@ -632,7 +793,19 @@ namespace ModularHost.Web.Core.Infrastructure
                         Url = "/Reports/SystemLogs",
                         Icon = "fas fa-file-alt",
                         ParentId = reportsMenu.Id,
-                        Order = 3,
+                        Order = 6,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Export Data",
+                        Url = "/Reports/Export",
+                        Icon = "fas fa-download",
+                        ParentId = reportsMenu.Id,
+                        Order = 7,
                         IsVisible = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -640,6 +813,152 @@ namespace ModularHost.Web.Core.Infrastructure
                 };
                 
                 context.Menus.AddRange(reportsSubmenus);
+                
+                // Add Tools submenu items
+                var toolsSubmenus = new[]
+                {
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Database Migration",
+                        Url = "/Tools/Migration",
+                        Icon = "fas fa-database",
+                        ParentId = toolsMenu.Id,
+                        Order = 1,
+                        IsVisible = true,
+                        ClaimType = "SuperAdmin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Cache Manager",
+                        Url = "/Tools/Cache",
+                        Icon = "fas fa-memory",
+                        ParentId = toolsMenu.Id,
+                        Order = 2,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Log Viewer",
+                        Url = "/Tools/Logs",
+                        Icon = "fas fa-file-alt",
+                        ParentId = toolsMenu.Id,
+                        Order = 3,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Backup Manager",
+                        Url = "/Tools/Backup",
+                        Icon = "fas fa-archive",
+                        ParentId = toolsMenu.Id,
+                        Order = 4,
+                        IsVisible = true,
+                        ClaimType = "SuperAdmin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Import/Export",
+                        Url = "/Tools/ImportExport",
+                        Icon = "fas fa-exchange-alt",
+                        ParentId = toolsMenu.Id,
+                        Order = 5,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "System Health",
+                        Url = "/Tools/Health",
+                        Icon = "fas fa-heartbeat",
+                        ParentId = toolsMenu.Id,
+                        Order = 6,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+                
+                context.Menus.AddRange(toolsSubmenus);
+                
+                // Add Content submenu items
+                var contentSubmenus = new[]
+                {
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Pages",
+                        Url = "/Content/Pages",
+                        Icon = "fas fa-file",
+                        ParentId = contentMenu.Id,
+                        Order = 1,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Media Library",
+                        Url = "/Content/Media",
+                        Icon = "fas fa-photo-video",
+                        ParentId = contentMenu.Id,
+                        Order = 2,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "File Manager",
+                        Url = "/Content/Files",
+                        Icon = "fas fa-folder-open",
+                        ParentId = contentMenu.Id,
+                        Order = 3,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Templates",
+                        Url = "/Content/Templates",
+                        Icon = "fas fa-code",
+                        ParentId = contentMenu.Id,
+                        Order = 4,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Widgets",
+                        Url = "/Content/Widgets",
+                        Icon = "fas fa-cube",
+                        ParentId = contentMenu.Id,
+                        Order = 5,
+                        IsVisible = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+                
+                context.Menus.AddRange(contentSubmenus);
                 await context.SaveChangesAsync();
             }
         }

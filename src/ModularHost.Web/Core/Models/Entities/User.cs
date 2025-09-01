@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 
-namespace ModularHost.Web.Core.Models.Entities
+namespace MRCMS.Core.Models.Entities
 {
     public class User : IdentityUser<Guid>
     {
@@ -26,6 +26,7 @@ namespace ModularHost.Web.Core.Models.Entities
         public Guid? CreatedBy { get; set; } // Who created this user
         public DateTime? UpdatedAt { get; set; }
         public Guid? UpdatedBy { get; set; } // Who last updated this user
+        public int VersionNumber { get; set; } = 1; // Version tracking for audit
         
         public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         

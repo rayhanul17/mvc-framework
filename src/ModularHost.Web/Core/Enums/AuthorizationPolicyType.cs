@@ -1,4 +1,4 @@
-namespace ModularHost.Web.Core.Enums
+namespace MRCMS.Core.Enums
 {
     public enum AuthorizationPolicyType
     {

@@ -2,7 +2,7 @@ using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ModularHost.Web.Core.Services.Interfaces
+namespace MRCMS.Core.Services.Interfaces
 {
     public interface IModuleDescriptor
     {

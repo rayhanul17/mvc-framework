@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ModularHost.Web.Modules.Blog.Models.DTOs;
-using ModularHost.Web.Modules.Blog.Models.Entities;
-using ModularHost.Web.Core.Services.Interfaces;
+using MRCMS.Modules.Blog.Models.DTOs;
+using MRCMS.Modules.Blog.Models.Entities;
+using MRCMS.Core.Services.Interfaces;
 
-namespace ModularHost.Web.Modules.Blog.Services.Interfaces
+namespace MRCMS.Modules.Blog.Services.Interfaces
 {
     public interface ICommentService : IBaseService<Comment, CommentDto, CreateCommentDto, UpdateCommentDto>
     {

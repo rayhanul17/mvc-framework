@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Core.Services;
-using ModularHost.Web.Modules.Blog.Models.Entities;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Core.Services;
+using MRCMS.Modules.Blog.Models.Entities;
 
-namespace ModularHost.Web.Modules.Blog.Services
+namespace MRCMS.Modules.Blog.Services
 {
     public class BlogService : BaseService<BlogPost>
     {

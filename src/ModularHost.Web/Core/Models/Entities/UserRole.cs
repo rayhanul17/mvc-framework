@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 
-namespace ModularHost.Web.Core.Models.Entities
+namespace MRCMS.Core.Models.Entities
 {
     public class UserRole : IdentityUserRole<Guid>
     {

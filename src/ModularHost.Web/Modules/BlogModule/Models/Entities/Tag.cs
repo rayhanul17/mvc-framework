@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using ModularHost.Web.Core.Models.Entities;
+using MRCMS.Core.Models.Entities;
 
-namespace ModularHost.Web.Modules.Blog.Models.Entities
+namespace MRCMS.Modules.Blog.Models.Entities
 {
     public class Tag : BaseEntity
     {
@@ -11,5 +11,8 @@ namespace ModularHost.Web.Modules.Blog.Models.Entities
         public string? Description { get; set; }
         
         public virtual ICollection<BlogPostTag> BlogPostTags { get; set; } = new List<BlogPostTag>();
+        
+        // Navigation property for easier access to blog posts
+        public virtual ICollection<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
     }
 }

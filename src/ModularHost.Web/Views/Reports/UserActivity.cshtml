@@ -1,0 +1,212 @@
+@model MRCMS.ViewModels.UserActivityReportViewModel
+@{
+    ViewData["Title"] = "User Activity Report";
+}
+
+<div class="container mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">User Activity Report</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">
+                    @Model.StartDate.ToString("MMM dd, yyyy") - @Model.EndDate.ToString("MMM dd, yyyy")
+                </p>
+            </div>
+            <div class="flex space-x-3">
+                <a asp-action="Index" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Reports
+                </a>
+                <button onclick="exportReport('pdf')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    <i class="fas fa-file-pdf mr-2"></i>Export PDF
+                </button>
+                <button onclick="exportReport('excel')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    <i class="fas fa-file-excel mr-2"></i>Export Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Filter -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+        <form method="get" class="flex items-end space-x-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Start Date</label>
+                <input type="date" name="startDate" value="@Model.StartDate.ToString("yyyy-MM-dd")" 
+                       class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">End Date</label>
+                <input type="date" name="endDate" value="@Model.EndDate.ToString("yyyy-MM-dd")" 
+                       class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            </div>
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                <i class="fas fa-filter mr-2"></i>Apply Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">@Model.TotalUsers</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-blue-600 dark:text-blue-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">@Model.ActiveUsers</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-check text-green-600 dark:text-green-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">New Users</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">@Model.NewUsersInPeriod</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-plus text-purple-600 dark:text-purple-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Growth Rate</p>
+                    <p class="text-2xl font-bold @(Model.UserGrowthRate >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                        @(Model.UserGrowthRate >= 0 ? "+" : "")@Model.UserGrowthRate.ToString("F1")%
+                    </p>
+                </div>
+                <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-line text-yellow-600 dark:text-yellow-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Users by Role -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Users by Role</h2>
+            <div class="space-y-3">
+                @foreach (var role in Model.UsersByRole)
+                {
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-700 dark:text-gray-300">@role.Key</span>
+                        <div class="flex items-center">
+                            <div class="w-48 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-3">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: @((role.Value * 100.0 / Model.TotalUsers).ToString("F0"))%"></div>
+                            </div>
+                            <span class="text-gray-900 dark:text-gray-100 font-medium">@role.Value</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Login Statistics -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Login Statistics</h2>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">@Model.TotalLogins</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Total Logins</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-green-600 dark:text-green-400">@Model.UniqueUserLogins</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Unique Users</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-2xl font-bold text-red-600 dark:text-red-400">@Model.FailedLoginAttempts</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Failed Attempts</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Registration Chart -->
+    <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Daily Registrations</h2>
+        <canvas id="registrationChart" class="w-full" height="80"></canvas>
+    </div>
+
+    <!-- Top Active Users -->
+    @if (Model.TopActiveUsers != null && Model.TopActiveUsers.Any())
+    {
+        <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Top Active Users</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Login Count</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach (var user in Model.TopActiveUsers)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">@user.UserName</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">@user.Email</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">@user.LoginCount</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">@user.LastLoginDate?.ToString("MMM dd, yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Daily Registration Chart
+        const ctx = document.getElementById('registrationChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.DailyRegistrations?.Select(d => d.Date.ToString("MMM dd")) ?? new List<string>())),
+                datasets: [{
+                    label: 'New Registrations',
+                    data: @Html.Raw(Json.Serialize(Model.DailyRegistrations?.Select(d => d.Count) ?? new List<int>())),
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        function exportReport(format) {
+            window.location.href = `/Reports/ExportUserActivity?format=${format}&startDate=@Model.StartDate.ToString("yyyy-MM-dd")&endDate=@Model.EndDate.ToString("yyyy-MM-dd")`;
+        }
+    </script>
+}

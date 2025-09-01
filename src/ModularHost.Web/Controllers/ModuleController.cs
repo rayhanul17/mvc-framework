@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Core.Infrastructure;
-using ModularHost.Web.ViewModels;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Core.Infrastructure;
+using MRCMS.ViewModels;
 
-namespace ModularHost.Web.Controllers
+namespace MRCMS.Controllers
 {
     [Authorize(Roles = "SuperAdmin,Admin")]
     public class ModuleController : Controller

@@ -1,6 +1,6 @@
 using System;
 
-namespace ModularHost.Web.Modules.Blog.Models.DTOs
+namespace MRCMS.Modules.Blog.Models.DTOs
 {
     public class TagDto
     {

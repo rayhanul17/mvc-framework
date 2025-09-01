@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using ModularHost.Web.Core.Models.Entities;
-using ModularHost.Web.Models;
-using ModularHost.Web.Services;
+using MRCMS.Core.Models.Entities;
+using MRCMS.Models;
+using MRCMS.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace ModularHost.Web.Controllers
+namespace MRCMS.Controllers
 {
     public class AccountController : Controller
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Core.Services.Interfaces
+namespace MRCMS.Core.Services.Interfaces
 {
     public interface IRepository<T> where T : class
     {

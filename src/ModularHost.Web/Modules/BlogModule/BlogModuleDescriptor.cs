@@ -1,10 +1,10 @@
 using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Modules.Blog.Models.Entities;
-using ModularHost.Web.Modules.Blog.Services;
-using ModularHost.Web.Modules.Blog.Services.Interfaces;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Modules.Blog.Models.Entities;
+using MRCMS.Modules.Blog.Services;
+using MRCMS.Modules.Blog.Services.Interfaces;
 
 namespace BlogModule
 {

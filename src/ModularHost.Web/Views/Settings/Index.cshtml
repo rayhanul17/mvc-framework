@@ -1,0 +1,139 @@
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<div class="container mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">System Settings</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Configure application settings and preferences</p>
+    </div>
+
+    <!-- Settings Categories Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- General Settings -->
+        <a asp-action="General" class="block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cog text-blue-600 dark:text-blue-400 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">General Settings</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Site name, description, timezone, and other basic settings</p>
+            </div>
+        </a>
+
+        <!-- Email Settings -->
+        <a asp-action="Email" class="block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-envelope text-green-600 dark:text-green-400 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Email Settings</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">SMTP configuration and email templates</p>
+            </div>
+        </a>
+
+        <!-- Security Settings -->
+        <a asp-action="Security" class="block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-red-600 dark:text-red-400 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Security Settings</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Password policies, two-factor authentication, and security options</p>
+            </div>
+        </a>
+
+        <!-- Storage Settings -->
+        <a asp-action="Storage" class="block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-database text-purple-600 dark:text-purple-400 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Storage Settings</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">File storage, database backups, and media settings</p>
+            </div>
+        </a>
+
+        <!-- Module Settings -->
+        <a asp-action="Modules" class="block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-puzzle-piece text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Module Settings</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Configure individual module settings and options</p>
+            </div>
+        </a>
+
+        <!-- Cache Settings -->
+        <a asp-action="Cache" class="block">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-bolt text-indigo-600 dark:text-indigo-400 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Cache Settings</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Cache configuration and performance optimization</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h2>
+        <div class="flex flex-wrap gap-3">
+            <button onclick="clearCache()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                <i class="fas fa-sync mr-2"></i>Clear Cache
+            </button>
+            <button onclick="exportSettings()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                <i class="fas fa-download mr-2"></i>Export Settings
+            </button>
+            <button onclick="importSettings()" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
+                <i class="fas fa-upload mr-2"></i>Import Settings
+            </button>
+            <button onclick="resetToDefaults()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                <i class="fas fa-undo mr-2"></i>Reset to Defaults
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function clearCache() {
+            if (confirm('Are you sure you want to clear all cache?')) {
+                // Implementation for clearing cache
+                console.log('Clearing cache...');
+            }
+        }
+        
+        function exportSettings() {
+            // Implementation for exporting settings
+            console.log('Exporting settings...');
+        }
+        
+        function importSettings() {
+            // Implementation for importing settings
+            console.log('Importing settings...');
+        }
+        
+        function resetToDefaults() {
+            if (confirm('Are you sure you want to reset all settings to defaults? This action cannot be undone.')) {
+                // Implementation for resetting to defaults
+                console.log('Resetting to defaults...');
+            }
+        }
+    </script>
+}

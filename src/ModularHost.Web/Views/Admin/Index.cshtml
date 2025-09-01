@@ -1,0 +1,264 @@
+@model MRCMS.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid">
+    <!-- Stats Cards Row -->
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>@Model.TotalUsers</h3>
+                    <p>Total Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <a href="@Url.Action("Index", "User")" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>@Model.ActiveUsers</h3>
+                    <p>Active Users</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <a href="@Url.Action("Index", "User")" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>@Model.TotalRoles</h3>
+                    <p>Roles</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <a href="@Url.Action("Index", "Role")" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>@Model.TotalPermissions</h3>
+                    <p>Permissions</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <a href="@Url.Action("Permissions", "Admin")" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Users -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user-plus"></i> Recent Users
+                    </h3>
+                    <div class="card-tools">
+                        <a href="@Url.Action("Index", "User")" class="btn btn-sm btn-primary">
+                            View All
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model.RecentUsers)
+                            {
+                                <tr>
+                                    <td>@user.UserName</td>
+                                    <td>@user.Email</td>
+                                    <td>
+                                        <small>@user.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                    </td>
+                                    <td>
+                                        @if (user.IsActive)
+                                        {
+                                            <span class="badge badge-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">Inactive</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Audit Logs -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i> Recent Activity
+                    </h3>
+                    <div class="card-tools">
+                        <a href="@Url.Action("AuditLog", "Admin")" class="btn btn-sm btn-primary">
+                            View All
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Entity</th>
+                                <th>Action</th>
+                                <th>User</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in Model.RecentAuditLogs)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-info">@log.EntityName</span>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var actionClass = log.Action switch
+                                            {
+                                                "Create" => "success",
+                                                "Update" => "warning",
+                                                "Delete" => "danger",
+                                                _ => "secondary"
+                                            };
+                                        }
+                                        <span class="badge badge-@actionClass">@log.Action</span>
+                                    </td>
+                                    <td>@(log.UserName ?? "System")</td>
+                                    <td>
+                                        <small>@log.Timestamp.ToString("HH:mm")</small>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Statistics -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-server"></i> System Statistics
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-primary">
+                                    <i class="fas fa-database"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Database Size</span>
+                                    <span class="info-box-number">@Model.SystemStats.FormattedDatabaseSize</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning">
+                                    <i class="fas fa-memory"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Cache Size</span>
+                                    <span class="info-box-number">@Model.SystemStats.FormattedCacheSize</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-success">
+                                    <i class="fas fa-file-alt"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Log Size</span>
+                                    <span class="info-box-number">@Model.SystemStats.FormattedLogSize</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-bolt"></i> Quick Actions
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <a href="@Url.Action("Create", "User")" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </a>
+                    <a href="@Url.Action("Create", "Role")" class="btn btn-success">
+                        <i class="fas fa-shield-alt"></i> Create Role
+                    </a>
+                    <a href="@Url.Action("CreatePermission", "Admin")" class="btn btn-warning">
+                        <i class="fas fa-lock"></i> Add Permission
+                    </a>
+                    <a href="@Url.Action("General", "Settings")" class="btn btn-info">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a href="@Url.Action("AuditLog", "Admin")" class="btn btn-secondary">
+                        <i class="fas fa-history"></i> View Audit Log
+                    </a>
+                    <a href="@Url.Action("Index", "Module")" class="btn btn-dark">
+                        <i class="fas fa-puzzle-piece"></i> Manage Modules
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh dashboard every 60 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 60000);
+    </script>
+}

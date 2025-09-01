@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace ModularHost.Web.Modules.Blog.Models.ViewModels
+namespace MRCMS.Modules.Blog.Models.ViewModels
 {
     public class CategoryViewModel
     {

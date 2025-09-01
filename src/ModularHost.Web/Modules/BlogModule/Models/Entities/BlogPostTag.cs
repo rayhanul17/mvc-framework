@@ -1,6 +1,6 @@
 using System;
 
-namespace ModularHost.Web.Modules.Blog.Models.Entities
+namespace MRCMS.Modules.Blog.Models.Entities
 {
     public class BlogPostTag
     {

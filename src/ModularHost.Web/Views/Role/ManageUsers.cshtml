@@ -1,0 +1,171 @@
+@model MRCMS.ViewModels.ManageRoleUsersViewModel
+@{
+    ViewData["Title"] = $"Manage Users - {Model.RoleName}";
+}
+
+<div class="container mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Manage Users</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Assign or remove users for role: <span class="font-semibold">@Model.RoleName</span></p>
+            </div>
+            <a asp-action="Index" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Roles
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Users in Role -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+                Users in Role 
+                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">(@Model.UsersInRole.Count)</span>
+            </h2>
+            
+            @if (!Model.UsersInRole.Any())
+            {
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-users text-4xl mb-3 block"></i>
+                    <p>No users assigned to this role</p>
+                </div>
+            }
+            else
+            {
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    @foreach (var user in Model.UsersInRole.OrderBy(u => u.UserName))
+                    {
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                    @user.UserName.Substring(0, 2).ToUpper()
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100">@user.FullName</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">@user.Email</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                @if (!user.IsActive)
+                                {
+                                    <span class="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300">
+                                        Inactive
+                                    </span>
+                                }
+                                <form asp-action="RemoveUserFromRole" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="roleId" value="@Model.RoleId" />
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <button type="submit" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                            onclick="return confirm('Remove @user.UserName from this role?');"
+                                            title="Remove from role">
+                                        <i class="fas fa-user-minus"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Available Users -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+                Available Users 
+                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">(@Model.UsersNotInRole.Count)</span>
+            </h2>
+            
+            <!-- Search -->
+            <div class="mb-4">
+                <div class="relative">
+                    <input type="text" id="userSearch" placeholder="Search users..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white text-sm">
+                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                </div>
+            </div>
+            
+            @if (!Model.UsersNotInRole.Any())
+            {
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-user-check text-4xl mb-3 block"></i>
+                    <p>All users are already assigned to this role</p>
+                </div>
+            }
+            else
+            {
+                <div class="space-y-2 max-h-80 overflow-y-auto" id="userList">
+                    @foreach (var user in Model.UsersNotInRole.OrderBy(u => u.UserName))
+                    {
+                        <div class="user-item flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center text-white font-semibold">
+                                    @user.UserName.Substring(0, 2).ToUpper()
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-gray-100 user-name">@user.FullName</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 user-email">@user.Email</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                @if (!user.IsActive)
+                                {
+                                    <span class="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300">
+                                        Inactive
+                                    </span>
+                                }
+                                <form asp-action="AddUserToRole" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="roleId" value="@Model.RoleId" />
+                                    <input type="hidden" name="userId" value="@user.Id" />
+                                    <button type="submit" class="text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                                            title="Add to role">
+                                        <i class="fas fa-user-plus"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="mt-6 bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-400"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-blue-700 dark:text-blue-200">
+                    <strong>Note:</strong> Users can have multiple roles. Adding or removing users from this role 
+                    doesn't affect their other role assignments. Inactive users are shown but may not be able to login.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // User search functionality
+        document.getElementById('userSearch')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const userItems = document.querySelectorAll('.user-item');
+            
+            userItems.forEach(item => {
+                const name = item.querySelector('.user-name')?.textContent.toLowerCase() || '';
+                const email = item.querySelector('.user-email')?.textContent.toLowerCase() || '';
+                
+                if (name.includes(searchTerm) || email.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}

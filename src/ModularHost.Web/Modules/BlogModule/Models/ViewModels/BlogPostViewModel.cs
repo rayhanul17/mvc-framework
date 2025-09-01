@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace ModularHost.Web.Modules.Blog.Models.ViewModels
+namespace MRCMS.Modules.Blog.Models.ViewModels
 {
     public class BlogPostViewModel
     {

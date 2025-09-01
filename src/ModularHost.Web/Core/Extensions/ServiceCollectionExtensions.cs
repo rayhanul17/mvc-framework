@@ -2,10 +2,10 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using ModularHost.Web.Core.Services;
-using ModularHost.Web.Core.Services.Interfaces;
+using MRCMS.Core.Services;
+using MRCMS.Core.Services.Interfaces;
 
-namespace ModularHost.Web.Core.Extensions
+namespace MRCMS.Core.Extensions
 {
     public static class ServiceCollectionExtensions
     {

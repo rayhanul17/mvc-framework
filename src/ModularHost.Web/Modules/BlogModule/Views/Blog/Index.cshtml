@@ -1,0 +1,312 @@
+@model IEnumerable<MRCMS.Modules.Blog.Models.DTOs.BlogPostDto>
+@using MRCMS.Core.Extensions
+@inject IPermissionHelper PermissionHelper
+@{
+    ViewData["Title"] = "Blog Posts";
+    var currentUserId = PermissionHelper.GetCurrentUserId();
+}
+
+<div class="container mx-auto">
+    <!-- Header with actions -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 space-y-4 md:space-y-0">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Blog Posts</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Explore our latest articles and insights</p>
+        </div>
+        
+        <div class="flex space-x-2">
+            @if (PermissionHelper.IsAuthenticated())
+            {
+                <a asp-action="Create" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                    <i class="fas fa-plus mr-2"></i>New Post
+                </a>
+            }
+            
+            @if (PermissionHelper.IsAdmin())
+            {
+                <button onclick="openCategoryManager()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-folder mr-2"></i>Categories
+                </button>
+                <button onclick="openTagManager()" class="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-tags mr-2"></i>Tags
+                </button>
+            }
+        </div>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <div class="relative">
+                    <input type="text" id="searchPosts" placeholder="Search posts..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            <select id="categoryFilter" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                <option value="">All Categories</option>
+                <!-- Categories will be populated here -->
+            </select>
+            <select id="sortBy" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="popular">Most Popular</option>
+            </select>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center">
+            <i class="fas fa-newspaper text-6xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No Posts Yet</h3>
+            <p class="text-gray-500 dark:text-gray-400 mb-6">Be the first to share your thoughts!</p>
+            @if (PermissionHelper.IsAuthenticated())
+            {
+                <a asp-action="Create" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg inline-block">
+                    <i class="fas fa-pen mr-2"></i>Write First Post
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Blog Posts Grid -->
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            @foreach (var post in Model)
+            {
+                <article class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    @if (!string.IsNullOrEmpty(post.FeaturedImage))
+                    {
+                        <div class="relative h-48 overflow-hidden">
+                            <img src="@post.FeaturedImage" alt="@post.Title" class="w-full h-full object-cover">
+                            @if (!post.IsPublished)
+                            {
+                                <span class="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                                    Draft
+                                </span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                            <i class="fas fa-image text-white text-4xl opacity-50"></i>
+                        </div>
+                    }
+                    
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+                            @if (!string.IsNullOrEmpty(post.CategoryName))
+                            {
+                                <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-xs mr-2">
+                                    @post.CategoryName
+                                </span>
+                            }
+                            <time datetime="@post.PublishedAt?.ToString("yyyy-MM-dd")">
+                                @post.PublishedAt?.ToString("MMM dd, yyyy")
+                            </time>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold mb-2">
+                            <a asp-action="Details" asp-route-slug="@post.Slug" 
+                               class="text-gray-900 dark:text-gray-100 hover:text-blue-500 transition-colors">
+                                @post.Title
+                            </a>
+                        </h2>
+                        
+                        @if (!string.IsNullOrEmpty(post.Summary))
+                        {
+                            <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                                @post.Summary
+                            </p>
+                        }
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                                <img src="/img/default-avatar.png" 
+                                     alt="@post.AuthorName" 
+                                     class="w-6 h-6 rounded-full mr-2">
+                                <span>@post.AuthorName</span>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3 text-sm text-gray-500 dark:text-gray-400">
+                                <span><i class="fas fa-eye mr-1"></i>@post.ViewCount</span>
+                                <span><i class="fas fa-comment mr-1"></i>@post.CommentCount</span>
+                            </div>
+                        </div>
+                        
+                        @if (post.Tags != null && post.Tags.Any())
+                        {
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                @foreach (var tag in post.Tags)
+                                {
+                                    <span class="inline-block bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                        #@tag.Name
+                                    </span>
+                                }
+                            </div>
+                        }
+                        
+                        <!-- Action Buttons (Permission-based) -->
+                        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
+                            <a asp-action="Details" asp-route-slug="@post.Slug" 
+                               class="text-blue-500 hover:text-blue-600 font-semibold text-sm">
+                                Read More <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                            
+                            @if (PermissionHelper.CanEdit(post.AuthorId))
+                            {
+                                <div class="flex space-x-2">
+                                    <a asp-action="Edit" asp-route-id="@post.Id" 
+                                       class="text-green-500 hover:text-green-600" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    @if (PermissionHelper.CanDelete(post.AuthorId))
+                                    {
+                                        <button onclick="confirmDelete('@post.Id', '@post.Title')" 
+                                                class="text-red-500 hover:text-red-600" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center">
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <span class="sr-only">Previous</span>
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">1</a>
+                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 dark:bg-blue-900 border-blue-500 text-sm font-medium text-blue-600 dark:text-blue-300">2</a>
+                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">3</a>
+                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <span class="sr-only">Next</span>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Category Manager Modal -->
+@await Html.PartialAsync("_CategoryModal", new MRCMS.Modules.Blog.Models.ViewModels.CategoryViewModel { Name = "" })
+
+<!-- Tag Manager Modal -->
+@await Html.PartialAsync("_TagModal", new MRCMS.Modules.Blog.Models.ViewModels.TagViewModel { Name = "" })
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50">
+    <div class="relative p-8 bg-white dark:bg-gray-800 w-full max-w-md m-auto flex-col flex rounded-lg mt-20">
+        <div class="mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">Confirm Delete</h3>
+        </div>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">
+            Are you sure you want to delete "<span id="deleteTitle"></span>"? This action cannot be undone.
+        </p>
+        <div class="flex justify-end gap-2">
+            <button onclick="closeModal('deleteModal')" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500">
+                Cancel
+            </button>
+            <button onclick="deletePost()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                <i class="fas fa-trash mr-2"></i>Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let deletePostId = null;
+        
+        function confirmDelete(id, title) {
+            deletePostId = id;
+            document.getElementById('deleteTitle').textContent = title;
+            openModal('deleteModal');
+        }
+        
+        function deletePost() {
+            if (!deletePostId) return;
+            
+            loader.show('Deleting post...');
+            
+            fetch(`/Blog/Delete/${deletePostId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                loader.hide();
+                if (data.success) {
+                    notification.success('Post deleted successfully');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    notification.error(data.message || 'Failed to delete post');
+                }
+                closeModal('deleteModal');
+            })
+            .catch(error => {
+                loader.hide();
+                notification.error('An error occurred while deleting the post');
+                closeModal('deleteModal');
+            });
+        }
+        
+        function openCategoryManager() {
+            // Load categories list and display in a management view
+            loader.show('Loading categories...');
+            fetch('/Blog/categories')
+                .then(response => response.text())
+                .then(html => {
+                    // For now, open the category modal for creating new
+                    openCategoryModal();
+                    loader.hide();
+                })
+                .catch(error => {
+                    notification.error('Failed to load categories');
+                    loader.hide();
+                });
+        }
+        
+        function openTagManager() {
+            // Load tags list and display in a management view
+            loader.show('Loading tags...');
+            fetch('/Blog/tags')
+                .then(response => response.text())
+                .then(html => {
+                    // For now, open the tag modal for creating new
+                    openTagModal();
+                    loader.hide();
+                })
+                .catch(error => {
+                    notification.error('Failed to load tags');
+                    loader.hide();
+                });
+        }
+        
+        // Search functionality
+        document.getElementById('searchPosts')?.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            // Implement search logic
+        });
+        
+        // Apply permission-based visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide admin buttons for non-admins
+            if (!permissions.isAdmin()) {
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            }
+        });
+    </script>
+}

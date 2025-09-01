@@ -1,4 +1,4 @@
-namespace ModularHost.Web.Modules.Blog.Constants
+namespace MRCMS.Modules.Blog.Constants
 {
     public static class TableNames
     {

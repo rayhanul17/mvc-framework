@@ -1,0 +1,531 @@
+@model List<MRCMS.ViewModels.AuditLogViewModel>
+@{
+    ViewData["Title"] = "Audit Logs";
+    var entityNames = ViewBag.EntityNames as List<string> ?? new List<string>();
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var pageSize = ViewBag.PageSize ?? 50;
+    var totalCount = ViewBag.TotalCount ?? 0;
+    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i> Audit Logs
+                    </h3>
+                    <div class="card-tools">
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#clearLogsModal">
+                                <i class="fas fa-trash"></i> Clear Old Logs
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filters -->
+                    <form method="get" action="@Url.Action("AuditLog")" class="mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select name="entityName" class="form-control">
+                                    <option value="">All Entities</option>
+                                    @foreach (var entity in entityNames)
+                                    {
+                                        <option value="@entity" selected="@(ViewBag.EntityNameFilter == entity)">@entity</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select name="action" class="form-control">
+                                    <option value="">All Actions</option>
+                                    <option value="Added" selected="@(ViewBag.ActionFilter == "Added")">Added</option>
+                                    <option value="Modified" selected="@(ViewBag.ActionFilter == "Modified")">Modified</option>
+                                    <option value="Deleted" selected="@(ViewBag.ActionFilter == "Deleted")">Deleted</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDateFilter?.ToString("yyyy-MM-dd")" placeholder="Start Date">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDateFilter?.ToString("yyyy-MM-dd")" placeholder="End Date">
+                            </div>
+                            <div class="col-md-1">
+                                <select name="pageSize" class="form-control">
+                                    <option value="25" selected="@(pageSize == 25)">25</option>
+                                    <option value="50" selected="@(pageSize == 50)">50</option>
+                                    <option value="100" selected="@(pageSize == 100)">100</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <a href="@Url.Action("AuditLog")" class="btn btn-secondary">
+                                    <i class="fas fa-undo"></i> Clear
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Audit Log Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Entity</th>
+                                    <th>Action</th>
+                                    <th>Version</th>
+                                    <th>User</th>
+                                    <th>IP Address</th>
+                                    <th>Changed Properties</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Any())
+                                {
+                                    @foreach (var log in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <small>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-info">@log.EntityName</span>
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var actionClass = log.Action switch
+                                                    {
+                                                        "Added" => "success",
+                                                        "Modified" => "warning",
+                                                        "Deleted" => "danger",
+                                                        _ => "secondary"
+                                                    };
+                                                }
+                                                <span class="badge badge-@actionClass">@log.Action</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-secondary">v@log.VersionNumber</span>
+                                            </td>
+                                            <td>@(log.UserName ?? "System")</td>
+                                            <td>
+                                                <small>@log.IpAddress</small>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(log.ChangedProperties))
+                                                {
+                                                    <small>@log.ChangedProperties</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    @if (log.HasChanges)
+                                                    {
+                                                        <button type="button" class="btn btn-info view-diff" 
+                                                                data-id="@log.Id" 
+                                                                data-entity="@log.EntityName" 
+                                                                data-version="@log.VersionNumber"
+                                                                title="View Changes">
+                                                            <i class="fas fa-code-compare"></i>
+                                                        </button>
+                                                    }
+                                                    <button type="button" class="btn btn-secondary view-history" 
+                                                            data-entity="@log.EntityName" 
+                                                            data-entity-id="@log.EntityId"
+                                                            title="View History">
+                                                        <i class="fas fa-clock-rotate-left"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center text-muted">
+                                            No audit logs found
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (totalPages > 1)
+                    {
+                        <nav aria-label="Audit log pagination">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("AuditLog", new { page = currentPage - 1, entityName = ViewBag.EntityNameFilter, action = ViewBag.ActionFilter, startDate = ViewBag.StartDateFilter, endDate = ViewBag.EndDateFilter, pageSize = pageSize })" tabindex="-1">Previous</a>
+                                </li>
+                                
+                                @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                                {
+                                    <li class="page-item @(i == currentPage ? "active" : "")">
+                                        <a class="page-link" href="@Url.Action("AuditLog", new { page = i, entityName = ViewBag.EntityNameFilter, action = ViewBag.ActionFilter, startDate = ViewBag.StartDateFilter, endDate = ViewBag.EndDateFilter, pageSize = pageSize })">@i</a>
+                                    </li>
+                                }
+                                
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" href="@Url.Action("AuditLog", new { page = currentPage + 1, entityName = ViewBag.EntityNameFilter, action = ViewBag.ActionFilter, startDate = ViewBag.StartDateFilter, endDate = ViewBag.EndDateFilter, pageSize = pageSize })">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Diff Modal -->
+<div class="modal fade" id="diffModal" tabindex="-1" role="dialog" aria-labelledby="diffModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="diffModalLabel">
+                    <i class="fas fa-code-compare"></i> Audit Changes
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="diffViewer">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Loading changes...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historyModalLabel">
+                    <i class="fas fa-clock-rotate-left"></i> Entity History
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="historyViewer">
+                    <div class="text-center">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>Loading history...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Logs Modal -->
+@if (User.IsInRole("SuperAdmin"))
+{
+    <div class="modal fade" id="clearLogsModal" tabindex="-1" role="dialog" aria-labelledby="clearLogsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post" action="@Url.Action("ClearAuditLog")">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="clearLogsModalLabel">
+                            <i class="fas fa-trash"></i> Clear Old Audit Logs
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="daysToKeep">Keep logs for the last (days):</label>
+                            <input type="number" class="form-control" id="daysToKeep" name="daysToKeep" value="30" min="7" max="365" required>
+                            <small class="form-text text-muted">Logs older than this will be permanently deleted.</small>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Warning: This action cannot be undone!
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Clear Logs
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/diff2html/3.4.35/bundles/css/diff2html.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff2html/3.4.35/bundles/js/diff2html-ui.min.js"></script>
+    
+    <style>
+        .property-change {
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .property-header {
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            font-weight: bold;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .property-values {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 10px;
+        }
+        .old-value {
+            background-color: #ffecec;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ffdddd;
+        }
+        .new-value {
+            background-color: #ecffec;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddffdd;
+        }
+        .value-label {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #666;
+        }
+        .value-content {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 30px;
+            bottom: -20px;
+            width: 2px;
+            background: #dee2e6;
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        .timeline-marker {
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #007bff;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #dee2e6;
+        }
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+    
+    <script>
+        $(document).ready(function() {
+            // View Diff
+            $('.view-diff').click(function() {
+                var auditId = $(this).data('id');
+                var entityName = $(this).data('entity');
+                var version = $(this).data('version');
+                
+                $('#diffModalLabel').html('<i class="fas fa-code-compare"></i> ' + entityName + ' - Version ' + version);
+                $('#diffModal').modal('show');
+                
+                $.ajax({
+                    url: '@Url.Action("GetAuditDiff")',
+                    type: 'GET',
+                    data: { id: auditId },
+                    success: function(data) {
+                        displayDiff(data);
+                    },
+                    error: function() {
+                        $('#diffViewer').html('<div class="alert alert-danger">Failed to load changes</div>');
+                    }
+                });
+            });
+            
+            // View History
+            $('.view-history').click(function() {
+                var entityName = $(this).data('entity');
+                var entityId = $(this).data('entity-id');
+                
+                $('#historyModalLabel').html('<i class="fas fa-clock-rotate-left"></i> ' + entityName + ' History');
+                $('#historyModal').modal('show');
+                
+                $.ajax({
+                    url: '@Url.Action("GetEntityHistory")',
+                    type: 'GET',
+                    data: { entityName: entityName, entityId: entityId },
+                    success: function(data) {
+                        displayHistory(data);
+                    },
+                    error: function() {
+                        $('#historyViewer').html('<div class="alert alert-danger">Failed to load history</div>');
+                    }
+                });
+            });
+            
+            function displayDiff(data) {
+                var html = '';
+                
+                if (!data.currentVersion) {
+                    html = '<div class="alert alert-warning">No changes found</div>';
+                } else {
+                    html = '<div class="mb-3">';
+                    html += '<div class="row">';
+                    html += '<div class="col-md-6">';
+                    html += '<strong>Version ' + (data.previousVersion ? data.previousVersion.versionNumber : '0') + '</strong>';
+                    if (data.previousVersion) {
+                        html += '<br><small class="text-muted">' + data.previousVersion.userName + ' - ' + formatDate(data.previousVersion.timestamp) + '</small>';
+                    }
+                    html += '</div>';
+                    html += '<div class="col-md-6">';
+                    html += '<strong>Version ' + data.currentVersion.versionNumber + '</strong>';
+                    html += '<br><small class="text-muted">' + data.currentVersion.userName + ' - ' + formatDate(data.currentVersion.timestamp) + '</small>';
+                    html += '</div>';
+                    html += '</div>';
+                    html += '</div>';
+                    
+                    if (data.currentVersion.changedProperties && data.currentVersion.changedProperties.length > 0) {
+                        var oldValues = data.currentVersion.oldValues ? JSON.parse(data.currentVersion.oldValues) : {};
+                        var newValues = data.currentVersion.newValues ? JSON.parse(data.currentVersion.newValues) : {};
+                        
+                        data.currentVersion.changedProperties.forEach(function(prop) {
+                            html += '<div class="property-change">';
+                            html += '<div class="property-header">' + prop + '</div>';
+                            html += '<div class="property-values">';
+                            html += '<div class="old-value">';
+                            html += '<div class="value-label">Old Value</div>';
+                            html += '<div class="value-content">' + formatValue(oldValues[prop]) + '</div>';
+                            html += '</div>';
+                            html += '<div class="new-value">';
+                            html += '<div class="value-label">New Value</div>';
+                            html += '<div class="value-content">' + formatValue(newValues[prop]) + '</div>';
+                            html += '</div>';
+                            html += '</div>';
+                            html += '</div>';
+                        });
+                    } else if (data.currentVersion.action === 'Added') {
+                        var values = data.currentVersion.newValues ? JSON.parse(data.currentVersion.newValues) : {};
+                        html += '<div class="alert alert-success">New entity created</div>';
+                        html += '<div class="property-change">';
+                        html += '<div class="property-header">Created Values</div>';
+                        html += '<div class="property-values">';
+                        Object.keys(values).forEach(function(key) {
+                            html += '<div style="grid-column: span 2;">';
+                            html += '<strong>' + key + ':</strong> ' + formatValue(values[key]);
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                        html += '</div>';
+                    } else if (data.currentVersion.action === 'Deleted') {
+                        var values = data.currentVersion.oldValues ? JSON.parse(data.currentVersion.oldValues) : {};
+                        html += '<div class="alert alert-danger">Entity deleted</div>';
+                        html += '<div class="property-change">';
+                        html += '<div class="property-header">Deleted Values</div>';
+                        html += '<div class="property-values">';
+                        Object.keys(values).forEach(function(key) {
+                            html += '<div style="grid-column: span 2;">';
+                            html += '<strong>' + key + ':</strong> ' + formatValue(values[key]);
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                        html += '</div>';
+                    }
+                }
+                
+                $('#diffViewer').html(html);
+            }
+            
+            function displayHistory(data) {
+                var html = '';
+                
+                if (data && data.length > 0) {
+                    html = '<div class="timeline">';
+                    data.forEach(function(item) {
+                        var actionClass = item.action === 'Added' ? 'success' : (item.action === 'Deleted' ? 'danger' : 'warning');
+                        html += '<div class="timeline-item">';
+                        html += '<div class="timeline-marker bg-' + actionClass + '"></div>';
+                        html += '<div class="timeline-content">';
+                        html += '<div class="d-flex justify-content-between align-items-start">';
+                        html += '<div>';
+                        html += '<span class="badge badge-' + actionClass + '">' + item.action + '</span> ';
+                        html += '<span class="badge badge-secondary">v' + item.versionNumber + '</span>';
+                        if (item.changedProperties) {
+                            html += '<br><small class="text-muted">Changed: ' + item.changedProperties + '</small>';
+                        }
+                        html += '</div>';
+                        html += '<div class="text-right">';
+                        html += '<small class="text-muted">' + item.userName + '<br>' + formatDate(item.timestamp) + '</small>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                } else {
+                    html = '<div class="alert alert-info">No history found for this entity</div>';
+                }
+                
+                $('#historyViewer').html(html);
+            }
+            
+            function formatValue(value) {
+                if (value === null || value === undefined) {
+                    return '<span class="text-muted">null</span>';
+                }
+                if (typeof value === 'object') {
+                    return '<pre>' + JSON.stringify(value, null, 2) + '</pre>';
+                }
+                return value.toString();
+            }
+            
+            function formatDate(dateString) {
+                var date = new Date(dateString);
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            }
+        });
+    </script>
+}

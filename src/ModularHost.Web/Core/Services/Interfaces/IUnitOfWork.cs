@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Core.Services.Interfaces
+namespace MRCMS.Core.Services.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {

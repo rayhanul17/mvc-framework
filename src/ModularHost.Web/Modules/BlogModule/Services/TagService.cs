@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ModularHost.Web.Core.Services;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Modules.Blog.Models.Entities;
-using ModularHost.Web.Modules.Blog.Services.Interfaces;
-using ModularHost.Web.Modules.Blog.Models.DTOs;
+using MRCMS.Core.Services;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Modules.Blog.Models.Entities;
+using MRCMS.Modules.Blog.Services.Interfaces;
+using MRCMS.Modules.Blog.Models.DTOs;
 using AutoMapper;
 
-namespace ModularHost.Web.Modules.Blog.Services
+namespace MRCMS.Modules.Blog.Services
 {
     public class TagService : BaseServiceWithDto<Tag, TagDto, CreateTagDto, UpdateTagDto>, ITagService
     {

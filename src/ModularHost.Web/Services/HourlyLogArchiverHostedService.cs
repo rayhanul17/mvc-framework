@@ -3,15 +3,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ModularHost.Web.Core.Models.Entities;
-using ModularHost.Web.Core.Infrastructure;
+using MRCMS.Core.Models.Entities;
+using MRCMS.Core.Infrastructure;
 using MongoDB.Driver;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Services
+namespace MRCMS.Services
 {
     public class HourlyLogArchiverHostedService : BackgroundService
     {

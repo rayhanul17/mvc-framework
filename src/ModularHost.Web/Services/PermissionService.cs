@@ -1,15 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using ModularHost.Web.Core.Models.Entities;
-using ModularHost.Web.Core.Infrastructure;
-using ModularHost.Web.Services.Interfaces;
+using MRCMS.Core.Models.Entities;
+using MRCMS.Core.Infrastructure;
+using MRCMS.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Services
+namespace MRCMS.Services
 {
     public class PermissionService : IPermissionService
     {

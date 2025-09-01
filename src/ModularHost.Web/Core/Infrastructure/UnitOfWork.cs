@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using ModularHost.Web.Core.Services.Interfaces;
+using MRCMS.Core.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Core.Infrastructure
+namespace MRCMS.Core.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {

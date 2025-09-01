@@ -2,7 +2,7 @@ using System;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
-namespace ModularHost.Web.Core.Extensions
+namespace MRCMS.Core.Extensions
 {
     public interface IPermissionHelper
     {

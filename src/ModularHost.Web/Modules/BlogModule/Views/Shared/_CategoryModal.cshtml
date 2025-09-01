@@ -1,0 +1,121 @@
+@model MRCMS.Modules.Blog.Models.ViewModels.CategoryViewModel
+
+<div id="categoryModal" class="modal hidden fixed inset-0 z-50 overflow-auto modal-backdrop bg-black bg-opacity-50">
+    <div class="relative p-8 bg-white dark:bg-gray-800 w-full max-w-md m-auto flex-col flex rounded-lg mt-20">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                @(Model?.Id == Guid.Empty ? "Add Category" : "Edit Category")
+            </h3>
+            <button onclick="closeModal('categoryModal')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="categoryForm" asp-action="SaveCategory" asp-controller="Blog" asp-area="Blog" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            
+            <div class="mb-4">
+                <label asp-for="Name" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Category Name</label>
+                <input asp-for="Name" class="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" required />
+                <span asp-validation-for="Name" class="text-red-600 text-sm"></span>
+            </div>
+            
+            <div class="mb-4">
+                <label asp-for="Slug" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Slug</label>
+                <input asp-for="Slug" class="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" />
+                <span asp-validation-for="Slug" class="text-red-600 text-sm"></span>
+                <small class="text-gray-600 dark:text-gray-400">Leave empty to auto-generate</small>
+            </div>
+            
+            <div class="mb-4">
+                <label asp-for="Description" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Description</label>
+                <textarea asp-for="Description" rows="3" class="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"></textarea>
+                <span asp-validation-for="Description" class="text-red-600 text-sm"></span>
+            </div>
+            
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeModal('categoryModal')" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-400 dark:hover:bg-gray-500">
+                    Cancel
+                </button>
+                <button type="submit" onclick="saveCategoryWithLoader(event)" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    <i class="fas fa-save mr-2"></i>Save
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openCategoryModal(categoryId = null) {
+        loader.show('Loading category...');
+        
+        if (categoryId) {
+            fetch(`/Blog/GetCategory/${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('Id').value = data.id;
+                    document.getElementById('Name').value = data.name;
+                    document.getElementById('Slug').value = data.slug || '';
+                    document.getElementById('Description').value = data.description || '';
+                    openModal('categoryModal');
+                    loader.hide();
+                })
+                .catch(error => {
+                    notification.error('Failed to load category');
+                    loader.hide();
+                });
+        } else {
+            document.getElementById('categoryForm').reset();
+            document.getElementById('Id').value = '';
+            openModal('categoryModal');
+            loader.hide();
+        }
+    }
+    
+    function saveCategoryWithLoader(event) {
+        event.preventDefault();
+        
+        if (!validateForm('categoryForm')) {
+            return false;
+        }
+        
+        loader.show('Saving category...');
+        
+        const form = document.getElementById('categoryForm');
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            loader.hide();
+            if (data.success) {
+                notification.success('Category saved successfully');
+                closeModal('categoryModal');
+                // Reload category list or update UI
+                if (typeof refreshCategories === 'function') {
+                    refreshCategories();
+                }
+            } else {
+                notification.error(data.message || 'Failed to save category');
+            }
+        })
+        .catch(error => {
+            loader.hide();
+            notification.error('An error occurred while saving category');
+        });
+        
+        return false;
+    }
+    
+    // Auto-generate slug
+    document.getElementById('Name')?.addEventListener('blur', function() {
+        const slugInput = document.getElementById('Slug');
+        if (!slugInput.value) {
+            slugInput.value = generateSlug(this.value);
+        }
+    });
+</script>

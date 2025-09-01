@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ModularHost.Web.Modules.Blog.Models.Entities;
-using ModularHost.Web.Modules.Blog.Constants;
+using MRCMS.Modules.Blog.Models.Entities;
+using MRCMS.Modules.Blog.Constants;
 
-namespace ModularHost.Web.Modules.Blog.Data
+namespace MRCMS.Modules.Blog.Data
 {
     public class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
     {

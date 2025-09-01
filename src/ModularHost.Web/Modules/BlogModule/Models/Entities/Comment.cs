@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using ModularHost.Web.Core.Models.Entities;
+using MRCMS.Core.Models.Entities;
 
-namespace ModularHost.Web.Modules.Blog.Models.Entities
+namespace MRCMS.Modules.Blog.Models.Entities
 {
     public class Comment : BaseEntity
     {
@@ -15,7 +15,12 @@ namespace ModularHost.Web.Modules.Blog.Models.Entities
         public required string Body { get; set; }
         
         public bool IsApproved { get; set; } = true;
-        public bool IsDeleted { get; set; }
+        
+        // Attachment support
+        public string? AttachmentPath { get; set; }
+        public string? AttachmentFileName { get; set; }
+        public long? AttachmentSize { get; set; }
+        public string? AttachmentContentType { get; set; }
         
         public virtual BlogPost Post { get; set; } = null!;
         public virtual Comment? ParentComment { get; set; }

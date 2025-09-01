@@ -1,6 +1,6 @@
 using System;
 
-namespace ModularHost.Web.Core.Models.Entities
+namespace MRCMS.Core.Models.Entities
 {
     public class Log : BaseEntity
     {

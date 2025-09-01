@@ -1,6 +1,6 @@
 using AutoMapper;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Core.Models.Entities;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Core.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace ModularHost.Web.Core.Services
+namespace MRCMS.Core.Services
 {
     public abstract class BaseServiceWithDto<TEntity, TDto, TCreateDto, TUpdateDto> : IBaseService<TEntity, TDto, TCreateDto, TUpdateDto>
         where TEntity : BaseEntity

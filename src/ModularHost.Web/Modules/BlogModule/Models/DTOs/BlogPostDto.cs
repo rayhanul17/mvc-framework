@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using MRCMS.Modules.Blog.Models.Entities;
 
-namespace ModularHost.Web.Modules.Blog.Models.DTOs
+namespace MRCMS.Modules.Blog.Models.DTOs
 {
     public class BlogPostDto
     {
@@ -24,6 +25,28 @@ namespace ModularHost.Web.Modules.Blog.Models.DTOs
         public DateTime? UpdatedAt { get; set; }
         public List<TagDto> Tags { get; set; } = new List<TagDto>();
         public int CommentCount { get; set; }
+        
+        // Navigation properties for views
+        public CategoryDto? Category { get; set; }
+        public AuthorDto? Author { get; set; }
+        public List<BlogPostTagDto> BlogPostTags { get; set; } = new List<BlogPostTagDto>();
+        public List<Comment> Comments { get; set; } = new List<Comment>();
+        public string? TagNames { get; set; }
+    }
+
+    public class AuthorDto
+    {
+        public Guid Id { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+    }
+
+    public class BlogPostTagDto
+    {
+        public Guid BlogPostId { get; set; }
+        public Guid TagId { get; set; }
+        public TagDto Tag { get; set; } = null!;
     }
 
     public class CreateBlogPostDto

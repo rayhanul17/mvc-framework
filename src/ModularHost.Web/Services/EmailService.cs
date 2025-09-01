@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace ModularHost.Web.Services
+namespace MRCMS.Services
 {
     public interface IEmailService
     {

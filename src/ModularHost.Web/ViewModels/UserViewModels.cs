@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace ModularHost.Web.Models.ViewModels
+namespace MRCMS.Models.ViewModels
 {
     public class UserViewModel
     {

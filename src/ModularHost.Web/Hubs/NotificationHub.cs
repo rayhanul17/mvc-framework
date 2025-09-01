@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Services
+namespace MRCMS.Services
 {
     [Authorize]
     public class NotificationHub : Hub
@@ -19,7 +19,7 @@ namespace ModularHost.Web.Services
             await base.OnConnectedAsync();
         }
 
-        public override async Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!string.IsNullOrEmpty(userId))

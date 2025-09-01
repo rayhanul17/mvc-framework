@@ -1,4 +1,4 @@
-namespace ModularHost.Web.Core.Constants
+namespace MRCMS.Core.Constants
 {
     public static class TableNames
     {
@@ -17,5 +17,7 @@ namespace ModularHost.Web.Core.Constants
         public const string Logs = "Logs";
         public const string LogArchives = "LogArchives";
         public const string Notifications = "Notifications";
+        public const string AuditLogs = "AuditLogs";
+        public const string Settings = "Settings";
     }
 }

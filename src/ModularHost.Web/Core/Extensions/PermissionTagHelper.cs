@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using ModularHost.Web.Core.Extensions;
+using MRCMS.Core.Extensions;
 
-namespace ModularHost.Web.Core.Extensions
+namespace MRCMS.Core.Extensions
 {
     [HtmlTargetElement("*", Attributes = "asp-permission")]
     [HtmlTargetElement("*", Attributes = "asp-role")]

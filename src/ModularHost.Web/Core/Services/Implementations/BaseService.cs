@@ -1,10 +1,10 @@
-using ModularHost.Web.Core.Services.Interfaces;
+using MRCMS.Core.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Core.Services
+namespace MRCMS.Core.Services
 {
     public abstract class BaseService<T> where T : class
     {

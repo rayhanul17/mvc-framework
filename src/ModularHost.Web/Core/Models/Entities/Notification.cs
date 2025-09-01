@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ModularHost.Web.Core.Models.Entities
+namespace MRCMS.Core.Models.Entities
 {
     public class Notification : BaseEntity
     {

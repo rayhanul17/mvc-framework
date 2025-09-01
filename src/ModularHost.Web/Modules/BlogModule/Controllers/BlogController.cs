@@ -1,141 +1,132 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Core.Extensions;
-using ModularHost.Web.Modules.Blog.Services;
-using ModularHost.Web.Modules.Blog.Models.Entities;
-using ModularHost.Web.Modules.Blog.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using MRCMS.Core.Controllers;
+using MRCMS.Core.Models.Entities;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Core.Extensions;
+using MRCMS.Core.Helpers;
+using MRCMS.Services.Interfaces;
+using MRCMS.Modules.Blog.Services;
+using MRCMS.Modules.Blog.Models.Entities;
+using MRCMS.Modules.Blog.Models.ViewModels;
+using MRCMS.Modules.Blog.Models.DTOs;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
-namespace ModularHost.Web.Modules.Blog.Controllers
+namespace MRCMS.Modules.Blog.Controllers
 {
     [Area("Blog")]
     [Route("Blog")]
-    public class BlogController : Controller
+    public class BlogController : BaseControllerWithViewModels<BlogPost, BlogPostDto, CreateBlogPostDto, UpdateBlogPostDto>
     {
         private readonly BlogService _blogService;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IPermissionHelper _permissionHelper;
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Tag> _tagRepository;
+        
+        protected override string EntityName => "Blog Post";
+        protected override string ViewPrefix => "";
+        protected override int PageSize => 10;
 
         public BlogController(
+            IRepository<BlogPost> repository,
+            IUnitOfWork unitOfWork,
+            ILoggerService logger,
+            IMapper mapper,
             BlogService blogService, 
-            IUnitOfWork unitOfWork, 
             IPermissionHelper permissionHelper,
             IRepository<Category> categoryRepository,
-            IRepository<Tag> tagRepository)
+            IRepository<Tag> tagRepository,
+            UserManager<User> userManager,
+            IHttpContextAccessor httpContextAccessor)
+            : base(repository, unitOfWork, logger, mapper, userManager, httpContextAccessor)
         {
             _blogService = blogService;
-            _unitOfWork = unitOfWork;
             _permissionHelper = permissionHelper;
             _categoryRepository = categoryRepository;
             _tagRepository = tagRepository;
         }
 
         [HttpGet("")]
-        public async Task<IActionResult> Index(int page = 1, string tag = null)
+        public override async Task<IActionResult> Index(int page = 1, string search = null, string sortBy = null, bool sortDesc = false)
         {
-            var posts = await _blogService.GetPublishedPostsAsync(page, 10, tag);
-            return View(posts);
+            // Use base implementation with custom filter for published posts only
+            return await base.Index(page, search, sortBy, sortDesc);
         }
 
         [HttpGet("{slug}")]
-        public async Task<IActionResult> Details(string slug)
+        public async Task<IActionResult> DetailsBySlug(string slug)
         {
-            var post = await _blogService.GetPostBySlugAsync(slug);
-            if (post == null)
-                return NotFound();
+            try
+            {
+                _logger.LogInformation("Viewing {EntityName} by slug - Slug: {Slug}", EntityName, slug);
+                
+                var post = await _blogService.GetPostBySlugAsync(slug);
+                if (post == null)
+                {
+                    _logger.LogWarning("{EntityName} not found - Slug: {Slug}", EntityName, slug);
+                    return NotFound();
+                }
 
-            await _blogService.IncrementViewCountAsync(post.Id);
-            return View(post);
+                await _blogService.IncrementViewCountAsync(post.Id);
+                
+                var viewModel = _mapper.Map<BlogPostDto>(post);
+                return View("Details", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error viewing {EntityName} by slug - Slug: {Slug}", ex, EntityName, slug);
+                return View("Error");
+            }
         }
 
         [HttpGet("create")]
-        public IActionResult Create()
+        public override async Task<IActionResult> Create()
         {
-            return View(new BlogPost { Title = "", Slug = "", Content = "" });
+            return await base.Create();
         }
 
         [HttpPost("create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(BlogPost model)
+        public override async Task<IActionResult> Create(CreateBlogPostDto model)
         {
-            if (ModelState.IsValid)
-            {
-                model.Slug = GenerateSlug(model.Title);
-                model.AuthorId = GetCurrentUserId();
-                model.IsPublished = true;
-                model.PublishedAt = DateTime.UtcNow;
-                
-                await _blogService.CreatePostAsync(model);
-                return RedirectToAction(nameof(Details), new { slug = model.Slug });
-            }
-
-            return View(model);
+            return await base.Create(model);
         }
 
         [HttpGet("edit/{id}")]
-        public async Task<IActionResult> Edit(Guid id)
+        public override async Task<IActionResult> Edit(Guid id)
         {
-            var post = await _blogService.GetPostByIdAsync(id);
-            if (post == null)
-                return NotFound();
-
-            if (post.AuthorId != GetCurrentUserId() && !IsAdmin())
-                return Forbid();
-
-            return View(post);
+            return await base.Edit(id);
         }
 
         [HttpPost("edit/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, BlogPost model)
+        public override async Task<IActionResult> Edit(Guid id, UpdateBlogPostDto model)
         {
-            if (id != model.Id)
-                return NotFound();
-
-            var existingPost = await _blogService.GetPostByIdAsync(id);
-            if (existingPost == null)
-                return NotFound();
-
-            if (existingPost.AuthorId != GetCurrentUserId() && !IsAdmin())
-                return Forbid();
-
-            if (ModelState.IsValid)
-            {
-                existingPost.Title = model.Title;
-                existingPost.Summary = model.Summary;
-                existingPost.Content = model.Content;
-                existingPost.FeaturedImage = model.FeaturedImage;
-                
-                await _blogService.UpdatePostAsync(existingPost);
-                return RedirectToAction(nameof(Details), new { slug = existingPost.Slug });
-            }
-
-            return View(model);
+            return await base.Edit(id, model);
         }
 
+        [HttpGet("delete/{id}")]
+        public override async Task<IActionResult> Delete(Guid id)
+        {
+            return await base.Delete(id);
+        }
+        
         [HttpPost("delete/{id}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(Guid id)
+        public override async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var post = await _blogService.GetPostByIdAsync(id);
-            if (post == null)
-                return NotFound();
-
-            if (post.AuthorId != GetCurrentUserId() && !IsAdmin())
-                return Forbid();
-
-            await _blogService.DeletePostAsync(id);
-            return RedirectToAction(nameof(Index));
+            return await base.DeleteConfirmed(id);
         }
 
         [HttpPost("{postId}/comment")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddComment(Guid postId, string body, Guid? parentCommentId = null)
+        [Authorize]
+        public async Task<IActionResult> AddComment(Guid postId, string body, IFormFile? attachment = null, Guid? parentCommentId = null)
         {
             if (string.IsNullOrWhiteSpace(body))
-                return BadRequest();
+                return BadRequest("Comment body is required");
 
             var post = await _blogService.GetPostByIdAsync(postId);
             if (post == null)
@@ -145,10 +136,30 @@ namespace ModularHost.Web.Modules.Blog.Controllers
             {
                 PostId = postId,
                 ParentCommentId = parentCommentId,
-                UserId = GetCurrentUserId(),
+                UserId = CurrentUserId ?? Guid.Empty,
                 Body = body,
                 IsApproved = true
             };
+
+            // Handle file attachment if provided
+            if (attachment != null && attachment.Length > 0)
+            {
+                var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "comments");
+                var uploadResult = await FileUploadHelper.UploadFileAsync(attachment, uploadPath, "document", true);
+
+                if (uploadResult.Success)
+                {
+                    comment.AttachmentPath = uploadResult.FilePath;
+                    comment.AttachmentFileName = uploadResult.OriginalFileName;
+                    comment.AttachmentSize = uploadResult.FileSize;
+                    comment.AttachmentContentType = uploadResult.ContentType;
+                }
+                else
+                {
+                    TempData["Error"] = uploadResult.ErrorMessage;
+                    return RedirectToAction("DetailsBySlug", new { slug = post.Slug });
+                }
+            }
 
             await _blogService.AddCommentAsync(comment);
 
@@ -157,194 +168,10 @@ namespace ModularHost.Web.Modules.Blog.Controllers
                 return PartialView("_Comment", comment);
             }
 
-            return RedirectToAction(nameof(Details), new { slug = post.Slug });
+            return RedirectToAction("DetailsBySlug", new { slug = post.Slug });
         }
 
-        #region Category Management
 
-        [HttpGet("categories")]
-        [Authorize(Roles = "Admin,BlogAuthor")]
-        public async Task<IActionResult> Categories()
-        {
-            var categories = await _categoryRepository.GetAllAsync();
-            return View(categories);
-        }
-
-        [HttpGet("category/{id}")]
-        public async Task<IActionResult> GetCategory(Guid id)
-        {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category == null)
-                return NotFound();
-
-            return Json(new
-            {
-                id = category.Id,
-                name = category.Name,
-                slug = category.Slug,
-                description = category.Description
-            });
-        }
-
-        [HttpPost("category/save")]
-        [Authorize(Roles = "Admin,BlogAuthor")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveCategory(CategoryViewModel model)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return Json(new { success = false, message = "Invalid data provided" });
-                }
-
-                Category category;
-                if (model.Id == Guid.Empty)
-                {
-                    category = new Category
-                    {
-                        Name = model.Name,
-                        Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Name),
-                        Description = model.Description
-                    };
-                    await _categoryRepository.AddAsync(category);
-                }
-                else
-                {
-                    category = await _categoryRepository.GetByIdAsync(model.Id);
-                    if (category == null)
-                        return Json(new { success = false, message = "Category not found" });
-
-                    category.Name = model.Name;
-                    category.Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Name);
-                    category.Description = model.Description;
-                    _categoryRepository.Update(category);
-                }
-
-                await _unitOfWork.CommitAsync();
-                return Json(new { success = true, category });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        [HttpPost("category/delete/{id}")]
-        [Authorize(Roles = "Admin")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteCategory(Guid id)
-        {
-            try
-            {
-                var category = await _categoryRepository.GetByIdAsync(id);
-                if (category == null)
-                    return Json(new { success = false, message = "Category not found" });
-
-                _categoryRepository.Remove(category);
-                await _unitOfWork.CommitAsync();
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        #endregion
-
-        #region Tag Management
-
-        [HttpGet("tags")]
-        [Authorize(Roles = "Admin,BlogAuthor")]
-        public async Task<IActionResult> Tags()
-        {
-            var tags = await _tagRepository.GetAllAsync();
-            return View(tags);
-        }
-
-        [HttpGet("tag/{id}")]
-        public async Task<IActionResult> GetTag(Guid id)
-        {
-            var tag = await _tagRepository.GetByIdAsync(id);
-            if (tag == null)
-                return NotFound();
-
-            return Json(new
-            {
-                id = tag.Id,
-                name = tag.Name,
-                slug = tag.Slug,
-                description = tag.Description
-            });
-        }
-
-        [HttpPost("tag/save")]
-        [Authorize(Roles = "Admin,BlogAuthor")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveTag(TagViewModel model)
-        {
-            try
-            {
-                if (!ModelState.IsValid)
-                {
-                    return Json(new { success = false, message = "Invalid data provided" });
-                }
-
-                Tag tag;
-                if (model.Id == Guid.Empty)
-                {
-                    tag = new Tag
-                    {
-                        Name = model.Name,
-                        Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Name),
-                        Description = model.Description
-                    };
-                    await _tagRepository.AddAsync(tag);
-                }
-                else
-                {
-                    tag = await _tagRepository.GetByIdAsync(model.Id);
-                    if (tag == null)
-                        return Json(new { success = false, message = "Tag not found" });
-
-                    tag.Name = model.Name;
-                    tag.Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Name);
-                    tag.Description = model.Description;
-                    _tagRepository.Update(tag);
-                }
-
-                await _unitOfWork.CommitAsync();
-                return Json(new { success = true, tag });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        [HttpPost("tag/delete/{id}")]
-        [Authorize(Roles = "Admin")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteTag(Guid id)
-        {
-            try
-            {
-                var tag = await _tagRepository.GetByIdAsync(id);
-                if (tag == null)
-                    return Json(new { success = false, message = "Tag not found" });
-
-                _tagRepository.Remove(tag);
-                await _unitOfWork.CommitAsync();
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        #endregion
 
         private string GenerateSlug(string title)
         {
@@ -355,15 +182,95 @@ namespace ModularHost.Web.Modules.Blog.Controllers
             return slug;
         }
 
-        private Guid GetCurrentUserId()
+        
+        #region Base Controller Overrides
+        
+        protected override IQueryable<BlogPost> ApplySearch(IQueryable<BlogPost> query, string search)
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+            if (string.IsNullOrWhiteSpace(search))
+                return query;
+                
+            return query.Where(p => 
+                p.Title.Contains(search) ||
+                p.Summary.Contains(search) ||
+                p.Content.Contains(search) ||
+                p.Author.FirstName.Contains(search) ||
+                p.Author.LastName.Contains(search));
         }
-
-        private bool IsAdmin()
+        
+        protected override IQueryable<BlogPost> ApplyCustomFilters(IQueryable<BlogPost> query)
         {
-            return User.IsInRole("Administrator") || User.IsInRole("BlogAuthor");
+            // Apply base soft delete filter
+            query = base.ApplyCustomFilters(query);
+            
+            // For public views, only show published posts
+            if (!IsAdmin)
+            {
+                query = query.Where(p => p.IsPublished);
+            }
+            
+            return query;
         }
+        
+        protected override async Task<BlogPost> GetEntityWithIncludes(Guid id)
+        {
+            return await _repository.Query()
+                .Include(p => p.Author)
+                .Include(p => p.Category)
+                .Include(p => p.BlogPostTags)
+                    .ThenInclude(pt => pt.Tag)
+                .Include(p => p.Comments)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+        
+        protected override async Task PopulateViewBagForCreate()
+        {
+            ViewBag.Categories = await _categoryRepository.GetAllAsync();
+            ViewBag.Tags = await _tagRepository.GetAllAsync();
+        }
+        
+        protected override async Task PopulateViewBagForEdit(BlogPost entity)
+        {
+            await PopulateViewBagForCreate();
+        }
+        
+        protected override async Task ConfigureEntityForCreate(BlogPost entity, CreateBlogPostDto model)
+        {
+            entity.Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Title);
+            entity.AuthorId = CurrentUserId ?? Guid.Empty;
+            
+            if (model.IsPublished && !entity.PublishedAt.HasValue)
+            {
+                entity.PublishedAt = DateTime.UtcNow;
+            }
+        }
+        
+        protected override async Task ConfigureEntityForEdit(BlogPost entity, UpdateBlogPostDto model)
+        {
+            entity.Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Title);
+            
+            if (model.IsPublished && !entity.PublishedAt.HasValue)
+            {
+                entity.PublishedAt = DateTime.UtcNow;
+            }
+            else if (!model.IsPublished)
+            {
+                entity.PublishedAt = null;
+            }
+            
+            await Task.CompletedTask;
+        }
+        
+        protected override async Task<bool> CanEditEntity(BlogPost entity)
+        {
+            return entity.AuthorId == CurrentUserId || IsAdmin;
+        }
+        
+        protected override async Task<bool> CanDeleteEntity(BlogPost entity)
+        {
+            return entity.AuthorId == CurrentUserId || IsAdmin;
+        }
+        
+        #endregion
     }
 }

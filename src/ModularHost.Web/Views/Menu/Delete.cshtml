@@ -1,0 +1,77 @@
+@model MRCMS.Core.Models.Entities.Menu
+
+@{
+    ViewData["Title"] = "Delete Menu";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <h4>Are you sure you want to delete this menu?</h4>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-3">Title</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.Title)</dd>
+                        
+                        <dt class="col-sm-3">URL</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.Url)</dd>
+                        
+                        <dt class="col-sm-3">Icon</dt>
+                        <dd class="col-sm-9">
+                            @if (!string.IsNullOrEmpty(Model.Icon))
+                            {
+                                <i class="@Model.Icon"></i> @Model.Icon
+                            }
+                            else
+                            {
+                                <span class="text-muted">No icon</span>
+                            }
+                        </dd>
+                        
+                        <dt class="col-sm-3">Order</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.Order)</dd>
+                        
+                        <dt class="col-sm-3">Is Visible</dt>
+                        <dd class="col-sm-9">@Html.DisplayFor(model => model.IsVisible)</dd>
+                        
+                        <dt class="col-sm-3">Module Name</dt>
+                        <dd class="col-sm-9">
+                            @if (!string.IsNullOrEmpty(Model.ModuleName))
+                            {
+                                @Model.ModuleName
+                            }
+                            else
+                            {
+                                <span class="text-muted">No module</span>
+                            }
+                        </dd>
+                    </dl>
+                    
+                    @if (Model.Children.Any())
+                    {
+                        <div class="alert alert-warning">
+                            <strong>Warning!</strong> This menu has @Model.Children.Count child menu(s). Deleting this menu will also delete all child menus.
+                        </div>
+                        <ul>
+                            @foreach (var child in Model.Children)
+                            {
+                                <li>@child.Title</li>
+                            }
+                        </ul>
+                    }
+                    
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

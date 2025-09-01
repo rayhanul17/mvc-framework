@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace ModularHost.Web.Models
+namespace MRCMS.Models
 {
     public class LoginViewModel
     {

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ModularHost.Web.Core.Infrastructure;
+using MRCMS.Core.Infrastructure;
 
 #nullable disable
 
-namespace ModularHost.Web.Migrations
+namespace MRCMS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250828124929_InitialCreate")]

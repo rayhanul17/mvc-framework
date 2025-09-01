@@ -1,10 +1,10 @@
-using ModularHost.Web.Core.Models.Entities;
+using MRCMS.Core.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ModularHost.Web.Services.Interfaces
+namespace MRCMS.Services.Interfaces
 {
     public interface IPermissionService
     {

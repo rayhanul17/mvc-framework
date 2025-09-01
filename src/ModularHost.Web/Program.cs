@@ -1,17 +1,42 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
-using ModularHost.Web.Core.Extensions;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Core.Models;
-using ModularHost.Web.Core.Models.Entities;
-using ModularHost.Web.Core.Infrastructure;
-using ModularHost.Web.Middleware;
-using ModularHost.Web.Services;
-using ModularHost.Web.Services.Interfaces;
+using MRCMS.Core.Extensions;
+using MRCMS.Core.Services;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Core.Models;
+using MRCMS.Core.Models.Entities;
+using MRCMS.Core.Infrastructure;
+using MRCMS.Middleware;
+using MRCMS.Services;
+using MRCMS.Services.Interfaces;
+using Serilog;
+using Serilog.Events;
 
-var builder = WebApplication.CreateBuilder(args);
+// Configure Serilog
+Serilog.Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "logs/log-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+try
+{
+    Serilog.Log.Information("Starting MRCMS application");
+    
+    var builder = WebApplication.CreateBuilder(args);
+    
+    // Use Serilog
+    builder.Host.UseSerilog();
 
 // Add services to the container.
 var services = builder.Services;
@@ -20,24 +45,41 @@ var configuration = builder.Configuration;
 // Add HttpContextAccessor
 services.AddHttpContextAccessor();
 
+// Register logging services
+services.AddSingleton<Serilog.ILogger>(Serilog.Log.Logger);
+services.AddScoped<ILoggerService, LoggerService>();
+services.AddScoped<IEmailService, EmailService>();
+
+// Register PermissionHelper
+services.AddScoped<MRCMS.Core.Extensions.IPermissionHelper, MRCMS.Core.Extensions.PermissionHelper>();
+
+// Register audit interceptor
+services.AddScoped<AuditInterceptor>();
+
 // Configure Entity Framework with MySQL
 var connectionString = configuration.GetConnectionString("Default");
 var serverVersion = ServerVersion.AutoDetect(connectionString);
-services.AddDbContext<AppDbContext>(options =>
+services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    var auditInterceptor = serviceProvider.GetService<AuditInterceptor>();
+    
     options.UseMySql(connectionString, serverVersion)
-        .LogTo(Console.WriteLine, LogLevel.Information)
+        .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
         .EnableSensitiveDataLogging()
-        .EnableDetailedErrors());
+        .EnableDetailedErrors();
+    
+    if (auditInterceptor != null)
+    {
+        options.AddInterceptors(auditInterceptor);
+    }
+});
 
-// Register repositories and unit of work
+// Register core infrastructure services (these are required before dynamic registration)
 services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// Register permission service
-services.AddScoped<IPermissionService, PermissionService>();
-
-// Register permission helper
-services.AddScoped<IPermissionHelper, PermissionHelper>();
+// Add hosted service for log archiving (before dynamic registration to avoid conflicts)
+services.AddHostedService<HourlyLogArchiverHostedService>();
 
 // Register audit logger based on configuration
 var useMongo = configuration.GetValue<bool>("Audit:UseMongo");
@@ -49,9 +91,6 @@ else
 {
     services.AddScoped<IAuditLogger, MySqlAuditLogger>();
 }
-
-// Add hosted service for log archiving
-services.AddHostedService<HourlyLogArchiverHostedService>();
 
 // Configure Identity
 services.AddIdentity<User, Role>(options =>
@@ -91,20 +130,33 @@ services.ConfigureApplicationCookie(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
-// Register Email Service
-services.AddScoped<IEmailService, EmailService>();
-
 // Add memory cache for permissions
 services.AddMemoryCache();
 
 // Add SignalR for real-time notifications
 services.AddSignalR();
 
+// Configure AutoMapper
+services.AddAutoMapper(typeof(Program).Assembly);
+
 // Configure MVC with dynamic module loading
 var mvcBuilder = services.AddControllersWithViews();
+
+// Configure Razor view engine to look for views in modules
+services.Configure<RazorViewEngineOptions>(options =>
+{
+    options.ViewLocationExpanders.Add(new MRCMS.Core.Infrastructure.ModularViewLocationExpander());
+});
 var partManager = mvcBuilder.PartManager;
 
-// Load modules dynamically
+// Register all services and repositories dynamically
+// This will automatically discover and register:
+// 1. All classes ending with "Service" or "Repository"
+// 2. All classes inheriting from BaseService<T> or implementing IRepository<T>
+// 3. Services from both main application and modules
+services.RegisterDynamicServices();
+
+// Load modules dynamically (this also registers module services)
 ModuleLoader.LoadModules(services, partManager);
 
 // Add session support
@@ -119,6 +171,15 @@ services.AddSession(options =>
 // Build the application
 var app = builder.Build();
 
+// Log application startup
+using (var startupScope = app.Services.CreateScope())
+{
+    var loggerService = startupScope.ServiceProvider.GetRequiredService<ILoggerService>();
+    await loggerService.LogStartupAsync("Application starting - Environment: {Environment}, Version: {Version}", 
+        app.Environment.EnvironmentName, 
+        System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0");
+}
+
 // Apply migrations and seed data
 using (var scope = app.Services.CreateScope())
 {
@@ -130,8 +191,11 @@ using (var scope = app.Services.CreateScope())
         dbContext.Database.Migrate();
     }
     
-    // Seed initial data
-    await ModularHost.Web.Core.Infrastructure.DataSeeder.SeedAsync(scope.ServiceProvider);
+    // Seed core data
+    await MRCMS.Core.Infrastructure.DataSeeder.SeedAsync(scope.ServiceProvider);
+    
+    // Execute module seeders
+    await ModuleLoader.ExecuteModuleSeedersAsync(scope.ServiceProvider);
 }
 
 // Configure the HTTP request pipeline.
@@ -164,3 +228,12 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+}
+catch (Exception ex)
+{
+    Serilog.Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Serilog.Log.CloseAndFlush();
+}

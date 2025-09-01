@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ModularHost.Web.Migrations
+namespace MRCMS.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

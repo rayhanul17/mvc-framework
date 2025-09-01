@@ -1,8 +1,355 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model MRCMS.Models.LandingPageViewModel
+@{
+    ViewData["Title"] = "Modern Blog Landing Page";
+    Layout = null;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MRCMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .filter-button {
+            transition: all 0.2s ease;
+        }
+        .filter-button:hover {
+            transform: translateY(-1px);
+        }
+        .filter-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Hero Section -->
+    <header class="hero-gradient text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6">
+                Modern <span class="text-yellow-300">Blog</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90">
+                Discover amazing stories, insights, and knowledge
+            </p>
+            
+            <!-- Search Bar -->
+            <form method="get" class="max-w-2xl mx-auto">
+                <input type="hidden" name="category" value="@Model.CurrentCategory" />
+                <input type="hidden" name="tag" value="@Model.CurrentTag" />
+                <div class="relative">
+                    <input type="text" name="search" value="@Model.SearchQuery"
+                           placeholder="Search articles..."
+                           class="w-full px-6 py-4 text-gray-800 text-lg rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-30">
+                    <button type="submit" 
+                            class="absolute right-2 top-2 bg-gray-800 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <!-- Navigation & Filters -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-wrap justify-between items-center gap-4">
+                <!-- Logo/Brand -->
+                <a href="@Url.Action("Index")" class="text-2xl font-bold text-gray-800 hover:text-purple-600 transition-colors">
+                    <i class="fas fa-blog mr-2"></i>MRCMS
+                </a>
+
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-2">
+                    <a href="@Url.Action("Index", new { tag = Model.CurrentTag, search = Model.SearchQuery })"
+                       class="filter-button px-4 py-2 rounded-full border-2 border-gray-300 text-gray-700 hover:border-purple-500 @(string.IsNullOrEmpty(Model.CurrentCategory) ? "active" : "")">
+                        All
+                    </a>
+                    @foreach (var category in Model.Categories.Take(8))
+                    {
+                        <a href="@Url.Action("Index", new { category = category.Name, tag = Model.CurrentTag, search = Model.SearchQuery })"
+                           class="filter-button px-4 py-2 rounded-full border-2 border-gray-300 text-gray-700 hover:border-purple-500 @(Model.CurrentCategory == category.Name ? "active" : "")">
+                            @category.Name
+                        </a>
+                    }
+                </div>
+
+                <!-- Auth Links -->
+                <div class="flex gap-4">
+                    <a href="/Account/Login" class="text-gray-600 hover:text-purple-600 transition-colors">
+                        <i class="fas fa-sign-in-alt mr-1"></i>Login
+                    </a>
+                    <a href="/Blog" class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-edit mr-1"></i>Write
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tag Filters -->
+            @if (Model.Tags.Any())
+            {
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-gray-600 font-medium mr-2">Tags:</span>
+                        @foreach (var tag in Model.Tags.Take(10))
+                        {
+                            <a href="@Url.Action("Index", new { category = Model.CurrentCategory, tag = tag.Name, search = Model.SearchQuery })"
+                               class="inline-block px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-full hover:bg-purple-100 hover:text-purple-700 transition-colors @(Model.CurrentTag == tag.Name ? "bg-purple-100 text-purple-700" : "")">
+                                #@tag.Name
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <!-- Active Filters Display -->
+        @if (!string.IsNullOrEmpty(Model.CurrentCategory) || !string.IsNullOrEmpty(Model.CurrentTag) || !string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            <div class="mb-8 flex flex-wrap gap-2 items-center">
+                <span class="text-gray-600">Showing results for:</span>
+                @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                {
+                    <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                        "@Model.SearchQuery"
+                        <a href="@Url.Action("Index", new { category = Model.CurrentCategory, tag = Model.CurrentTag })" class="ml-2 hover:text-blue-900">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                }
+                @if (!string.IsNullOrEmpty(Model.CurrentCategory))
+                {
+                    <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                        Category: @Model.CurrentCategory
+                        <a href="@Url.Action("Index", new { tag = Model.CurrentTag, search = Model.SearchQuery })" class="ml-2 hover:text-green-900">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                }
+                @if (!string.IsNullOrEmpty(Model.CurrentTag))
+                {
+                    <span class="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">
+                        Tag: @Model.CurrentTag
+                        <a href="@Url.Action("Index", new { category = Model.CurrentCategory, search = Model.SearchQuery })" class="ml-2 hover:text-purple-900">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                }
+                <a href="@Url.Action("Index")" class="text-gray-500 hover:text-gray-700 ml-4">
+                    <i class="fas fa-times-circle mr-1"></i>Clear all filters
+                </a>
+            </div>
+        }
+
+        <!-- Blog Posts Grid -->
+        @if (Model.Posts.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                @foreach (var post in Model.Posts)
+                {
+                    <article class="card-hover bg-white rounded-xl shadow-md overflow-hidden">
+                        <!-- Post Image Placeholder -->
+                        <div class="h-48 bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white text-6xl">
+                            <i class="fas fa-image opacity-50"></i>
+                        </div>
+
+                        <!-- Post Content -->
+                        <div class="p-6">
+                            <!-- Category & Date -->
+                            <div class="flex justify-between items-center mb-3">
+                                @if (post.Category != null)
+                                {
+                                    <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
+                                        @post.Category.Name
+                                    </span>
+                                }
+                                <span class="text-gray-500 text-sm">
+                                    <i class="fas fa-calendar-alt mr-1"></i>
+                                    @post.PublishedAt?.ToString("MMM dd, yyyy")
+                                </span>
+                            </div>
+
+                            <!-- Title -->
+                            <h2 class="text-xl font-bold text-gray-800 mb-3 hover:text-purple-600 transition-colors">
+                                <a href="/Blog/@post.Slug" class="line-clamp-2">
+                                    @post.Title
+                                </a>
+                            </h2>
+
+                            <!-- Summary -->
+                            <p class="text-gray-600 mb-4 line-clamp-3">
+                                @post.Summary
+                            </p>
+
+                            <!-- Post Meta -->
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-user mr-1"></i>
+                                    @post.Author?.FullName
+                                </div>
+                                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                    <span><i class="fas fa-eye mr-1"></i>@post.ViewCount</span>
+                                    <span><i class="fas fa-comments mr-1"></i>@post.CommentCount</span>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            @if (post.BlogPostTags?.Any() == true)
+                            {
+                                <div class="mt-4 pt-4 border-t border-gray-100">
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach (var tag in post.BlogPostTags.Take(3))
+                                        {
+                                            <span class="inline-block px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                                #@tag.Tag.Name
+                                            </span>
+                                        }
+                                        @if (post.BlogPostTags.Count() > 3)
+                                        {
+                                            <span class="text-gray-500 text-xs">+@(post.BlogPostTags.Count() - 3) more</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </article>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="flex justify-center">
+                    <div class="flex space-x-2">
+                        @if (Model.HasPreviousPage)
+                        {
+                            <a href="@Url.Action("Index", new { category = Model.CurrentCategory, tag = Model.CurrentTag, search = Model.SearchQuery, page = Model.CurrentPage - 1 })"
+                               class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-chevron-left mr-2"></i>Previous
+                            </a>
+                        }
+
+                        @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                        {
+                            <a href="@Url.Action("Index", new { category = Model.CurrentCategory, tag = Model.CurrentTag, search = Model.SearchQuery, page = i })"
+                               class="px-4 py-2 border rounded-lg transition-colors @(i == Model.CurrentPage ? "bg-purple-600 text-white border-purple-600" : "bg-white border-gray-300 hover:bg-gray-50")">
+                                @i
+                            </a>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <a href="@Url.Action("Index", new { category = Model.CurrentCategory, tag = Model.CurrentTag, search = Model.SearchQuery, page = Model.CurrentPage + 1 })"
+                               class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                Next<i class="fas fa-chevron-right ml-2"></i>
+                            </a>
+                        }
+                    </div>
+                </nav>
+            }
+        }
+        else
+        {
+            <!-- No Posts Message -->
+            <div class="text-center py-16">
+                <div class="text-6xl text-gray-300 mb-4">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-600 mb-2">No articles found</h3>
+                <p class="text-gray-500 mb-8">Try adjusting your search criteria or browse all articles.</p>
+                <a href="@Url.Action("Index")" class="inline-block bg-purple-600 text-white px-8 py-3 rounded-full hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-home mr-2"></i>View All Articles
+                </a>
+            </div>
+        }
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 mt-20">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-lg font-bold mb-4">MRCMS Blog</h4>
+                    <p class="text-gray-400">A modern content management system for creating beautiful blogs.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Categories</h4>
+                    <ul class="space-y-2">
+                        @foreach (var category in Model.Categories.Take(5))
+                        {
+                            <li>
+                                <a href="@Url.Action("Index", new { category = category.Name })" class="text-gray-400 hover:text-white transition-colors">
+                                    @category.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/Blog" class="hover:text-white transition-colors">All Posts</a></li>
+                        <li><a href="/Account/Login" class="hover:text-white transition-colors">Login</a></li>
+                        <li><a href="/Account/Register" class="hover:text-white transition-colors">Register</a></li>
+                        <li><a href="/Home/Privacy" class="hover:text-white transition-colors">Privacy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition-colors">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition-colors">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white text-2xl transition-colors">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; @DateTime.Now.Year MRCMS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add loading state to search form
+        document.querySelector('form').addEventListener('submit', function() {
+            const button = this.querySelector('button[type="submit"]');
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        });
+    </script>
+</body>
+</html>

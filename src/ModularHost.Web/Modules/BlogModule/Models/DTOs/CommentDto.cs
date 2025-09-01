@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ModularHost.Web.Modules.Blog.Models.DTOs
+namespace MRCMS.Modules.Blog.Models.DTOs
 {
     public class CommentDto
     {

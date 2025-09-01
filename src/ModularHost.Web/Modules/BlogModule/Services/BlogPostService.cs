@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using ModularHost.Web.Modules.Blog.Models.DTOs;
-using ModularHost.Web.Modules.Blog.Models.Entities;
-using ModularHost.Web.Modules.Blog.Services.Interfaces;
+using MRCMS.Modules.Blog.Models.DTOs;
+using MRCMS.Modules.Blog.Models.Entities;
+using MRCMS.Modules.Blog.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using ModularHost.Web.Core.Extensions;
-using ModularHost.Web.Core.Services.Interfaces;
-using ModularHost.Web.Core.Services;
+using MRCMS.Core.Extensions;
+using MRCMS.Core.Services.Interfaces;
+using MRCMS.Core.Services;
 
-namespace ModularHost.Web.Modules.Blog.Services
+namespace MRCMS.Modules.Blog.Services
 {
     public class BlogPostService : BaseServiceWithDto<BlogPost, BlogPostDto, CreateBlogPostDto, UpdateBlogPostDto>, IBlogPostService
     {

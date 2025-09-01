@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using ModularHost.Web.Core.Enums;
+using MRCMS.Core.Enums;
 using System;
 
-namespace ModularHost.Web.Attributes
+namespace MRCMS.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public class UrlAuthorizeAttribute : Attribute
