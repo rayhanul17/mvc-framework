@@ -1,0 +1,126 @@
+@model MRCMS.Models.ManageViewModel
+@{
+    ViewData["Title"] = "Manage Account";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Manage Account</h1>
+        
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <form asp-action="Manage" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-red-600 mb-4"></div>
+                
+                <!-- Profile Section -->
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Profile Information</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label asp-for="UserName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+                            <input asp-for="UserName" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white" />
+                            <span asp-validation-for="UserName" class="text-red-600 text-sm"></span>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="Email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                            <input asp-for="Email" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white" />
+                            <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="FullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                            <input asp-for="FullName" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white" />
+                            <span asp-validation-for="FullName" class="text-red-600 text-sm"></span>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="PhoneNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white" />
+                            <span asp-validation-for="PhoneNumber" class="text-red-600 text-sm"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label asp-for="Description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio/Description</label>
+                        <textarea asp-for="Description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white"></textarea>
+                        <span asp-validation-for="Description" class="text-red-600 text-sm"></span>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Picture</label>
+                        <div class="mt-1 flex items-center">
+                            @if (!string.IsNullOrEmpty(Model?.AvatarUrl))
+                            {
+                                <img src="@Model.AvatarUrl" alt="Profile" class="h-20 w-20 rounded-full object-cover">
+                            }
+                            else
+                            {
+                                <span class="h-20 w-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                    <i class="fas fa-user text-2xl text-gray-400"></i>
+                                </span>
+                            }
+                            <div class="ml-5">
+                                <input type="file" name="avatar" accept="image/*" class="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-blue-700" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Section -->
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Security</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label asp-for="OldPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
+                            <input asp-for="OldPassword" type="password" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white" />
+                            <span asp-validation-for="OldPassword" class="text-red-600 text-sm"></span>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="NewPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
+                            <input asp-for="NewPassword" type="password" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white" />
+                            <span asp-validation-for="NewPassword" class="text-red-600 text-sm"></span>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="ConfirmPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm New Password</label>
+                            <input asp-for="ConfirmPassword" type="password" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary focus:ring-primary sm:text-sm dark:bg-gray-700 dark:text-white" />
+                            <span asp-validation-for="ConfirmPassword" class="text-red-600 text-sm"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Two-Factor Authentication</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account</p>
+                        </div>
+                        @if (Model?.TwoFactorEnabled ?? false)
+                        {
+                            <a asp-action="Disable2FA" class="text-sm text-red-600 hover:text-red-500">Disable 2FA</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Enable2FA" class="text-sm text-primary hover:text-blue-500">Enable 2FA</a>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-end space-x-4">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        Cancel
+                    </a>
+                    <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,4 +1,4 @@
-@model MRCMS.Modules.Blog.Models.Entities.BlogPost
+@model MRCMS.Modules.Blog.Models.DTOs.UpdateBlogPostDto
 @{
     ViewData["Title"] = "Edit Blog Post";
 }
@@ -9,13 +9,19 @@
         
         <form asp-action="Edit" method="post">
             @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" />
+            <!-- Id is passed via route parameter -->
             <div asp-validation-summary="ModelOnly" class="text-red-600 mb-4"></div>
             
             <div class="mb-4">
                 <label asp-for="Title" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Title</label>
                 <input asp-for="Title" class="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" />
                 <span asp-validation-for="Title" class="text-red-600 text-sm"></span>
+            </div>
+            
+            <div class="mb-4">
+                <label asp-for="Slug" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">URL Slug</label>
+                <input asp-for="Slug" class="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" />
+                <span asp-validation-for="Slug" class="text-red-600 text-sm"></span>
             </div>
             
             <div class="mb-4">
@@ -38,7 +44,7 @@
             
             <div class="mb-6">
                 <label for="TagInput" class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Tags (comma-separated)</label>
-                <input name="TagInput" id="TagInput" class="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" placeholder="technology, programming, web" value="@Model.TagNames" />
+                <input name="TagInput" id="TagInput" class="w-full px-3 py-2 text-gray-700 dark:text-gray-300 border rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600" placeholder="technology, programming, web" />
                 <span class="text-red-600 text-sm field-validation-valid" data-valmsg-for="TagInput"></span>
             </div>
             
@@ -46,7 +52,7 @@
                 <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                     <i class="fas fa-save mr-2"></i>Update Post
                 </button>
-                <a asp-action="Details" asp-route-slug="@Model.Slug" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                <a asp-action="Index" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
                     Cancel
                 </a>
             </div>

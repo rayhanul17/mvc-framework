@@ -99,9 +99,11 @@ namespace MRCMS.Services
 
                 if (user.IsSuperAdmin)
                 {
+                    // SuperAdmin gets ALL visible menus regardless of ClaimType
                     return await _context.Menus
-                        .Where(m => m.IsVisible)
+                        .Where(m => m.IsVisible && m.IsActive)
                         .OrderBy(m => m.Order)
+                        .ThenBy(m => m.Title)
                         .ToListAsync();
                 }
 

@@ -440,7 +440,7 @@ namespace MRCMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearAuditLog(int daysToKeep = 30)
         {
-            if (User.IsInRole("SuperAdmin"))
+            if (User.HasClaim("IsSuperAdmin", "true"))
             {
                 await _auditLogger.ClearOldLogsAsync(daysToKeep);
                 TempData["Success"] = $"Audit logs older than {daysToKeep} days have been cleared.";

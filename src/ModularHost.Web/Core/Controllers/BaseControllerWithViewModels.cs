@@ -45,7 +45,7 @@ namespace MRCMS.Core.Controllers
         protected string CurrentUserEmail => User.FindFirst(ClaimTypes.Email)?.Value ?? CurrentUser?.Email ?? "";
         protected string CurrentUserFullName => CurrentUser != null ? $"{CurrentUser.FirstName} {CurrentUser.LastName}" : "Anonymous";
         protected bool IsAuthenticated => User.Identity?.IsAuthenticated ?? false;
-        protected bool IsSuperAdmin => User.IsInRole("SuperAdmin");
+        protected bool IsSuperAdmin => User.HasClaim("IsSuperAdmin", "true");
         protected bool IsAdmin => User.IsInRole("Admin") || User.IsInRole("Administrator") || IsSuperAdmin;
         protected bool IsInRole(string role) => User.IsInRole(role);
         

@@ -1,0 +1,216 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using MRCMS.Core.Infrastructure.ErrorHandling;
+using MRCMS.Services.Interfaces;
+using System;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
+
+namespace MRCMS.Middleware
+{
+    /// <summary>
+    /// Optimized global exception handler middleware with high-performance error handling
+    /// </summary>
+    public class GlobalExceptionHandlerMiddleware
+    {
+        private readonly RequestDelegate _next;
+        private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
+        private readonly IWebHostEnvironment _environment;
+        private readonly JsonSerializerOptions _jsonOptions;
+        
+        // Cache for JSON responses to avoid repeated serialization
+        private static readonly ConcurrentDictionary<string, byte[]> ResponseCache = new();
+        private const int MaxCacheSize = 100;
+
+        public GlobalExceptionHandlerMiddleware(
+            RequestDelegate next,
+            ILogger<GlobalExceptionHandlerMiddleware> logger,
+            IWebHostEnvironment environment)
+        {
+            _next = next;
+            _logger = logger;
+            _environment = environment;
+            
+            // Pre-configure JSON options
+            _jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = environment.IsDevelopment()
+            };
+        }
+
+        public async Task InvokeAsync(HttpContext context)
+        {
+            try
+            {
+                await _next(context);
+                
+                // Handle 404 efficiently
+                if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+                {
+                    await Handle404Async(context);
+                }
+            }
+            catch (Exception ex)
+            {
+                await HandleExceptionAsync(context, ex);
+            }
+        }
+
+        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        {
+            // Log the exception asynchronously without blocking
+            _ = Task.Run(() => LogException(context, exception));
+
+            // Get error details using optimized handler
+            var errorDetails = ExceptionHandler.GetErrorDetails(exception, _environment.IsDevelopment());
+            
+            // Set response status code
+            context.Response.StatusCode = errorDetails.StatusCode;
+
+            // Fast path for API requests
+            if (IsApiRequest(context))
+            {
+                await HandleApiExceptionAsync(context, errorDetails, exception);
+            }
+            else
+            {
+                await HandleWebExceptionAsync(context, errorDetails, exception);
+            }
+        }
+
+        private async Task Handle404Async(HttpContext context)
+        {
+            if (IsApiRequest(context))
+            {
+                context.Response.ContentType = "application/json";
+                
+                // Use cached response if available
+                var cacheKey = $"404_{context.Request.Path}";
+                if (!ResponseCache.TryGetValue(cacheKey, out var cachedResponse))
+                {
+                    var response = new
+                    {
+                        error = new
+                        {
+                            code = 404,
+                            message = "Resource not found",
+                            path = context.Request.Path.Value,
+                            timestamp = DateTime.UtcNow
+                        }
+                    };
+                    
+                    cachedResponse = JsonSerializer.SerializeToUtf8Bytes(response, _jsonOptions);
+                    
+                    // Limit cache size
+                    if (ResponseCache.Count < MaxCacheSize)
+                    {
+                        ResponseCache.TryAdd(cacheKey, cachedResponse);
+                    }
+                }
+                
+                await context.Response.Body.WriteAsync(cachedResponse);
+            }
+            else
+            {
+                context.Response.Redirect("/Error/NotFound");
+            }
+        }
+
+        private async Task HandleApiExceptionAsync(HttpContext context, ErrorDetails errorDetails, Exception exception)
+        {
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                error = new
+                {
+                    code = errorDetails.StatusCode,
+                    message = errorDetails.Message,
+                    details = _environment.IsDevelopment() ? errorDetails.Details : null,
+                    stackTrace = _environment.IsDevelopment() ? exception.StackTrace : null,
+                    timestamp = DateTime.UtcNow
+                }
+            };
+
+            var jsonBytes = JsonSerializer.SerializeToUtf8Bytes(response, _jsonOptions);
+            await context.Response.Body.WriteAsync(jsonBytes);
+        }
+
+        private async Task HandleWebExceptionAsync(HttpContext context, ErrorDetails errorDetails, Exception exception)
+        {
+            // Store exception details in Items (faster than TempData)
+            context.Items["ExceptionMessage"] = errorDetails.Message;
+            context.Items["ExceptionDetails"] = errorDetails.Details;
+            context.Items["ExceptionStatusCode"] = errorDetails.StatusCode;
+            
+            if (_environment.IsDevelopment())
+            {
+                context.Items["ExceptionStackTrace"] = exception.StackTrace;
+            }
+
+            // Get error page path using optimized lookup
+            var errorPath = errorDetails.StatusCode == 401 
+                ? $"/Account/Login?returnUrl={Uri.EscapeDataString(context.Request.Path)}"
+                : ExceptionHandler.GetErrorPagePath(errorDetails.StatusCode);
+
+            // Clear the response
+            context.Response.Clear();
+            context.Response.StatusCode = errorDetails.StatusCode;
+            
+            // For 401, redirect to login
+            if (errorDetails.StatusCode == 401)
+            {
+                context.Response.Redirect(errorPath);
+            }
+            else
+            {
+                // For other errors, re-execute with error path
+                context.Request.Path = errorPath;
+                await _next(context);
+            }
+        }
+
+        private void LogException(HttpContext context, Exception exception)
+        {
+            try
+            {
+                _logger.LogError(exception, "Unhandled exception: {Message} | Path: {Path} | Method: {Method}", 
+                    exception.Message, 
+                    context.Request.Path, 
+                    context.Request.Method);
+
+                // Try to log to audit service if available
+                var loggerService = context.RequestServices.GetService(typeof(ILoggerService)) as ILoggerService;
+                loggerService?.LogError(exception.Message, exception);
+            }
+            catch
+            {
+                // Ignore logging failures
+            }
+        }
+
+        private static bool IsApiRequest(HttpContext context)
+        {
+            // Fast path checks
+            if (context.Request.Path.StartsWithSegments("/api"))
+                return true;
+
+            var acceptHeader = context.Request.Headers["Accept"].ToString();
+            if (!string.IsNullOrEmpty(acceptHeader) && acceptHeader.Contains("application/json"))
+                return true;
+
+            var contentType = context.Request.Headers["Content-Type"].ToString();
+            return !string.IsNullOrEmpty(contentType) && contentType.Contains("application/json");
+        }
+    }
+
+    public static class GlobalExceptionHandlerMiddlewareExtensions
+    {
+        public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+        }
+    }
+}

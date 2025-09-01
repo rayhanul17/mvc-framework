@@ -25,6 +25,7 @@ namespace MRCMS.Modules.Blog.Models.DTOs
         public DateTime? UpdatedAt { get; set; }
         public List<TagDto> Tags { get; set; } = new List<TagDto>();
         public int CommentCount { get; set; }
+        public int LikeCount { get; set; }
         
         // Navigation properties for views
         public CategoryDto? Category { get; set; }

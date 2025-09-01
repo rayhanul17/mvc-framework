@@ -31,6 +31,10 @@ namespace MRCMS.Core.Extensions
         public bool HasPermission(string permission)
         {
             if (_user == null) return false;
+            
+            // SuperAdmin has all permissions
+            if (IsSuperAdmin()) return true;
+            
             return _user.HasClaim("Permission", permission);
         }
 
@@ -47,18 +51,21 @@ namespace MRCMS.Core.Extensions
 
         public bool IsAdmin()
         {
-            return IsInRole("Admin") || IsInRole("SuperAdmin");
+            // Check for Admin role or if user is SuperAdmin (SuperAdmin is also Admin)
+            return IsInRole("Admin") || IsSuperAdmin();
         }
 
         public bool IsSuperAdmin()
         {
-            return IsInRole("SuperAdmin");
+            // Only check the IsSuperAdmin claim, not role strings
+            return _user?.HasClaim("IsSuperAdmin", "true") == true;
         }
 
         public bool CanEdit(Guid? resourceOwnerId)
         {
             if (!IsAuthenticated()) return false;
-            if (IsAdmin()) return true;
+            if (IsSuperAdmin()) return true;
+            if (IsInRole("Admin")) return true;
             if (resourceOwnerId == null) return false;
             return resourceOwnerId == GetCurrentUserId();
         }
@@ -67,7 +74,7 @@ namespace MRCMS.Core.Extensions
         {
             if (!IsAuthenticated()) return false;
             if (IsSuperAdmin()) return true;
-            if (IsAdmin()) return true;
+            if (IsInRole("Admin")) return true;
             if (resourceOwnerId == null) return false;
             return resourceOwnerId == GetCurrentUserId();
         }

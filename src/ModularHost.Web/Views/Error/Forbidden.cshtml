@@ -1,0 +1,63 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "_Layout";
+}
+
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="max-w-2xl w-full text-center">
+        <div class="mb-8">
+            <div class="mx-auto flex items-center justify-center h-32 w-32 rounded-full bg-red-100 dark:bg-red-900">
+                <i class="fas fa-lock text-red-600 dark:text-red-400 text-5xl"></i>
+            </div>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Access Denied
+        </h1>
+        
+        <p class="text-xl text-gray-600 dark:text-gray-400 mb-8">
+            You don't have permission to access this resource.
+        </p>
+        
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 mb-8 text-left max-w-md mx-auto">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                        Permission Required
+                    </h3>
+                    <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                        <p>This area requires special permissions. If you believe you should have access:</p>
+                        <ul class="list-disc list-inside mt-2">
+                            <li>Contact your administrator</li>
+                            <li>Request the necessary permissions</li>
+                            <li>Try logging in with a different account</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Model.RequestedPath))
+        {
+            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-8 max-w-md mx-auto">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Restricted Resource:
+                </p>
+                <code class="text-red-600 dark:text-red-400 text-sm break-all">@Model.RequestedPath</code>
+            </div>
+        }
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="/" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 inline-flex items-center justify-center">
+                <i class="fas fa-home mr-2"></i>Go to Homepage
+            </a>
+            <button onclick="history.back()" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200 inline-flex items-center justify-center">
+                <i class="fas fa-arrow-left mr-2"></i>Go Back
+            </button>
+        </div>
+    </div>
+</div>

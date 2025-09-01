@@ -14,7 +14,7 @@ namespace MRCMS.Modules.BlogModule.Mappings
             // BlogPost mappings
             CreateMap<BlogPost, BlogPostDto>()
                 .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => 
-                    src.Author != null ? $"{src.Author.FirstName} {src.Author.LastName}" : "Unknown"))
+                    src.Author != null ? src.Author.FullName : "Unknown"))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => 
                     src.Category != null ? src.Category.Name : "Uncategorized"))
                 .ForMember(dest => dest.Tags, opt => opt.MapFrom((src, dest, destMember, context) => 
@@ -83,7 +83,7 @@ namespace MRCMS.Modules.BlogModule.Mappings
             // Comment mappings
             CreateMap<Comment, CommentDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => 
-                    src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : "Anonymous"))
+                    src.User != null ? src.User.FullName : "Anonymous"))
                 .ForMember(dest => dest.UserAvatar, opt => opt.MapFrom(src => 
                     src.User != null ? src.User.ProfilePicture : null))
                 .ForMember(dest => dest.PostTitle, opt => opt.MapFrom(src => 
@@ -159,7 +159,7 @@ namespace MRCMS.Modules.BlogModule.Mappings
 
             // Author (User) mappings
             CreateMap<User, AuthorDto>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName));
 
             // BlogPostTag mappings
             CreateMap<BlogPostTag, BlogPostTagDto>()

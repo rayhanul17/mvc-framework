@@ -169,8 +169,7 @@ namespace MRCMS.Controllers
                 {
                     UserName = model.Email,
                     Email = model.Email,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
+                    FullName = model.FullName,
                     DateOfBirth = model.DateOfBirth,
                     PhoneNumber = model.PhoneNumber,
                     IsActive = true,
@@ -376,8 +375,7 @@ namespace MRCMS.Controllers
             {
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FullName = user.FullName,
                 Address = user.Address,
                 City = user.City,
                 Country = user.Country,
@@ -405,8 +403,7 @@ namespace MRCMS.Controllers
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
+            user.FullName = model.FullName;
             user.PhoneNumber = model.PhoneNumber;
             user.Address = model.Address;
             user.City = model.City;

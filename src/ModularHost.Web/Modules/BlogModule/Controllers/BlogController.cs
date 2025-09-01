@@ -55,11 +55,44 @@ namespace MRCMS.Modules.Blog.Controllers
             return await base.Index(page, search, sortBy, sortDesc);
         }
 
+        // Override base Details to work with both ID and slug
+        [HttpGet("{id:guid}")]
+        public override async Task<IActionResult> Details(Guid id)
+        {
+            try
+            {
+                _logger.LogInformation("Viewing {EntityName} by ID - Id: {Id}", EntityName, id);
+                
+                var post = await _blogService.GetPostByIdAsync(id);
+                if (post == null)
+                {
+                    _logger.LogWarning("{EntityName} not found - Id: {Id}", EntityName, id);
+                    return NotFound();
+                }
+
+                await _blogService.IncrementViewCountAsync(post.Id);
+                
+                var viewModel = _mapper.Map<BlogPostDto>(post);
+                return View("Details", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error viewing {EntityName} by ID - Id: {Id}", ex, EntityName, id);
+                return View("Error");
+            }
+        }
+
         [HttpGet("{slug}")]
         public async Task<IActionResult> DetailsBySlug(string slug)
         {
             try
             {
+                // Check if slug is actually a GUID
+                if (Guid.TryParse(slug, out var id))
+                {
+                    return await Details(id);
+                }
+
                 _logger.LogInformation("Viewing {EntityName} by slug - Slug: {Slug}", EntityName, slug);
                 
                 var post = await _blogService.GetPostBySlugAsync(slug);
@@ -94,33 +127,33 @@ namespace MRCMS.Modules.Blog.Controllers
             return await base.Create(model);
         }
 
-        [HttpGet("edit/{id}")]
+        [HttpGet("edit/{id:guid}")]
         public override async Task<IActionResult> Edit(Guid id)
         {
             return await base.Edit(id);
         }
 
-        [HttpPost("edit/{id}")]
+        [HttpPost("edit/{id:guid}")]
         [ValidateAntiForgeryToken]
         public override async Task<IActionResult> Edit(Guid id, UpdateBlogPostDto model)
         {
             return await base.Edit(id, model);
         }
 
-        [HttpGet("delete/{id}")]
+        [HttpGet("delete/{id:guid}")]
         public override async Task<IActionResult> Delete(Guid id)
         {
             return await base.Delete(id);
         }
         
-        [HttpPost("delete/{id}")]
+        [HttpPost("delete/{id:guid}")]
         [ValidateAntiForgeryToken]
         public override async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             return await base.DeleteConfirmed(id);
         }
 
-        [HttpPost("{postId}/comment")]
+        [HttpPost("{postId:guid}/comment")]
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> AddComment(Guid postId, string body, IFormFile? attachment = null, Guid? parentCommentId = null)

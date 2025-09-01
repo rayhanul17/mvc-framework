@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MRCMS.Core.Enums;
+using MRCMS.Core.Infrastructure;
+using MRCMS.Core.Models.Entities;
 using MRCMS.Attributes;
 using MRCMS.Services.Interfaces;
 using System;
@@ -19,7 +23,7 @@ namespace MRCMS.Middleware
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context, IPermissionService permissionService)
+        public async Task InvokeAsync(HttpContext context, IPermissionService permissionService, AppDbContext dbContext)
         {
             var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
             if (endpoint == null)
@@ -73,6 +77,20 @@ namespace MRCMS.Middleware
                     }
 
                     var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    
+                    // Check if user is SuperAdmin from database - they bypass all permission checks
+                    if (!string.IsNullOrEmpty(userIdClaim) && Guid.TryParse(userIdClaim, out var userId))
+                    {
+                        var user = await dbContext.Users.AsNoTracking()
+                            .FirstOrDefaultAsync(u => u.Id == userId);
+                        
+                        if (user != null && user.IsSuperAdmin)
+                        {
+                            await _next(context);
+                            return;
+                        }
+                    }
+
                     var url = authorizeAttribute.Url ?? path;
                     var httpMethod = authorizeAttribute.HttpMethod ?? method;
                     
@@ -92,11 +110,13 @@ namespace MRCMS.Middleware
             if (IsAjaxRequest(context.Request))
             {
                 context.Response.StatusCode = 401;
-                await context.Response.WriteAsync("Unauthorized");
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync("{\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}");
             }
             else
             {
-                context.Response.Redirect("/Account/Login?returnUrl=" + Uri.EscapeDataString(context.Request.Path));
+                var returnUrl = Uri.EscapeDataString(context.Request.Path + context.Request.QueryString);
+                context.Response.Redirect($"/Account/Login?returnUrl={returnUrl}");
             }
         }
 
@@ -105,12 +125,12 @@ namespace MRCMS.Middleware
             if (IsAjaxRequest(context.Request))
             {
                 context.Response.StatusCode = 403;
-                await context.Response.WriteAsync("Forbidden");
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync("{\"error\":\"Forbidden\",\"message\":\"You don't have permission to access this resource\"}");
             }
             else
             {
-                context.Response.StatusCode = 403;
-                await context.Response.WriteAsync("You don't have permission to access this resource.");
+                context.Response.Redirect("/Error/Forbidden");
             }
         }
 

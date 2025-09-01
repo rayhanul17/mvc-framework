@@ -10,8 +10,9 @@ namespace MRCMS.Core.Infrastructure.Configurations
         {
             builder.ToTable(Constants.TableNames.Users);
             
-            builder.Property(e => e.FirstName).HasMaxLength(100);
-            builder.Property(e => e.LastName).HasMaxLength(100);
+            builder.Property(e => e.FullName).HasMaxLength(200);
+            builder.Property(e => e.Avatar).HasMaxLength(500);
+            builder.Property(e => e.Description).HasMaxLength(1000);
             builder.Property(e => e.Address).HasMaxLength(255);
             builder.Property(e => e.City).HasMaxLength(100);
             builder.Property(e => e.Country).HasMaxLength(100);

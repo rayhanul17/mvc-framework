@@ -1,0 +1,187 @@
+@* 
+    Examples of using SuperAdmin and other helper methods in Razor views
+    This file demonstrates all the available extension methods
+*@
+
+<h3>Extension Method Examples</h3>
+
+@* Method 1: Using Html Helper Extensions *@
+<div class="example-section">
+    <h4>Html Helper Extensions:</h4>
+    
+    @if (Html.IsSuperAdmin())
+    {
+        <div class="alert alert-warning">
+            <i class="fas fa-crown"></i> You are a SuperAdmin!
+        </div>
+    }
+    
+    @if (Html.IsAuthenticated())
+    {
+        <p>Welcome, @Html.GetUserName()!</p>
+        <p>Your full name: @Html.GetFullName()</p>
+        <p>User ID: @Html.GetUserId()</p>
+        <img src="@Html.GetAvatarUrl()" alt="Avatar" class="rounded-circle" width="50" />
+    }
+    
+    @if (Html.IsAdmin())
+    {
+        <a href="/Admin" class="btn btn-primary">Admin Dashboard</a>
+    }
+    
+    @if (Html.IsInRole("Manager"))
+    {
+        <a href="/Reports" class="btn btn-info">View Reports</a>
+    }
+</div>
+
+@* Method 2: Using ClaimsPrincipal Extensions directly on User *@
+<div class="example-section">
+    <h4>Direct User Extensions:</h4>
+    
+    @if (User.IsSuperAdmin())
+    {
+        <div class="alert alert-danger">
+            <strong>SuperAdmin Panel</strong>
+            <ul>
+                <li>All permissions granted</li>
+                <li>System configuration access</li>
+                <li>User management access</li>
+            </ul>
+        </div>
+    }
+    
+    @if (User.IsAdmin())
+    {
+        <p>Admin User: @User.GetUserName()</p>
+        <p>Email: @User.GetEmail()</p>
+    }
+    
+    <p>Current User Info:</p>
+    <ul>
+        <li>ID: @User.GetUserId()</li>
+        <li>Username: @User.GetUserName()</li>
+        <li>Full Name: @User.GetFullName()</li>
+        <li>Avatar: <img src="@User.GetAvatarUrl()" width="30" /></li>
+    </ul>
+</div>
+
+@* Method 3: Conditional Content Rendering *@
+<div class="example-section">
+    <h4>Conditional Content:</h4>
+    
+    @Html.IfSuperAdmin(@"
+        <div class='superadmin-only'>
+            <h5>SuperAdmin Tools</h5>
+            <button class='btn btn-danger'>Delete All Cache</button>
+            <button class='btn btn-warning'>System Reset</button>
+        </div>
+    ")
+    
+    @Html.IfAuthenticated(@"
+        <div class='authenticated-only'>
+            <a href='/Account/Manage'>Manage Account</a>
+        </div>
+    ")
+    
+    @Html.IfInRole("Editor", @"
+        <div class='editor-only'>
+            <a href='/Content/Edit'>Edit Content</a>
+        </div>
+    ")
+</div>
+
+@* Method 4: CSS Class Helpers *@
+<div class="example-section">
+    <h4>CSS Class Helpers:</h4>
+    
+    <div class="@Html.CssClass(User.IsSuperAdmin(), "bg-danger text-white", "bg-light")">
+        User Status Panel
+    </div>
+    
+    <button class="btn @Html.CssClasses(("btn-primary", User.Identity.IsAuthenticated), ("disabled", !User.IsAdmin()))">
+        Action Button
+    </button>
+</div>
+
+@* Method 5: URL and Request Helpers *@
+<div class="example-section">
+    <h4>URL and Request Info:</h4>
+    
+    <ul>
+        <li>Base URL: @Html.GetBaseUrl()</li>
+        <li>Current URL: @Html.GetCurrentUrl()</li>
+        <li>Is AJAX Request: @Html.IsAjaxRequest()</li>
+    </ul>
+</div>
+
+@* Method 6: TempData and ViewBag Helpers *@
+<div class="example-section">
+    <h4>Data Helpers:</h4>
+    
+    @{
+        var successMessage = Html.GetTempData("Success");
+        var errorMessage = Html.GetTempData("Error");
+    }
+    
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success">@successMessage</div>
+    }
+    
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+</div>
+
+@* Method 7: Complex Conditional with Lambda *@
+<div class="example-section">
+    <h4>Complex Conditional:</h4>
+    
+    @Html.IfSuperAdmin(() => 
+    {
+        return Html.Raw(@"
+            <div class='card'>
+                <div class='card-header bg-danger text-white'>
+                    <h5>SuperAdmin Dashboard</h5>
+                </div>
+                <div class='card-body'>
+                    <p>System Status: Active</p>
+                    <p>Total Users: 1,234</p>
+                    <p>Active Sessions: 56</p>
+                </div>
+            </div>
+        ");
+    })
+</div>
+
+<style>
+    .example-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+    }
+    .example-section h4 {
+        color: #495057;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+    .superadmin-only {
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .authenticated-only {
+        background: #d1ecf1;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .editor-only {
+        background: #fff3cd;
+        padding: 10px;
+        border-radius: 5px;
+    }
+</style>

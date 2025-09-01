@@ -1,0 +1,63 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Unauthorized";
+    Layout = "_Layout";
+}
+
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="max-w-2xl w-full text-center">
+        <div class="mb-8">
+            <div class="mx-auto flex items-center justify-center h-32 w-32 rounded-full bg-yellow-100 dark:bg-yellow-900">
+                <i class="fas fa-user-lock text-yellow-600 dark:text-yellow-400 text-5xl"></i>
+            </div>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Authentication Required
+        </h1>
+        
+        <p class="text-xl text-gray-600 dark:text-gray-400 mb-8">
+            You need to be logged in to access this resource.
+        </p>
+        
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8 text-left max-w-md mx-auto">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                        Login Required
+                    </h3>
+                    <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                        <p>Please log in to continue. If you don't have an account, you can register for free.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Model.RequestedPath))
+        {
+            <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-8 max-w-md mx-auto">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    After logging in, you'll be redirected to:
+                </p>
+                <code class="text-blue-600 dark:text-blue-400 text-sm break-all">@Model.RequestedPath</code>
+            </div>
+        }
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="/Account/Login@(Model.RequestedPath != null ? $"?returnUrl={Model.RequestedPath}" : "")" 
+               class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 inline-flex items-center justify-center">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login
+            </a>
+            <a href="/Account/Register" 
+               class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 inline-flex items-center justify-center">
+                <i class="fas fa-user-plus mr-2"></i>Register
+            </a>
+            <a href="/" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200 inline-flex items-center justify-center">
+                <i class="fas fa-home mr-2"></i>Homepage
+            </a>
+        </div>
+    </div>
+</div>

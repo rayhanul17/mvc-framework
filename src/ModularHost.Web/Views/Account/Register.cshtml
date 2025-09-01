@@ -21,17 +21,10 @@
             <div asp-validation-summary="All" class="text-red-600"></div>
             
             <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label asp-for="FirstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
-                        <input asp-for="FirstName" required class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white">
-                        <span asp-validation-for="FirstName" class="text-red-600 text-sm"></span>
-                    </div>
-                    <div>
-                        <label asp-for="LastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-                        <input asp-for="LastName" required class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white">
-                        <span asp-validation-for="LastName" class="text-red-600 text-sm"></span>
-                    </div>
+                <div>
+                    <label asp-for="FullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                    <input asp-for="FullName" required class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    <span asp-validation-for="FullName" class="text-red-600 text-sm"></span>
                 </div>
 
                 <div>

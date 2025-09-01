@@ -1,0 +1,90 @@
+@{
+    var successMessage = TempData["Success"]?.ToString();
+    var errorMessage = TempData["Error"]?.ToString();
+    var warningMessage = TempData["Warning"]?.ToString();
+    var infoMessage = TempData["Info"]?.ToString();
+    
+    // ViewBag fallback for non-redirect scenarios
+    successMessage ??= ViewBag.Success as string;
+    errorMessage ??= ViewBag.Error as string;
+    warningMessage ??= ViewBag.Warning as string;
+    infoMessage ??= ViewBag.Info as string;
+}
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" data-auto-dismiss="5000">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span>@Html.Raw(successMessage)</span>
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" data-auto-dismiss="10000">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span>@Html.Raw(errorMessage)</span>
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(warningMessage))
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert" data-auto-dismiss="7000">
+        <div class="flex items-center">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <span>@Html.Raw(warningMessage)</span>
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(infoMessage))
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert" data-auto-dismiss="5000">
+        <div class="flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span>@Html.Raw(infoMessage)</span>
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Auto-dismiss alerts after specified time
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('[data-auto-dismiss]');
+            alerts.forEach(alert => {
+                const dismissTime = parseInt(alert.dataset.autoDismiss);
+                if (dismissTime > 0) {
+                    setTimeout(() => {
+                        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                        bsAlert?.close();
+                    }, dismissTime);
+                }
+            });
+        });
+        
+        // Smooth fade out animation
+        document.querySelectorAll('.alert').forEach(alert => {
+            alert.addEventListener('close.bs.alert', function() {
+                this.style.transition = 'opacity 0.3s ease-out';
+                this.style.opacity = '0';
+            });
+        });
+    </script>
+}

@@ -12,11 +12,11 @@ namespace MRCMS.Core.Mappings
             // User mappings
             CreateMap<User, UserViewModel>()
                 .ForMember(dest => dest.Roles, opt => opt.Ignore()) // Will be populated by controller
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName));
 
             CreateMap<User, UserDetailsViewModel>()
                 .ForMember(dest => dest.Roles, opt => opt.Ignore()) // Will be populated by controller
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName));
 
             CreateMap<CreateUserViewModel, User>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -61,7 +61,7 @@ namespace MRCMS.Core.Mappings
 
             // User summary mapping for admin dashboard
             CreateMap<User, UserSummary>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"));
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName));
 
             // Role mappings
             CreateMap<Role, RoleViewModel>()

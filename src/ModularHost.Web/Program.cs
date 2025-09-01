@@ -116,7 +116,8 @@ services.AddIdentity<User, Role>(options =>
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
-    .AddTokenProvider<EmailTokenProvider<User>>("Email");
+    .AddTokenProvider<EmailTokenProvider<User>>("Email")
+    .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
 // Configure authentication cookie
 services.ConfigureApplicationCookie(options =>
@@ -199,9 +200,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+// Add global exception handler middleware first
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 

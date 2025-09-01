@@ -1,0 +1,133 @@
+@using MRCMS.Core.Extensions
+@using MRCMS.Core.Models.Entities
+@using MRCMS.Services.Interfaces
+@using Microsoft.AspNetCore.Identity
+@inject IPermissionService PermissionService
+@inject IPermissionHelper PermissionHelper
+@inject UserManager<User> UserManager
+
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+    List<Menu> userMenus = new List<Menu>();
+    
+    if (isAuthenticated)
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+        if (currentUser != null)
+        {
+            userMenus = (await PermissionService.GetMenuForUserAsync(currentUser.Id)).ToList();
+        }
+    }
+    
+    // Group menus by parent
+    var rootMenus = userMenus.Where(m => m.ParentId == null).OrderBy(m => m.Order).ToList();
+    var menuGroups = userMenus.Where(m => m.ParentId != null).GroupBy(m => m.ParentId).ToDictionary(g => g.Key!.Value, g => g.OrderBy(m => m.Order).ToList());
+}
+
+@if (isAuthenticated && userMenus.Any())
+{
+    <ul class="space-y-1 px-3">
+        <!-- Always show Dashboard -->
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Index" 
+               class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                <i class="fas fa-home w-5"></i>
+                <span class="ml-3">Dashboard</span>
+            </a>
+        </li>
+        
+        @foreach (var menu in rootMenus)
+        {
+            @if (menuGroups.ContainsKey(menu.Id))
+            {
+                <!-- Parent menu with children -->
+                <li class="pt-4">
+                    <div class="px-3 mb-2">
+                        <p class="text-xs font-semibold text-gray-400 uppercase">@menu.Title</p>
+                    </div>
+                    <ul class="space-y-1">
+                        @foreach (var child in menuGroups[menu.Id])
+                        {
+                            <li>
+                                <a href="@child.Url" 
+                                   class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(IsActiveMenu(child.Url) ? "bg-gray-100 dark:bg-gray-700" : "")">
+                                    <i class="@child.Icon w-5"></i>
+                                    <span class="ml-3">@child.Title</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+            }
+            else
+            {
+                <!-- Single menu item -->
+                <li>
+                    <a href="@menu.Url" 
+                       class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(IsActiveMenu(menu.Url) ? "bg-gray-100 dark:bg-gray-700" : "")">
+                        <i class="@menu.Icon w-5"></i>
+                        <span class="ml-3">@menu.Title</span>
+                    </a>
+                </li>
+            }
+        }
+    </ul>
+}
+else if (isAuthenticated)
+{
+    <!-- Default menu for authenticated users with no specific menus -->
+    <ul class="space-y-1 px-3">
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Index" 
+               class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                <i class="fas fa-home w-5"></i>
+                <span class="ml-3">Dashboard</span>
+            </a>
+        </li>
+    </ul>
+}
+else
+{
+    <!-- Menu for non-authenticated users -->
+    <ul class="space-y-1 px-3">
+        <li>
+            <a asp-area="" asp-controller="Home" asp-action="Index" 
+               class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                <i class="fas fa-home w-5"></i>
+                <span class="ml-3">Home</span>
+            </a>
+        </li>
+        <li>
+            <a asp-area="" asp-controller="Account" asp-action="Login" 
+               class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-sign-in-alt w-5"></i>
+                <span class="ml-3">Login</span>
+            </a>
+        </li>
+        <li>
+            <a asp-area="" asp-controller="Account" asp-action="Register" 
+               class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <i class="fas fa-user-plus w-5"></i>
+                <span class="ml-3">Register</span>
+            </a>
+        </li>
+    </ul>
+}
+
+@functions {
+    private bool IsActiveMenu(string? url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return false;
+            
+        var currentPath = Context.Request.Path.Value?.ToLower() ?? "";
+        var menuUrl = url.ToLower().TrimEnd('/');
+        
+        // Handle area routes
+        if (url.Contains("/Blog/") && currentPath.Contains("/blog/"))
+            return true;
+            
+        // Exact match or starts with
+        return currentPath == menuUrl || currentPath.StartsWith(menuUrl + "/");
+    }
+}
