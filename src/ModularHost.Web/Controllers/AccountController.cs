@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MRCMS.Core.Models.Entities;
-using MRCMS.Models;
+using MRCMS.Models.ViewModels;
 using MRCMS.Services;
 using System;
 using System.Linq;

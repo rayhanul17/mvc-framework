@@ -1,4 +1,4 @@
-@model MRCMS.ViewModels.GeneralSettingsViewModel
+@model MRCMS.Models.ViewModels.GeneralSettingsViewModel
 @{
     ViewData["Title"] = "General Settings";
 }
@@ -31,26 +31,138 @@
         
         <!-- Site Information -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Site Information</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-info-circle mr-2 text-blue-600"></i>Site Information
+            </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label asp-for="SiteName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"></label>
-                    <input asp-for="SiteName" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <label asp-for="SiteName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="The full name of your website"></label>
+                    <input asp-for="SiteName" title="Enter the full name of your website" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
                     <span asp-validation-for="SiteName" class="text-red-600 text-sm"></span>
                 </div>
                 
                 <div>
-                    <label asp-for="SiteUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"></label>
-                    <input asp-for="SiteUrl" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <label asp-for="SiteShortName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Short name for branding (max 20 characters)"></label>
+                    <input asp-for="SiteShortName" title="A short version of your site name for logos and branding" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="SiteShortName" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="SiteUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="The main URL of your website"></label>
+                    <input asp-for="SiteUrl" title="Enter the complete URL including https://" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
                     <span asp-validation-for="SiteUrl" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="SiteTagline" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="A catchy tagline for your site"></label>
+                    <input asp-for="SiteTagline" title="A short, memorable phrase that describes your site" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="SiteTagline" class="text-red-600 text-sm"></span>
                 </div>
             </div>
             
-            <div class="mt-4">
-                <label asp-for="SiteDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"></label>
-                <textarea asp-for="SiteDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
-                <span asp-validation-for="SiteDescription" class="text-red-600 text-sm"></span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div>
+                    <label asp-for="SiteDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Description for SEO and meta tags"></label>
+                    <textarea asp-for="SiteDescription" rows="3" title="A detailed description of your website for search engines" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+                    <span asp-validation-for="SiteDescription" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="SiteKeywords" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Keywords for SEO (comma-separated)"></label>
+                    <textarea asp-for="SiteKeywords" rows="3" title="Comma-separated keywords for search engine optimization" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+                    <span asp-validation-for="SiteKeywords" class="text-red-600 text-sm"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Logo & Branding -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-palette mr-2 text-purple-600"></i>Logo & Branding
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label asp-for="SiteLogo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="URL or path to your site logo"></label>
+                    <input asp-for="SiteLogo" title="Enter the URL or path to your logo image" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="SiteLogo" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="SiteFavicon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="URL or path to your favicon"></label>
+                    <input asp-for="SiteFavicon" title="Enter the URL or path to your favicon (.ico file)" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="SiteFavicon" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="FooterLogo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="URL or path to footer logo"></label>
+                    <input asp-for="FooterLogo" title="Enter the URL or path to your footer logo image" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="FooterLogo" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="CopyrightText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Copyright text for footer"></label>
+                    <input asp-for="CopyrightText" title="Enter your copyright notice text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="CopyrightText" class="text-red-600 text-sm"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Social Media -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-share-alt mr-2 text-indigo-600"></i>Social Media Links
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label asp-for="FacebookUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fab fa-facebook mr-1 text-blue-600"></i>Facebook URL
+                    </label>
+                    <input asp-for="FacebookUrl" title="Your Facebook page URL" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="FacebookUrl" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="TwitterUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fab fa-twitter mr-1 text-blue-400"></i>Twitter URL
+                    </label>
+                    <input asp-for="TwitterUrl" title="Your Twitter profile URL" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="TwitterUrl" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="LinkedInUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fab fa-linkedin mr-1 text-blue-700"></i>LinkedIn URL
+                    </label>
+                    <input asp-for="LinkedInUrl" title="Your LinkedIn profile or company page URL" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="LinkedInUrl" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="InstagramUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fab fa-instagram mr-1 text-pink-600"></i>Instagram URL
+                    </label>
+                    <input asp-for="InstagramUrl" title="Your Instagram profile URL" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="InstagramUrl" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="YouTubeUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fab fa-youtube mr-1 text-red-600"></i>YouTube URL
+                    </label>
+                    <input asp-for="YouTubeUrl" title="Your YouTube channel URL" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="YouTubeUrl" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="GoogleAnalyticsId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fab fa-google mr-1 text-green-600"></i>Google Analytics ID
+                    </label>
+                    <input asp-for="GoogleAnalyticsId" title="Your Google Analytics tracking ID (e.g., UA-XXXXXXXXX-X)" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="GoogleAnalyticsId" class="text-red-600 text-sm"></span>
+                </div>
             </div>
         </div>
 
@@ -152,14 +264,78 @@
             </div>
         </div>
 
-        <!-- Maintenance Mode -->
+        <!-- Comments Settings -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Maintenance Mode</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-comments mr-2 text-green-600"></i>Comments Settings
+            </h2>
             
             <div class="space-y-4">
                 <div>
                     <div class="flex items-center">
-                        <input asp-for="MaintenanceMode" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                        <input asp-for="EnableComments" type="checkbox" title="Allow users to post comments on blog posts" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                        <label asp-for="EnableComments" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                            Enable comments on posts
+                        </label>
+                    </div>
+                    <span asp-validation-for="EnableComments" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <div class="flex items-center">
+                        <input asp-for="ModerateComments" type="checkbox" title="Require approval before comments are published" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                        <label asp-for="ModerateComments" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                            Moderate comments before publishing
+                        </label>
+                    </div>
+                    <span asp-validation-for="ModerateComments" class="text-red-600 text-sm"></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-address-card mr-2 text-teal-600"></i>Contact Information
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label asp-for="ContactEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-envelope mr-1"></i>Contact Email
+                    </label>
+                    <input asp-for="ContactEmail" type="email" title="Primary contact email for the website" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="ContactEmail" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div>
+                    <label asp-for="ContactPhone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-phone mr-1"></i>Contact Phone
+                    </label>
+                    <input asp-for="ContactPhone" type="tel" title="Primary contact phone number" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="ContactPhone" class="text-red-600 text-sm"></span>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label asp-for="ContactAddress" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>Contact Address
+                    </label>
+                    <textarea asp-for="ContactAddress" rows="3" title="Physical address or location" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+                    <span asp-validation-for="ContactAddress" class="text-red-600 text-sm"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Mode -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-tools mr-2 text-orange-600"></i>Maintenance Mode
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <div class="flex items-center">
+                        <input asp-for="MaintenanceMode" type="checkbox" title="Enable to take the site offline for maintenance" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
                         <label asp-for="MaintenanceMode" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                             Enable maintenance mode
                         </label>
@@ -170,7 +346,7 @@
                 
                 <div>
                     <label asp-for="MaintenanceMessage" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"></label>
-                    <textarea asp-for="MaintenanceMessage" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+                    <textarea asp-for="MaintenanceMessage" rows="3" title="Message displayed to users during maintenance" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
                     <span asp-validation-for="MaintenanceMessage" class="text-red-600 text-sm"></span>
                 </div>
             </div>

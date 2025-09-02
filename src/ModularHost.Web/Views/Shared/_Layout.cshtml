@@ -5,6 +5,14 @@
     var userId = PermissionHelper.GetCurrentUserId();
     var userRoles = User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList();
     var userPermissions = User.Claims.Where(c => c.Type == "Permission").Select(c => c.Value).ToList();
+    
+    // Check if we're on login/register pages
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var isAuthPage = currentController?.Equals("Account", StringComparison.OrdinalIgnoreCase) == true && 
+                     (currentAction?.Equals("Login", StringComparison.OrdinalIgnoreCase) == true || 
+                      currentAction?.Equals("Register", StringComparison.OrdinalIgnoreCase) == true);
+    var showSidebar = !isAuthPage;
 }
 <!DOCTYPE html>
 <html lang="en" class="h-full">
@@ -12,33 +20,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="authenticated" content="@(isAuthenticated ? "true" : "false")" />
+    @Html.AntiForgeryToken()
+    <meta name="csrf-token" content="@Html.AntiForgeryToken()" />
     <title>@ViewData["Title"] - Modular Host</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3B82F6',
-                        secondary: '#10B981',
-                        danger: '#EF4444'
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Tailwind CSS (Local Compiled) -->
+    <link rel="stylesheet" href="~/lib/tailwind/tailwind-compiled.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/tailwind/datatables-tailwind.css" asp-append-version="true" />
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Font Awesome (Local) -->
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true" />
     
-    <!-- Bootstrap CSS for alerts -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS for alerts (Local) -->
     
-    <!-- Toastr for notifications -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <!-- Toastr for notifications (Local) -->
+    <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" asp-append-version="true" />
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -47,16 +43,18 @@
 </head>
 <body class="h-full bg-gray-50 dark:bg-gray-900">
     <div class="min-h-full flex">
-        <!-- Sidebar -->
-        <nav id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out">
+        @if (showSidebar)
+        {
+            <!-- Sidebar -->
+            <nav id="sidebar" class="fixed inset-y-0 left-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out w-64 -translate-x-full lg:translate-x-0 animate-slide-in-left" data-collapsed="false">
             <div class="h-full flex flex-col">
                 <!-- Logo -->
-                <div class="flex items-center justify-between h-16 px-6 bg-primary text-white">
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-bold">
-                        <i class="fas fa-cube mr-2"></i>Modular Host
+                <div class="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-soft">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="text-xl font-bold flex items-center sidebar-logo hover:scale-105 transition-transform duration-200">
+                        <i class="fas fa-cube mr-2 text-primary-200"></i><span class="sidebar-text">Modular Host</span>
                     </a>
-                    <button class="lg:hidden" onclick="toggleSidebar()">
-                        <i class="fas fa-times"></i>
+                    <button class="lg:hidden p-2 rounded-lg hover:bg-primary-600/50 transition-colors duration-200" onclick="toggleSidebar()">
+                        <i class="fas fa-times text-primary-200"></i>
                     </button>
                 </div>
                 
@@ -72,50 +70,61 @@
                         <div class="flex items-center">
                             <img src="@(User.FindFirst("AvatarUrl")?.Value ?? "/img/default-avatar.png")" 
                                  alt="@(User.FindFirst("UserName")?.Value ?? "User")" 
-                                 class="w-10 h-10 rounded-full object-cover">
+                                 class="w-10 h-10 rounded-full object-cover"
+                                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%236b7280\"%3E%3Cpath d=\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\"/%3E%3C/svg%3E'">
                             <div class="ml-3 flex-1">
                                 <p class="text-sm font-medium text-gray-700 dark:text-gray-300">@(User.FindFirst("UserName")?.Value ?? User.Identity?.Name)</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">@(User.FindFirst("FullName")?.Value ?? userRoles.FirstOrDefault())</p>
                             </div>
-                            <a asp-area="" asp-controller="Account" asp-action="Logout" 
-                               class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                                <i class="fas fa-sign-out-alt"></i>
-                            </a>
+                            <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 }
             </div>
         </nav>
+        }
         
         <!-- Main Content -->
-        <div class="flex-1 lg:ml-64">
+        <div id="main-content" class="@(showSidebar ? "flex-1 lg:ml-64 transition-all duration-300" : "flex-1")">
             <!-- Top Bar -->
-            <header class="bg-white dark:bg-gray-800 shadow-sm">
+            <header class="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 shadow-soft animate-slide-in-down">
                 <div class="flex items-center justify-between h-16 px-4 lg:px-8">
-                    <button id="mobile-menu-btn" class="lg:hidden text-gray-600 dark:text-gray-300" onclick="toggleSidebar()">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
+                    @if (showSidebar)
+                    {
+                        <button id="menu-toggle-btn" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95" onclick="toggleMenu()">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <div></div>
+                    }
                     
-                    <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                    <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200 animate-fade-in">
                         @ViewData["Title"]
                     </h1>
                     
                     <div class="flex items-center space-x-4">
                         <!-- Dark Mode Toggle -->
-                        <button onclick="toggleDarkMode()" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                            <i class="fas fa-moon dark:hidden"></i>
-                            <i class="fas fa-sun hidden dark:inline"></i>
+                        <button onclick="toggleDarkMode()" class="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95">
+                            <i id="dark-mode-moon" class="fas fa-moon text-lg"></i>
+                            <i id="dark-mode-sun" class="fas fa-sun text-lg" style="display: none;"></i>
                         </button>
                         
                         <!-- Notifications -->
                         @if (isAuthenticated)
                         {
                             <div class="relative">
-                                <button id="notification-btn" class="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center" id="notification-count" style="display:none;">0</span>
+                                <button id="notification-btn" class="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 hover:scale-110 active:scale-95 relative">
+                                    <i class="fas fa-bell text-lg"></i>
+                                    <span class="absolute -top-0.5 -right-0.5 bg-danger-500 text-white text-2xs rounded-full h-4 w-4 flex items-center justify-center animate-bounce-subtle" id="notification-count" style="display:none;">0</span>
                                 </button>
-                                <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg hidden">
+                                <div id="notification-dropdown" class="absolute right-0 mt-2 w-80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl shadow-medium border border-gray-200 dark:border-gray-700 hidden animate-slide-in-down">
                                     <div class="p-4 border-b dark:border-gray-700">
                                         <h3 class="font-semibold text-gray-800 dark:text-gray-200">Notifications</h3>
                                     </div>
@@ -130,14 +139,15 @@
                         {
                             <!-- User Dropdown -->
                             <div class="relative ml-3">
-                                <button id="user-dropdown-btn" class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <button id="user-dropdown-btn" class="flex items-center text-sm rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 p-2 transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
                                     <img src="@(User.FindFirst("AvatarUrl")?.Value ?? "/img/default-avatar.png")" 
                                          alt="@(User.FindFirst("UserName")?.Value ?? "User")" 
-                                         class="h-8 w-8 rounded-full object-cover">
-                                    <span class="ml-2 text-gray-700 dark:text-gray-300 font-medium">@(User.FindFirst("UserName")?.Value ?? User.Identity?.Name)</span>
-                                    <i class="fas fa-chevron-down ml-2 text-gray-500"></i>
+                                         class="h-8 w-8 rounded-full object-cover ring-2 ring-primary-200 dark:ring-primary-700"
+                                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"%236b7280\"%3E%3Cpath d=\"M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z\"/%3E%3C/svg%3E'">
+                                    <span class="ml-2 text-gray-700 dark:text-gray-300 font-medium hidden sm:block">@(User.FindFirst("UserName")?.Value ?? User.Identity?.Name)</span>
+                                    <i class="fas fa-chevron-down ml-2 text-gray-500 text-xs hidden sm:block"></i>
                                 </button>
-                                <div id="user-dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 hidden">
+                                <div id="user-dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-medium bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hidden animate-slide-in-down">
                                     <div class="py-1">
                                         <div class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border-b dark:border-gray-700">
                                             <div class="font-medium">@(User.FindFirst("FullName")?.Value ?? User.Identity?.Name)</div>
@@ -150,9 +160,12 @@
                                             <i class="fas fa-cog mr-2"></i>Settings
                                         </a>
                                         <div class="border-t dark:border-gray-700"></div>
-                                        <a asp-area="" asp-controller="Account" asp-action="Logout" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                                        </a>
+                                        <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="block">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -160,7 +173,7 @@
                         else
                         {
                             <a asp-area="" asp-controller="Account" asp-action="Login" 
-                               class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600">
+                               class="btn btn-primary animate-fade-in hover:shadow-colored-primary">
                                 <i class="fas fa-sign-in-alt mr-2"></i>Login
                             </a>
                         }
@@ -189,10 +202,10 @@
         </div>
     </div>
     
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@latest/dist/browser/signalr.min.js"></script>
+    <!-- Scripts (Local) -->
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/toastr/toastr.min.js" asp-append-version="true"></script>
+    <script src="~/lib/signalr/dist/browser/signalr.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     
     <script>
@@ -204,15 +217,58 @@
             isAuthenticated: @(isAuthenticated ? "true" : "false")
         });
         
-        // Toggle sidebar
+        // Toggle menu for both mobile and desktop
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            // Check if we're on mobile or desktop
+            if (window.innerWidth < 1024) {
+                // Mobile: slide in/out
+                sidebar.classList.toggle('-translate-x-full');
+            } else {
+                // Desktop: collapse/expand
+                toggleSidebarCollapse();
+            }
+        }
+        
+        // Toggle sidebar for mobile (legacy function for back compatibility)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('-translate-x-full');
-            sidebar.classList.toggle('lg:translate-x-0');
+        }
+        
+        // Toggle sidebar collapse/expand for desktop
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            const isCollapsed = sidebar.getAttribute('data-collapsed') === 'true';
+            
+            if (isCollapsed) {
+                // Expand
+                sidebar.setAttribute('data-collapsed', 'false');
+                mainContent.classList.remove('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', 'false');
+            } else {
+                // Collapse
+                sidebar.setAttribute('data-collapsed', 'true');
+                mainContent.classList.add('sidebar-collapsed');
+                localStorage.setItem('sidebarCollapsed', 'true');
+            }
         }
         
         // Apply permission-based visibility on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Restore sidebar state from localStorage
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebarCollapsed && window.innerWidth >= 1024) { // Only on desktop
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    toggleSidebarCollapse();
+                }
+            }
+            
             permissions.hideForGuests('.auth-only');
             permissions.showForAdmins('.admin-only');
             

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MRCMS.Core.Infrastructure;
 using MRCMS.Core.Models.Entities;
 using MRCMS.Services.Interfaces;
-using MRCMS.ViewModels;
+using MRCMS.Models.ViewModels;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

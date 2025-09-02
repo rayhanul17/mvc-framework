@@ -179,6 +179,9 @@ namespace MRCMS.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("ActiveUrl")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("ClaimType")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");

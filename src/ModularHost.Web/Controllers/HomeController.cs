@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MRCMS.Models;
+using MRCMS.Models.ViewModels;
 using MRCMS.Core.Services.Interfaces;
 using MRCMS.Modules.Blog.Models.Entities;
 using MRCMS.Modules.Blog.Models.DTOs;

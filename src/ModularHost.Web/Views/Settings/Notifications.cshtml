@@ -1,0 +1,266 @@
+@model MRCMS.Models.ViewModels.NotificationSettingsViewModel
+@{
+    ViewData["Title"] = "Notification Settings";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Notification Settings</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Configure how notifications are sent and managed</p>
+        </div>
+
+        <!-- Settings Form -->
+        <form asp-action="Notifications" method="post">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                <!-- Notification Channels -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-bell mr-2 text-blue-600"></i>Notification Channels
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <input asp-for="EnableEmailNotifications" type="checkbox" class="form-checkbox mr-3" />
+                            <div class="flex-1">
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">Email Notifications</span>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Send notifications via email</p>
+                            </div>
+                            <i class="fas fa-envelope text-2xl text-gray-400"></i>
+                        </label>
+                        
+                        <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <input asp-for="EnablePushNotifications" type="checkbox" class="form-checkbox mr-3" />
+                            <div class="flex-1">
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">Push Notifications</span>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Browser push notifications for real-time alerts</p>
+                            </div>
+                            <i class="fas fa-mobile-alt text-2xl text-gray-400"></i>
+                        </label>
+                        
+                        <label class="flex items-center p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <input asp-for="EnableInAppNotifications" type="checkbox" class="form-checkbox mr-3" />
+                            <div class="flex-1">
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">In-App Notifications</span>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Show notifications within the application</p>
+                            </div>
+                            <i class="fas fa-bell text-2xl text-gray-400"></i>
+                        </label>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label asp-for="NotificationRetentionDays" class="form-label">Notification Retention Period</label>
+                        <div class="flex items-center space-x-2">
+                            <input asp-for="NotificationRetentionDays" type="number" min="1" max="365" class="form-input w-32" />
+                            <span class="text-gray-700 dark:text-gray-300">days</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">How long to keep notification history</p>
+                    </div>
+                </div>
+
+                <!-- Email Notification Types -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-envelope-open-text mr-2 text-green-600"></i>Email Notification Types
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="flex items-center">
+                            <input asp-for="SendWelcomeEmail" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Welcome Email</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="SendPasswordResetEmail" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Password Reset Email</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="SendAccountLockedEmail" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Account Locked Email</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="SendDailySummary" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Daily Summary Email</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="SendWeeklyReport" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Weekly Report Email</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Admin Notifications -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-user-shield mr-2 text-purple-600"></i>Admin Notifications
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label asp-for="AdminAlertEmail" class="form-label">Admin Alert Email</label>
+                            <input asp-for="AdminAlertEmail" type="email" class="form-input" placeholder="admin@example.com" />
+                            <p class="text-xs text-gray-500 mt-1">Email address for critical system alerts</p>
+                        </div>
+                        
+                        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                            <h3 class="text-sm font-semibold text-yellow-900 dark:text-yellow-300 mb-2">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Admin will be notified for:
+                            </h3>
+                            <ul class="text-sm text-yellow-800 dark:text-yellow-400 space-y-1">
+                                <li>• Critical system errors</li>
+                                <li>• Security breaches or suspicious activity</li>
+                                <li>• Database connection failures</li>
+                                <li>• Service outages</li>
+                                <li>• User registration anomalies</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Templates Preview -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-file-alt mr-2 text-indigo-600"></i>Email Templates
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <button type="button" class="w-full text-left p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition" onclick="previewTemplate('welcome')">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700 dark:text-gray-300">Welcome Email Template</span>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="w-full text-left p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition" onclick="previewTemplate('reset')">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700 dark:text-gray-300">Password Reset Template</span>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="w-full text-left p-3 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition" onclick="previewTemplate('locked')">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700 dark:text-gray-300">Account Locked Template</span>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Test Notifications -->
+                <div class="p-6 bg-blue-50 dark:bg-blue-900/20">
+                    <h2 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-4">
+                        <i class="fas fa-vial mr-2"></i>Test Notifications
+                    </h2>
+                    
+                    <div class="flex items-center space-x-4">
+                        <input type="email" id="testEmail" class="form-input flex-1" placeholder="Enter email to send test notification" />
+                        <button type="button" onclick="sendTestNotification()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+                            <i class="fas fa-paper-plane mr-2"></i>Send Test
+                        </button>
+                    </div>
+                    <p class="text-xs text-blue-700 dark:text-blue-400 mt-2">Send a test notification to verify your settings</p>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="p-6 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Changes will affect how users receive notifications
+                            </p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a asp-action="Index" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200">
+                                <i class="fas fa-times mr-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+                                <i class="fas fa-save mr-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Template Preview Modal -->
+<div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-auto">
+        <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100" id="templateTitle">Email Template Preview</h3>
+            <button onclick="closeTemplateModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="p-6" id="templateContent">
+            <!-- Template content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function sendTestNotification() {
+            var email = $('#testEmail').val();
+            if (!email) {
+                toastr.error('Please enter an email address');
+                return;
+            }
+            
+            $.post('@Url.Action("TestNotification", "Settings")', { 
+                email: email,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            })
+            .done(function(data) {
+                if (data.success) {
+                    toastr.success('Test notification sent successfully!');
+                } else {
+                    toastr.error(data.message || 'Failed to send test notification');
+                }
+            })
+            .fail(function() {
+                toastr.error('An error occurred while sending the test notification');
+            });
+        }
+        
+        function previewTemplate(type) {
+            var templates = {
+                welcome: {
+                    title: 'Welcome Email Template',
+                    content: '<h2>Welcome to ModularHost!</h2><p>Thank you for joining us. Your account has been successfully created.</p><p>Get started by exploring our features and customizing your profile.</p>'
+                },
+                reset: {
+                    title: 'Password Reset Template',
+                    content: '<h2>Password Reset Request</h2><p>We received a request to reset your password.</p><p>Click the link below to reset your password:</p><p><a href="#">Reset Password</a></p><p>If you did not request this, please ignore this email.</p>'
+                },
+                locked: {
+                    title: 'Account Locked Template',
+                    content: '<h2>Account Security Alert</h2><p>Your account has been temporarily locked due to multiple failed login attempts.</p><p>For your security, please wait 15 minutes before trying again or contact support.</p>'
+                }
+            };
+            
+            var template = templates[type];
+            $('#templateTitle').text(template.title);
+            $('#templateContent').html(template.content);
+            $('#templateModal').removeClass('hidden');
+        }
+        
+        function closeTemplateModal() {
+            $('#templateModal').addClass('hidden');
+        }
+        
+        // Close modal on escape key
+        $(document).keyup(function(e) {
+            if (e.key === "Escape") {
+                closeTemplateModal();
+            }
+        });
+    </script>
+}

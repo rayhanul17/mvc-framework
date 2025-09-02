@@ -6,7 +6,7 @@ using MRCMS.Core.Infrastructure;
 using MRCMS.Core.Models.Entities;
 using MRCMS.Modules.Blog.Models.Entities;
 using MRCMS.Services.Interfaces;
-using MRCMS.ViewModels;
+using MRCMS.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

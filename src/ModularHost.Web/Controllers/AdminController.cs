@@ -6,7 +6,7 @@ using MRCMS.Core.Infrastructure;
 using MRCMS.Core.Models.Entities;
 using MRCMS.Core.Services.Interfaces;
 using MRCMS.Services.Interfaces;
-using MRCMS.ViewModels;
+using MRCMS.Models.ViewModels;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -120,13 +120,28 @@ namespace MRCMS.Controllers
                     .Take(PageSize)
                     .ToListAsync();
                 
+                // Initialize Roles list for each permission if null
+                foreach (var permission in permissions)
+                {
+                    if (permission.Roles == null)
+                    {
+                        permission.Roles = new List<string>();
+                    }
+                    // Add the role name to the Roles list
+                    if (permission.Role != null && !string.IsNullOrEmpty(permission.Role.Name))
+                    {
+                        permission.Roles.Add(permission.Role.Name);
+                    }
+                }
+                
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = totalPages;
                 ViewBag.TotalItems = totalItems;
                 ViewBag.Search = search;
                 ViewBag.EntityName = EntityName;
 
-                return View(permissions);
+                // Return an empty list if permissions is null
+                return View(permissions ?? new List<RolePermission>());
             }
             catch (Exception ex)
             {

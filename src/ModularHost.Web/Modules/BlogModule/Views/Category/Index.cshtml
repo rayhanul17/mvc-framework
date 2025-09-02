@@ -1,0 +1,350 @@
+@{
+    ViewData["Title"] = "Category Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Category Management</h1>
+        <button id="btnAddCategory" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+            <i class="fas fa-plus mr-2"></i>
+            Add New Category
+        </button>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden p-4">
+        <table id="categoriesTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                    <th>Name</th>
+                    <th>Slug</th>
+                    <th>Parent</th>
+                    <th>Order</th>
+                    <th>Posts</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="hidden">
+    <form id="categoryForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="categoryId" name="Id" />
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                <input type="text" id="categoryName" name="Name" required 
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                <span class="field-validation-error text-red-600 text-sm"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Slug</label>
+                <input type="text" id="categorySlug" name="Slug" 
+                       placeholder="Auto-generated from name if left empty"
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">URL-friendly version of the name</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                <textarea id="categoryDescription" name="Description" rows="3" 
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Parent Category</label>
+                <select id="categoryParentId" name="ParentId" 
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">-- No Parent (Top Level) --</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Display Order</label>
+                <input type="number" id="categoryDisplayOrder" name="DisplayOrder" value="0" 
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Lower numbers appear first</p>
+            </div>
+
+            <div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="categoryIsActive" name="IsActive" checked 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    <label for="categoryIsActive" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                        Active (Visible to users)
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <link href="~/lib/tailwind/datatables-tailwind.css" rel="stylesheet" />
+    <link href="~/lib/toastr/toastr.min.css" rel="stylesheet" />
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/datatables/datatables.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/js/app.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            var table;
+            var editingCategoryId = null;
+            
+            // Initialize DataTable
+            function initDataTable() {
+                table = $('#categoriesTable').DataTable({
+                    ajax: {
+                        url: '/Category/GetAll',
+                        method: 'GET'
+                    },
+                    columns: [
+                        { 
+                            data: 'name',
+                            render: function(data, type, row) {
+                                if (!row) return '';
+                                var html = '<div class="font-medium text-gray-900 dark:text-gray-100">' + (data || '') + '</div>';
+                                if (row.description) {
+                                    html += '<div class="text-sm text-gray-500 dark:text-gray-400">' + row.description + '</div>';
+                                }
+                                if (row.childCount && row.childCount > 0) {
+                                    html += '<span class="text-xs text-gray-500 dark:text-gray-400">(' + row.childCount + ' children)</span>';
+                                }
+                                return html;
+                            }
+                        },
+                        { 
+                            data: 'slug',
+                            render: function(data, type, row) {
+                                return '<span class="text-sm text-gray-900 dark:text-gray-100">' + data + '</span>';
+                            }
+                        },
+                        { 
+                            data: 'parentName',
+                            render: function(data, type, row) {
+                                if (!row) return '<span class="text-sm text-gray-500 dark:text-gray-400">-</span>';
+                                return data ? '<span class="text-sm text-gray-900 dark:text-gray-100">' + data + '</span>' : 
+                                             '<span class="text-sm text-gray-500 dark:text-gray-400">-</span>';
+                            }
+                        },
+                        { 
+                            data: 'displayOrder',
+                            render: function(data, type, row) {
+                                return '<span class="text-sm text-gray-900 dark:text-gray-100">' + data + '</span>';
+                            }
+                        },
+                        { 
+                            data: 'postCount',
+                            render: function(data, type, row) {
+                                return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">' + 
+                                       data + ' posts</span>';
+                            }
+                        },
+                        { 
+                            data: 'isActive',
+                            render: function(data, type, row) {
+                                return data ? 
+                                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>' :
+                                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>';
+                            }
+                        },
+                        { 
+                            data: 'id',
+                            render: function(data, type, row) {
+                                if (!row || !data) return '';
+                                return `
+                                    <button onclick="editCategory('${data}')" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteCategory('${data}', '${row.name || ''}')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                `;
+                            }
+                        }
+                    ],
+                    pageLength: 10,
+                    drawCallback: function() {
+                        // Any additional setup after table draw
+                    }
+                });
+            }
+            
+            // Load parent categories for dropdown
+            function loadParentCategories(excludeId) {
+                App.Ajax.get('/Category/GetAll', {}, {
+                    showLoading: false,
+                    onSuccess: function(response) {
+                        var $select = $('#categoryParentId');
+                        $select.empty();
+                        $select.append('<option value="">-- No Parent (Top Level) --</option>');
+                        
+                        if (response.data) {
+                            response.data.forEach(function(cat) {
+                                if (cat.id !== excludeId) {
+                                    $select.append('<option value="' + cat.id + '">' + cat.name + '</option>');
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+            
+            // Add category button click
+            $('#btnAddCategory').on('click', function() {
+                editingCategoryId = null;
+                App.Form.reset('#categoryForm');
+                loadParentCategories();
+                
+                App.Modal.show({
+                    title: 'Add New Category',
+                    content: $('#categoryModal').html(),
+                    size: 'md',
+                    buttons: [
+                        {
+                            text: 'Save',
+                            class: 'bg-blue-500 hover:bg-blue-700 text-white',
+                            action: 'save',
+                            onClick: function() {
+                                saveCategory();
+                            }
+                        },
+                        {
+                            text: 'Cancel',
+                            class: 'bg-gray-300 hover:bg-gray-400 text-gray-800',
+                            action: 'cancel',
+                            onClick: function() {
+                                App.Modal.hide();
+                            }
+                        }
+                    ],
+                    onShow: function() {
+                        // Auto-generate slug
+                        $('#appModal').find('#categoryName').on('blur', function() {
+                            var $slugField = $('#appModal').find('#categorySlug');
+                            if (!$slugField.val()) {
+                                var slug = $(this).val().toLowerCase()
+                                    .replace(/[^\\w\\s-]/g, '')
+                                    .replace(/\\s+/g, '-')
+                                    .replace(/--+/g, '-')
+                                    .trim();
+                                $slugField.val(slug);
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Edit category
+            window.editCategory = function(id) {
+                editingCategoryId = id;
+                
+                App.Ajax.get('/Category/Get/' + id, {}, {
+                    onSuccess: function(response) {
+                        if (response.success) {
+                            var data = response.data;
+                            loadParentCategories(id);
+                            
+                            App.Modal.show({
+                                title: 'Edit Category',
+                                content: $('#categoryModal').html(),
+                                size: 'md',
+                                buttons: [
+                                    {
+                                        text: 'Update',
+                                        class: 'bg-blue-500 hover:bg-blue-700 text-white',
+                                        action: 'save',
+                                        onClick: function() {
+                                            saveCategory(true);
+                                        }
+                                    },
+                                    {
+                                        text: 'Cancel',
+                                        class: 'bg-gray-300 hover:bg-gray-400 text-gray-800',
+                                        action: 'cancel',
+                                        onClick: function() {
+                                            App.Modal.hide();
+                                        }
+                                    }
+                                ],
+                                onShow: function() {
+                                    // Populate form
+                                    $('#appModal').find('#categoryId').val(data.id);
+                                    $('#appModal').find('#categoryName').val(data.name);
+                                    $('#appModal').find('#categorySlug').val(data.slug);
+                                    $('#appModal').find('#categoryDescription').val(data.description);
+                                    $('#appModal').find('#categoryParentId').val(data.parentId);
+                                    $('#appModal').find('#categoryDisplayOrder').val(data.displayOrder);
+                                    $('#appModal').find('#categoryIsActive').prop('checked', data.isActive);
+                                }
+                            });
+                        } else {
+                            App.Toast.error(response.message);
+                        }
+                    }
+                });
+            };
+            
+            // Save category
+            function saveCategory(isEdit) {
+                var formData = App.Form.serialize('#appModal form');
+                
+                if (!formData.Name) {
+                    App.Toast.error('Please enter a category name');
+                    return;
+                }
+                
+                var url = isEdit ? '/Category/UpdateAjax' : '/Category/CreateAjax';
+                
+                App.Ajax.post(url, JSON.stringify(formData), {
+                    loadingMessage: isEdit ? 'Updating category...' : 'Creating category...',
+                    onSuccess: function(response) {
+                        if (response.success) {
+                            App.Toast.success(response.message);
+                            App.Modal.hide();
+                            table.ajax.reload();
+                        } else {
+                            App.Toast.error(response.message);
+                        }
+                    }
+                });
+            }
+            
+            // Delete category
+            window.deleteCategory = function(id, name) {
+                App.Modal.confirm({
+                    title: 'Delete Category',
+                    message: 'Are you sure you want to delete the category "' + name + '"? This action cannot be undone.',
+                    confirmText: 'Delete',
+                    confirmClass: 'bg-red-500 hover:bg-red-700 text-white',
+                    onConfirm: function() {
+                        App.Ajax.post('/Category/DeleteAjax/' + id, {}, {
+                            loadingMessage: 'Deleting category...',
+                            onSuccess: function(response) {
+                                if (response.success) {
+                                    App.Toast.success(response.message);
+                                    table.ajax.reload();
+                                } else {
+                                    App.Toast.error(response.message);
+                                }
+                            }
+                        });
+                    }
+                });
+            };
+            
+            // Initialize
+            initDataTable();
+        });
+    </script>
+}

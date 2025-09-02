@@ -14,7 +14,7 @@ using MRCMS.Core.Models.Entities;
 namespace MRCMS.Modules.Blog.Controllers
 {
     [Area("Blog")]
-    [Route("Blog/Category")]
+    [Route("[controller]")]
     [Authorize(Roles = "Admin,BlogAuthor,SuperAdmin")]
     public class CategoryController : BaseController<Category>
     {
@@ -221,6 +221,164 @@ namespace MRCMS.Modules.Blog.Controllers
             }
 
             return true;
+        }
+
+        // AJAX: Get all categories for DataTable
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var categories = await _repository.Query()
+                .Include(c => c.Parent)
+                .Include(c => c.Children)
+                .Include(c => c.BlogPosts)
+                .Where(c => !c.IsDeleted)
+                .OrderBy(c => c.DisplayOrder)
+                .ThenBy(c => c.Name)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name,
+                    c.Slug,
+                    c.Description,
+                    ParentName = c.Parent != null ? c.Parent.Name : "",
+                    c.DisplayOrder,
+                    c.IsActive,
+                    PostCount = c.BlogPosts.Count,
+                    ChildCount = c.Children.Count,
+                    c.CreatedAt
+                })
+                .ToListAsync();
+
+            return Json(new { data = categories });
+        }
+
+        // AJAX: Get single category for edit
+        [HttpGet("Get/{id}")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            var category = await _repository.GetByIdAsync(id);
+            if (category == null)
+            {
+                return Json(new { success = false, message = "Category not found" });
+            }
+
+            return Json(new { success = true, data = category });
+        }
+
+        // AJAX: Create category
+        [HttpPost("CreateAjax")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> CreateAjax([FromBody] Category model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Json(new { success = false, message = "Invalid data" });
+                }
+
+                model.Id = Guid.NewGuid();
+                model.CreatedAt = DateTime.UtcNow;
+                model.CreatedBy = CurrentUserId;
+                
+                await BeforeCreate(model);
+                
+                if (!await ValidateEntity(model))
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    return Json(new { success = false, message = string.Join(", ", errors) });
+                }
+
+                await _repository.AddAsync(model);
+                await _unitOfWork.CommitAsync();
+
+                _logger.LogInformation("Category created: {Name} by {User}", model.Name, CurrentUserName);
+
+                return Json(new { success = true, message = "Category created successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error creating category", ex);
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // AJAX: Update category
+        [HttpPost("UpdateAjax")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> UpdateAjax([FromBody] Category model)
+        {
+            try
+            {
+                var existingEntity = await _repository.GetByIdAsync(model.Id);
+                if (existingEntity == null)
+                {
+                    return Json(new { success = false, message = "Category not found" });
+                }
+
+                existingEntity.Name = model.Name;
+                existingEntity.Slug = model.Slug;
+                existingEntity.Description = model.Description;
+                existingEntity.ParentId = model.ParentId;
+                existingEntity.DisplayOrder = model.DisplayOrder;
+                existingEntity.IsActive = model.IsActive;
+                existingEntity.UpdatedAt = DateTime.UtcNow;
+                existingEntity.UpdatedBy = CurrentUserId;
+
+                await BeforeUpdate(existingEntity, existingEntity);
+                
+                if (!await ValidateEntity(existingEntity, true))
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    return Json(new { success = false, message = string.Join(", ", errors) });
+                }
+
+                _repository.Update(existingEntity);
+                await _unitOfWork.CommitAsync();
+
+                _logger.LogInformation("Category updated: {Name} by {User}", model.Name, CurrentUserName);
+
+                return Json(new { success = true, message = "Category updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error updating category", ex);
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // AJAX: Delete category
+        [HttpPost("DeleteAjax/{id}")]
+        public async Task<IActionResult> DeleteAjax(Guid id)
+        {
+            try
+            {
+                var entity = await GetEntityWithIncludes(id);
+                if (entity == null)
+                {
+                    return Json(new { success = false, message = "Category not found" });
+                }
+
+                if (!await CanDelete(entity))
+                {
+                    return Json(new { success = false, message = TempData["Error"]?.ToString() ?? "Cannot delete this category" });
+                }
+
+                entity.IsDeleted = true;
+                entity.UpdatedAt = DateTime.UtcNow;
+                entity.UpdatedBy = CurrentUserId;
+                _repository.Update(entity);
+                await _unitOfWork.CommitAsync();
+
+                _logger.LogInformation("Category deleted: {Name} by {User}", entity.Name, CurrentUserName);
+
+                return Json(new { success = true, message = "Category deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error deleting category", ex);
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         // Custom action for updating category order

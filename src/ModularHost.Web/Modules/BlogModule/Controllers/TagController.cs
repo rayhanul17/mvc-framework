@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace MRCMS.Modules.Blog.Controllers
 {
     [Area("Blog")]
-    [Route("Blog/Tag")]
+    [Route("[controller]")]
     [Authorize(Roles = "Admin,BlogAuthor,SuperAdmin")]
     public class TagController : BaseController<Tag>
     {
@@ -158,6 +158,156 @@ namespace MRCMS.Modules.Blog.Controllers
             }
 
             return true;
+        }
+
+        // AJAX: Get all tags for DataTable
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            var tags = await _repository.Query()
+                .Include(t => t.BlogPosts)
+                .Where(t => !t.IsDeleted)
+                .OrderBy(t => t.Name)
+                .Select(t => new
+                {
+                    t.Id,
+                    t.Name,
+                    t.Slug,
+                    t.Description,
+                    t.IsActive,
+                    PostCount = t.BlogPosts.Count(p => !p.IsDeleted && p.IsPublished),
+                    t.CreatedAt
+                })
+                .ToListAsync();
+
+            return Json(new { data = tags });
+        }
+
+        // AJAX: Get single tag for edit
+        [HttpGet("Get/{id}")]
+        public async Task<IActionResult> Get(Guid id)
+        {
+            var tag = await _repository.GetByIdAsync(id);
+            if (tag == null)
+            {
+                return Json(new { success = false, message = "Tag not found" });
+            }
+
+            return Json(new { success = true, data = tag });
+        }
+
+        // AJAX: Create tag
+        [HttpPost("CreateAjax")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> CreateAjax([FromBody] Tag model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return Json(new { success = false, message = "Invalid data" });
+                }
+
+                model.Id = Guid.NewGuid();
+                model.CreatedAt = DateTime.UtcNow;
+                model.CreatedBy = CurrentUserId;
+                
+                await BeforeCreate(model);
+                
+                if (!await ValidateEntity(model))
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    return Json(new { success = false, message = string.Join(", ", errors) });
+                }
+
+                await _repository.AddAsync(model);
+                await _unitOfWork.CommitAsync();
+
+                _logger.LogInformation("Tag created: {Name} by {User}", model.Name, CurrentUserName);
+
+                return Json(new { success = true, message = "Tag created successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error creating tag", ex);
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // AJAX: Update tag
+        [HttpPost("UpdateAjax")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> UpdateAjax([FromBody] Tag model)
+        {
+            try
+            {
+                var existingEntity = await _repository.GetByIdAsync(model.Id);
+                if (existingEntity == null)
+                {
+                    return Json(new { success = false, message = "Tag not found" });
+                }
+
+                existingEntity.Name = model.Name;
+                existingEntity.Slug = model.Slug;
+                existingEntity.Description = model.Description;
+                existingEntity.IsActive = model.IsActive;
+                existingEntity.UpdatedAt = DateTime.UtcNow;
+                existingEntity.UpdatedBy = CurrentUserId;
+
+                await BeforeUpdate(existingEntity, existingEntity);
+                
+                if (!await ValidateEntity(existingEntity, true))
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                    return Json(new { success = false, message = string.Join(", ", errors) });
+                }
+
+                _repository.Update(existingEntity);
+                await _unitOfWork.CommitAsync();
+
+                _logger.LogInformation("Tag updated: {Name} by {User}", model.Name, CurrentUserName);
+
+                return Json(new { success = true, message = "Tag updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error updating tag", ex);
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // AJAX: Delete tag
+        [HttpPost("DeleteAjax/{id}")]
+        public async Task<IActionResult> DeleteAjax(Guid id)
+        {
+            try
+            {
+                var entity = await GetEntityWithIncludes(id);
+                if (entity == null)
+                {
+                    return Json(new { success = false, message = "Tag not found" });
+                }
+
+                if (!await CanDelete(entity))
+                {
+                    return Json(new { success = false, message = TempData["Error"]?.ToString() ?? "Cannot delete this tag" });
+                }
+
+                entity.IsDeleted = true;
+                entity.UpdatedAt = DateTime.UtcNow;
+                entity.UpdatedBy = CurrentUserId;
+                _repository.Update(entity);
+                await _unitOfWork.CommitAsync();
+
+                _logger.LogInformation("Tag deleted: {Name} by {User}", entity.Name, CurrentUserName);
+
+                return Json(new { success = true, message = "Tag deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error deleting tag", ex);
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         // Custom action for merging tags

@@ -1,213 +1,180 @@
-@model List<MRCMS.ViewModels.ModuleViewModel>
+@model List<MRCMS.Models.ViewModels.ModuleViewModel>
 @{
     ViewData["Title"] = "Module Management";
 }
 
-<div class="container-fluid">
-    <div class="row mb-3">
-        <div class="col-12">
-            <h2 class="text-2xl font-bold dark:text-white">
-                <i class="fas fa-puzzle-piece"></i> Module Management
-            </h2>
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <i class="fas fa-puzzle-piece mr-2 text-purple-600"></i>Module Management
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Manage and configure system modules</p>
         </div>
+        <button type="button" onclick="applyAllMigrations()" 
+                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+            <i class="fas fa-database mr-2"></i>Apply All Migrations
+        </button>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-12">
-            <button type="button" class="btn btn-success" onclick="applyAllMigrations()">
-                <i class="fas fa-database"></i> Apply All Migrations
-            </button>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Installed Modules</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Module</th>
-                                    <th>Description</th>
-                                    <th>Version</th>
-                                    <th>Author</th>
-                                    <th>Table Prefix</th>
-                                    <th>Entities</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var module in Model)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div class="custom-control custom-switch">
-                                                <input type="checkbox" class="custom-control-input module-toggle" 
-                                                       id="toggle-@module.Name" 
-                                                       data-module="@module.Name"
-                                                       @(module.IsActive ? "checked" : "")>
-                                                <label class="custom-control-label" for="toggle-@module.Name">
-                                                    @if (module.IsActive)
-                                                    {
-                                                        <span class="badge badge-success">Active</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="badge badge-secondary">Inactive</span>
-                                                    }
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <strong>@module.DisplayName</strong>
-                                            <br />
-                                            <small class="text-muted">@module.Name</small>
-                                        </td>
-                                        <td>@module.Description</td>
-                                        <td>
-                                            <span class="badge badge-info">@module.Version</span>
-                                        </td>
-                                        <td>@module.Author</td>
-                                        <td>
-                                            <code>@module.TablePrefix</code>
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-primary">@module.EntityCount entities</span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-primary" 
-                                                        onclick="updateTables('@module.Name')"
-                                                        title="Apply migrations for this module">
-                                                    <i class="fas fa-sync"></i> Update Tables
-                                                </button>
-                                                <a href="@Url.Action("Details", new { moduleName = module.Name })" 
-                                                   class="btn btn-sm btn-info" title="View module details">
-                                                    <i class="fas fa-info-circle"></i> Details
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+    <!-- Module Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var module in Model)
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <!-- Module Header -->
+                <div class="p-6 border-b dark:border-gray-700">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                            @module.DisplayName
+                        </h3>
+                        <div class="flex items-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" 
+                                       class="sr-only peer module-toggle" 
+                                       data-module="@module.Name" 
+                                       @(module.IsActive ? "checked" : "")
+                                       onchange="toggleModule('@module.Name', this.checked)">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
+                            <span class="ml-2 text-sm @(module.IsActive ? "text-green-600" : "text-gray-500")">
+                                @(module.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
                     </div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm">
+                        @module.Description
+                    </p>
+                </div>
+
+                <!-- Module Info -->
+                <div class="p-6 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Version</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">@module.Version</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Author</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">@module.Author</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Table Prefix</span>
+                        <span class="text-sm font-mono text-gray-900 dark:text-gray-100">@module.TablePrefix</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Entities</span>
+                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100">@module.EntityCount</span>
+                    </div>
+                    @if (module.Tables != null && module.Tables.Any())
+                    {
+                        <div class="pt-3 border-t dark:border-gray-700">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 block mb-2">Tables:</span>
+                            <div class="flex flex-wrap gap-1">
+                                @foreach (var table in module.Tables.Take(3))
+                                {
+                                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs rounded">@table</span>
+                                }
+                                @if (module.Tables.Length > 3)
+                                {
+                                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs rounded">+@(module.Tables.Length - 3) more</span>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Module Actions -->
+                <div class="px-6 pb-6 space-y-2">
+                    <a asp-action="Details" asp-route-name="@module.Name" 
+                       class="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-info-circle mr-2"></i>View Details
+                    </a>
+                    <button onclick="updateTables('@module.Name')" 
+                            class="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-sync mr-2"></i>Update Tables
+                    </button>
                 </div>
             </div>
-        </div>
+        }
     </div>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
+            <i class="fas fa-puzzle-piece text-6xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No Modules Found</h3>
+            <p class="text-gray-600 dark:text-gray-400">No modules are currently installed in the system.</p>
+        </div>
+    }
 </div>
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            $('.module-toggle').on('change', function() {
-                var moduleName = $(this).data('module');
-                var isActive = $(this).is(':checked');
-                var toggle = this;
-                
-                loader.show('Updating module status...');
-                
-                $.ajax({
-                    url: '@Url.Action("ToggleModule")',
-                    type: 'POST',
-                    data: {
-                        moduleName: moduleName,
-                        isActive: isActive,
-                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function(response) {
-                        loader.hide();
-                        if (response.success) {
-                            notification.success(response.message);
-                            
-                            // Update badge
-                            var badge = $(toggle).siblings('label').find('.badge');
-                            if (isActive) {
-                                badge.removeClass('badge-secondary').addClass('badge-success').text('Active');
-                            } else {
-                                badge.removeClass('badge-success').addClass('badge-secondary').text('Inactive');
-                            }
-                        } else {
-                            notification.error(response.message);
-                            // Revert toggle
-                            $(toggle).prop('checked', !isActive);
-                        }
-                    },
-                    error: function() {
-                        loader.hide();
-                        notification.error('An error occurred while updating module status');
-                        // Revert toggle
-                        $(toggle).prop('checked', !isActive);
+        function toggleModule(moduleName, enable) {
+            if (confirm(`Are you sure you want to ${enable ? 'enable' : 'disable'} this module?`)) {
+                $.post('@Url.Action("ToggleModule")', { 
+                    moduleName: moduleName,
+                    enable: enable,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        toastr.success(data.message || 'Module status updated successfully');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        toastr.error(data.message || 'Failed to update module status');
+                        // Reset the toggle
+                        $(`input[data-module="${moduleName}"]`).prop('checked', !enable);
                     }
+                })
+                .fail(function() {
+                    toastr.error('An error occurred while updating module status');
+                    // Reset the toggle
+                    $(`input[data-module="${moduleName}"]`).prop('checked', !enable);
                 });
-            });
-        });
+            } else {
+                // Reset the toggle if cancelled
+                $(`input[data-module="${moduleName}"]`).prop('checked', !enable);
+            }
+        }
         
         function updateTables(moduleName) {
-            loader.show('Applying migrations...');
-            
-            $.ajax({
-                url: '@Url.Action("UpdateTables")',
-                type: 'POST',
-                data: {
+            if (confirm('Update database tables for this module?')) {
+                $.post('@Url.Action("UpdateTables")', { 
                     moduleName: moduleName,
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function(response) {
-                    loader.hide();
-                    if (response.success) {
-                        if (response.migrationsApplied > 0) {
-                            notification.success(response.message);
-                        } else {
-                            notification.info(response.message);
-                        }
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        toastr.success('Tables updated successfully');
                     } else {
-                        notification.error(response.message);
+                        toastr.error(data.message || 'Failed to update tables');
                     }
-                },
-                error: function() {
-                    loader.hide();
-                    notification.error('An error occurred while updating tables');
-                }
-            });
+                })
+                .fail(function() {
+                    toastr.error('An error occurred while updating tables');
+                });
+            }
         }
         
         function applyAllMigrations() {
-            if (!confirm('Are you sure you want to apply all pending migrations?')) {
-                return;
-            }
-            
-            loader.show('Applying all migrations...');
-            
-            $.ajax({
-                url: '@Url.Action("ApplyAllMigrations")',
-                type: 'POST',
-                data: {
+            if (confirm('Apply all pending migrations for all modules?')) {
+                toastr.info('Applying migrations... This may take a moment.');
+                $.post('@Url.Action("ApplyAllMigrations")', { 
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function(response) {
-                    loader.hide();
-                    if (response.success) {
-                        if (response.migrationsApplied > 0) {
-                            notification.success(response.message);
-                        } else {
-                            notification.info(response.message);
-                        }
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        toastr.success('All migrations applied successfully');
+                        setTimeout(() => location.reload(), 1500);
                     } else {
-                        notification.error(response.message);
+                        toastr.error(data.message || 'Failed to apply migrations');
                     }
-                },
-                error: function() {
-                    loader.hide();
-                    notification.error('An error occurred while applying migrations');
-                }
-            });
+                })
+                .fail(function() {
+                    toastr.error('An error occurred while applying migrations');
+                });
+            }
         }
     </script>
 }

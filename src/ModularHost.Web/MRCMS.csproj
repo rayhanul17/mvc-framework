@@ -26,5 +26,15 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
+  <!-- Auto-compile Tailwind CSS on build -->
+  <Target Name="BuildTailwindCSS" BeforeTargets="Build">
+    <Exec Command="npm install" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="npm run build-css" WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+  <!-- Watch Tailwind CSS during development -->
+  <Target Name="WatchTailwindCSS" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
+    <Exec Command="npm run watch-css" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" />
+  </Target>
 
 </Project>

@@ -1,0 +1,147 @@
+@model MRCMS.Models.ViewModels.AdvancedSettingsViewModel
+@{
+    ViewData["Title"] = "Advanced Settings";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Advanced Settings</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Configure advanced system and performance settings</p>
+        </div>
+
+        <form asp-action="Advanced" method="post">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                <!-- Performance -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-tachometer-alt mr-2 text-green-600"></i>Performance
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <label class="flex items-center">
+                            <input asp-for="EnableCaching" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Enable Caching</span>
+                        </label>
+                        
+                        <div>
+                            <label asp-for="CacheDurationMinutes" class="form-label">Cache Duration (minutes)</label>
+                            <input asp-for="CacheDurationMinutes" type="number" min="1" max="1440" class="form-input" />
+                        </div>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="EnableCdn" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Enable CDN</span>
+                        </label>
+                        
+                        <div>
+                            <label asp-for="CdnUrl" class="form-label">CDN URL</label>
+                            <input asp-for="CdnUrl" type="url" class="form-input" placeholder="https://cdn.example.com" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Settings -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-plug mr-2 text-blue-600"></i>API & Integration
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <label class="flex items-center">
+                            <input asp-for="EnableApi" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Enable API</span>
+                        </label>
+                        
+                        <div>
+                            <label asp-for="ApiRateLimit" class="form-label">API Rate Limit (per minute)</label>
+                            <input asp-for="ApiRateLimit" type="number" min="10" max="1000" class="form-input" />
+                        </div>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="EnableWebSockets" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Enable WebSockets</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="EnableBackgroundJobs" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Enable Background Jobs</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Developer Options -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-code mr-2 text-purple-600"></i>Developer Options
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <label class="flex items-center">
+                            <input asp-for="EnableDevelopmentMode" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Development Mode</span>
+                        </label>
+                        
+                        <label class="flex items-center">
+                            <input asp-for="EnableDebugLogging" type="checkbox" class="form-checkbox mr-2" />
+                            <span class="text-gray-700 dark:text-gray-300">Debug Logging</span>
+                        </label>
+                        
+                        <div>
+                            <label asp-for="LogLevel" class="form-label">Log Level</label>
+                            <select asp-for="LogLevel" class="form-select">
+                                <option value="Trace">Trace</option>
+                                <option value="Debug">Debug</option>
+                                <option value="Information">Information</option>
+                                <option value="Warning">Warning</option>
+                                <option value="Error">Error</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="JobRetentionDays" class="form-label">Job Retention (days)</label>
+                            <input asp-for="JobRetentionDays" type="number" min="1" max="90" class="form-input" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File Upload -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-upload mr-2 text-yellow-600"></i>File Upload Settings
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label asp-for="MaxUploadSizeMb" class="form-label">Max Upload Size (MB)</label>
+                            <input asp-for="MaxUploadSizeMb" type="number" min="1" max="100" class="form-input" />
+                        </div>
+                        
+                        <div>
+                            <label asp-for="AllowedFileExtensions" class="form-label">Allowed File Extensions</label>
+                            <input asp-for="AllowedFileExtensions" type="text" class="form-input" />
+                            <p class="text-xs text-gray-500 mt-1">Comma-separated list (e.g., .jpg,.pdf)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="p-6 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-yellow-600 dark:text-yellow-400">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Warning: These settings can affect system stability
+                        </div>
+                        <div class="flex space-x-3">
+                            <a asp-action="Index" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Cancel</a>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-save mr-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

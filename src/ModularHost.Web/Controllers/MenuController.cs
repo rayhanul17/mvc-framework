@@ -120,6 +120,24 @@ namespace MRCMS.Controllers
                 .MaxAsync(m => (int?)m.Order) ?? 0;
 
             entity.Order = maxOrder + 1;
+            
+            // Set ActiveUrl to Url if not provided
+            if (string.IsNullOrWhiteSpace(entity.ActiveUrl))
+            {
+                entity.ActiveUrl = entity.Url;
+            }
+        }
+
+        // Handle ActiveUrl before update
+        protected override async Task BeforeUpdate(Menu entity, Menu existingEntity)
+        {
+            // Set ActiveUrl to Url if not provided
+            if (string.IsNullOrWhiteSpace(entity.ActiveUrl))
+            {
+                entity.ActiveUrl = entity.Url;
+            }
+            
+            await base.BeforeUpdate(entity, existingEntity);
         }
 
         // Prevent deletion if menu has children

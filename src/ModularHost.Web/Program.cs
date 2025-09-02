@@ -208,6 +208,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Add status code pages middleware for handling 404 and other status codes
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
 app.UseStaticFiles();
 app.UseRouting();
 

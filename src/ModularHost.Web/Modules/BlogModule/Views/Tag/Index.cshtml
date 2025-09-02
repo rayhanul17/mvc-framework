@@ -1,0 +1,299 @@
+@{
+    ViewData["Title"] = "Tag Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Tag Management</h1>
+        <button id="btnAddTag" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+            <i class="fas fa-plus mr-2"></i>
+            Add New Tag
+        </button>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden p-4">
+        <table id="tagsTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                    <th>Name</th>
+                    <th>Slug</th>
+                    <th>Description</th>
+                    <th>Posts</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Tag Modal -->
+<div id="tagModal" class="hidden">
+    <form id="tagForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" id="tagId" name="Id" />
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name *</label>
+                <input type="text" id="tagName" name="Name" required 
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                <span class="field-validation-error text-red-600 text-sm"></span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Slug</label>
+                <input type="text" id="tagSlug" name="Slug" 
+                       placeholder="Auto-generated from name if left empty"
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">URL-friendly version of the name</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                <textarea id="tagDescription" name="Description" rows="3" 
+                          placeholder="Optional description for this tag"
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+            </div>
+
+            <div>
+                <div class="flex items-center">
+                    <input type="checkbox" id="tagIsActive" name="IsActive" checked 
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    <label for="tagIsActive" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                        Active (Visible and usable for tagging)
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <link href="~/lib/tailwind/datatables-tailwind.css" rel="stylesheet" />
+    <link href="~/lib/toastr/toastr.min.css" rel="stylesheet" />
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/datatables/datatables.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/js/app.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            var table;
+            var editingTagId = null;
+            
+            // Initialize DataTable
+            function initDataTable() {
+                table = $('#tagsTable').DataTable({
+                    ajax: {
+                        url: '/Tag/GetAll',
+                        method: 'GET'
+                    },
+                    columns: [
+                        { 
+                            data: 'name',
+                            render: function(data, type, row) {
+                                if (!row) return '';
+                                return '<div class="font-medium text-gray-900 dark:text-gray-100">' + (data || '') + '</div>';
+                            }
+                        },
+                        { 
+                            data: 'slug',
+                            render: function(data, type, row) {
+                                return '<span class="text-sm text-gray-900 dark:text-gray-100">' + data + '</span>';
+                            }
+                        },
+                        { 
+                            data: 'description',
+                            render: function(data, type, row) {
+                                if (!row) return '<span class="text-sm text-gray-500 dark:text-gray-400">-</span>';
+                                return data ? 
+                                    '<span class="text-sm text-gray-500 dark:text-gray-400">' + data + '</span>' :
+                                    '<span class="text-sm text-gray-500 dark:text-gray-400">-</span>';
+                            }
+                        },
+                        { 
+                            data: 'postCount',
+                            render: function(data, type, row) {
+                                return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">' + 
+                                       data + ' posts</span>';
+                            }
+                        },
+                        { 
+                            data: 'isActive',
+                            render: function(data, type, row) {
+                                return data ? 
+                                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>' :
+                                    '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>';
+                            }
+                        },
+                        { 
+                            data: 'id',
+                            render: function(data, type, row) {
+                                if (!row || !data) return '';
+                                return `
+                                    <button onclick="editTag('${data}')" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteTag('${data}', '${row.name || ''}')" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                `;
+                            }
+                        }
+                    ],
+                    pageLength: 10,
+                    drawCallback: function() {
+                        // Any additional setup after table draw
+                    }
+                });
+            }
+            
+            // Add tag button click
+            $('#btnAddTag').on('click', function() {
+                editingTagId = null;
+                App.Form.reset('#tagForm');
+                
+                App.Modal.show({
+                    title: 'Add New Tag',
+                    content: $('#tagModal').html(),
+                    size: 'md',
+                    buttons: [
+                        {
+                            text: 'Save',
+                            class: 'bg-blue-500 hover:bg-blue-700 text-white',
+                            action: 'save',
+                            onClick: function() {
+                                saveTag();
+                            }
+                        },
+                        {
+                            text: 'Cancel',
+                            class: 'bg-gray-300 hover:bg-gray-400 text-gray-800',
+                            action: 'cancel',
+                            onClick: function() {
+                                App.Modal.hide();
+                            }
+                        }
+                    ],
+                    onShow: function() {
+                        // Auto-generate slug
+                        $('#appModal').find('#tagName').on('blur', function() {
+                            var $slugField = $('#appModal').find('#tagSlug');
+                            if (!$slugField.val()) {
+                                var slug = $(this).val().toLowerCase()
+                                    .replace(/[^\\w\\s-]/g, '')
+                                    .replace(/\\s+/g, '-')
+                                    .replace(/--+/g, '-')
+                                    .trim();
+                                $slugField.val(slug);
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Edit tag
+            window.editTag = function(id) {
+                editingTagId = id;
+                
+                App.Ajax.get('/Tag/Get/' + id, {}, {
+                    onSuccess: function(response) {
+                        if (response.success) {
+                            var data = response.data;
+                            
+                            App.Modal.show({
+                                title: 'Edit Tag',
+                                content: $('#tagModal').html(),
+                                size: 'md',
+                                buttons: [
+                                    {
+                                        text: 'Update',
+                                        class: 'bg-blue-500 hover:bg-blue-700 text-white',
+                                        action: 'save',
+                                        onClick: function() {
+                                            saveTag(true);
+                                        }
+                                    },
+                                    {
+                                        text: 'Cancel',
+                                        class: 'bg-gray-300 hover:bg-gray-400 text-gray-800',
+                                        action: 'cancel',
+                                        onClick: function() {
+                                            App.Modal.hide();
+                                        }
+                                    }
+                                ],
+                                onShow: function() {
+                                    // Populate form
+                                    $('#appModal').find('#tagId').val(data.id);
+                                    $('#appModal').find('#tagName').val(data.name);
+                                    $('#appModal').find('#tagSlug').val(data.slug);
+                                    $('#appModal').find('#tagDescription').val(data.description);
+                                    $('#appModal').find('#tagIsActive').prop('checked', data.isActive);
+                                }
+                            });
+                        } else {
+                            App.Toast.error(response.message);
+                        }
+                    }
+                });
+            };
+            
+            // Save tag
+            function saveTag(isEdit) {
+                var formData = App.Form.serialize('#appModal form');
+                
+                if (!formData.Name) {
+                    App.Toast.error('Please enter a tag name');
+                    return;
+                }
+                
+                var url = isEdit ? '/Tag/UpdateAjax' : '/Tag/CreateAjax';
+                
+                App.Ajax.post(url, JSON.stringify(formData), {
+                    loadingMessage: isEdit ? 'Updating tag...' : 'Creating tag...',
+                    onSuccess: function(response) {
+                        if (response.success) {
+                            App.Toast.success(response.message);
+                            App.Modal.hide();
+                            table.ajax.reload();
+                        } else {
+                            App.Toast.error(response.message);
+                        }
+                    }
+                });
+            }
+            
+            // Delete tag
+            window.deleteTag = function(id, name) {
+                App.Modal.confirm({
+                    title: 'Delete Tag',
+                    message: 'Are you sure you want to delete the tag "' + name + '"? This action cannot be undone.',
+                    confirmText: 'Delete',
+                    confirmClass: 'bg-red-500 hover:bg-red-700 text-white',
+                    onConfirm: function() {
+                        App.Ajax.post('/Tag/DeleteAjax/' + id, {}, {
+                            loadingMessage: 'Deleting tag...',
+                            onSuccess: function(response) {
+                                if (response.success) {
+                                    App.Toast.success(response.message);
+                                    table.ajax.reload();
+                                } else {
+                                    App.Toast.error(response.message);
+                                }
+                            }
+                        });
+                    }
+                });
+            };
+            
+            // Initialize
+            initDataTable();
+        });
+    </script>
+}

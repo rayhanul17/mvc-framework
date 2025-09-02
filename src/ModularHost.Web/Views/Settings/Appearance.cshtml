@@ -1,0 +1,256 @@
+@model MRCMS.Models.ViewModels.AppearanceSettingsViewModel
+@{
+    ViewData["Title"] = "Appearance Settings";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Appearance Settings</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Customize the look and feel of your application</p>
+        </div>
+
+        <!-- Settings Form -->
+        <form asp-action="Appearance" method="post">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                <!-- Theme Settings -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-palette mr-2 text-purple-600"></i>Theme Settings
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label asp-for="Theme" class="form-label">Theme</label>
+                            <select asp-for="Theme" class="form-select">
+                                <option value="default">Default</option>
+                                <option value="modern">Modern</option>
+                                <option value="classic">Classic</option>
+                                <option value="minimal">Minimal</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input asp-for="EnableDarkMode" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Enable Dark Mode Toggle</span>
+                            </label>
+                            <p class="text-xs text-gray-500 mt-1">Allow users to switch between light and dark themes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Color Customization -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-paint-brush mr-2 text-blue-600"></i>Color Scheme
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label asp-for="PrimaryColor" class="form-label">Primary Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input asp-for="PrimaryColor" type="color" class="h-10 w-20" />
+                                <input asp-for="PrimaryColor" type="text" class="form-input flex-1" readonly />
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Main brand color used throughout the application</p>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="SecondaryColor" class="form-label">Secondary Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input asp-for="SecondaryColor" type="color" class="h-10 w-20" id="secondaryColorPicker" />
+                                <input asp-for="SecondaryColor" type="text" class="form-input flex-1" id="secondaryColorText" readonly />
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Accent color for secondary elements</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Color Preview -->
+                    <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Color Preview</p>
+                        <div class="flex space-x-4">
+                            <button type="button" class="px-4 py-2 text-white rounded" id="primaryPreview" style="background-color: @Model.PrimaryColor">
+                                Primary Button
+                            </button>
+                            <button type="button" class="px-4 py-2 text-white rounded" id="secondaryPreview" style="background-color: @Model.SecondaryColor">
+                                Secondary Button
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Branding -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-image mr-2 text-green-600"></i>Branding
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label asp-for="LogoUrl" class="form-label">Logo URL</label>
+                            <input asp-for="LogoUrl" type="text" class="form-input" placeholder="/img/logo.png" />
+                            <p class="text-xs text-gray-500 mt-1">URL or path to your logo image</p>
+                            <div class="mt-2" id="logoPreview">
+                                @if (!string.IsNullOrEmpty(Model?.LogoUrl))
+                                {
+                                    <img src="@Model.LogoUrl" alt="Logo Preview" class="h-12" />
+                                }
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="FaviconUrl" class="form-label">Favicon URL</label>
+                            <input asp-for="FaviconUrl" type="text" class="form-input" placeholder="/favicon.ico" />
+                            <p class="text-xs text-gray-500 mt-1">Small icon shown in browser tabs</p>
+                            <div class="mt-2" id="faviconPreview">
+                                @if (!string.IsNullOrEmpty(Model?.FaviconUrl))
+                                {
+                                    <img src="@Model.FaviconUrl" alt="Favicon Preview" class="h-8 w-8" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Code -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-code mr-2 text-yellow-600"></i>Custom Code
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label asp-for="CustomCss" class="form-label">Custom CSS</label>
+                            <textarea asp-for="CustomCss" rows="6" class="form-input font-mono text-sm" 
+                                      placeholder="/* Add your custom CSS here */"></textarea>
+                            <p class="text-xs text-gray-500 mt-1">Custom CSS will be added to all pages</p>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="CustomJavaScript" class="form-label">Custom JavaScript</label>
+                            <textarea asp-for="CustomJavaScript" rows="6" class="form-input font-mono text-sm" 
+                                      placeholder="// Add your custom JavaScript here"></textarea>
+                            <p class="text-xs text-gray-500 mt-1">Custom JavaScript will be executed on all pages</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Settings -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-align-bottom mr-2 text-indigo-600"></i>Footer Settings
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="flex items-center mb-3">
+                                <input asp-for="ShowFooter" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Show Footer</span>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <label asp-for="FooterText" class="form-label">Footer Text</label>
+                            <input asp-for="FooterText" type="text" class="form-input" />
+                            <p class="text-xs text-gray-500 mt-1">Copyright text displayed in the footer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="p-6 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <button type="button" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200" onclick="resetToDefaults()">
+                                <i class="fas fa-undo mr-2"></i>Reset to Defaults
+                            </button>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a asp-action="Index" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200">
+                                <i class="fas fa-times mr-2"></i>Cancel
+                            </a>
+                            <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200" onclick="previewChanges()">
+                                <i class="fas fa-eye mr-2"></i>Preview
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200">
+                                <i class="fas fa-save mr-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Color picker synchronization
+            $('#PrimaryColor').on('input', function() {
+                $('#primaryPreview').css('background-color', $(this).val());
+            });
+            
+            $('#secondaryColorPicker').on('input', function() {
+                $('#secondaryColorText').val($(this).val());
+                $('#secondaryPreview').css('background-color', $(this).val());
+            });
+            
+            // Logo preview
+            $('#LogoUrl').on('input', function() {
+                var url = $(this).val();
+                if (url) {
+                    $('#logoPreview').html('<img src="' + url + '" alt="Logo Preview" class="h-12" onerror="this.style.display=\'none\'">');
+                } else {
+                    $('#logoPreview').empty();
+                }
+            });
+            
+            // Favicon preview
+            $('#FaviconUrl').on('input', function() {
+                var url = $(this).val();
+                if (url) {
+                    $('#faviconPreview').html('<img src="' + url + '" alt="Favicon Preview" class="h-8 w-8" onerror="this.style.display=\'none\'">');
+                } else {
+                    $('#faviconPreview').empty();
+                }
+            });
+        });
+        
+        function resetToDefaults() {
+            if (confirm('Are you sure you want to reset all appearance settings to defaults?')) {
+                $('#Theme').val('default');
+                $('#EnableDarkMode').prop('checked', true);
+                $('#PrimaryColor').val('#3b82f6').trigger('input');
+                $('#SecondaryColor').val('#64748b').trigger('input');
+                $('#LogoUrl').val('').trigger('input');
+                $('#FaviconUrl').val('').trigger('input');
+                $('#CustomCss').val('');
+                $('#CustomJavaScript').val('');
+                $('#ShowFooter').prop('checked', true);
+                $('#FooterText').val('© 2024 ModularHost. All rights reserved.');
+            }
+        }
+        
+        function previewChanges() {
+            // Apply preview changes temporarily
+            var primaryColor = $('#PrimaryColor').val();
+            var customCss = $('#CustomCss').val();
+            
+            // Create temporary style element
+            $('#temp-preview-style').remove();
+            $('<style id="temp-preview-style">')
+                .text(':root { --primary: ' + primaryColor + '; } ' + customCss)
+                .appendTo('head');
+            
+            toastr.info('Preview applied. Changes are temporary until saved.', 'Preview Mode');
+            
+            setTimeout(function() {
+                $('#temp-preview-style').remove();
+                toastr.info('Preview ended', 'Preview Mode');
+            }, 10000);
+        }
+    </script>
+}

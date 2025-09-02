@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MRCMS.Models;
+using MRCMS.Models.ViewModels;
 using System.Diagnostics;
 
 namespace MRCMS.Controllers
@@ -124,11 +124,19 @@ namespace MRCMS.Controllers
                 StatusCode = statusCode,
                 Message = GetStatusCodeMessage(statusCode),
                 Details = GetStatusCodeDetails(statusCode),
-                RequestedPath = HttpContext.Request.Path
+                RequestedPath = HttpContext.Request.Headers["X-Original-Path"].FirstOrDefault() ?? HttpContext.Request.Path
             };
 
             Response.StatusCode = statusCode;
-            return View("Index", model);
+            
+            // Use specific views for common status codes
+            return statusCode switch
+            {
+                404 => View("NotFound", model),
+                403 => View("Forbidden", model),
+                401 => View("Unauthorized", model),
+                _ => View("Index", model)
+            };
         }
 
         // Pre-compiled dictionaries for O(1) lookup performance

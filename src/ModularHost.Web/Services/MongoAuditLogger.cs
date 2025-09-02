@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using MRCMS.Core.Models.Entities;
 using MRCMS.Services.Interfaces;
-using MRCMS.ViewModels;
+using MRCMS.Models.ViewModels;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;

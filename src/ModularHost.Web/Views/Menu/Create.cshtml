@@ -37,6 +37,14 @@
                     <span asp-validation-for="Url" class="text-red-600 text-sm"></span>
                 </div>
 
+                <!-- Active URL -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Active URL</label>
+                    <input asp-for="ActiveUrl" placeholder="Leave empty to use the same as URL" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">URL to match for active menu highlighting (e.g., /Entity for /Entity/Manage pages)</p>
+                    <span asp-validation-for="ActiveUrl" class="text-red-600 text-sm"></span>
+                </div>
+
                 <!-- Icon -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Icon</label>

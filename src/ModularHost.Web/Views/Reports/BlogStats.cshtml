@@ -1,0 +1,287 @@
+@{
+    ViewData["Title"] = "Blog Statistics";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Blog Statistics</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Analytics and insights for your blog content</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Posts -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-500 rounded-lg p-3">
+                    <i class="fas fa-file-alt text-white text-2xl"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Posts</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="totalPosts">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Published Posts -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-500 rounded-lg p-3">
+                    <i class="fas fa-check-circle text-white text-2xl"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Published</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="publishedPosts">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draft Posts -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-500 rounded-lg p-3">
+                    <i class="fas fa-edit text-white text-2xl"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Drafts</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="draftPosts">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Views -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-purple-500 rounded-lg p-3">
+                    <i class="fas fa-eye text-white text-2xl"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Views</p>
+                    <p class="text-2xl font-bold text-gray-900 dark:text-gray-100" id="totalViews">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Posts by Category Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Posts by Category</h2>
+            <div id="categoryChart" class="h-64">
+                <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-chart-pie text-4xl"></i>
+                    <span class="ml-2">Loading chart...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts by Month Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Posts by Month</h2>
+            <div id="monthlyChart" class="h-64">
+                <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-chart-line text-4xl"></i>
+                    <span class="ml-2">Loading chart...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Posts Table -->
+    <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div class="px-6 py-4 border-b dark:border-gray-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Posts Performance</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Author</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Category</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Views</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comments</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Published</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700" id="recentPostsTable">
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                            Loading posts data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Top Authors -->
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div class="px-6 py-4 border-b dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Top Authors</h2>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4" id="topAuthors">
+                    <div class="text-gray-500 dark:text-gray-400 text-center">
+                        Loading authors data...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Tags -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div class="px-6 py-4 border-b dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Popular Tags</h2>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-2" id="popularTags">
+                    <div class="text-gray-500 dark:text-gray-400 text-center w-full">
+                        Loading tags data...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load blog statistics
+            loadBlogStats();
+            
+            function loadBlogStats() {
+                // This would normally fetch from an API endpoint
+                // For now, showing placeholder data
+                
+                // Update stat cards
+                $('#totalPosts').text('125');
+                $('#publishedPosts').text('98');
+                $('#draftPosts').text('27');
+                $('#totalViews').text('45.2K');
+                
+                // Load recent posts
+                loadRecentPosts();
+                
+                // Load top authors
+                loadTopAuthors();
+                
+                // Load popular tags
+                loadPopularTags();
+                
+                // Initialize charts (would use Chart.js or similar)
+                initializeCharts();
+            }
+            
+            function loadRecentPosts() {
+                var posts = [
+                    { title: 'Getting Started with ASP.NET Core', author: 'John Doe', category: 'Tutorial', views: 1250, comments: 23, published: '2024-01-15' },
+                    { title: 'Understanding Entity Framework', author: 'Jane Smith', category: 'Development', views: 980, comments: 15, published: '2024-01-14' },
+                    { title: 'Best Practices for Web Security', author: 'Admin', category: 'Security', views: 2100, comments: 45, published: '2024-01-13' },
+                    { title: 'Introduction to Blazor', author: 'John Doe', category: 'Tutorial', views: 750, comments: 12, published: '2024-01-12' },
+                    { title: 'Microservices Architecture', author: 'Jane Smith', category: 'Architecture', views: 1500, comments: 28, published: '2024-01-11' }
+                ];
+                
+                var html = '';
+                posts.forEach(function(post) {
+                    html += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${post.title}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${post.author}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${post.category}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${post.views}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${post.comments}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${post.published}</td>
+                        </tr>
+                    `;
+                });
+                
+                $('#recentPostsTable').html(html);
+            }
+            
+            function loadTopAuthors() {
+                var authors = [
+                    { name: 'John Doe', posts: 42, views: '15.2K' },
+                    { name: 'Jane Smith', posts: 38, views: '12.8K' },
+                    { name: 'Admin', posts: 25, views: '8.5K' },
+                    { name: 'Guest Writer', posts: 20, views: '6.3K' }
+                ];
+                
+                var html = '';
+                authors.forEach(function(author, index) {
+                    html += `
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center font-semibold text-sm">
+                                    ${index + 1}
+                                </span>
+                                <span class="ml-3 text-gray-900 dark:text-gray-100">${author.name}</span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">${author.posts} posts</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">${author.views} views</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                $('#topAuthors').html(html);
+            }
+            
+            function loadPopularTags() {
+                var tags = [
+                    { name: 'ASP.NET Core', count: 45 },
+                    { name: 'C#', count: 38 },
+                    { name: 'Entity Framework', count: 32 },
+                    { name: 'Web API', count: 28 },
+                    { name: 'Blazor', count: 25 },
+                    { name: 'Security', count: 22 },
+                    { name: 'Performance', count: 20 },
+                    { name: 'Docker', count: 18 },
+                    { name: 'Azure', count: 15 },
+                    { name: 'Testing', count: 12 }
+                ];
+                
+                var html = '';
+                tags.forEach(function(tag) {
+                    var size = tag.count > 30 ? 'text-lg' : tag.count > 20 ? 'text-base' : 'text-sm';
+                    html += `
+                        <span class="inline-flex items-center px-3 py-1 rounded-full ${size} font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            ${tag.name}
+                            <span class="ml-2 text-xs">(${tag.count})</span>
+                        </span>
+                    `;
+                });
+                
+                $('#popularTags').html(html);
+            }
+            
+            function initializeCharts() {
+                // Placeholder for charts
+                // In production, you would use Chart.js or similar library
+                
+                // Category chart placeholder
+                $('#categoryChart').html(`
+                    <div class="h-full flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-chart-pie text-6xl text-gray-300 dark:text-gray-600"></i>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Chart visualization would appear here</p>
+                        </div>
+                    </div>
+                `);
+                
+                // Monthly chart placeholder
+                $('#monthlyChart').html(`
+                    <div class="h-full flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line text-6xl text-gray-300 dark:text-gray-600"></i>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Chart visualization would appear here</p>
+                        </div>
+                    </div>
+                `);
+            }
+        });
+    </script>
+}

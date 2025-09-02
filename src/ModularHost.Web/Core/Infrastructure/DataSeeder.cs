@@ -361,9 +361,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Dashboard",
                     Url = "/",
+                    ActiveUrl = "/",
                     Icon = "fas fa-dashboard",
                     Order = 1,
                     IsVisible = true,
+                    IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -372,9 +374,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Blog",
                     Url = "#",
+                    ActiveUrl = "/Blog",
                     Icon = "fas fa-blog",
                     Order = 2,
                     IsVisible = true,
+                    IsActive = true,
                     ModuleName = "BlogModule",
                     CreatedAt = DateTime.UtcNow
                 };
@@ -384,9 +388,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Admin",
                     Url = "#",
+                    ActiveUrl = "/Admin",
                     Icon = "fas fa-shield-alt",
                     Order = 3,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "Admin",
                     CreatedAt = DateTime.UtcNow
                 };
@@ -396,9 +402,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Reports",
                     Url = "#",
+                    ActiveUrl = "/Reports",
                     Icon = "fas fa-chart-bar",
                     Order = 4,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "Admin",
                     CreatedAt = DateTime.UtcNow
                 };
@@ -408,9 +416,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Settings",
                     Url = "#",
+                    ActiveUrl = "/Settings",
                     Icon = "fas fa-cog",
                     Order = 5,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "Admin",
                     CreatedAt = DateTime.UtcNow
                 };
@@ -420,9 +430,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Modules",
                     Url = "/Module",
+                    ActiveUrl = "/Module",
                     Icon = "fas fa-puzzle-piece",
                     Order = 6,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "SuperAdmin",
                     CreatedAt = DateTime.UtcNow
                 };
@@ -432,9 +444,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Tools",
                     Url = "#",
+                    ActiveUrl = "/Tools",
                     Icon = "fas fa-tools",
                     Order = 7,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "Admin",
                     CreatedAt = DateTime.UtcNow
                 };
@@ -444,9 +458,11 @@ namespace MRCMS.Core.Infrastructure
                     Id = Guid.NewGuid(),
                     Title = "Content",
                     Url = "#",
+                    ActiveUrl = "/Content",
                     Icon = "fas fa-file-alt",
                     Order = 8,
                     IsVisible = true,
+                    IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -461,10 +477,12 @@ namespace MRCMS.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "All Posts",
                         Url = "/Blog",
+                        ActiveUrl = "/Blog",
                         Icon = "fas fa-list",
                         ParentId = blogMenu.Id,
                         Order = 1,
                         IsVisible = true,
+                        IsActive = true,
                         ModuleName = "BlogModule",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -486,10 +504,12 @@ namespace MRCMS.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "Categories",
                         Url = "/Category",
+                        ActiveUrl = "/Category",
                         Icon = "fas fa-folder",
                         ParentId = blogMenu.Id,
                         Order = 3,
                         IsVisible = true,
+                        IsActive = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -499,10 +519,12 @@ namespace MRCMS.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "Tags",
                         Url = "/Tag",
+                        ActiveUrl = "/Tag",
                         Icon = "fas fa-tags",
                         ParentId = blogMenu.Id,
                         Order = 4,
                         IsVisible = true,
+                        IsActive = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -557,10 +579,12 @@ namespace MRCMS.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "Users",
                         Url = "/User",
+                        ActiveUrl = "/User",
                         Icon = "fas fa-users",
                         ParentId = adminMenu.Id,
                         Order = 2,
                         IsVisible = true,
+                        IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -569,10 +593,12 @@ namespace MRCMS.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "Roles",
                         Url = "/Role",
+                        ActiveUrl = "/Role",
                         Icon = "fas fa-user-shield",
                         ParentId = adminMenu.Id,
                         Order = 3,
                         IsVisible = true,
+                        IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -581,10 +607,12 @@ namespace MRCMS.Core.Infrastructure
                         Id = Guid.NewGuid(),
                         Title = "Menus",
                         Url = "/Menu",
+                        ActiveUrl = "/Menu",
                         Icon = "fas fa-bars",
                         ParentId = adminMenu.Id,
                         Order = 4,
                         IsVisible = true,
+                        IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },

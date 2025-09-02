@@ -7,6 +7,7 @@ namespace MRCMS.Core.Models.Entities
     {
         public required string Title { get; set; }
         public required string Url { get; set; }
+        public string? ActiveUrl { get; set; }
         public Guid? ParentId { get; set; }
         public int Order { get; set; }
         public bool IsVisible { get; set; } = true;

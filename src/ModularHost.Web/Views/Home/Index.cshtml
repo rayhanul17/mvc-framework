@@ -1,4 +1,4 @@
-@model MRCMS.Models.LandingPageViewModel
+@model MRCMS.Models.ViewModels.LandingPageViewModel
 @{
     ViewData["Title"] = "Modern Blog Landing Page";
     Layout = null;
@@ -53,8 +53,10 @@
                 <div class="relative">
                     <input type="text" name="search" value="@Model.SearchQuery"
                            placeholder="Search articles..."
+                           title="Search for blog posts by title, content, or author"
                            class="w-full px-6 py-4 text-gray-800 text-lg rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-30">
                     <button type="submit" 
+                            title="Click to search"
                             class="absolute right-2 top-2 bg-gray-800 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition-colors">
                         <i class="fas fa-search"></i>
                     </button>
@@ -75,12 +77,14 @@
                 <!-- Category Filters -->
                 <div class="flex flex-wrap gap-2">
                     <a href="@Url.Action("Index", new { tag = Model.CurrentTag, search = Model.SearchQuery })"
+                       title="Show all categories"
                        class="filter-button px-4 py-2 rounded-full border-2 border-gray-300 text-gray-700 hover:border-purple-500 @(string.IsNullOrEmpty(Model.CurrentCategory) ? "active" : "")">
                         All
                     </a>
                     @foreach (var category in Model.Categories.Take(8))
                     {
                         <a href="@Url.Action("Index", new { category = category.Name, tag = Model.CurrentTag, search = Model.SearchQuery })"
+                           title="Filter by @category.Name category"
                            class="filter-button px-4 py-2 rounded-full border-2 border-gray-300 text-gray-700 hover:border-purple-500 @(Model.CurrentCategory == category.Name ? "active" : "")">
                             @category.Name
                         </a>
@@ -89,12 +93,24 @@
 
                 <!-- Auth Links -->
                 <div class="flex gap-4">
-                    <a href="/Account/Login" class="text-gray-600 hover:text-purple-600 transition-colors">
-                        <i class="fas fa-sign-in-alt mr-1"></i>Login
-                    </a>
-                    <a href="/Blog" class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition-colors">
-                        <i class="fas fa-edit mr-1"></i>Write
-                    </a>
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <a href="/Admin" title="Go to admin dashboard" class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                        </a>
+                        <a href="/Blog" title="Write a new blog post" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors">
+                            <i class="fas fa-edit mr-1"></i>Write
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" title="Sign in to your account" class="text-gray-600 hover:text-purple-600 transition-colors">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        </a>
+                        <a href="/Account/Register" title="Create a new account" class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition-colors">
+                            <i class="fas fa-user-plus mr-1"></i>Register
+                        </a>
+                    }
                 </div>
             </div>
 

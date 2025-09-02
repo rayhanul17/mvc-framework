@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MRCMS.Core.Services.Interfaces;
 using MRCMS.Core.Infrastructure;
-using MRCMS.ViewModels;
+using MRCMS.Models.ViewModels;
 
 namespace MRCMS.Controllers
 {

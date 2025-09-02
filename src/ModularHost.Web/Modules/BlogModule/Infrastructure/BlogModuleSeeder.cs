@@ -103,10 +103,12 @@ namespace MRCMS.Modules.BlogModule.Infrastructure
                 {
                     Title = "Blog Dashboard",
                     Url = "/Blog/Dashboard",
+                    ActiveUrl = "/Blog/Dashboard",
                     Icon = "fas fa-tachometer-alt",
                     ParentId = blogParentMenu.Id,
                     Order = 1,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "Admin",
                     ModuleName = ModuleName
                 },
@@ -114,10 +116,12 @@ namespace MRCMS.Modules.BlogModule.Infrastructure
                 {
                     Title = "All Posts",
                     Url = "/Blog",
+                    ActiveUrl = "/Blog",
                     Icon = "fas fa-list",
                     ParentId = blogParentMenu.Id,
                     Order = 2,
                     IsVisible = true,
+                    IsActive = true,
                     ModuleName = ModuleName
                 },
                 new Menu
@@ -146,10 +150,12 @@ namespace MRCMS.Modules.BlogModule.Infrastructure
                 {
                     Title = "Categories",
                     Url = "/Category",
+                    ActiveUrl = "/Category",
                     Icon = "fas fa-folder",
                     ParentId = blogParentMenu.Id,
                     Order = 5,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "Admin",
                     ModuleName = ModuleName
                 },
@@ -157,10 +163,12 @@ namespace MRCMS.Modules.BlogModule.Infrastructure
                 {
                     Title = "Tags",
                     Url = "/Tag",
+                    ActiveUrl = "/Tag",
                     Icon = "fas fa-tags",
                     ParentId = blogParentMenu.Id,
                     Order = 6,
                     IsVisible = true,
+                    IsActive = true,
                     ClaimType = "Admin",
                     ModuleName = ModuleName
                 },

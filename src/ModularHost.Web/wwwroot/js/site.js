@@ -1,24 +1,46 @@
 ﻿// Dark mode toggle
 function toggleDarkMode() {
     const html = document.documentElement;
+    const moonIcon = document.getElementById('dark-mode-moon');
+    const sunIcon = document.getElementById('dark-mode-sun');
     const isDark = html.classList.contains('dark');
     
     if (isDark) {
         html.classList.remove('dark');
         localStorage.setItem('theme', 'light');
         document.cookie = "theme=light;path=/";
+        if (moonIcon && sunIcon) {
+            moonIcon.style.display = 'inline';
+            sunIcon.style.display = 'none';
+        }
     } else {
         html.classList.add('dark');
         localStorage.setItem('theme', 'dark');
         document.cookie = "theme=dark;path=/";
+        if (moonIcon && sunIcon) {
+            moonIcon.style.display = 'none';
+            sunIcon.style.display = 'inline';
+        }
     }
 }
 
 // Initialize theme on page load
 document.addEventListener('DOMContentLoaded', function() {
     const theme = localStorage.getItem('theme') || 'light';
+    const moonIcon = document.getElementById('dark-mode-moon');
+    const sunIcon = document.getElementById('dark-mode-sun');
+    
     if (theme === 'dark') {
         document.documentElement.classList.add('dark');
+        if (moonIcon && sunIcon) {
+            moonIcon.style.display = 'none';
+            sunIcon.style.display = 'inline';
+        }
+    } else {
+        if (moonIcon && sunIcon) {
+            moonIcon.style.display = 'inline';
+            sunIcon.style.display = 'none';
+        }
     }
     
     // Mobile menu toggle

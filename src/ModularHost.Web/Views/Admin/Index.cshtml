@@ -1,219 +1,211 @@
-@model MRCMS.ViewModels.AdminDashboardViewModel
+@model MRCMS.Models.ViewModels.AdminDashboardViewModel
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<div class="container-fluid">
+<div class="container mx-auto px-4 py-8">
     <!-- Stats Cards Row -->
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-info">
-                <div class="inner">
-                    <h3>@Model.TotalUsers</h3>
-                    <p>Total Users</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in">
+        <div class="card-elevated bg-gradient-to-br from-primary-500 to-primary-600 text-white overflow-hidden hover:scale-105 transition-transform duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-3xl font-bold animate-fade-in">@Model.TotalUsers</h3>
+                        <p class="text-primary-100 mt-1">Total Users</p>
+                    </div>
+                    <i class="fas fa-users text-4xl opacity-30 animate-pulse-soft"></i>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <a href="@Url.Action("Index", "User")" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
             </div>
+            <a href="@Url.Action("Index", "User")" class="block bg-black/10 hover:bg-black/20 text-center py-2 transition-all duration-200 hover:shadow-colored-primary">
+                More info <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
         </div>
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-success">
-                <div class="inner">
-                    <h3>@Model.ActiveUsers</h3>
-                    <p>Active Users</p>
+        
+        <div class="card-elevated bg-gradient-to-br from-success-500 to-success-600 text-white overflow-hidden hover:scale-105 transition-transform duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-3xl font-bold animate-fade-in">@Model.ActiveUsers</h3>
+                        <p class="text-success-100 mt-1">Active Users</p>
+                    </div>
+                    <i class="fas fa-user-check text-4xl opacity-30 animate-pulse-soft"></i>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-user-check"></i>
-                </div>
-                <a href="@Url.Action("Index", "User")" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
             </div>
+            <a href="@Url.Action("Index", "User")" class="block bg-black/10 hover:bg-black/20 text-center py-2 transition-all duration-200 hover:shadow-colored-success">
+                More info <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
         </div>
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-warning">
-                <div class="inner">
-                    <h3>@Model.TotalRoles</h3>
-                    <p>Roles</p>
+        
+        <div class="card-elevated bg-gradient-to-br from-warning-500 to-warning-600 text-white overflow-hidden hover:scale-105 transition-transform duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-3xl font-bold animate-fade-in">@Model.TotalRoles</h3>
+                        <p class="text-warning-100 mt-1">Roles</p>
+                    </div>
+                    <i class="fas fa-shield-alt text-4xl opacity-30 animate-pulse-soft"></i>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <a href="@Url.Action("Index", "Role")" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
             </div>
+            <a href="@Url.Action("Index", "Role")" class="block bg-black/10 hover:bg-black/20 text-center py-2 transition-all duration-200">
+                More info <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
         </div>
-        <div class="col-lg-3 col-6">
-            <div class="small-box bg-danger">
-                <div class="inner">
-                    <h3>@Model.TotalPermissions</h3>
-                    <p>Permissions</p>
+        
+        <div class="card-elevated bg-gradient-to-br from-danger-500 to-danger-600 text-white overflow-hidden hover:scale-105 transition-transform duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-3xl font-bold animate-fade-in">@Model.TotalPermissions</h3>
+                        <p class="text-danger-100 mt-1">Permissions</p>
+                    </div>
+                    <i class="fas fa-lock text-4xl opacity-30 animate-pulse-soft"></i>
                 </div>
-                <div class="icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <a href="@Url.Action("Permissions", "Admin")" class="small-box-footer">
-                    More info <i class="fas fa-arrow-circle-right"></i>
-                </a>
             </div>
+            <a href="@Url.Action("Permissions", "Admin")" class="block bg-black/10 hover:bg-black/20 text-center py-2 transition-all duration-200 hover:shadow-colored-danger">
+                More info <i class="fas fa-arrow-circle-right ml-1"></i>
+            </a>
         </div>
     </div>
 
-    <div class="row">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 animate-slide-in-up">
         <!-- Recent Users -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-user-plus"></i> Recent Users
-                    </h3>
-                    <div class="card-tools">
-                        <a href="@Url.Action("Index", "User")" class="btn btn-sm btn-primary">
-                            View All
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-striped">
-                        <thead>
+        <div class="card-elevated animate-fade-in">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                    <i class="fas fa-user-plus mr-2 text-primary-500"></i>Recent Users
+                </h3>
+                <a href="@Url.Action("Index", "User")" class="btn btn-sm btn-primary">
+                    View All
+                </a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Username</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Email</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Created</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach (var user in Model.RecentUsers)
+                        {
                             <tr>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Created</th>
-                                <th>Status</th>
+                                <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">@user.UserName</td>
+                                <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">@user.Email</td>
+                                <td class="px-4 py-2">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">@user.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                </td>
+                                <td class="px-4 py-2">
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="badge badge-success animate-fade-in">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger animate-fade-in">Inactive</span>
+                                    }
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var user in Model.RecentUsers)
-                            {
-                                <tr>
-                                    <td>@user.UserName</td>
-                                    <td>@user.Email</td>
-                                    <td>
-                                        <small>@user.CreatedAt.ToString("MMM dd, yyyy")</small>
-                                    </td>
-                                    <td>
-                                        @if (user.IsActive)
-                                        {
-                                            <span class="badge badge-success">Active</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-danger">Inactive</span>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
 
         <!-- Recent Audit Logs -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-history"></i> Recent Activity
-                    </h3>
-                    <div class="card-tools">
-                        <a href="@Url.Action("AuditLog", "Admin")" class="btn btn-sm btn-primary">
-                            View All
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-striped">
-                        <thead>
+        <div class="card-elevated animate-fade-in">
+            <div class="card-header">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                    <i class="fas fa-history mr-2 text-info-500"></i>Recent Activity
+                </h3>
+                <a href="@Url.Action("AuditLog", "Admin")" class="btn btn-sm btn-info">
+                    View All
+                </a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Entity</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Action</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">User</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach (var log in Model.RecentAuditLogs)
+                        {
                             <tr>
-                                <th>Entity</th>
-                                <th>Action</th>
-                                <th>User</th>
-                                <th>Time</th>
+                                <td class="px-4 py-2">
+                                    <span class="badge badge-info animate-fade-in">@log.EntityName</span>
+                                </td>
+                                <td class="px-4 py-2">
+                                    @{
+                                        var actionClass = log.Action switch
+                                        {
+                                            "Create" => "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+                                            "Update" => "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+                                            "Delete" => "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
+                                            _ => "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                                        };
+                                    }
+                                    <span class="badge @(log.Action switch {
+                                        "Create" => "badge-success",
+                                        "Update" => "badge-warning", 
+                                        "Delete" => "badge-danger",
+                                        _ => "badge-secondary"
+                                    }) animate-fade-in">@log.Action</span>
+                                </td>
+                                <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">@(log.UserName ?? "System")</td>
+                                <td class="px-4 py-2">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">@log.Timestamp.ToString("HH:mm")</span>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var log in Model.RecentAuditLogs)
-                            {
-                                <tr>
-                                    <td>
-                                        <span class="badge badge-info">@log.EntityName</span>
-                                    </td>
-                                    <td>
-                                        @{
-                                            var actionClass = log.Action switch
-                                            {
-                                                "Create" => "success",
-                                                "Update" => "warning",
-                                                "Delete" => "danger",
-                                                _ => "secondary"
-                                            };
-                                        }
-                                        <span class="badge badge-@actionClass">@log.Action</span>
-                                    </td>
-                                    <td>@(log.UserName ?? "System")</td>
-                                    <td>
-                                        <small>@log.Timestamp.ToString("HH:mm")</small>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- System Statistics -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-server"></i> System Statistics
-                    </h3>
+    <div class="card-elevated mb-8 animate-slide-in-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                <i class="fas fa-server mr-2 text-secondary-500"></i>System Statistics
+            </h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:scale-105 transition-transform duration-200">
+                    <div class="p-3 bg-gradient-to-br from-primary-500 to-primary-600 text-white rounded-xl mr-4 shadow-colored-primary">
+                        <i class="fas fa-database text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Database Size</p>
+                        <p class="text-xl font-semibold text-gray-800 dark:text-gray-200">@Model.SystemStats.FormattedDatabaseSize</p>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-primary">
-                                    <i class="fas fa-database"></i>
-                                </span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Database Size</span>
-                                    <span class="info-box-number">@Model.SystemStats.FormattedDatabaseSize</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-warning">
-                                    <i class="fas fa-memory"></i>
-                                </span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Cache Size</span>
-                                    <span class="info-box-number">@Model.SystemStats.FormattedCacheSize</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="info-box">
-                                <span class="info-box-icon bg-success">
-                                    <i class="fas fa-file-alt"></i>
-                                </span>
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Log Size</span>
-                                    <span class="info-box-number">@Model.SystemStats.FormattedLogSize</span>
-                                </div>
-                            </div>
-                        </div>
+                
+                <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:scale-105 transition-transform duration-200">
+                    <div class="p-3 bg-gradient-to-br from-warning-500 to-warning-600 text-white rounded-xl mr-4">
+                        <i class="fas fa-memory text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Cache Size</p>
+                        <p class="text-xl font-semibold text-gray-800 dark:text-gray-200">@Model.SystemStats.FormattedCacheSize</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:scale-105 transition-transform duration-200">
+                    <div class="p-3 bg-gradient-to-br from-success-500 to-success-600 text-white rounded-xl mr-4 shadow-colored-success">
+                        <i class="fas fa-file-alt text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Log Size</p>
+                        <p class="text-xl font-semibold text-gray-800 dark:text-gray-200">@Model.SystemStats.FormattedLogSize</p>
                     </div>
                 </div>
             </div>
@@ -221,34 +213,32 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-bolt"></i> Quick Actions
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <a href="@Url.Action("Create", "User")" class="btn btn-primary">
-                        <i class="fas fa-user-plus"></i> Add User
-                    </a>
-                    <a href="@Url.Action("Create", "Role")" class="btn btn-success">
-                        <i class="fas fa-shield-alt"></i> Create Role
-                    </a>
-                    <a href="@Url.Action("CreatePermission", "Admin")" class="btn btn-warning">
-                        <i class="fas fa-lock"></i> Add Permission
-                    </a>
-                    <a href="@Url.Action("General", "Settings")" class="btn btn-info">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                    <a href="@Url.Action("AuditLog", "Admin")" class="btn btn-secondary">
-                        <i class="fas fa-history"></i> View Audit Log
-                    </a>
-                    <a href="@Url.Action("Index", "Module")" class="btn btn-dark">
-                        <i class="fas fa-puzzle-piece"></i> Manage Modules
-                    </a>
-                </div>
+    <div class="card-elevated animate-slide-in-up">
+        <div class="card-header">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                <i class="fas fa-bolt mr-2 text-warning-500"></i>Quick Actions
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="flex flex-wrap gap-3">
+                <a href="@Url.Action("Create", "User")" class="btn btn-primary hover:scale-105 animate-bounce-subtle">
+                    <i class="fas fa-user-plus mr-2"></i>Add User
+                </a>
+                <a href="@Url.Action("Create", "Role")" class="btn btn-success hover:scale-105 animate-bounce-subtle">
+                    <i class="fas fa-shield-alt mr-2"></i>Create Role
+                </a>
+                <a href="@Url.Action("CreatePermission", "Admin")" class="btn btn-warning hover:scale-105 animate-bounce-subtle">
+                    <i class="fas fa-lock mr-2"></i>Add Permission
+                </a>
+                <a href="@Url.Action("General", "Settings")" class="btn btn-info hover:scale-105 animate-bounce-subtle">
+                    <i class="fas fa-cog mr-2"></i>Settings
+                </a>
+                <a href="@Url.Action("AuditLog", "Admin")" class="btn btn-secondary hover:scale-105 animate-bounce-subtle">
+                    <i class="fas fa-history mr-2"></i>View Audit Log
+                </a>
+                <a href="@Url.Action("Index", "Module")" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 shadow-soft hover:shadow-medium animate-bounce-subtle">
+                    <i class="fas fa-puzzle-piece mr-2"></i>Manage Modules
+                </a>
             </div>
         </div>
     </div>

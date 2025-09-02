@@ -1,0 +1,152 @@
+/* DataTables Tailwind CSS Integration */
+.dataTables_wrapper {
+    padding: 0;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    padding: 0.5rem 2rem 0.5rem 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background-color: white;
+    margin: 0 0.5rem;
+}
+
+.dark .dataTables_wrapper .dataTables_length select {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    margin-left: 0.5rem;
+}
+
+.dark .dataTables_wrapper .dataTables_filter input {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f3f4f6;
+}
+
+.dataTables_wrapper .dataTables_info {
+    padding: 0.75rem 0;
+    color: #6b7280;
+}
+
+.dark .dataTables_wrapper .dataTables_info {
+    color: #9ca3af;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    padding: 0.75rem 0;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.375rem 0.75rem;
+    margin: 0 0.125rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    background-color: white;
+    color: #374151;
+    cursor: pointer;
+}
+
+.dark .dataTables_wrapper .dataTables_paginate .paginate_button {
+    background-color: #1f2937;
+    border-color: #4b5563;
+    color: #d1d5db;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #f3f4f6;
+}
+
+.dark .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #374151;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background-color: #3b82f6 !important;
+    color: white !important;
+    border-color: #3b82f6 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+table.dataTable thead th {
+    padding: 0.75rem 1.5rem;
+    background-color: #f9fafb;
+    color: #374151;
+    font-weight: 600;
+    text-align: left;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark table.dataTable thead th {
+    background-color: #374151;
+    color: #d1d5db;
+    border-bottom-color: #4b5563;
+}
+
+table.dataTable tbody td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark table.dataTable tbody td {
+    border-bottom-color: #374151;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.dark table.dataTable tbody tr:hover {
+    background-color: #1f2937;
+}
+
+table.dataTable.no-footer {
+    border-bottom: none;
+}
+
+/* Responsive */
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before {
+    background-color: #3b82f6;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control:before {
+    background-color: #ef4444;
+}
+
+/* Loading overlay */
+.dataTables_processing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    margin-left: -100px;
+    text-align: center;
+    padding: 1rem;
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dark .dataTables_processing {
+    background-color: #1f2937;
+    border-color: #4b5563;
+}

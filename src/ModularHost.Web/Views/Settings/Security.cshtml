@@ -1,0 +1,249 @@
+@model MRCMS.Models.ViewModels.SecuritySettingsViewModel
+@{
+    ViewData["Title"] = "Security Settings";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Security Settings</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Configure security and authentication settings for your application</p>
+        </div>
+
+        <!-- Settings Form -->
+        <form asp-action="Security" method="post">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+                <!-- Password Requirements -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-key mr-2 text-blue-600"></i>Password Requirements
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label asp-for="PasswordMinLength" class="form-label">Minimum Password Length</label>
+                            <input asp-for="PasswordMinLength" type="number" min="6" max="32" class="form-input" />
+                            <span asp-validation-for="PasswordMinLength" class="text-red-500 text-sm"></span>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input asp-for="PasswordRequireDigit" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Require at least one digit (0-9)</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input asp-for="PasswordRequireLowercase" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Require at least one lowercase letter</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input asp-for="PasswordRequireUppercase" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Require at least one uppercase letter</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input asp-for="PasswordRequireNonAlphanumeric" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Require special characters (!&#64;#$%^&amp;*)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Lockout -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-lock mr-2 text-yellow-600"></i>Account Lockout Policy
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="flex items-center mb-4">
+                                <input asp-for="LockoutEnabled" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Enable account lockout</span>
+                            </label>
+                            
+                            <div class="lockout-settings">
+                                <div class="mb-4">
+                                    <label asp-for="MaxFailedAccessAttempts" class="form-label">Max Failed Login Attempts</label>
+                                    <input asp-for="MaxFailedAccessAttempts" type="number" min="3" max="10" class="form-input" />
+                                    <span asp-validation-for="MaxFailedAccessAttempts" class="text-red-500 text-sm"></span>
+                                </div>
+                                
+                                <div>
+                                    <label asp-for="LockoutDurationMinutes" class="form-label">Lockout Duration (minutes)</label>
+                                    <input asp-for="LockoutDurationMinutes" type="number" min="5" max="1440" class="form-input" />
+                                    <span asp-validation-for="LockoutDurationMinutes" class="text-red-500 text-sm"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                            <h3 class="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
+                                <i class="fas fa-info-circle mr-1"></i>How Account Lockout Works
+                            </h3>
+                            <p class="text-sm text-blue-700 dark:text-blue-400">
+                                When enabled, users will be temporarily locked out after exceeding the maximum number of failed login attempts. 
+                                This helps protect against brute-force attacks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authentication Settings -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-shield-alt mr-2 text-green-600"></i>Authentication & Session
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="flex items-center mb-4">
+                                <input asp-for="EnableTwoFactorAuthentication" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Enable Two-Factor Authentication</span>
+                            </label>
+                            
+                            <div>
+                                <label asp-for="SessionTimeoutMinutes" class="form-label">Session Timeout (minutes)</label>
+                                <input asp-for="SessionTimeoutMinutes" type="number" min="5" max="1440" class="form-input" />
+                                <span asp-validation-for="SessionTimeoutMinutes" class="text-red-500 text-sm"></span>
+                                <p class="text-xs text-gray-500 mt-1">Users will be logged out after this period of inactivity</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center mb-4">
+                                <input asp-for="RequireHttps" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Require HTTPS (Recommended)</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input asp-for="EnableAuditLog" type="checkbox" class="form-checkbox mr-2" />
+                                <span class="text-gray-700 dark:text-gray-300">Enable Security Audit Logging</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IP Whitelisting -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        <i class="fas fa-network-wired mr-2 text-purple-600"></i>IP Restrictions
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <label class="flex items-center">
+                            <input asp-for="EnableIpWhitelisting" type="checkbox" class="form-checkbox mr-2" id="enableIpWhitelist" />
+                            <span class="text-gray-700 dark:text-gray-300">Enable IP Whitelisting</span>
+                        </label>
+                        <p class="text-sm text-gray-500 mt-1">Only allow access from specific IP addresses</p>
+                    </div>
+                    
+                    <div class="ip-whitelist-settings" style="display: none;">
+                        <label asp-for="IpWhitelist" class="form-label">Allowed IP Addresses</label>
+                        <textarea asp-for="IpWhitelist" rows="4" class="form-input" 
+                                  placeholder="Enter one IP address per line&#10;Example:&#10;192.168.1.1&#10;10.0.0.0/24"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">Enter IP addresses or CIDR ranges, one per line</p>
+                    </div>
+                </div>
+
+                <!-- Security Recommendations -->
+                <div class="p-6 bg-yellow-50 dark:bg-yellow-900/20">
+                    <h2 class="text-lg font-semibold text-yellow-900 dark:text-yellow-300 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Security Recommendations
+                    </h2>
+                    <ul class="space-y-2 text-sm text-yellow-800 dark:text-yellow-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-0.5 text-green-600"></i>
+                            <span>Always use HTTPS in production environments</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-0.5 text-green-600"></i>
+                            <span>Enable account lockout to prevent brute-force attacks</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-0.5 text-green-600"></i>
+                            <span>Consider enabling two-factor authentication for enhanced security</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-0.5 text-green-600"></i>
+                            <span>Regularly review audit logs for suspicious activity</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle mr-2 mt-0.5 text-green-600"></i>
+                            <span>Keep your password requirements strong but user-friendly</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="p-6 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Changes will take effect immediately
+                            </p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <a asp-action="Index" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200">
+                                <i class="fas fa-times mr-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+                                <i class="fas fa-save mr-2"></i>Save Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Toggle lockout settings visibility
+            $('#LockoutEnabled').change(function() {
+                if ($(this).is(':checked')) {
+                    $('.lockout-settings').slideDown();
+                } else {
+                    $('.lockout-settings').slideUp();
+                }
+            }).trigger('change');
+            
+            // Toggle IP whitelist settings visibility
+            $('#enableIpWhitelist').change(function() {
+                if ($(this).is(':checked')) {
+                    $('.ip-whitelist-settings').slideDown();
+                } else {
+                    $('.ip-whitelist-settings').slideUp();
+                }
+            }).trigger('change');
+            
+            // Show password strength indicator
+            $('#PasswordMinLength').on('input', function() {
+                var length = $(this).val();
+                var strength = '';
+                var color = '';
+                
+                if (length < 8) {
+                    strength = 'Weak';
+                    color = 'text-red-500';
+                } else if (length < 12) {
+                    strength = 'Moderate';
+                    color = 'text-yellow-500';
+                } else {
+                    strength = 'Strong';
+                    color = 'text-green-500';
+                }
+                
+                if ($('#password-strength').length === 0) {
+                    $(this).after('<span id="password-strength" class="text-sm ml-2"></span>');
+                }
+                $('#password-strength').removeClass().addClass('text-sm ml-2 ' + color).text(strength);
+            });
+        });
+    </script>
+}

@@ -18,7 +18,14 @@
       "Bash(dotnet run:*)",
       "Bash(mysql:*)",
       "Bash(timeout:*)",
-      "Read(D:\\mvc-framework/**)"
+      "Read(D:\\mvc-framework/**)",
+      "Bash(curl:*)",
+      "Bash(copy:*)",
+      "Bash(del \"D:\\mvc-framework\\src\\ModularHost.Web\\wwwroot\\css\\tailwind.css\")",
+      "Bash(npm install)",
+      "Bash(npm run build-css:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

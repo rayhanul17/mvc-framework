@@ -1,7 +1,6 @@
 using AutoMapper;
 using MRCMS.Core.Models.Entities;
 using MRCMS.Models.ViewModels;
-using MRCMS.ViewModels;
 
 namespace MRCMS.Core.Mappings
 {

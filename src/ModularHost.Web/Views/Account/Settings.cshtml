@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Account Settings";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Account Settings</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Manage your account preferences and security settings</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Settings Navigation -->
+            <div class="md:col-span-1">
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                    <nav class="space-y-2">
+                        <a href="#general" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                            <i class="fas fa-user mr-2"></i>General
+                        </a>
+                        <a href="#security" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                            <i class="fas fa-shield-alt mr-2"></i>Security
+                        </a>
+                        <a href="#notifications" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                            <i class="fas fa-bell mr-2"></i>Notifications
+                        </a>
+                        <a href="#privacy" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                            <i class="fas fa-lock mr-2"></i>Privacy
+                        </a>
+                        <a href="#danger" class="block px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>Danger Zone
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="md:col-span-2 space-y-6">
+                <!-- General Settings -->
+                <div id="general" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">General Settings</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="flex items-center justify-between">
+                                <span class="text-gray-700 dark:text-gray-300">Show profile publicly</span>
+                                <input type="checkbox" class="form-checkbox" checked />
+                            </label>
+                        </div>
+                        <div>
+                            <label class="flex items-center justify-between">
+                                <span class="text-gray-700 dark:text-gray-300">Allow others to find me by email</span>
+                                <input type="checkbox" class="form-checkbox" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div id="security" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Security Settings</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <a asp-action="Manage" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-key mr-2"></i>Change Password
+                            </a>
+                        </div>
+                        <div>
+                            <a asp-action="Manage" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                                <i class="fas fa-mobile-alt mr-2"></i>Setup Two-Factor Authentication
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Settings -->
+                <div id="notifications" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Notification Preferences</h2>
+                    <div class="space-y-4">
+                        <label class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300">Email notifications</span>
+                            <input type="checkbox" class="form-checkbox" checked />
+                        </label>
+                        <label class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300">Marketing emails</span>
+                            <input type="checkbox" class="form-checkbox" />
+                        </label>
+                        <label class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300">Security alerts</span>
+                            <input type="checkbox" class="form-checkbox" checked />
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Privacy Settings -->
+                <div id="privacy" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Privacy Settings</h2>
+                    <div class="space-y-4">
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-download mr-2"></i>Download My Data
+                        </button>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Download all your data in a machine-readable format.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div id="danger" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold text-red-900 dark:text-red-300 mb-4">Danger Zone</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                                <i class="fas fa-user-times mr-2"></i>Delete Account
+                            </button>
+                            <p class="text-sm text-red-700 dark:text-red-400 mt-2">
+                                Once you delete your account, there is no going back. Please be certain.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

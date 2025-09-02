@@ -46,11 +46,8 @@ namespace MRCMS.Middleware
             {
                 await _next(context);
                 
-                // Handle 404 efficiently
-                if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
-                {
-                    await Handle404Async(context);
-                }
+                // Don't handle 404 here - let UseStatusCodePagesWithReExecute handle it
+                // Only handle exceptions
             }
             catch (Exception ex)
             {
@@ -80,43 +77,6 @@ namespace MRCMS.Middleware
             }
         }
 
-        private async Task Handle404Async(HttpContext context)
-        {
-            if (IsApiRequest(context))
-            {
-                context.Response.ContentType = "application/json";
-                
-                // Use cached response if available
-                var cacheKey = $"404_{context.Request.Path}";
-                if (!ResponseCache.TryGetValue(cacheKey, out var cachedResponse))
-                {
-                    var response = new
-                    {
-                        error = new
-                        {
-                            code = 404,
-                            message = "Resource not found",
-                            path = context.Request.Path.Value,
-                            timestamp = DateTime.UtcNow
-                        }
-                    };
-                    
-                    cachedResponse = JsonSerializer.SerializeToUtf8Bytes(response, _jsonOptions);
-                    
-                    // Limit cache size
-                    if (ResponseCache.Count < MaxCacheSize)
-                    {
-                        ResponseCache.TryAdd(cacheKey, cachedResponse);
-                    }
-                }
-                
-                await context.Response.Body.WriteAsync(cachedResponse);
-            }
-            else
-            {
-                context.Response.Redirect("/Error/NotFound");
-            }
-        }
 
         private async Task HandleApiExceptionAsync(HttpContext context, ErrorDetails errorDetails, Exception exception)
         {
@@ -150,25 +110,25 @@ namespace MRCMS.Middleware
                 context.Items["ExceptionStackTrace"] = exception.StackTrace;
             }
 
-            // Get error page path using optimized lookup
-            var errorPath = errorDetails.StatusCode == 401 
-                ? $"/Account/Login?returnUrl={Uri.EscapeDataString(context.Request.Path)}"
-                : ExceptionHandler.GetErrorPagePath(errorDetails.StatusCode);
-
-            // Clear the response
-            context.Response.Clear();
-            context.Response.StatusCode = errorDetails.StatusCode;
-            
-            // For 401, redirect to login
-            if (errorDetails.StatusCode == 401)
+            // Clear the response if not started
+            if (!context.Response.HasStarted)
             {
-                context.Response.Redirect(errorPath);
-            }
-            else
-            {
-                // For other errors, re-execute with error path
-                context.Request.Path = errorPath;
-                await _next(context);
+                context.Response.Clear();
+                context.Response.StatusCode = errorDetails.StatusCode;
+                
+                // For 401, redirect to login
+                if (errorDetails.StatusCode == 401)
+                {
+                    var returnUrl = Uri.EscapeDataString(context.Request.Path);
+                    context.Response.Redirect($"/Account/Login?returnUrl={returnUrl}");
+                }
+                else
+                {
+                    // For other errors, re-execute with error path
+                    var errorPath = $"/Error/{errorDetails.StatusCode}";
+                    context.Request.Path = errorPath;
+                    await _next(context);
+                }
             }
         }
 
