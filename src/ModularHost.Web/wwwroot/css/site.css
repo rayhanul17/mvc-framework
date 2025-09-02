@@ -233,9 +233,29 @@ ul.list-none, ol.list-none {
     
     #sidebar[data-collapsed="true"] {
         width: 4rem;
+        overflow-x: hidden;
+    }
+    
+    #sidebar[data-collapsed="true"] a {
+        justify-content: center;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    
+    #sidebar[data-collapsed="true"] .menu-link {
+        justify-content: center;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
     }
     
     #main-content.sidebar-collapsed {
         margin-left: 4rem;
+    }
+    
+    /* Hide search field when sidebar is collapsed */
+    #sidebar[data-collapsed="true"] .px-3.py-4.border-b {
+        display: none;
     }
 }

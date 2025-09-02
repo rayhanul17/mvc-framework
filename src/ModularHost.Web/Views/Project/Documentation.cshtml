@@ -1,0 +1,287 @@
+@{
+    ViewData["Title"] = "Documentation";
+}
+
+<div class="container mx-auto px-4 py-8 animate-fade-in">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            <i class="fas fa-book text-primary-500 mr-3"></i>
+            Documentation
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400">
+            Complete documentation for Modular Host CMS development and usage
+        </p>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="#getting-started" class="card-elevated hover:scale-105 transition-transform duration-200">
+            <div class="card-body text-center">
+                <i class="fas fa-rocket text-success-500 text-4xl mb-4"></i>
+                <h3 class="text-lg font-semibold mb-2">Getting Started</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Quick start guide for new developers</p>
+            </div>
+        </a>
+        <a href="#api-reference" class="card-elevated hover:scale-105 transition-transform duration-200">
+            <div class="card-body text-center">
+                <i class="fas fa-code text-primary-500 text-4xl mb-4"></i>
+                <h3 class="text-lg font-semibold mb-2">API Reference</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Complete API documentation</p>
+            </div>
+        </a>
+        <a href="#deployment" class="card-elevated hover:scale-105 transition-transform duration-200">
+            <div class="card-body text-center">
+                <i class="fas fa-server text-warning-500 text-4xl mb-4"></i>
+                <h3 class="text-lg font-semibold mb-2">Deployment</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Production deployment guides</p>
+            </div>
+        </a>
+    </div>
+
+    <!-- Documentation Sections -->
+    <div class="space-y-8">
+        <!-- Getting Started -->
+        <section id="getting-started" class="card-elevated">
+            <div class="card-header">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <i class="fas fa-rocket text-success-500 mr-2"></i>Getting Started
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="prose dark:prose-invert max-w-none">
+                    <h3>Prerequisites</h3>
+                    <p>Before you begin, ensure you have the following installed:</p>
+                    <ul>
+                        <li>.NET 8.0 SDK or later</li>
+                        <li>Visual Studio 2022 or Visual Studio Code</li>
+                        <li>MySQL 8.0+ or MongoDB 4.4+</li>
+                        <li>Node.js (for frontend build tools)</li>
+                    </ul>
+                    
+                    <h3>Installation</h3>
+                    <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm my-4">
+                        <pre class="text-green-400"><code># Clone the repository
+git clone https://github.com/your-repo/modular-host-cms.git
+cd modular-host-cms
+
+# Restore NuGet packages
+dotnet restore
+
+# Install Node.js dependencies
+npm install
+
+# Build Tailwind CSS
+npm run build-css</code></pre>
+                    </div>
+                    
+                    <h3>Configuration</h3>
+                    <p>Update the connection string in <code>appsettings.json</code>:</p>
+                    <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm my-4">
+                        <pre class="text-green-400"><code>{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=ModularCMS;Uid=root;Pwd=password;"
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Reference -->
+        <section id="api-reference" class="card-elevated">
+            <div class="card-header">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <i class="fas fa-code text-primary-500 mr-2"></i>API Reference
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Authentication Endpoints</h3>
+                        <div class="space-y-3">
+                            <div class="api-endpoint">
+                                <div class="flex items-center mb-2">
+                                    <span class="badge badge-primary mr-2">POST</span>
+                                    <code class="text-sm">/api/auth/login</code>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">User authentication</p>
+                            </div>
+                            <div class="api-endpoint">
+                                <div class="flex items-center mb-2">
+                                    <span class="badge badge-warning mr-2">POST</span>
+                                    <code class="text-sm">/api/auth/logout</code>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">User logout</p>
+                            </div>
+                            <div class="api-endpoint">
+                                <div class="flex items-center mb-2">
+                                    <span class="badge badge-success mr-2">GET</span>
+                                    <code class="text-sm">/api/auth/me</code>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Current user info</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">User Management</h3>
+                        <div class="space-y-3">
+                            <div class="api-endpoint">
+                                <div class="flex items-center mb-2">
+                                    <span class="badge badge-success mr-2">GET</span>
+                                    <code class="text-sm">/api/users</code>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Get all users</p>
+                            </div>
+                            <div class="api-endpoint">
+                                <div class="flex items-center mb-2">
+                                    <span class="badge badge-primary mr-2">POST</span>
+                                    <code class="text-sm">/api/users</code>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Create new user</p>
+                            </div>
+                            <div class="api-endpoint">
+                                <div class="flex items-center mb-2">
+                                    <span class="badge badge-warning mr-2">PUT</span>
+                                    <code class="text-sm">/api/users/{id}</code>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Update user</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        For detailed API documentation with request/response examples, visit our 
+                        <a asp-action="API" class="text-blue-600 dark:text-blue-400 hover:underline">API Documentation</a> page.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deployment -->
+        <section id="deployment" class="card-elevated">
+            <div class="card-header">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <i class="fas fa-server text-warning-500 mr-2"></i>Deployment
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Docker Deployment</h3>
+                        <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                            <pre class="text-green-400"><code># Build Docker image
+docker build -t modular-cms .
+
+# Run with Docker Compose
+docker-compose up -d
+
+# Environment variables
+ASPNETCORE_ENVIRONMENT=Production
+ConnectionStrings__DefaultConnection=...</code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">IIS Deployment</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                <span>Install .NET Core Hosting Bundle</span>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                <span>Create IIS Application Pool</span>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                <span>Deploy published files</span>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                <span>Configure connection strings</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module Development -->
+        <section class="card-elevated">
+            <div class="card-header">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                    <i class="fas fa-puzzle-piece text-info-500 mr-2"></i>Module Development
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="prose dark:prose-invert max-w-none">
+                    <h3>Creating a Custom Module</h3>
+                    <p>Follow these steps to create a new module:</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <h4>1. Create Module Structure</h4>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm my-2">
+                                <pre class="text-green-400"><code>/Modules/YourModule/
+  /Controllers/
+  /Views/
+  /Models/
+  /Services/
+  /wwwroot/</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h4>2. Implement Module Interface</h4>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm my-2">
+                                <pre class="text-green-400"><code>public class YourModule : IModule
+{
+    public string Name => "Your Module";
+    
+    public void ConfigureServices(IServiceCollection services)
+    {
+        // Register services
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .prose code {
+        background-color: #e5e7eb;
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .dark .prose code {
+        background-color: #374151;
+    }
+    
+    .api-endpoint {
+        padding: 0.75rem;
+        background-color: #f9fafb;
+        border-radius: 0.5rem;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .api-endpoint:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .dark .api-endpoint {
+        background-color: #374151;
+    }
+    
+    .dark .api-endpoint:hover {
+        background-color: #4b5563;
+    }
+</style>

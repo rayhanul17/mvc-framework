@@ -58,6 +58,23 @@
                     </button>
                 </div>
                 
+                <!-- Menu Search -->
+                @if (isAuthenticated)
+                {
+                    <div class="px-3 py-4 border-b border-gray-200 dark:border-gray-700">
+                        <div class="relative">
+                            <input type="text" 
+                                   id="menu-search" 
+                                   placeholder="Search menus..." 
+                                   class="w-full pl-8 pr-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100">
+                            <i class="fas fa-search absolute left-2.5 top-2.5 text-gray-400 dark:text-gray-500 text-xs"></i>
+                            <div id="search-results" class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hidden z-50 max-h-64 overflow-y-auto">
+                                <!-- Search results will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                }
+                
                 <!-- Navigation Links -->
                 <div class="flex-1 overflow-y-auto py-4">
                     <partial name="_MenuPartial" />
@@ -192,6 +209,7 @@
                 @RenderBody()
             </main>
             
+            
             <!-- Footer -->
             <footer class="mt-auto py-4 px-8 text-center text-gray-600 dark:text-gray-400 text-sm">
                 <p>&copy; @DateTime.Now.Year Modular Host. All rights reserved.</p>
@@ -287,7 +305,145 @@
                     userDropdownMenu.classList.add('hidden');
                 });
             }
+            
+            // Initialize search functionality
+            initializeMenuSearch();
         });
+        
+        // Menu search functionality
+        function initializeMenuSearch() {
+            const searchInput = document.getElementById('menu-search');
+            const searchResults = document.getElementById('search-results');
+            
+            if (!searchInput || !searchResults) return;
+            
+            let searchTimeout;
+            let menuData = [];
+            
+            // Extract actual menu items from the DOM
+            function extractMenuItems() {
+                const menuItems = [];
+                
+                // Get all menu links from the sidebar
+                const sidebarLinks = document.querySelectorAll('#sidebar a[class*="flex items-center"]');
+                
+                sidebarLinks.forEach(link => {
+                    const textElement = link.querySelector('.sidebar-text, span:not([class*="fas"])');
+                    const iconElement = link.querySelector('i[class*="fas"]');
+                    
+                    if (textElement && iconElement) {
+                        const title = textElement.textContent.trim();
+                        const url = link.getAttribute('href');
+                        const iconClass = iconElement.className;
+                        
+                        if (title && url && title !== '') {
+                            menuItems.push({
+                                title: title,
+                                icon: iconClass,
+                                url: url
+                            });
+                        }
+                    }
+                });
+                
+                return menuItems;
+            }
+            
+            // Initialize menu data from DOM
+            menuData = extractMenuItems();
+            
+            // Debug: Log extracted menu items (remove in production)
+            console.log('Extracted menu items:', menuData);
+            
+            // Refresh menu data periodically to catch dynamic changes
+            const refreshMenuData = () => {
+                menuData = extractMenuItems();
+                console.log('Refreshed menu items:', menuData);
+            };
+            
+            // Refresh menu data when sidebar content might change
+            setTimeout(refreshMenuData, 1000); // Initial delay for menu loading
+            
+            searchInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    if (query.length === 0) {
+                        searchResults.classList.add('hidden');
+                        return;
+                    }
+                    
+                    if (query.length < 1) {
+                        return;
+                    }
+                    
+                    // Refresh menu data before searching to catch any dynamic changes
+                    menuData = extractMenuItems();
+                    
+                    const results = menuData.filter(item => 
+                        item.title.toLowerCase().includes(query.toLowerCase())
+                    );
+                    
+                    displayMenuSearchResults(results, query);
+                }, 200);
+            });
+            
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    searchResults.classList.add('hidden');
+                    this.blur();
+                } else if (e.key === 'Enter') {
+                    const firstResult = searchResults.querySelector('[data-url]');
+                    if (firstResult) {
+                        window.location.href = firstResult.getAttribute('data-url');
+                    }
+                }
+            });
+            
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+        }
+        
+        function displayMenuSearchResults(results, query) {
+            const searchResults = document.getElementById('search-results');
+            if (!searchResults) return;
+            
+            if (results.length === 0) {
+                searchResults.innerHTML = `
+                    <div class="p-3 text-center text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-search mb-2 text-sm"></i>
+                        <p class="text-xs">No menus found for "${query}"</p>
+                    </div>
+                `;
+                searchResults.classList.remove('hidden');
+                return;
+            }
+            
+            let html = '';
+            results.forEach(item => {
+                const highlightedTitle = item.title.replace(
+                    new RegExp(`(${query})`, 'gi'),
+                    '<mark class="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">$1</mark>'
+                );
+                
+                html += `
+                    <a href="${item.url}" 
+                       data-url="${item.url}"
+                       class="flex items-center px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 text-gray-700 dark:text-gray-300 border-b dark:border-gray-700 last:border-b-0">
+                        <i class="${item.icon} w-4 text-center text-gray-500 dark:text-gray-400 mr-3"></i>
+                        <span class="text-sm">${highlightedTitle}</span>
+                    </a>
+                `;
+            });
+            
+            searchResults.innerHTML = html;
+            searchResults.classList.remove('hidden');
+        }
     </script>
     
     @await RenderSectionAsync("Scripts", required: false)

@@ -1,0 +1,544 @@
+@{
+    ViewData["Title"] = "Project Overview";
+}
+
+<div class="container mx-auto px-4 py-8 animate-fade-in">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            <i class="fas fa-project-diagram text-primary-500 mr-3"></i>
+            Modular Host CMS
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400">
+            A modern, modular content management system built with ASP.NET Core and Tailwind CSS
+        </p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="mb-8">
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8">
+                <button class="tab-button active py-4 px-6 text-sm font-medium border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 focus:outline-none"
+                        onclick="showTab('overview')">
+                    <i class="fas fa-eye mr-2"></i>Project Overview
+                </button>
+                <button class="tab-button py-4 px-6 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none"
+                        onclick="showTab('development')">
+                    <i class="fas fa-code mr-2"></i>Development
+                </button>
+                <button class="tab-button py-4 px-6 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none"
+                        onclick="showTab('setup')">
+                    <i class="fas fa-cogs mr-2"></i>Setup
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Project Overview Tab -->
+        <div id="overview-tab" class="tab-panel active">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Project Description -->
+                <div class="card-elevated animate-slide-in-left">
+                    <div class="card-header">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <i class="fas fa-info-circle text-info-500 mr-2"></i>About This Project
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">
+                            Modular Host CMS is a flexible, extensible content management system built with modern web technologies. 
+                            It features a modular architecture that allows for easy customization and extension.
+                        </p>
+                        <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-success-500 mr-2"></i>
+                                Modular Architecture
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-success-500 mr-2"></i>
+                                Role-based Access Control
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-success-500 mr-2"></i>
+                                Modern UI with Tailwind CSS
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-success-500 mr-2"></i>
+                                Dark Mode Support
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Technology Stack -->
+                <div class="card-elevated animate-slide-in-right">
+                    <div class="card-header">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <i class="fas fa-layer-group text-primary-500 mr-2"></i>Technology Stack
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-3 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <i class="fab fa-microsoft text-blue-600 text-2xl mr-2"></i>
+                                    <span class="font-semibold">Backend</span>
+                                </div>
+                                <ul class="text-sm text-gray-600 dark:text-gray-400">
+                                    <li>ASP.NET Core 8</li>
+                                    <li>Entity Framework</li>
+                                    <li>MySQL/MongoDB</li>
+                                </ul>
+                            </div>
+                            <div class="p-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <i class="fab fa-js-square text-green-600 text-2xl mr-2"></i>
+                                    <span class="font-semibold">Frontend</span>
+                                </div>
+                                <ul class="text-sm text-gray-600 dark:text-gray-400">
+                                    <li>Tailwind CSS</li>
+                                    <li>JavaScript ES6+</li>
+                                    <li>Font Awesome</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Features -->
+            <div class="card-elevated animate-slide-in-up">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-star text-warning-500 mr-2"></i>Key Features
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="feature-card p-4 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl">
+                            <i class="fas fa-users text-primary-500 text-3xl mb-3"></i>
+                            <h3 class="text-lg font-semibold mb-2">User Management</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Complete user management system with roles, permissions, and profile management.
+                            </p>
+                        </div>
+                        <div class="feature-card p-4 bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 rounded-xl">
+                            <i class="fas fa-puzzle-piece text-success-500 text-3xl mb-3"></i>
+                            <h3 class="text-lg font-semibold mb-2">Modular System</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Plugin-based architecture allowing easy extension and customization.
+                            </p>
+                        </div>
+                        <div class="feature-card p-4 bg-gradient-to-br from-info-50 to-info-100 dark:from-info-900/20 dark:to-info-800/20 rounded-xl">
+                            <i class="fas fa-chart-bar text-info-500 text-3xl mb-3"></i>
+                            <h3 class="text-lg font-semibold mb-2">Analytics</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Built-in analytics and reporting system with audit logging.
+                            </p>
+                        </div>
+                        <div class="feature-card p-4 bg-gradient-to-br from-warning-50 to-warning-100 dark:from-warning-900/20 dark:to-warning-800/20 rounded-xl">
+                            <i class="fas fa-shield-alt text-warning-500 text-3xl mb-3"></i>
+                            <h3 class="text-lg font-semibold mb-2">Security</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Advanced security features with permission-based access control.
+                            </p>
+                        </div>
+                        <div class="feature-card p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl">
+                            <i class="fas fa-mobile-alt text-purple-500 text-3xl mb-3"></i>
+                            <h3 class="text-lg font-semibold mb-2">Responsive</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Mobile-first responsive design that works on all devices.
+                            </p>
+                        </div>
+                        <div class="feature-card p-4 bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20 rounded-xl">
+                            <i class="fas fa-palette text-pink-500 text-3xl mb-3"></i>
+                            <h3 class="text-lg font-semibold mb-2">Theming</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Beautiful dark/light theme support with smooth transitions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Development Tab -->
+        <div id="development-tab" class="tab-panel hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Architecture -->
+                <div class="card-elevated">
+                    <div class="card-header">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <i class="fas fa-sitemap text-primary-500 mr-2"></i>Architecture
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">
+                            The system follows a layered architecture pattern with clear separation of concerns:
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div class="w-4 h-4 bg-primary-500 rounded-full mr-3"></div>
+                                <div>
+                                    <strong>Presentation Layer</strong> - Controllers, Views, ViewModels
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div class="w-4 h-4 bg-success-500 rounded-full mr-3"></div>
+                                <div>
+                                    <strong>Business Layer</strong> - Services, Business Logic
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <div class="w-4 h-4 bg-warning-500 rounded-full mr-3"></div>
+                                <div>
+                                    <strong>Data Layer</strong> - Repositories, Entity Framework
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Development Guidelines -->
+                <div class="card-elevated">
+                    <div class="card-header">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <i class="fas fa-code text-success-500 mr-2"></i>Development Guidelines
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="space-y-3 text-gray-700 dark:text-gray-300">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                Follow SOLID principles for clean code
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                Use dependency injection for loose coupling
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                Implement proper error handling and logging
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                Write unit tests for critical functionality
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                Use async/await for database operations
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-success-500 mr-2 mt-1"></i>
+                                Follow consistent naming conventions
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module Development -->
+            <div class="card-elevated mb-8">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-puzzle-piece text-info-500 mr-2"></i>Module Development
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">Creating a New Module</h3>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                                <pre class="text-green-400"><code>// 1. Create module folder structure
+/Modules/YourModule/
+  /Controllers/
+  /Views/
+  /Models/
+  /Services/
+
+// 2. Implement IModule interface
+public class YourModule : IModule
+{
+    public string Name => "Your Module";
+    public void ConfigureServices(IServiceCollection services) { }
+}</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">Module Registration</h3>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                                <pre class="text-green-400"><code>// Register in Program.cs
+builder.Services.AddModule&lt;YourModule&gt;();
+
+// Or auto-discover modules
+builder.Services.AddModulesFromAssembly(
+    Assembly.GetExecutingAssembly()
+);</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Development -->
+            <div class="card-elevated">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-api text-warning-500 mr-2"></i>API Development
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        The system provides RESTful API endpoints for all major functionality:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg">
+                            <span class="badge badge-success mb-2">GET</span>
+                            <p class="text-sm">Retrieve resources</p>
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
+                            <span class="badge badge-primary mb-2">POST</span>
+                            <p class="text-sm">Create new resources</p>
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-lg">
+                            <span class="badge badge-warning mb-2">PUT</span>
+                            <p class="text-sm">Update existing resources</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setup Tab -->
+        <div id="setup-tab" class="tab-panel hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Requirements -->
+                <div class="card-elevated">
+                    <div class="card-header">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <i class="fas fa-list-check text-primary-500 mr-2"></i>System Requirements
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="font-semibold mb-2">Development Environment</h3>
+                                <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                    <li class="flex items-center">
+                                        <i class="fab fa-microsoft text-blue-500 mr-2"></i>
+                                        .NET 8.0 SDK or later
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-code text-blue-500 mr-2"></i>
+                                        Visual Studio 2022 or VS Code
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fab fa-node-js text-green-500 mr-2"></i>
+                                        Node.js (for Tailwind CSS)
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold mb-2">Database</h3>
+                                <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                                    <li class="flex items-center">
+                                        <i class="fas fa-database text-orange-500 mr-2"></i>
+                                        MySQL 8.0+ or MongoDB 4.4+
+                                    </li>
+                                    <li class="flex items-center">
+                                        <i class="fas fa-server text-orange-500 mr-2"></i>
+                                        Redis (optional, for caching)
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Installation Steps -->
+                <div class="card-elevated">
+                    <div class="card-header">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            <i class="fas fa-download text-success-500 mr-2"></i>Installation Steps
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="space-y-4">
+                            <div class="step-item flex items-start">
+                                <div class="step-number w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">1</div>
+                                <div>
+                                    <h4 class="font-semibold">Clone Repository</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Download the source code from the repository</p>
+                                </div>
+                            </div>
+                            <div class="step-item flex items-start">
+                                <div class="step-number w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">2</div>
+                                <div>
+                                    <h4 class="font-semibold">Configure Database</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Update connection strings in appsettings.json</p>
+                                </div>
+                            </div>
+                            <div class="step-item flex items-start">
+                                <div class="step-number w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">3</div>
+                                <div>
+                                    <h4 class="font-semibold">Run Migrations</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Execute database migrations to create schema</p>
+                                </div>
+                            </div>
+                            <div class="step-item flex items-start">
+                                <div class="step-number w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3 mt-1">4</div>
+                                <div>
+                                    <h4 class="font-semibold">Build & Run</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Compile CSS and start the application</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="card-elevated mb-8">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-cogs text-warning-500 mr-2"></i>Configuration
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">Database Configuration</h3>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                                <pre class="text-green-400"><code>{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=ModularCMS;Uid=root;Pwd=password;",
+    "MongoConnection": "mongodb://localhost:27017/ModularCMS"
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">Email Configuration</h3>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                                <pre class="text-green-400"><code>{
+  "EmailSettings": {
+    "SmtpServer": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "SmtpUser": "your-email@gmail.com",
+    "SmtpPassword": "your-password"
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Commands -->
+            <div class="card-elevated">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-terminal text-info-500 mr-2"></i>Common Commands
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">.NET Commands</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">dotnet restore</div>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">dotnet build</div>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">dotnet run</div>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">dotnet ef database update</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-3">Frontend Commands</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">npm install</div>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">npm run build-css</div>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">npm run watch-css</div>
+                                <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded font-mono">npm run dev</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function showTab(tabName) {
+        // Hide all tab panels
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.add('hidden');
+            panel.classList.remove('active');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+            button.classList.remove('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+            button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'dark:text-gray-400', 'dark:hover:text-gray-300');
+        });
+        
+        // Show the selected tab panel
+        const selectedPanel = document.getElementById(tabName + '-tab');
+        if (selectedPanel) {
+            selectedPanel.classList.remove('hidden');
+            selectedPanel.classList.add('active');
+        }
+        
+        // Add active class to the clicked tab button
+        event.target.classList.add('active');
+        event.target.classList.add('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+        event.target.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300', 'dark:text-gray-400', 'dark:hover:text-gray-300');
+    }
+
+    // Add hover effects to feature cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.classList.add('transform', 'scale-105');
+            });
+            card.addEventListener('mouseleave', function() {
+                this.classList.remove('transform', 'scale-105');
+            });
+        });
+    });
+</script>
+}
+
+<style>
+    .tab-panel {
+        transition: all 0.3s ease-in-out;
+    }
+    
+    .tab-button {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .feature-card {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .step-item {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+    
+    keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

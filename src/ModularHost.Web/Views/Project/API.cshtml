@@ -1,0 +1,426 @@
+@{
+    ViewData["Title"] = "API Documentation";
+}
+
+<div class="container mx-auto px-4 py-8 animate-fade-in">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            <i class="fas fa-code text-primary-500 mr-3"></i>
+            API Documentation
+        </h1>
+        <p class="text-xl text-gray-600 dark:text-gray-400">
+            RESTful API endpoints for Modular Host CMS integration
+        </p>
+    </div>
+
+    <!-- API Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card-elevated">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt text-success-500 text-4xl mb-4"></i>
+                <h3 class="text-lg font-semibold mb-2">Secure</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">JWT token-based authentication</p>
+            </div>
+        </div>
+        <div class="card-elevated">
+            <div class="card-body text-center">
+                <i class="fas fa-tachometer-alt text-primary-500 text-4xl mb-4"></i>
+                <h3 class="text-lg font-semibold mb-2">Fast</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Optimized for performance</p>
+            </div>
+        </div>
+        <div class="card-elevated">
+            <div class="card-body text-center">
+                <i class="fas fa-expand-arrows-alt text-warning-500 text-4xl mb-4"></i>
+                <h3 class="text-lg font-semibold mb-2">Scalable</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Built for high availability</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authentication -->
+    <section class="card-elevated mb-8">
+        <div class="card-header">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <i class="fas fa-key text-warning-500 mr-2"></i>Authentication
+            </h2>
+        </div>
+        <div class="card-body">
+            <p class="text-gray-700 dark:text-gray-300 mb-4">
+                All API requests require authentication using JWT tokens. Include the token in the Authorization header.
+            </p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Login Request</h3>
+                    <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                        <div class="flex items-center mb-2">
+                            <span class="badge badge-primary mr-2">POST</span>
+                            <code class="text-green-400">/api/auth/login</code>
+                        </div>
+                        <pre class="text-green-400 mt-3"><code>{
+  "email": "user@example.com",
+  "password": "password123",
+  "rememberMe": false
+}</code></pre>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Response</h3>
+                    <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                        <pre class="text-green-400"><code>{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "refresh_token_here",
+  "expiresAt": "2024-01-01T12:00:00Z",
+  "user": {
+    "id": "123",
+    "email": "user@example.com",
+    "roles": ["User"]
+  }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">Using the Token</h4>
+                <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-3 text-sm">
+                    <pre class="text-green-400"><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Management API -->
+    <section class="card-elevated mb-8">
+        <div class="card-header">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <i class="fas fa-users text-primary-500 mr-2"></i>User Management
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="space-y-6">
+                <!-- Get Users -->
+                <div class="api-section">
+                    <div class="flex items-center mb-3">
+                        <span class="badge badge-success mr-2">GET</span>
+                        <code class="text-lg font-mono">/api/users</code>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Retrieve a paginated list of users.</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold mb-2">Query Parameters</h4>
+                            <div class="space-y-2 text-sm">
+                                <div><code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">page</code> - Page number (default: 1)</div>
+                                <div><code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">pageSize</code> - Items per page (default: 10)</div>
+                                <div><code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">search</code> - Search term</div>
+                                <div><code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">role</code> - Filter by role</div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">Response Example</h4>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-3 text-sm">
+                                <pre class="text-green-400"><code>{
+  "data": [
+    {
+      "id": "123",
+      "userName": "john_doe",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "isActive": true,
+      "roles": ["User"],
+      "createdAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "totalCount": 1,
+  "page": 1,
+  "pageSize": 10
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create User -->
+                <div class="api-section">
+                    <div class="flex items-center mb-3">
+                        <span class="badge badge-primary mr-2">POST</span>
+                        <code class="text-lg font-mono">/api/users</code>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Create a new user account.</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold mb-2">Request Body</h4>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-3 text-sm">
+                                <pre class="text-green-400"><code>{
+  "userName": "jane_doe",
+  "email": "jane@example.com",
+  "password": "SecurePassword123!",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "phoneNumber": "+1234567890",
+  "roles": ["User"]
+}</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2">Response</h4>
+                            <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-3 text-sm">
+                                <pre class="text-green-400"><code>{
+  "success": true,
+  "message": "User created successfully",
+  "data": {
+    "id": "456",
+    "userName": "jane_doe",
+    "email": "jane@example.com",
+    "isActive": true,
+    "createdAt": "2024-01-01T12:00:00Z"
+  }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update User -->
+                <div class="api-section">
+                    <div class="flex items-center mb-3">
+                        <span class="badge badge-warning mr-2">PUT</span>
+                        <code class="text-lg font-mono">/api/users/{id}</code>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Update an existing user.</p>
+                    
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                        <p class="text-yellow-800 dark:text-yellow-200 text-sm">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Only users with "Admin" role can update other users. Users can update their own profiles.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Management API -->
+    <section class="card-elevated mb-8">
+        <div class="card-header">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <i class="fas fa-newspaper text-success-500 mr-2"></i>Content Management
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Blog Posts</h3>
+                    <div class="space-y-3">
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/posts</code>
+                            <p class="text-xs text-gray-500 mt-1">Get all blog posts</p>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/posts/{id}</code>
+                            <p class="text-xs text-gray-500 mt-1">Get specific post</p>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-primary text-xs">POST</span>
+                            <code class="text-sm ml-2">/api/posts</code>
+                            <p class="text-xs text-gray-500 mt-1">Create new post</p>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-warning text-xs">PUT</span>
+                            <code class="text-sm ml-2">/api/posts/{id}</code>
+                            <p class="text-xs text-gray-500 mt-1">Update post</p>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-danger text-xs">DELETE</span>
+                            <code class="text-sm ml-2">/api/posts/{id}</code>
+                            <p class="text-xs text-gray-500 mt-1">Delete post</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Categories & Tags</h3>
+                    <div class="space-y-3">
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/categories</code>
+                            <p class="text-xs text-gray-500 mt-1">Get all categories</p>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-primary text-xs">POST</span>
+                            <code class="text-sm ml-2">/api/categories</code>
+                            <p class="text-xs text-gray-500 mt-1">Create category</p>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/tags</code>
+                            <p class="text-xs text-gray-500 mt-1">Get all tags</p>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-primary text-xs">POST</span>
+                            <code class="text-sm ml-2">/api/tags</code>
+                            <p class="text-xs text-gray-500 mt-1">Create tag</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System API -->
+    <section class="card-elevated mb-8">
+        <div class="card-header">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <i class="fas fa-cog text-info-500 mr-2"></i>System Management
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Settings</h3>
+                    <div class="space-y-2">
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/settings</code>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-warning text-xs">PUT</span>
+                            <code class="text-sm ml-2">/api/settings</code>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Modules</h3>
+                    <div class="space-y-2">
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/modules</code>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-warning text-xs">PUT</span>
+                            <code class="text-sm ml-2">/api/modules/{id}/toggle</code>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Analytics</h3>
+                    <div class="space-y-2">
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/analytics/stats</code>
+                        </div>
+                        <div class="api-endpoint-compact">
+                            <span class="badge badge-success text-xs">GET</span>
+                            <code class="text-sm ml-2">/api/analytics/audit</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Error Codes -->
+    <section class="card-elevated">
+        <div class="card-header">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <i class="fas fa-exclamation-triangle text-danger-500 mr-2"></i>Error Codes
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">HTTP Status Codes</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                            <code class="font-mono">200</code>
+                            <span class="text-sm">OK - Request successful</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
+                            <code class="font-mono">201</code>
+                            <span class="text-sm">Created - Resource created</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+                            <code class="font-mono">400</code>
+                            <span class="text-sm">Bad Request - Invalid input</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                            <code class="font-mono">401</code>
+                            <span class="text-sm">Unauthorized - Invalid credentials</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                            <code class="font-mono">403</code>
+                            <span class="text-sm">Forbidden - Insufficient permissions</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                            <code class="font-mono">404</code>
+                            <span class="text-sm">Not Found - Resource not found</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                            <code class="font-mono">500</code>
+                            <span class="text-sm">Server Error - Internal error</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Error Response Format</h3>
+                    <div class="bg-gray-900 dark:bg-gray-800 rounded-lg p-4 text-sm">
+                        <pre class="text-green-400"><code>{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "Email": ["Email is required"],
+    "Password": ["Password must be at least 8 characters"]
+  },
+  "timestamp": "2024-01-01T12:00:00Z",
+  "path": "/api/users"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .api-section {
+        border-left: 4px solid #3b82f6;
+        padding-left: 1rem;
+    }
+    
+    .api-endpoint-compact {
+        padding: 0.75rem;
+        background-color: #f9fafb;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+    }
+    
+    .api-endpoint-compact:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .dark .api-endpoint-compact {
+        background-color: #374151;
+    }
+    
+    .dark .api-endpoint-compact:hover {
+        background-color: #4b5563;
+    }
+    
+    code {
+        background-color: #e5e7eb;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .dark code {
+        background-color: #374151;
+    }
+</style>
