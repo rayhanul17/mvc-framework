@@ -14,7 +14,6 @@ using MRCMS.Services;
 
 namespace MRCMS.Controllers
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
     public class SettingsController : Controller
     {
         private readonly AppDbContext _context;

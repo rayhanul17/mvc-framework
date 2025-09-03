@@ -361,7 +361,6 @@ namespace MRCMS.Controllers
             return View();
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Manage()
         {
@@ -387,7 +386,6 @@ namespace MRCMS.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Manage(ManageViewModel model)
@@ -429,7 +427,6 @@ namespace MRCMS.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Enable2FA()
         {
@@ -450,7 +447,6 @@ namespace MRCMS.Controllers
             return RedirectToAction(nameof(Manage));
         }
 
-        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Disable2FA()

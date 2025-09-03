@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace MRCMS.Controllers
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
     public class AdminController : Controller
     {
         private readonly AppDbContext _context;

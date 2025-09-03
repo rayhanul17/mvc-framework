@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MRCMS.Controllers
 {
-    [Authorize]
     public class ProjectController : Controller
     {
 

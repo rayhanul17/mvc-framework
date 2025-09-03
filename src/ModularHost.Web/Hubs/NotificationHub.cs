@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace MRCMS.Services
 {
-    [Authorize]
     public class NotificationHub : Hub
     {
         public override async Task OnConnectedAsync()

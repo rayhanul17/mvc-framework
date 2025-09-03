@@ -15,7 +15,6 @@ namespace MRCMS.Modules.Blog.Controllers
 {
     [Area("Blog")]
     [Route("[controller]")]
-    [Authorize(Roles = "Admin,BlogAuthor,SuperAdmin")]
     public class CategoryController : BaseController<Category>
     {
         public CategoryController(

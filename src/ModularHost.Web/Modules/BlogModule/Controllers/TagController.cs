@@ -15,7 +15,6 @@ namespace MRCMS.Modules.Blog.Controllers
 {
     [Area("Blog")]
     [Route("[controller]")]
-    [Authorize(Roles = "Admin,BlogAuthor,SuperAdmin")]
     public class TagController : BaseController<Tag>
     {
         public TagController(

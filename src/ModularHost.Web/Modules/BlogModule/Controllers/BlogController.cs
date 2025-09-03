@@ -155,7 +155,6 @@ namespace MRCMS.Modules.Blog.Controllers
 
         [HttpPost("{postId:guid}/comment")]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> AddComment(Guid postId, string body, IFormFile? attachment = null, Guid? parentCommentId = null)
         {
             if (string.IsNullOrWhiteSpace(body))

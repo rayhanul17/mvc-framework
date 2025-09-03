@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace MRCMS.Controllers
 {
-    [Authorize(Roles = "Administrator")]
     public class MenuController : BaseController<Menu>
     {
         public MenuController(

@@ -11,7 +11,6 @@ using MRCMS.Models.ViewModels;
 
 namespace MRCMS.Controllers
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
     public class ModuleController : Controller
     {
         private readonly IServiceProvider _serviceProvider;

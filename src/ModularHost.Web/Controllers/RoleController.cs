@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace MRCMS.Controllers
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
     public class RoleController : Controller
     {
         private readonly RoleManager<Role> _roleManager;

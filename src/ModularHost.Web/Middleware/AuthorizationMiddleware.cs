@@ -25,81 +25,63 @@ namespace MRCMS.Middleware
 
         public async Task InvokeAsync(HttpContext context, IPermissionService permissionService, AppDbContext dbContext)
         {
-            var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
-            if (endpoint == null)
-            {
-                await _next(context);
-                return;
-            }
-
-            // Allow Account controller actions and static files without authorization
             var path = context.Request.Path.Value?.ToLower() ?? "";
-            if (path.StartsWith("/account/") || 
-                path.StartsWith("/css/") || 
-                path.StartsWith("/js/") || 
-                path.StartsWith("/lib/") || 
-                path.StartsWith("/favicon") ||
-                path == "/" ||  // Allow home page for now
-                path.StartsWith("/home/"))
-            {
-                await _next(context);
-                return;
-            }
-
-            var authorizeAttribute = endpoint.Metadata.GetMetadata<UrlAuthorizeAttribute>();
-            if (authorizeAttribute == null)
-            {
-                // Default to require authorization if not specified
-                authorizeAttribute = new UrlAuthorizeAttribute { Policy = AuthorizationPolicyType.Authorize };
-            }
-
             var method = context.Request.Method;
 
-            switch (authorizeAttribute.Policy)
+            // Allow public paths without authorization
+            var publicPaths = new[]
             {
-                case AuthorizationPolicyType.Anonymous:
+                "/account/login",
+                "/account/logout",
+                "/account/register",
+                "/account/forgotpassword",
+                "/account/resetpassword",
+                "/account/confirmaccount",
+                "/account/accessdenied",
+                "/css/",
+                "/js/",
+                "/lib/",
+                "/images/",
+                "/favicon",
+                "/error/",
+                "/",
+                "/home/"
+            };
+
+            // Check if current path is public
+            if (publicPaths.Any(p => path.StartsWith(p)))
+            {
+                await _next(context);
+                return;
+            }
+
+            // Check if user is authenticated
+            if (!context.User.Identity.IsAuthenticated)
+            {
+                await HandleUnauthorized(context);
+                return;
+            }
+
+            var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            // Check if user is SuperAdmin from database - they bypass all permission checks
+            if (!string.IsNullOrEmpty(userIdClaim) && Guid.TryParse(userIdClaim, out var userId))
+            {
+                var user = await dbContext.Users.AsNoTracking()
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+                
+                if (user != null && user.IsSuperAdmin)
+                {
                     await _next(context);
                     return;
+                }
+            }
 
-                case AuthorizationPolicyType.Authenticate:
-                    if (!context.User.Identity.IsAuthenticated)
-                    {
-                        await HandleUnauthorized(context);
-                        return;
-                    }
-                    break;
-
-                case AuthorizationPolicyType.Authorize:
-                    if (!context.User.Identity.IsAuthenticated)
-                    {
-                        await HandleUnauthorized(context);
-                        return;
-                    }
-
-                    var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    
-                    // Check if user is SuperAdmin from database - they bypass all permission checks
-                    if (!string.IsNullOrEmpty(userIdClaim) && Guid.TryParse(userIdClaim, out var userId))
-                    {
-                        var user = await dbContext.Users.AsNoTracking()
-                            .FirstOrDefaultAsync(u => u.Id == userId);
-                        
-                        if (user != null && user.IsSuperAdmin)
-                        {
-                            await _next(context);
-                            return;
-                        }
-                    }
-
-                    var url = authorizeAttribute.Url ?? path;
-                    var httpMethod = authorizeAttribute.HttpMethod ?? method;
-                    
-                    if (!await permissionService.IsUrlAllowedAsync(context.User, url, httpMethod))
-                    {
-                        await HandleForbidden(context);
-                        return;
-                    }
-                    break;
+            // Check if user has permission for this URL through their roles
+            if (!await permissionService.IsUrlAllowedAsync(context.User, path, method))
+            {
+                await HandleForbidden(context);
+                return;
             }
 
             await _next(context);

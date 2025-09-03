@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace MRCMS.Controllers
 {
-    [Authorize(Roles = "SuperAdmin,Admin")]
     public class ReportsController : Controller
     {
         private readonly AppDbContext _context;
