@@ -14,30 +14,48 @@
         </p>
     </div>
 
-    <!-- Quick Links -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <a href="#getting-started" class="card-elevated hover:scale-105 transition-transform duration-200">
-            <div class="card-body text-center">
-                <i class="fas fa-rocket text-success-500 text-4xl mb-4"></i>
-                <h3 class="text-lg font-semibold mb-2">Getting Started</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Quick start guide for new developers</p>
-            </div>
-        </a>
-        <a href="#api-reference" class="card-elevated hover:scale-105 transition-transform duration-200">
-            <div class="card-body text-center">
-                <i class="fas fa-code text-primary-500 text-4xl mb-4"></i>
-                <h3 class="text-lg font-semibold mb-2">API Reference</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Complete API documentation</p>
-            </div>
-        </a>
-        <a href="#deployment" class="card-elevated hover:scale-105 transition-transform duration-200">
-            <div class="card-body text-center">
-                <i class="fas fa-server text-warning-500 text-4xl mb-4"></i>
-                <h3 class="text-lg font-semibold mb-2">Deployment</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Production deployment guides</p>
-            </div>
-        </a>
+    <!-- Navigation Tabs -->
+    <div class="mb-6">
+        <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button onclick="showTab('developer')" id="developer-tab" 
+                        class="tab-button active border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 py-2 px-1 text-sm font-medium">
+                    <i class="fas fa-code mr-2"></i>Developer Guide
+                </button>
+                <button onclick="showTab('user-guide')" id="user-guide-tab"
+                        class="tab-button border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 py-2 px-1 text-sm font-medium">
+                    <i class="fas fa-users-cog mr-2"></i>User Guide
+                </button>
+            </nav>
+        </div>
     </div>
+
+    <!-- Developer Guide Content -->
+    <div id="developer-content" class="tab-content">
+        <!-- Quick Links -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <a href="#getting-started" class="card-elevated hover:scale-105 transition-transform duration-200">
+                <div class="card-body text-center">
+                    <i class="fas fa-rocket text-success-500 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">Getting Started</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Quick start guide for new developers</p>
+                </div>
+            </a>
+            <a href="#api-reference" class="card-elevated hover:scale-105 transition-transform duration-200">
+                <div class="card-body text-center">
+                    <i class="fas fa-code text-primary-500 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">API Reference</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Complete API documentation</p>
+                </div>
+            </a>
+            <a href="#deployment" class="card-elevated hover:scale-105 transition-transform duration-200">
+                <div class="card-body text-center">
+                    <i class="fas fa-server text-warning-500 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-semibold mb-2">Deployment</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Production deployment guides</p>
+                </div>
+            </a>
+        </div>
 
     <!-- Documentation Sections -->
     <div class="space-y-8">
@@ -252,6 +270,449 @@ ConnectionStrings__DefaultConnection=...</code></pre>
             </div>
         </section>
     </div>
+    </div>
+
+    <!-- User Guide Content -->
+    <div id="user-guide-content" class="tab-content hidden">
+        <!-- Quick Access Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <a href="#permission-management" class="card-elevated hover:scale-105 transition-transform duration-200">
+                <div class="card-body text-center">
+                    <i class="fas fa-shield-alt text-success-500 text-3xl mb-3"></i>
+                    <h3 class="text-sm font-semibold mb-2">Permission Management</h3>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">Manage user permissions</p>
+                </div>
+            </a>
+            <a href="#user-setup" class="card-elevated hover:scale-105 transition-transform duration-200">
+                <div class="card-body text-center">
+                    <i class="fas fa-users text-primary-500 text-3xl mb-3"></i>
+                    <h3 class="text-sm font-semibold mb-2">User Setup</h3>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">Create and manage users</p>
+                </div>
+            </a>
+            <a href="#role-setup" class="card-elevated hover:scale-105 transition-transform duration-200">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-tag text-warning-500 text-3xl mb-3"></i>
+                    <h3 class="text-sm font-semibold mb-2">Role Setup</h3>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">Configure user roles</p>
+                </div>
+            </a>
+            <a href="#system-settings" class="card-elevated hover:scale-105 transition-transform duration-200">
+                <div class="card-body text-center">
+                    <i class="fas fa-cogs text-info-500 text-3xl mb-3"></i>
+                    <h3 class="text-sm font-semibold mb-2">System Settings</h3>
+                    <p class="text-xs text-gray-600 dark:text-gray-400">Configure system options</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- User Guide Sections -->
+        <div class="space-y-8">
+            <!-- Permission Management -->
+            <section id="permission-management" class="card-elevated">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-shield-alt text-success-500 mr-2"></i>Permission Management Guide
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="prose dark:prose-invert max-w-none">
+                        <p class="text-lg mb-6">Learn how to manage user permissions in the system using our comprehensive permission management interface.</p>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-primary-600 dark:text-primary-400">
+                                        <i class="fas fa-plus-circle mr-2"></i>Creating Single Permissions
+                                    </h3>
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
+                                        <p class="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                                            <i class="fas fa-route mr-2"></i><strong>Navigation:</strong> Go to Role Permissions → Create Permission
+                                        </p>
+                                        <p class="text-xs text-blue-700 dark:text-blue-300">URL: <code>/RolePermission/Create</code></p>
+                                    </div>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="border-l-4 border-green-500 pl-4">
+                                            <h4 class="font-medium text-green-700 dark:text-green-400">Step 1: Select Roles</h4>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Choose one or more roles from the scrollable checkbox list. You can assign the same permission to multiple roles at once.
+                                            </p>
+                                        </div>
+                                        
+                                        <div class="border-l-4 border-blue-500 pl-4">
+                                            <h4 class="font-medium text-blue-700 dark:text-blue-400">Step 2: Define Permission</h4>
+                                            <ul class="text-sm text-gray-600 dark:text-gray-400 mt-2 space-y-1">
+                                                <li>• <strong>Permission Name:</strong> e.g., "Product Management"</li>
+                                                <li>• <strong>URL Pattern:</strong> e.g., "/product/*" (supports wildcards)</li>
+                                                <li>• <strong>HTTP Method:</strong> GET, POST, PUT, DELETE, or * (all)</li>
+                                                <li>• <strong>Description:</strong> Explain what this permission allows</li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div class="border-l-4 border-purple-500 pl-4">
+                                            <h4 class="font-medium text-purple-700 dark:text-purple-400">Quick Fill Options</h4>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                                Use the pre-defined buttons like "Admin Dashboard", "User Management" to auto-fill common permissions.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-warning-600 dark:text-warning-400">
+                                        <i class="fas fa-layer-group mr-2"></i>Bulk Assignment
+                                    </h3>
+                                    <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg mb-4">
+                                        <p class="text-sm text-amber-800 dark:text-amber-200 mb-2">
+                                            <i class="fas fa-route mr-2"></i><strong>Navigation:</strong> Go to Role Permissions → Bulk Assign
+                                        </p>
+                                        <p class="text-xs text-amber-700 dark:text-amber-300">URL: <code>/RolePermission/BulkAssign</code></p>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-3 gap-4 mb-4">
+                                        <div class="text-center">
+                                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                                <i class="fas fa-users text-blue-600 dark:text-blue-400"></i>
+                                            </div>
+                                            <p class="text-xs font-medium">Select Multiple Roles</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                                <i class="fas fa-link text-green-600 dark:text-green-400"></i>
+                                            </div>
+                                            <p class="text-xs font-medium">Choose URLs</p>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                                <i class="fas fa-code text-yellow-600 dark:text-yellow-400"></i>
+                                            </div>
+                                            <p class="text-xs font-medium">Select Methods</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            <i class="fas fa-calculator mr-2"></i><strong>Smart Calculation:</strong> 
+                                            The system shows exactly how many permissions will be created (roles × URLs × methods)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-info-600 dark:text-info-400">
+                                        <i class="fas fa-edit mr-2"></i>Managing Existing Permissions
+                                    </h3>
+                                    
+                                    <div class="bg-cyan-50 dark:bg-cyan-900/20 p-4 rounded-lg mb-4">
+                                        <p class="text-sm text-cyan-800 dark:text-cyan-200 mb-2">
+                                            <i class="fas fa-route mr-2"></i><strong>Navigation:</strong> Go to Role Permissions → View List
+                                        </p>
+                                        <p class="text-xs text-cyan-700 dark:text-cyan-300">URL: <code>/RolePermission</code></p>
+                                    </div>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-eye text-blue-600 dark:text-blue-400 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-sm">View Permissions</p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">Browse all permissions with search and filtering</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-edit text-green-600 dark:text-green-400 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-sm">Edit Permissions</p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">Modify role assignments, URLs, methods, and descriptions</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                            <div class="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-trash text-red-600 dark:text-red-400 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-sm">Delete Permissions</p>
+                                                <p class="text-xs text-gray-600 dark:text-gray-400">Remove permissions with impact assessment warnings</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-red-600 dark:text-red-400">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>Important Notes
+                                    </h3>
+                                    
+                                    <div class="space-y-3">
+                                        <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                                            <h4 class="font-medium text-red-800 dark:text-red-300 text-sm mb-1">Immediate Effect</h4>
+                                            <p class="text-xs text-red-700 dark:text-red-400">All permission changes are active immediately and affect user access instantly.</p>
+                                        </div>
+                                        
+                                        <div class="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+                                            <h4 class="font-medium text-yellow-800 dark:text-yellow-300 text-sm mb-1">Cache Management</h4>
+                                            <p class="text-xs text-yellow-700 dark:text-yellow-400">The system automatically clears user permission cache when permissions are modified.</p>
+                                        </div>
+                                        
+                                        <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                                            <h4 class="font-medium text-blue-800 dark:text-blue-300 text-sm mb-1">URL Patterns</h4>
+                                            <p class="text-xs text-blue-700 dark:text-blue-400">Use wildcards (*) for flexible matching. Example: "/admin/*" matches all admin pages.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Examples Section -->
+                        <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                            <h3 class="text-xl font-semibold mb-4 text-indigo-800 dark:text-indigo-300">
+                                <i class="fas fa-lightbulb mr-2"></i>Common Permission Examples
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-medium text-indigo-700 dark:text-indigo-400 mb-3">Basic Admin Permissions</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                                            <span>Admin Dashboard</span>
+                                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/admin - GET</code>
+                                        </div>
+                                        <div class="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                                            <span>User Management</span>
+                                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/user/* - *</code>
+                                        </div>
+                                        <div class="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                                            <span>View Reports</span>
+                                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/reports/* - GET</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-medium text-indigo-700 dark:text-indigo-400 mb-3">Content Management</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                                            <span>Blog Management</span>
+                                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/blog/* - *</code>
+                                        </div>
+                                        <div class="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                                            <span>Category Access</span>
+                                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/category - GET</code>
+                                        </div>
+                                        <div class="flex justify-between items-center p-2 bg-white dark:bg-gray-800 rounded">
+                                            <span>Project View</span>
+                                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">/project/* - GET</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Setup -->
+            <section id="user-setup" class="card-elevated">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-users text-primary-500 mr-2"></i>User Management Setup
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="prose dark:prose-invert max-w-none">
+                        <p class="text-lg mb-6">Complete guide to creating and managing users in the system.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3>Creating New Users</h3>
+                                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                                        <i class="fas fa-route mr-2"></i>Navigate to: <strong>User Management → Create User</strong>
+                                    </p>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-sm font-bold text-green-600">1</div>
+                                        <p class="text-sm">Fill in basic user information (name, email, username)</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-sm font-bold text-green-600">2</div>
+                                        <p class="text-sm">Set a temporary password (user can change later)</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-sm font-bold text-green-600">3</div>
+                                        <p class="text-sm">Assign one or more roles to the user</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-sm font-bold text-green-600">4</div>
+                                        <p class="text-sm">Set user status (Active/Inactive)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3>Managing User Roles</h3>
+                                <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-purple-800 dark:text-purple-200">
+                                        <i class="fas fa-info-circle mr-2"></i>Users inherit all permissions from their assigned roles
+                                    </p>
+                                </div>
+                                
+                                <div class="space-y-3 text-sm">
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <h4 class="font-medium mb-1">Multiple Role Assignment</h4>
+                                        <p class="text-gray-600 dark:text-gray-400">Users can have multiple roles, and they get the combined permissions from all roles.</p>
+                                    </div>
+                                    
+                                    <div class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                        <h4 class="font-medium mb-1">Role Hierarchy</h4>
+                                        <p class="text-gray-600 dark:text-gray-400">Consider creating a role hierarchy (e.g., SuperAdmin > Admin > Manager > User) for easier management.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Role Setup -->
+            <section id="role-setup" class="card-elevated">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-user-tag text-warning-500 mr-2"></i>Role Configuration
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="prose dark:prose-invert max-w-none">
+                        <p class="text-lg mb-6">Set up and manage user roles for effective permission organization.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-lg">
+                                <h3 class="text-red-700 dark:text-red-300 font-semibold mb-3">
+                                    <i class="fas fa-crown mr-2"></i>SuperAdmin Role
+                                </h3>
+                                <ul class="text-sm text-red-600 dark:text-red-400 space-y-1">
+                                    <li>• Full system access</li>
+                                    <li>• Bypasses all permissions</li>
+                                    <li>• Manages all users and roles</li>
+                                    <li>• System configuration access</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
+                                <h3 class="text-blue-700 dark:text-blue-300 font-semibold mb-3">
+                                    <i class="fas fa-shield-alt mr-2"></i>Admin Role
+                                </h3>
+                                <ul class="text-sm text-blue-600 dark:text-blue-400 space-y-1">
+                                    <li>• Most admin functions</li>
+                                    <li>• User management</li>
+                                    <li>• Content management</li>
+                                    <li>• Report access</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
+                                <h3 class="text-green-700 dark:text-green-300 font-semibold mb-3">
+                                    <i class="fas fa-user mr-2"></i>User Role
+                                </h3>
+                                <ul class="text-sm text-green-600 dark:text-green-400 space-y-1">
+                                    <li>• Basic system access</li>
+                                    <li>• Own profile management</li>
+                                    <li>• Limited content creation</li>
+                                    <li>• View permissions only</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                            <h3 class="text-yellow-800 dark:text-yellow-300 font-semibold mb-2">
+                                <i class="fas fa-lightbulb mr-2"></i>Best Practices
+                            </h3>
+                            <ul class="text-sm text-yellow-700 dark:text-yellow-400 space-y-1">
+                                <li>• Create roles based on job functions, not individual users</li>
+                                <li>• Follow the principle of least privilege</li>
+                                <li>• Regularly review and audit role permissions</li>
+                                <li>• Use descriptive names for custom roles</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Settings -->
+            <section id="system-settings" class="card-elevated">
+                <div class="card-header">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        <i class="fas fa-cogs text-info-500 mr-2"></i>System Configuration
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="prose dark:prose-invert max-w-none">
+                        <p class="text-lg mb-6">Configure system settings for optimal security and performance.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <h3>Security Settings</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-red-800 dark:text-red-300 mb-2">Password Policy</h4>
+                                        <ul class="text-sm text-red-700 dark:text-red-400 space-y-1">
+                                            <li>• Minimum 8 characters</li>
+                                            <li>• Require uppercase and lowercase</li>
+                                            <li>• Require numbers and symbols</li>
+                                            <li>• Password expiry settings</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-blue-800 dark:text-blue-300 mb-2">Session Management</h4>
+                                        <ul class="text-sm text-blue-700 dark:text-blue-400 space-y-1">
+                                            <li>• Session timeout duration</li>
+                                            <li>• Concurrent session limits</li>
+                                            <li>• Automatic logout settings</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3>Permission Settings</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-green-800 dark:text-green-300 mb-2">Cache Configuration</h4>
+                                        <ul class="text-sm text-green-700 dark:text-green-400 space-y-1">
+                                            <li>• Permission cache duration</li>
+                                            <li>• Automatic cache refresh</li>
+                                            <li>• Memory usage optimization</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-purple-800 dark:text-purple-300 mb-2">Audit Logging</h4>
+                                        <ul class="text-sm text-purple-700 dark:text-purple-400 space-y-1">
+                                            <li>• Track permission changes</li>
+                                            <li>• User access logging</li>
+                                            <li>• Failed login attempts</li>
+                                            <li>• Log retention policies</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -284,4 +745,56 @@ ConnectionStrings__DefaultConnection=...</code></pre>
     .dark .api-endpoint:hover {
         background-color: #4b5563;
     }
+    
+    .tab-content {
+        display: block;
+    }
+    
+    .tab-content.hidden {
+        display: none;
+    }
+    
+    .tab-button {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .tab-button.active {
+        border-color: #3b82f6 !important;
+        color: #3b82f6 !important;
+    }
 </style>
+
+<script>
+    function showTab(tabName) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+            button.classList.remove('border-primary-500', 'text-primary-600');
+            button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+        });
+        
+        // Show selected tab content
+        if (tabName === 'developer') {
+            document.getElementById('developer-content').classList.remove('hidden');
+            document.getElementById('developer-tab').classList.add('active');
+            document.getElementById('developer-tab').classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById('developer-tab').classList.add('border-primary-500', 'text-primary-600');
+        } else if (tabName === 'user-guide') {
+            document.getElementById('user-guide-content').classList.remove('hidden');
+            document.getElementById('user-guide-tab').classList.add('active');
+            document.getElementById('user-guide-tab').classList.remove('border-transparent', 'text-gray-500');
+            document.getElementById('user-guide-tab').classList.add('border-primary-500', 'text-primary-600');
+        }
+    }
+    
+    // Initialize with developer tab active
+    document.addEventListener('DOMContentLoaded', function() {
+        showTab('developer');
+    });
+</script>

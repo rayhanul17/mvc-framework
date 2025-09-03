@@ -1,0 +1,197 @@
+@{
+    ViewData["Title"] = "Create Permission";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-plus"></i> Add New Permission
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Role Selection -->
+                        <div class="form-group">
+                            <label class="form-label font-weight-bold">
+                                <i class="fas fa-users text-primary"></i> Select Roles *
+                            </label>
+                            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                @if (ViewBag.Roles != null)
+                                {
+                                    @foreach (var role in (IEnumerable<SelectListItem>)ViewBag.Roles)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="selectedRoles" value="@role.Value" id="role_@role.Value">
+                                            <label class="form-check-label" for="role_@role.Value">
+                                                <span class="badge badge-primary">@role.Text</span>
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <small class="form-text text-muted">Select one or more roles to assign this permission to.</small>
+                        </div>
+
+                        <!-- Permission Name -->
+                        <div class="form-group">
+                            <label for="PermissionName" class="form-label font-weight-bold">
+                                <i class="fas fa-tag text-info"></i> Permission Name
+                            </label>
+                            <input name="PermissionName" id="PermissionName" class="form-control" placeholder="e.g., User Management, Admin Access" />
+                            <small class="form-text text-muted">A descriptive name for this permission.</small>
+                        </div>
+
+                        <!-- URL -->
+                        <div class="form-group">
+                            <label for="Url" class="form-label font-weight-bold">
+                                <i class="fas fa-link text-success"></i> URL Pattern *
+                            </label>
+                            <input name="Url" id="Url" class="form-control" placeholder="/admin, /user/*, /api/users" required />
+                            <small class="form-text text-muted">
+                                URL pattern to match. Use * for wildcards (e.g., /admin/* matches all admin pages).
+                            </small>
+                        </div>
+
+                        <!-- HTTP Method -->
+                        <div class="form-group">
+                            <label for="HttpMethod" class="form-label font-weight-bold">
+                                <i class="fas fa-code text-warning"></i> HTTP Method *
+                            </label>
+                            <select name="HttpMethod" id="HttpMethod" class="form-control" required>
+                                <option value="">-- Select Method --</option>
+                                <option value="GET">GET (View/Read)</option>
+                                <option value="POST">POST (Create)</option>
+                                <option value="PUT">PUT (Update)</option>
+                                <option value="DELETE">DELETE (Remove)</option>
+                                <option value="*">* (All Methods)</option>
+                            </select>
+                            <small class="form-text text-muted">HTTP method this permission applies to.</small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="Description" class="form-label font-weight-bold">
+                                <i class="fas fa-align-left text-secondary"></i> Description *
+                            </label>
+                            <textarea name="Description" id="Description" class="form-control" rows="3" 
+                                      placeholder="Describe what this permission allows users to do..." required></textarea>
+                            <small class="form-text text-muted">Clear description of what this permission grants access to.</small>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Permission
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary ml-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle"></i> Quick Tips
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="font-weight-bold">URL Patterns:</h6>
+                    <ul class="small mb-3">
+                        <li><code>/admin</code> - Exact match</li>
+                        <li><code>/admin/*</code> - All admin pages</li>
+                        <li><code>/api/users/*</code> - All user API endpoints</li>
+                    </ul>
+
+                    <h6 class="font-weight-bold">HTTP Methods:</h6>
+                    <ul class="small mb-3">
+                        <li><strong>GET</strong> - View/Read permissions</li>
+                        <li><strong>POST</strong> - Create permissions</li>
+                        <li><strong>PUT</strong> - Update permissions</li>
+                        <li><strong>DELETE</strong> - Delete permissions</li>
+                        <li><strong>*</strong> - All methods (full access)</li>
+                    </ul>
+
+                    <div class="alert alert-info small">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>Tip:</strong> Use the Bulk Assign feature to create multiple permissions at once for common scenarios.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mt-3">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-rocket"></i> Common Permissions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary btn-block text-left" 
+                                onclick="fillPermission('Admin Dashboard', '/admin', 'GET', 'Access to admin dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> Admin Dashboard
+                        </button>
+                    </div>
+                    <div class="mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-success btn-block text-left" 
+                                onclick="fillPermission('User Management', '/user/*', '*', 'Full access to user management')">
+                            <i class="fas fa-users"></i> User Management
+                        </button>
+                    </div>
+                    <div class="mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-warning btn-block text-left" 
+                                onclick="fillPermission('Role Management', '/role/*', '*', 'Full access to role management')">
+                            <i class="fas fa-user-tag"></i> Role Management
+                        </button>
+                    </div>
+                    <div class="mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-info btn-block text-left" 
+                                onclick="fillPermission('Reports View', '/reports/*', 'GET', 'View all reports')">
+                            <i class="fas fa-chart-bar"></i> Reports Access
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function fillPermission(name, url, method, description) {
+            document.getElementById('PermissionName').value = name;
+            document.getElementById('Url').value = url;
+            document.getElementById('HttpMethod').value = method;
+            document.getElementById('Description').value = description;
+        }
+
+        $(document).ready(function() {
+            // Form validation
+            $('form').submit(function(e) {
+                var selectedRoles = $('input[name="selectedRoles"]:checked').length;
+                if (selectedRoles === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one role.');
+                    return false;
+                }
+            });
+        });
+    </script>
+}

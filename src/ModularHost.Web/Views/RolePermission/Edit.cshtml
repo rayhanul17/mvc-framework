@@ -1,0 +1,167 @@
+@model MRCMS.Core.Models.Entities.RolePermission
+@{
+    ViewData["Title"] = "Edit Permission";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-edit"></i> Edit Permission
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="Id" type="hidden" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Role Selection -->
+                        <div class="form-group">
+                            <label class="form-label font-weight-bold">
+                                <i class="fas fa-users text-primary"></i> Role *
+                            </label>
+                            <select asp-for="RoleId" class="form-control" asp-items="@ViewBag.Roles" required>
+                                <option value="">-- Select Role --</option>
+                            </select>
+                            <span asp-validation-for="RoleId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Permission Name -->
+                        <div class="form-group">
+                            <label asp-for="PermissionName" class="form-label font-weight-bold">
+                                <i class="fas fa-tag text-info"></i> Permission Name
+                            </label>
+                            <input asp-for="PermissionName" class="form-control" />
+                            <span asp-validation-for="PermissionName" class="text-danger"></span>
+                        </div>
+
+                        <!-- URL -->
+                        <div class="form-group">
+                            <label asp-for="Url" class="form-label font-weight-bold">
+                                <i class="fas fa-link text-success"></i> URL Pattern *
+                            </label>
+                            <input asp-for="Url" class="form-control" required />
+                            <span asp-validation-for="Url" class="text-danger"></span>
+                        </div>
+
+                        <!-- HTTP Method -->
+                        <div class="form-group">
+                            <label asp-for="HttpMethod" class="form-label font-weight-bold">
+                                <i class="fas fa-code text-warning"></i> HTTP Method *
+                            </label>
+                            <select asp-for="HttpMethod" class="form-control" required>
+                                <option value="">-- Select Method --</option>
+                                <option value="GET">GET (View/Read)</option>
+                                <option value="POST">POST (Create)</option>
+                                <option value="PUT">PUT (Update)</option>
+                                <option value="DELETE">DELETE (Remove)</option>
+                                <option value="*">* (All Methods)</option>
+                            </select>
+                            <span asp-validation-for="HttpMethod" class="text-danger"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label asp-for="Description" class="form-label font-weight-bold">
+                                <i class="fas fa-align-left text-secondary"></i> Description *
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Permission
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary ml-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger ml-2">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-info-circle"></i> Permission Info
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Created:</small><br>
+                        <strong>@Model.CreatedAt.ToString("MMM dd, yyyy 'at' hh:mm tt")</strong>
+                    </div>
+
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <div class="mb-3">
+                            <small class="text-muted">Last Updated:</small><br>
+                            <strong>@Model.UpdatedAt.Value.ToString("MMM dd, yyyy 'at' hh:mm tt")</strong>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <small class="text-muted">Status:</small><br>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge badge-success">
+                                <i class="fas fa-check"></i> Active
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-danger">
+                                <i class="fas fa-times"></i> Inactive
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mt-3">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Warning
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        Changing this permission will affect all users assigned to the selected role. 
+                        Cache will be automatically invalidated to reflect changes immediately.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Pre-select the current role
+            @if (ViewBag.SelectedRoleId != null)
+            {
+                <text>
+                $('#RoleId').val('@ViewBag.SelectedRoleId');
+                </text>
+            }
+        });
+    </script>
+}

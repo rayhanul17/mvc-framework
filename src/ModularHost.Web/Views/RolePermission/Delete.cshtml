@@ -1,0 +1,170 @@
+@model MRCMS.Core.Models.Entities.RolePermission
+@{
+    ViewData["Title"] = "Delete Permission";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow border-danger">
+                <div class="card-header py-3 bg-danger text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-exclamation-triangle"></i> Confirm Delete Permission
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Warning!</h5>
+                        <p class="mb-0">Are you sure you want to delete this permission? This action cannot be undone and will immediately affect all users with this role.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Role:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge badge-primary">
+                                        <i class="fas fa-users"></i> @Model.Role.Name
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">Permission:</dt>
+                                <dd class="col-sm-8">@Model.PermissionName</dd>
+
+                                <dt class="col-sm-4">URL:</dt>
+                                <dd class="col-sm-8"><code>@Model.Url</code></dd>
+
+                                <dt class="col-sm-4">Method:</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @GetMethodBadgeClass(Model.HttpMethod)">
+                                        @Model.HttpMethod
+                                    </span>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4">Description:</dt>
+                                <dd class="col-sm-8">@Model.Description</dd>
+
+                                <dt class="col-sm-4">Status:</dt>
+                                <dd class="col-sm-8">
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check"></i> Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">
+                                            <i class="fas fa-times"></i> Inactive
+                                        </span>
+                                    }
+                                </dd>
+
+                                <dt class="col-sm-4">Created:</dt>
+                                <dd class="col-sm-8">
+                                    <small>@Model.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <form asp-action="DeleteConfirmed" method="post" class="mt-4">
+                        <input asp-for="Id" type="hidden" />
+                        
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="fas fa-trash"></i> Yes, Delete Permission
+                                </button>
+                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg ml-2">
+                                    <i class="fas fa-edit"></i> Edit Instead
+                                </a>
+                            </div>
+                            <div>
+                                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow border-warning">
+                <div class="card-header py-3 bg-warning text-dark">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-info-circle"></i> Impact Assessment
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-warning">
+                        <i class="fas fa-users"></i> Affected Users
+                    </h6>
+                    <p class="text-muted small">
+                        All users with the <strong>@Model.Role.Name</strong> role will lose access to:
+                    </p>
+                    <ul class="small">
+                        <li><strong>URL:</strong> <code>@Model.Url</code></li>
+                        <li><strong>Method:</strong> @Model.HttpMethod</li>
+                        <li><strong>Action:</strong> @Model.Description</li>
+                    </ul>
+
+                    <h6 class="text-info mt-3">
+                        <i class="fas fa-sync-alt"></i> Cache Impact
+                    </h6>
+                    <p class="text-muted small">
+                        User permission caches will be automatically cleared to reflect this change immediately.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card shadow border-info mt-3">
+                <div class="card-header py-3 bg-info text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-lightbulb"></i> Alternatives
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-2">
+                        Instead of deleting, consider:
+                    </p>
+                    <ul class="small">
+                        <li>Editing the permission to modify access</li>
+                        <li>Deactivating the permission temporarily</li>
+                        <li>Moving users to different roles</li>
+                        <li>Creating more specific permissions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetMethodBadgeClass(string method)
+    {
+        return method switch
+        {
+            "GET" => "badge-info",
+            "POST" => "badge-success", 
+            "PUT" => "badge-warning",
+            "DELETE" => "badge-danger",
+            "*" => "badge-dark",
+            _ => "badge-secondary"
+        };
+    }
+}

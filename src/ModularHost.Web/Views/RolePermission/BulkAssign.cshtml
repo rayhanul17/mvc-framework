@@ -1,0 +1,312 @@
+@{
+    ViewData["Title"] = "Bulk Assign Permissions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-plus-circle"></i> Assign Multiple Permissions at Once
+            </h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="BulkAssign" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <!-- Left Column - Roles -->
+                    <div class="col-md-4">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-users"></i> Select Roles *
+                                </h6>
+                            </div>
+                            <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                                @if (ViewBag.Roles != null)
+                                {
+                                    @foreach (var role in (IEnumerable<SelectListItem>)ViewBag.Roles)
+                                    {
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="selectedRoles" value="@role.Value" id="bulkRole_@role.Value">
+                                            <label class="form-check-label" for="bulkRole_@role.Value">
+                                                <span class="badge badge-primary">@role.Text</span>
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="selectAllRoles()">
+                                        Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ml-1" onclick="clearAllRoles()">
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Middle Column - URLs -->
+                    <div class="col-md-4">
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-link"></i> Select URLs *
+                                </h6>
+                            </div>
+                            <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                                @if (ViewBag.CommonUrls != null)
+                                {
+                                    @foreach (var url in (IEnumerable<SelectListItem>)ViewBag.CommonUrls)
+                                    {
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="selectedUrls" value="@url.Value" id="url_@url.Value.Replace("/", "_")">
+                                            <label class="form-check-label" for="url_@url.Value.Replace("/", "_")">
+                                                <strong>@url.Text</strong><br>
+                                                <small class="text-muted"><code>@url.Value</code></small>
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-success" onclick="selectAllUrls()">
+                                        Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ml-1" onclick="clearAllUrls()">
+                                        Clear All
+                                    </button>
+                                </div>
+                                
+                                <!-- Custom URL Input -->
+                                <div class="mt-3 pt-3 border-top">
+                                    <label class="form-label font-weight-bold small">Add Custom URL:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="customUrl" class="form-control form-control-sm" placeholder="/custom/path">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-sm btn-outline-success" onclick="addCustomUrl()">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - HTTP Methods -->
+                    <div class="col-md-4">
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-code"></i> Select Methods *
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                @if (ViewBag.HttpMethods != null)
+                                {
+                                    @foreach (var method in (IEnumerable<SelectListItem>)ViewBag.HttpMethods)
+                                    {
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="selectedMethods" value="@method.Value" id="method_@method.Value">
+                                            <label class="form-check-label" for="method_@method.Value">
+                                                <span class="badge @GetMethodBadgeClass(method.Value)">@method.Text</span>
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-warning" onclick="selectAllMethods()">
+                                        Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ml-1" onclick="clearAllMethods()">
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Section - Common Details -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card border-info">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-info-circle"></i> Permission Details
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label font-weight-bold">Permission Name</label>
+                                            <input name="permissionName" class="form-control" 
+                                                   placeholder="e.g., Admin Access, User Management" />
+                                            <small class="form-text text-muted">This will be applied to all selected permissions.</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label font-weight-bold">Description</label>
+                                            <input name="description" class="form-control" 
+                                                   placeholder="Describe what these permissions allow..." />
+                                            <small class="form-text text-muted">Common description for all permissions.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-check-circle"></i> Assign Selected Permissions
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary btn-lg ml-2">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+
+                <!-- Selection Summary -->
+                <div class="mt-3">
+                    <div class="alert alert-light">
+                        <strong>Selection Summary:</strong>
+                        <span id="selectionSummary">Select roles, URLs, and methods to see summary</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function selectAllRoles() {
+            $('input[name="selectedRoles"]').prop('checked', true);
+            updateSummary();
+        }
+
+        function clearAllRoles() {
+            $('input[name="selectedRoles"]').prop('checked', false);
+            updateSummary();
+        }
+
+        function selectAllUrls() {
+            $('input[name="selectedUrls"]').prop('checked', true);
+            updateSummary();
+        }
+
+        function clearAllUrls() {
+            $('input[name="selectedUrls"]').prop('checked', false);
+            updateSummary();
+        }
+
+        function selectAllMethods() {
+            $('input[name="selectedMethods"]').prop('checked', true);
+            updateSummary();
+        }
+
+        function clearAllMethods() {
+            $('input[name="selectedMethods"]').prop('checked', false);
+            updateSummary();
+        }
+
+        function addCustomUrl() {
+            var customUrl = $('#customUrl').val().trim();
+            if (customUrl && customUrl.startsWith('/')) {
+                var checkbox = $('<div class="form-check mb-2">' +
+                    '<input class="form-check-input" type="checkbox" name="selectedUrls" value="' + customUrl + '" id="custom_' + Date.now() + '" checked>' +
+                    '<label class="form-check-label" for="custom_' + Date.now() + '">' +
+                    '<strong>Custom URL</strong><br>' +
+                    '<small class="text-muted"><code>' + customUrl + '</code></small>' +
+                    '</label>' +
+                    '</div>');
+                
+                $('.card.border-success .card-body').append(checkbox);
+                $('#customUrl').val('');
+                updateSummary();
+            } else {
+                alert('Please enter a valid URL starting with /');
+            }
+        }
+
+        function updateSummary() {
+            var roleCount = $('input[name="selectedRoles"]:checked').length;
+            var urlCount = $('input[name="selectedUrls"]:checked').length;
+            var methodCount = $('input[name="selectedMethods"]:checked').length;
+            var totalPermissions = roleCount * urlCount * methodCount;
+
+            $('#selectionSummary').html(
+                roleCount + ' roles × ' + urlCount + ' URLs × ' + methodCount + ' methods = ' +
+                '<strong>' + totalPermissions + ' total permissions</strong> will be created'
+            );
+        }
+
+        $(document).ready(function() {
+            // Update summary when checkboxes change
+            $('input[type="checkbox"]').change(updateSummary);
+
+            // Form validation
+            $('form').submit(function(e) {
+                var roleCount = $('input[name="selectedRoles"]:checked').length;
+                var urlCount = $('input[name="selectedUrls"]:checked').length;
+                var methodCount = $('input[name="selectedMethods"]:checked').length;
+
+                if (roleCount === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one role.');
+                    return false;
+                }
+
+                if (urlCount === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one URL.');
+                    return false;
+                }
+
+                if (methodCount === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one HTTP method.');
+                    return false;
+                }
+
+                var totalPermissions = roleCount * urlCount * methodCount;
+                if (totalPermissions > 100) {
+                    return confirm('You are about to create ' + totalPermissions + ' permissions. Are you sure?');
+                }
+            });
+
+            updateSummary();
+        });
+    </script>
+}
+
+@functions {
+    private string GetMethodBadgeClass(string method)
+    {
+        return method switch
+        {
+            "GET" => "badge-info",
+            "POST" => "badge-success", 
+            "PUT" => "badge-warning",
+            "DELETE" => "badge-danger",
+            "*" => "badge-dark",
+            _ => "badge-secondary"
+        };
+    }
+}

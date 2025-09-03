@@ -1,0 +1,217 @@
+@model List<MRCMS.Core.Models.Entities.RolePermission>
+@{
+    ViewData["Title"] = "Role Permissions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"]</h1>
+        <div>
+            <a asp-action="BulkAssign" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Bulk Assign Permissions
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Permission
+            </a>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> @TempData["Warning"]
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- Permissions Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-key"></i> All Role Permissions (@Model.Count)
+            </h6>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="permissionsTable">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Permission Name</th>
+                                <th>URL</th>
+                                <th>HTTP Method</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var permission in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-primary">
+                                            <i class="fas fa-users"></i> @permission.Role.Name
+                                        </span>
+                                    </td>
+                                    <td>@permission.PermissionName</td>
+                                    <td>
+                                        <code>@permission.Url</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetMethodBadgeClass(permission.HttpMethod)">
+                                            @permission.HttpMethod
+                                        </span>
+                                    </td>
+                                    <td>@permission.Description</td>
+                                    <td>
+                                        @if (permission.IsActive)
+                                        {
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check"></i> Active
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">
+                                                <i class="fas fa-times"></i> Inactive
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            @permission.CreatedAt.ToString("MM/dd/yyyy")
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@permission.Id"
+                                               class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@permission.Id"
+                                               class="btn btn-sm btn-outline-danger" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-key fa-3x text-gray-400 mb-3"></i>
+                    <h5 class="text-gray-600">No permissions found</h5>
+                    <p class="text-muted">Start by creating some role permissions to manage access control.</p>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Permission
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Role Summary -->
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-chart-bar"></i> Permission Summary by Role
+            </h6>
+        </div>
+        <div class="card-body">
+            @{
+                var roleGroups = Model.GroupBy(p => p.Role.Name).ToList();
+            }
+            
+            @if (roleGroups.Any())
+            {
+                <div class="row">
+                    @foreach (var roleGroup in roleGroups)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-primary">
+                                <div class="card-body">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        @roleGroup.Key
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        @roleGroup.Count() Permission(s)
+                                    </div>
+                                    <a asp-action="RolePermissions" asp-route-roleId="@roleGroup.First().RoleId" 
+                                       class="btn btn-sm btn-outline-primary mt-2">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No role permissions to display.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#permissionsTable').DataTable({
+                "pageLength": 25,
+                "responsive": true,
+                "order": [[0, 'asc'], [2, 'asc']],
+                "columnDefs": [
+                    { "orderable": false, "targets": [7] }
+                ]
+            });
+        });
+    </script>
+}
+
+@functions {
+    private string GetMethodBadgeClass(string method)
+    {
+        return method switch
+        {
+            "GET" => "badge-info",
+            "POST" => "badge-success", 
+            "PUT" => "badge-warning",
+            "DELETE" => "badge-danger",
+            "*" => "badge-dark",
+            _ => "badge-secondary"
+        };
+    }
+}
