@@ -32,6 +32,17 @@ namespace MRCMS.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Wait for initial delay to let the application start properly
+            try
+            {
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+            }
+            catch (TaskCanceledException)
+            {
+                // Application is shutting down before the initial delay
+                return;
+            }
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -43,8 +54,16 @@ namespace MRCMS.Services
                     _logger.LogError(ex, "Error archiving logs");
                 }
 
-                // Wait for 1 hour
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                try
+                {
+                    // Wait for 1 hour
+                    await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    // This is expected when the application is shutting down
+                    break;
+                }
             }
         }
 

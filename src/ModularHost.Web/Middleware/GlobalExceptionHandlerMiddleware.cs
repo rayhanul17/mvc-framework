@@ -136,18 +136,48 @@ namespace MRCMS.Middleware
         {
             try
             {
-                _logger.LogError(exception, "Unhandled exception: {Message} | Path: {Path} | Method: {Method}", 
-                    exception.Message, 
-                    context.Request.Path, 
-                    context.Request.Method);
+                // Enhanced logging with more context
+                var logContext = new
+                {
+                    Timestamp = DateTime.UtcNow,
+                    MachineName = Environment.MachineName,
+                    ProcessId = Environment.ProcessId,
+                    ThreadId = Environment.CurrentManagedThreadId,
+                    RequestId = context.TraceIdentifier,
+                    RequestPath = context.Request.Path.Value,
+                    RequestMethod = context.Request.Method,
+                    QueryString = context.Request.QueryString.Value,
+                    UserAgent = context.Request.Headers["User-Agent"].ToString(),
+                    RemoteIp = context.Connection.RemoteIpAddress?.ToString(),
+                    User = context.User?.Identity?.Name ?? "Anonymous",
+                    ExceptionType = exception.GetType().FullName,
+                    InnerException = exception.InnerException?.GetType().FullName
+                };
+
+                _logger.LogError(exception, 
+                    "Unhandled exception occurred | Context: {@LogContext}", 
+                    logContext);
+
+                // Check for specific exception types that might cause crashes
+                if (exception is StackOverflowException || 
+                    exception is OutOfMemoryException ||
+                    exception is AccessViolationException)
+                {
+                    _logger.LogCritical(exception,
+                        "CRITICAL: Application crash detected - {ExceptionType} | Path: {Path}",
+                        exception.GetType().Name,
+                        context.Request.Path);
+                }
 
                 // Try to log to audit service if available
                 var loggerService = context.RequestServices.GetService(typeof(ILoggerService)) as ILoggerService;
-                loggerService?.LogError(exception.Message, exception);
+                loggerService?.LogError($"Unhandled exception: {exception.Message} | Path: {context.Request.Path}", exception);
             }
-            catch
+            catch (Exception logEx)
             {
-                // Ignore logging failures
+                // Last resort logging to console
+                Console.WriteLine($"[CRITICAL] Failed to log exception: {logEx.Message}");
+                Console.WriteLine($"[CRITICAL] Original exception: {exception.Message}");
             }
         }
 

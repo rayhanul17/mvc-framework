@@ -391,8 +391,15 @@ namespace MRCMS.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("PermissionName")
+                        .HasColumnType("longtext");
+
                     b.Property<Guid>("RoleId")
                         .HasColumnType("char(36)");
+
+                    b.PrimitiveCollection<string>("Roles")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");

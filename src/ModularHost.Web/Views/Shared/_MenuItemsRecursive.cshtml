@@ -1,0 +1,81 @@
+@model IEnumerable<MRCMS.Core.Models.Entities.Menu>
+@{
+    var level = (int)(ViewData["Level"] ?? 0);
+    var getChildren = (Func<Guid, IEnumerable<MRCMS.Core.Models.Entities.Menu>>)ViewData["GetChildren"];
+    var indent = level > 0 ? "pl-" + (level * 4) : "";
+    
+    // Prevent infinite recursion - limit depth to 5 levels
+    if (level > 5)
+    {
+        return;
+    }
+}
+
+<ul class="space-y-1 @indent">
+    @foreach (var menu in Model)
+    {
+        var children = getChildren(menu.Id);
+        
+        <li data-tooltip="@menu.Title" class="menu-item @(children.Any() ? "menu-parent" : "")" data-menu-id="@menu.Id">
+            @if (children.Any())
+            {
+                <!-- Parent menu with children - never active, just has parent-menu-link class -->
+                <a href="javascript:void(0)" 
+                   onclick="toggleSubmenu('@menu.Id')"
+                   class="parent-menu-link flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(level > 0 ? "text-sm" : "")">
+                    @if (!string.IsNullOrEmpty(menu.Icon))
+                    {
+                        <i class="@menu.Icon w-5"></i>
+                    }
+                    else if (level > 0)
+                    {
+                        <span class="w-5 text-center text-gray-400">•</span>
+                    }
+                    <span class="ml-3 sidebar-text">@menu.Title</span>
+                    <i class="fas fa-chevron-down ml-auto text-xs text-gray-400 transition-transform duration-200 submenu-chevron" data-menu-id="@menu.Id"></i>
+                </a>
+            }
+            else
+            {
+                <!-- Leaf menu item (no children) - can be active -->
+                var isActive = false;
+                var menuUrl = !string.IsNullOrWhiteSpace(menu.ActiveUrl) ? menu.ActiveUrl : menu.Url;
+                if (!string.IsNullOrEmpty(menuUrl) && menuUrl != "#")
+                {
+                    var currentPath = Context.Request.Path.Value ?? "";
+                    isActive = string.Equals(currentPath, menuUrl, StringComparison.OrdinalIgnoreCase);
+                }
+                
+                <a href="@menu.Url" 
+                   class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(isActive ? "bg-gray-100 dark:bg-gray-700 active-menu" : "") @(level > 0 ? "text-sm" : "")">
+                    @if (!string.IsNullOrEmpty(menu.Icon))
+                    {
+                        <i class="@menu.Icon w-5"></i>
+                    }
+                    else if (level > 0)
+                    {
+                        <span class="w-5 text-center text-gray-400">•</span>
+                    }
+                    <span class="ml-3 sidebar-text">@menu.Title</span>
+                </a>
+            }
+            
+            @if (children.Any())
+            {
+                <!-- Render children recursively -->
+                // Don't auto-expand on server-side, let client-side JavaScript handle it
+                var shouldExpand = false;
+                <div class="submenu-container" data-parent-id="@menu.Id" style="@(shouldExpand ? "display: block;" : "display: none;")">
+                    @{
+                        var childViewData = new ViewDataDictionary(Html.ViewData);
+                        childViewData["Level"] = level + 1;
+                        childViewData["GetChildren"] = getChildren;
+                        childViewData["UserMenus"] = ViewData["UserMenus"];
+                    }
+                    @await Html.PartialAsync("_MenuItemsRecursive", children, childViewData)
+                </div>
+            }
+        </li>
+    }
+</ul>
+

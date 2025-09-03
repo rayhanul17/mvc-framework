@@ -28,10 +28,34 @@
     <link rel="stylesheet" href="~/lib/tailwind/tailwind-compiled.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/tailwind/datatables-tailwind.css" asp-append-version="true" />
     
+    <style>
+        /* Menu animations */
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        
+        .submenu-chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .submenu-container {
+            transition: max-height 0.3s ease-out;
+        }
+        
+        /* Prevent parent menu hover effect when it's just a toggle */
+        .menu-parent a[href="javascript:void(0)"] {
+            cursor: pointer;
+        }
+        
+        /* Indentation for nested menus */
+        .submenu-container .submenu-container {
+            padding-left: 1rem;
+        }
+    </style>
+    
     <!-- Font Awesome (Local) -->
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true" />
     
-    <!-- Bootstrap CSS for alerts (Local) -->
     
     <!-- Toastr for notifications (Local) -->
     <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" asp-append-version="true" />
@@ -444,6 +468,139 @@
             searchResults.innerHTML = html;
             searchResults.classList.remove('hidden');
         }
+        
+        // Menu collapse/expand functionality
+        function toggleSubmenu(menuId) {
+            const submenu = document.querySelector(`.submenu-container[data-parent-id="${menuId}"]`);
+            const chevron = document.querySelector(`.submenu-chevron[data-menu-id="${menuId}"]`);
+            
+            if (submenu) {
+                const isHidden = submenu.style.display === 'none' || submenu.style.display === '';
+                
+                if (isHidden) {
+                    // Show submenu
+                    submenu.style.display = 'block';
+                    submenu.style.maxHeight = '0';
+                    submenu.style.overflow = 'hidden';
+                    submenu.style.transition = 'max-height 0.3s ease-out';
+                    
+                    // Force reflow
+                    submenu.offsetHeight;
+                    
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    
+                    setTimeout(() => {
+                        submenu.style.maxHeight = 'none';
+                        submenu.style.overflow = 'visible';
+                    }, 300);
+                    
+                    if (chevron) {
+                        chevron.classList.add('rotate-180');
+                    }
+                    
+                    // Don't store manual toggles - let auto-expand handle state
+                    // This ensures only menus with active children stay open
+                } else {
+                    // Hide submenu
+                    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                    submenu.style.overflow = 'hidden';
+                    submenu.offsetHeight; // Force reflow
+                    submenu.style.transition = 'max-height 0.3s ease-out';
+                    submenu.style.maxHeight = '0';
+                    
+                    setTimeout(() => {
+                        submenu.style.display = 'none';
+                    }, 300);
+                    
+                    if (chevron) {
+                        chevron.classList.remove('rotate-180');
+                    }
+                    
+                    // Don't store manual toggles - let auto-expand handle state
+                    // This ensures only menus with active children stay open
+                }
+            }
+        }
+        
+        // Restore menu states on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing menu state...');
+            
+            // Find active menu items (only leaf items can be active, not parent menus)
+            const activeItems = document.querySelectorAll('a.active-menu');
+            console.log('Found active items:', activeItems.length);
+            
+            activeItems.forEach(activeItem => {
+                console.log('Processing active item:', activeItem.textContent.trim());
+                
+                // Walk up the DOM tree to find and expand all parent containers
+                let currentElement = activeItem.parentElement;
+                
+                while (currentElement && currentElement !== document.body) {
+                    // Check if we're inside a submenu container
+                    if (currentElement.classList.contains('submenu-container')) {
+                        const parentId = currentElement.dataset.parentId;
+                        console.log('Found parent container with ID:', parentId);
+                        
+                        // Expand this container
+                        currentElement.style.display = 'block';
+                        currentElement.style.maxHeight = 'none';
+                        currentElement.style.overflow = 'visible';
+                        
+                        // Rotate the chevron
+                        const chevron = document.querySelector(`.submenu-chevron[data-menu-id="${parentId}"]`);
+                        if (chevron) {
+                            chevron.classList.add('rotate-180');
+                            console.log('Rotated chevron for:', parentId);
+                        }
+                        
+                        // Find and highlight the parent menu item
+                        const parentMenuItem = document.querySelector(`li[data-menu-id="${parentId}"] > a, li[data-menu-id="${parentId}"] > div > a`);
+                        if (parentMenuItem) {
+                            // Check if this is not the active item itself
+                            if (parentMenuItem !== activeItem && !parentMenuItem.classList.contains('bg-gray-100')) {
+                                parentMenuItem.classList.add('bg-gray-50', 'dark:bg-gray-800', 'font-semibold', 'border-l-4', 'border-blue-500');
+                                console.log('Highlighted parent menu:', parentMenuItem.textContent.trim());
+                            }
+                        }
+                    }
+                    
+                    // Check if this is a menu item with data-menu-id
+                    if (currentElement.tagName === 'LI' && currentElement.dataset.menuId) {
+                        const menuId = currentElement.dataset.menuId;
+                        
+                        // Look for any parent containers this menu might be in
+                        const parentContainer = currentElement.closest('.submenu-container');
+                        if (parentContainer && parentContainer.dataset.parentId) {
+                            const grandParentId = parentContainer.dataset.parentId;
+                            console.log('Found grandparent with ID:', grandParentId);
+                            
+                            // Expand the grandparent container
+                            parentContainer.style.display = 'block';
+                            parentContainer.style.maxHeight = 'none';
+                            parentContainer.style.overflow = 'visible';
+                            
+                            // Rotate grandparent chevron
+                            const grandChevron = document.querySelector(`.submenu-chevron[data-menu-id="${grandParentId}"]`);
+                            if (grandChevron) {
+                                grandChevron.classList.add('rotate-180');
+                            }
+                            
+                            // Highlight grandparent menu
+                            const grandParentMenuItem = document.querySelector(`li[data-menu-id="${grandParentId}"] > a, li[data-menu-id="${grandParentId}"] > div > a`);
+                            if (grandParentMenuItem && grandParentMenuItem !== activeItem && !grandParentMenuItem.classList.contains('bg-gray-100')) {
+                                grandParentMenuItem.classList.add('bg-gray-50', 'dark:bg-gray-800', 'font-semibold', 'border-l-4', 'border-blue-400');
+                                console.log('Highlighted grandparent menu:', grandParentMenuItem.textContent.trim());
+                            }
+                        }
+                    }
+                    
+                    currentElement = currentElement.parentElement;
+                }
+            });
+            
+            console.log('Menu initialization complete');
+        });
     </script>
     
     @await RenderSectionAsync("Scripts", required: false)

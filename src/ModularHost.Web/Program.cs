@@ -20,13 +20,29 @@ Serilog.Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
     .Enrich.FromLogContext()
+    .Enrich.WithProperty("MachineName", Environment.MachineName)
+    .Enrich.WithProperty("ProcessId", Environment.ProcessId)
     .WriteTo.Console()
     .WriteTo.File(
         path: "logs/log-.txt",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 30,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: "logs/error-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        restrictedToMinimumLevel: LogEventLevel.Error,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{MachineName}] [{ProcessId}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.File(
+        path: "logs/crash-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30,
+        restrictedToMinimumLevel: LogEventLevel.Fatal,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{MachineName}] [{ProcessId}] [{SourceContext}] {Message:lj}{NewLine}{Exception}{NewLine}")
     .CreateLogger();
 
 try
@@ -200,7 +216,10 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-// Add global exception handler middleware first
+// Add diagnostic middleware first to track all requests
+app.UseMiddleware<DiagnosticMiddleware>();
+
+// Add global exception handler middleware
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 if (!app.Environment.IsDevelopment())
@@ -232,6 +251,25 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Register application lifetime events
+var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
+
+lifetime.ApplicationStarted.Register(() =>
+{
+    Serilog.Log.Information("Application has started successfully | ProcessId: {ProcessId} | MachineName: {MachineName}", 
+        Environment.ProcessId, Environment.MachineName);
+});
+
+lifetime.ApplicationStopping.Register(() =>
+{
+    Serilog.Log.Warning("Application is shutting down | ProcessId: {ProcessId}", Environment.ProcessId);
+});
+
+lifetime.ApplicationStopped.Register(() =>
+{
+    Serilog.Log.Warning("Application has stopped | ProcessId: {ProcessId}", Environment.ProcessId);
+});
 
 app.Run();
 }

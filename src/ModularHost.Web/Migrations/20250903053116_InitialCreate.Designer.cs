@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MRCMS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250901095622_AddMissingColumnsToLogs")]
-    partial class AddMissingColumnsToLogs
+    [Migration("20250903053116_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -181,6 +181,9 @@ namespace MRCMS.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("ActiveUrl")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("ClaimType")
                         .HasMaxLength(100)
@@ -391,8 +394,15 @@ namespace MRCMS.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("PermissionName")
+                        .HasColumnType("longtext");
+
                     b.Property<Guid>("RoleId")
                         .HasColumnType("char(36)");
+
+                    b.PrimitiveCollection<string>("Roles")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -486,6 +496,10 @@ namespace MRCMS.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("Avatar")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -507,6 +521,10 @@ namespace MRCMS.Migrations
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
@@ -516,8 +534,12 @@ namespace MRCMS.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)");
@@ -530,8 +552,7 @@ namespace MRCMS.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
@@ -805,6 +826,18 @@ namespace MRCMS.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("AttachmentContentType")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("AttachmentFileName")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("AttachmentPath")
+                        .HasColumnType("longtext");
+
+                    b.Property<long?>("AttachmentSize")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Body")
                         .IsRequired()

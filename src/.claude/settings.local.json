@@ -25,7 +25,10 @@
       "Bash(npm install)",
       "Bash(npm run build-css:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist)",
+      "Bash(./clean-build.bat)"
     ],
     "deny": [],
     "ask": []

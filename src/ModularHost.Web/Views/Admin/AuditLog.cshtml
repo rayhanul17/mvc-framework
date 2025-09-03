@@ -18,10 +18,6 @@
             @if (User.HasClaim("IsSuperAdmin", "true"))
             {
                 <div class="flex items-center space-x-2">
-                    <button type="button" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200" id="seedLogsBtn">
-                        <i class="fas fa-plus mr-2"></i>
-                        Seed Test Data
-                    </button>
                     <button type="button" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200" id="clearLogsBtn">
                         <i class="fas fa-trash mr-2"></i>
                         Clear Old Logs
@@ -326,51 +322,6 @@
     </div>
 </div>
 
-<!-- Seed Confirmation Modal -->
-@if (User.HasClaim("IsSuperAdmin", "true"))
-{
-    <div id="seedConfirmModal" class="modal-overlay hidden">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3 class="modal-title">
-                    <i class="fas fa-plus text-green-500 mr-2"></i>
-                    Seed Test Audit Logs
-                </h3>
-                <button type="button" class="modal-close" id="closeSeedConfirmModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-4">
-                    <label for="seedCount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Number of test logs to create:
-                    </label>
-                    <select id="seedCount" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm dark:bg-gray-700 dark:text-white">
-                        <option value="1">1 log (single test)</option>
-                        <option value="10" selected>10 logs</option>
-                        <option value="25">25 logs</option>
-                        <option value="50">50 logs</option>
-                    </select>
-                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        This will create realistic test audit log entries with various entities, actions, and timestamps.
-                    </p>
-                </div>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <strong>Info:</strong> Test data will include Users, Roles, Menus, Blogs, Categories, and Tags with realistic change tracking.
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200" id="cancelSeedLogs">Cancel</button>
-                <button type="button" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200" id="confirmSeedLogs">
-                    <i class="fas fa-plus mr-2"></i>
-                    Create Test Data
-                </button>
-            </div>
-        </div>
-    </div>
-}
-
 <!-- Clear Logs Modal -->
 @if (User.HasClaim("IsSuperAdmin", "true"))
 {
@@ -527,9 +478,8 @@
     
     <script>
         // Define URLs at the top to avoid Razor processing issues
-        var seedTestAuditLogsUrl = '@Url.Action("SeedTestAuditLogs")';
-        var getAuditDiffUrl = '@Url.Action("GetAuditDiff")';
-        var getEntityHistoryUrl = '@Url.Action("GetEntityHistory")';
+        var getAuditDiffUrl = @Html.Raw(Json.Serialize(Url.Action("GetAuditDiff")));
+        var getEntityHistoryUrl = @Html.Raw(Json.Serialize(Url.Action("GetEntityHistory")));
         
         document.addEventListener('DOMContentLoaded', function() {
             // Modal functionality
@@ -543,62 +493,6 @@
                 document.body.classList.remove('overflow-hidden');
             }
             
-            // Seed logs button
-            document.getElementById('seedLogsBtn')?.addEventListener('click', function() {
-                openModal('seedConfirmModal');
-            });
-            
-            // Seed confirmation modal handlers
-            document.getElementById('closeSeedConfirmModal')?.addEventListener('click', function() {
-                closeModal('seedConfirmModal');
-            });
-            
-            document.getElementById('cancelSeedLogs')?.addEventListener('click', function() {
-                closeModal('seedConfirmModal');
-            });
-            
-            document.getElementById('confirmSeedLogs')?.addEventListener('click', function() {
-                const count = document.getElementById('seedCount').value;
-                const seedBtn = document.getElementById('seedLogsBtn');
-                const confirmBtn = this;
-                
-                // Disable buttons and show loading
-                confirmBtn.disabled = true;
-                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating...';
-                seedBtn.disabled = true;
-                seedBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Seeding...';
-                
-                // Create form data
-                const formData = new FormData();
-                formData.append('count', count);
-                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]')?.value || '');
-                
-                fetch(seedTestAuditLogsUrl, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    closeModal('seedConfirmModal');
-                    if (data.success) {
-                        showNotification(data.message, 'success');
-                        setTimeout(() => window.location.reload(), 1500);
-                    } else {
-                        showNotification('Error: ' + data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    closeModal('seedConfirmModal');
-                    showNotification('An error occurred while seeding data.', 'error');
-                })
-                .finally(() => {
-                    confirmBtn.disabled = false;
-                    confirmBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>Create Test Data';
-                    seedBtn.disabled = false;
-                    seedBtn.innerHTML = '<i class="fas fa-plus mr-2"></i>Seed Test Data';
-                });
-            });
-
             // Clear logs modal
             document.getElementById('clearLogsBtn')?.addEventListener('click', function() {
                 openModal('clearLogsModal');

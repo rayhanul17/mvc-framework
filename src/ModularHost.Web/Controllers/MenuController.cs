@@ -31,7 +31,9 @@ namespace MRCMS.Controllers
         public override async Task<IActionResult> Index(int page = 1, string search = null)
         {
             IQueryable<Menu> query = _repository.Query()
-                .Include(m => m.Children);
+                .Include(m => m.Children)
+                    .ThenInclude(c => c.Children)
+                        .ThenInclude(gc => gc.Children); // Load up to 3 levels deep
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -70,16 +72,34 @@ namespace MRCMS.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        // Populate parent menus dropdown
+        // Populate parent menus dropdown with hierarchy
         protected override async Task PopulateViewBag()
         {
-            var parentMenus = await _repository.Query()
-                .Where(m => m.ParentId == null && !m.IsDeleted)
+            var allMenus = await _repository.Query()
+                .Where(m => !m.IsDeleted)
+                .Include(m => m.Children)
                 .OrderBy(m => m.Order)
-                .Select(m => new { m.Id, m.Title })
                 .ToListAsync();
 
-            ViewBag.ParentMenus = parentMenus;
+            var parentMenuOptions = new List<dynamic>();
+            BuildHierarchicalMenuList(allMenus.Where(m => m.ParentId == null), allMenus, parentMenuOptions, 0);
+
+            ViewBag.ParentMenus = parentMenuOptions;
+        }
+
+        private void BuildHierarchicalMenuList(IEnumerable<Menu> menus, List<Menu> allMenus, List<dynamic> result, int level)
+        {
+            foreach (var menu in menus)
+            {
+                var prefix = level > 0 ? new string('—', level) + " " : "";
+                result.Add(new { menu.Id, Title = prefix + menu.Title });
+                
+                var children = allMenus.Where(m => m.ParentId == menu.Id);
+                if (children.Any())
+                {
+                    BuildHierarchicalMenuList(children, allMenus, result, level + 1);
+                }
+            }
         }
 
         // Validate menu before save

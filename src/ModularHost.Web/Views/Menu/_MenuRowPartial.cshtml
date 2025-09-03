@@ -1,0 +1,79 @@
+@model MRCMS.Core.Models.Entities.Menu
+@{
+    var level = (int)(ViewData["Level"] ?? 0);
+    var indent = level * 24; // Pixels to indent per level
+}
+
+<tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300" style="padding-left: @(24 + indent)px;">
+        @Model.Order
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-gray-900 dark:text-gray-100" style="padding-left: @(indent)px;">
+            @if (level > 0)
+            {
+                <span class="text-gray-400 mr-1">
+                    @for (int i = 0; i < level; i++)
+                    {
+                        @:↳
+                    }
+                </span>
+            }
+            @Model.Title
+        </div>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+        @Model.Url
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+        @if (!string.IsNullOrEmpty(Model.Icon))
+        {
+            <i class="@Model.Icon"></i>
+        }
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+        @(Model.ModuleName ?? "Core")
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        @if (Model.IsActive)
+        {
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
+                Active
+            </span>
+        }
+        else
+        {
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-300">
+                Inactive
+            </span>
+        }
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+        <div class="flex justify-end space-x-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" 
+               class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+               title="Edit">
+                <i class="fas fa-edit"></i>
+            </a>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" 
+                        class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                        onclick="return confirm('Delete this menu item?');"
+                        title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </td>
+</tr>
+
+@if (Model.Children != null && Model.Children.Any())
+{
+    foreach (var child in Model.Children.OrderBy(c => c.Order))
+    {
+        var childViewData = new ViewDataDictionary(Html.ViewData);
+        childViewData["Level"] = level + 1;
+        @await Html.PartialAsync("_MenuRowPartial", child, childViewData)
+    }
+}

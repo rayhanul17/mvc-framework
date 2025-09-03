@@ -482,7 +482,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = blogMenu.Id,
                         Order = 1,
                         IsVisible = true,
-                        IsActive = true,
+                    IsActive = true,
                         ModuleName = "BlogModule",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -495,6 +495,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = blogMenu.Id,
                         Order = 2,
                         IsVisible = true,
+                    IsActive = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -509,7 +510,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = blogMenu.Id,
                         Order = 3,
                         IsVisible = true,
-                        IsActive = true,
+                    IsActive = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -524,7 +525,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = blogMenu.Id,
                         Order = 4,
                         IsVisible = true,
-                        IsActive = true,
+                    IsActive = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -538,6 +539,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = blogMenu.Id,
                         Order = 5,
                         IsVisible = true,
+                    IsActive = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -551,6 +553,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = blogMenu.Id,
                         Order = 6,
                         IsVisible = true,
+                    IsActive = true,
                         ModuleName = "BlogModule",
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
@@ -560,48 +563,72 @@ namespace MRCMS.Core.Infrastructure
                 context.Menus.AddRange(blogSubmenus);
                 
                 // Add Admin submenu items
+                var adminDashboard = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Dashboard",
+                    Url = "/Admin",
+                    Icon = "fas fa-tachometer-alt",
+                    ParentId = adminMenu.Id,
+                    Order = 1,
+                    IsVisible = true,
+                    IsActive = true,
+                    ClaimType = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+                
+                var usersMenu = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Users",
+                    Url = "/User",
+                    ActiveUrl = "/User",
+                    Icon = "fas fa-users",
+                    ParentId = adminMenu.Id,
+                    Order = 2,
+                    IsVisible = true,
+                    IsActive = true,
+                    ClaimType = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+                
+                var rolesMenu = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Roles",
+                    Url = "/Role",
+                    ActiveUrl = "/Role",
+                    Icon = "fas fa-user-shield",
+                    ParentId = adminMenu.Id,
+                    Order = 3,
+                    IsVisible = true,
+                    IsActive = true,
+                    ClaimType = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                // Add a nested parent menu for Security Management
+                var securityMenu = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Security",
+                    Url = "#", // This is a parent menu inside Admin menu
+                    ActiveUrl = "/Admin/Security",
+                    Icon = "fas fa-shield-alt",
+                    ParentId = adminMenu.Id,
+                    Order = 7,
+                    IsVisible = true,
+                    IsActive = true,
+                    ClaimType = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+                
                 var adminSubmenus = new[]
                 {
-                    new Menu
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = "Dashboard",
-                        Url = "/Admin",
-                        Icon = "fas fa-tachometer-alt",
-                        ParentId = adminMenu.Id,
-                        Order = 1,
-                        IsVisible = true,
-                        ClaimType = "Admin",
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Menu
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = "Users",
-                        Url = "/User",
-                        ActiveUrl = "/User",
-                        Icon = "fas fa-users",
-                        ParentId = adminMenu.Id,
-                        Order = 2,
-                        IsVisible = true,
-                        IsActive = true,
-                        ClaimType = "Admin",
-                        CreatedAt = DateTime.UtcNow
-                    },
-                    new Menu
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = "Roles",
-                        Url = "/Role",
-                        ActiveUrl = "/Role",
-                        Icon = "fas fa-user-shield",
-                        ParentId = adminMenu.Id,
-                        Order = 3,
-                        IsVisible = true,
-                        IsActive = true,
-                        ClaimType = "Admin",
-                        CreatedAt = DateTime.UtcNow
-                    },
+                    adminDashboard,
+                    usersMenu,
+                    rolesMenu,
+                    securityMenu,
                     new Menu
                     {
                         Id = Guid.NewGuid(),
@@ -612,7 +639,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = adminMenu.Id,
                         Order = 4,
                         IsVisible = true,
-                        IsActive = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -625,6 +652,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = adminMenu.Id,
                         Order = 5,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "SuperAdmin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -637,6 +665,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = adminMenu.Id,
                         Order = 6,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -649,40 +678,199 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = adminMenu.Id,
                         Order = 7,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "SuperAdmin",
                         CreatedAt = DateTime.UtcNow
                     }
                 };
                 
                 context.Menus.AddRange(adminSubmenus);
+                await context.SaveChangesAsync();
                 
-                // Add Settings submenu items
-                var settingsSubmenus = new[]
+                // Add grandchildren for Users menu (3rd level)
+                var userGrandchildren = new[]
                 {
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "Settings Overview",
-                        Url = "/Settings",
-                        Icon = "fas fa-cog",
-                        ParentId = settingsMenu.Id,
+                        Title = "All Users",
+                        Url = "/User",
+                        Icon = "fas fa-list",
+                        ParentId = usersMenu.Id,
                         Order = 1,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
                     new Menu
                     {
                         Id = Guid.NewGuid(),
-                        Title = "General Settings",
-                        Url = "/Settings/General",
-                        Icon = "fas fa-sliders-h",
-                        ParentId = settingsMenu.Id,
+                        Title = "Create User",
+                        Url = "/User/Create",
+                        Icon = "fas fa-user-plus",
+                        ParentId = usersMenu.Id,
                         Order = 2,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "User Groups",
+                        Url = "/User/Groups",
+                        Icon = "fas fa-users-cog",
+                        ParentId = usersMenu.Id,
+                        Order = 3,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "User Import/Export",
+                        Url = "/User/ImportExport",
+                        Icon = "fas fa-file-import",
+                        ParentId = usersMenu.Id,
+                        Order = 4,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "SuperAdmin",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+                
+                context.Menus.AddRange(userGrandchildren);
+                
+                // Add grandchildren for Roles menu (3rd level)
+                var roleGrandchildren = new[]
+                {
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "All Roles",
+                        Url = "/Role",
+                        Icon = "fas fa-list",
+                        ParentId = rolesMenu.Id,
+                        Order = 1,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Create Role",
+                        Url = "/Role/Create",
+                        Icon = "fas fa-plus-circle",
+                        ParentId = rolesMenu.Id,
+                        Order = 2,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Role Templates",
+                        Url = "/Role/Templates",
+                        Icon = "fas fa-file-code",
+                        ParentId = rolesMenu.Id,
+                        Order = 3,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "SuperAdmin",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+                
+                context.Menus.AddRange(roleGrandchildren);
+                
+                // Add children for Security menu (nested parent menu test)
+                var securityChildren = new[]
+                {
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Two-Factor Auth",
+                        Url = "/Admin/Security/TwoFactor",
+                        Icon = "fas fa-mobile-alt",
+                        ParentId = securityMenu.Id,
+                        Order = 1,
+                        IsVisible = true,
+                        IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Session Management",
+                        Url = "/Admin/Security/Sessions",
+                        Icon = "fas fa-clock",
+                        ParentId = securityMenu.Id,
+                        Order = 2,
+                        IsVisible = true,
+                        IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "IP Restrictions",
+                        Url = "/Admin/Security/IPRestrictions",
+                        Icon = "fas fa-network-wired",
+                        ParentId = securityMenu.Id,
+                        Order = 3,
+                        IsVisible = true,
+                        IsActive = true,
+                        ClaimType = "SuperAdmin",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+                
+                context.Menus.AddRange(securityChildren);
+                
+                // Add Settings submenu items
+                var settingsOverview = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Settings Overview",
+                    Url = "/Settings",
+                    Icon = "fas fa-cog",
+                    ParentId = settingsMenu.Id,
+                    Order = 1,
+                    IsVisible = true,
+                    IsActive = true,
+                    ClaimType = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+                
+                var generalSettings = new Menu
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "General Settings",
+                    Url = "/Settings/General",
+                    Icon = "fas fa-sliders-h",
+                    ParentId = settingsMenu.Id,
+                    Order = 2,
+                    IsVisible = true,
+                    IsActive = true,
+                    ClaimType = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+                
+                var settingsSubmenus = new[]
+                {
+                    settingsOverview,
+                    generalSettings,
                     new Menu
                     {
                         Id = Guid.NewGuid(),
@@ -692,6 +880,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = settingsMenu.Id,
                         Order = 3,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -704,6 +893,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = settingsMenu.Id,
                         Order = 4,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -716,6 +906,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = settingsMenu.Id,
                         Order = 5,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "SuperAdmin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -728,6 +919,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = settingsMenu.Id,
                         Order = 6,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -740,12 +932,60 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = settingsMenu.Id,
                         Order = 7,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     }
                 };
                 
                 context.Menus.AddRange(settingsSubmenus);
+                await context.SaveChangesAsync();
+                
+                // Add great-grandchildren for General Settings (4th level) as example
+                var generalSettingsChildren = new[]
+                {
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Site Information",
+                        Url = "/Settings/General/Site",
+                        Icon = "fas fa-info-circle",
+                        ParentId = generalSettings.Id,
+                        Order = 1,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Localization",
+                        Url = "/Settings/General/Localization",
+                        Icon = "fas fa-globe",
+                        ParentId = generalSettings.Id,
+                        Order = 2,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new Menu
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = "Date & Time",
+                        Url = "/Settings/General/DateTime",
+                        Icon = "fas fa-clock",
+                        ParentId = generalSettings.Id,
+                        Order = 3,
+                        IsVisible = true,
+                    IsActive = true,
+                        ClaimType = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+                
+                context.Menus.AddRange(generalSettingsChildren);
                 
                 // Add Reports submenu items
                 var reportsSubmenus = new[]
@@ -759,6 +999,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = reportsMenu.Id,
                         Order = 1,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -771,6 +1012,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = reportsMenu.Id,
                         Order = 2,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -783,6 +1025,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = reportsMenu.Id,
                         Order = 3,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         ModuleName = "BlogModule",
                         CreatedAt = DateTime.UtcNow
@@ -796,6 +1039,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = reportsMenu.Id,
                         Order = 4,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -808,6 +1052,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = reportsMenu.Id,
                         Order = 5,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -820,6 +1065,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = reportsMenu.Id,
                         Order = 6,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -832,6 +1078,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = reportsMenu.Id,
                         Order = 7,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     }
@@ -851,6 +1098,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = toolsMenu.Id,
                         Order = 1,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "SuperAdmin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -863,6 +1111,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = toolsMenu.Id,
                         Order = 2,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -875,6 +1124,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = toolsMenu.Id,
                         Order = 3,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -887,6 +1137,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = toolsMenu.Id,
                         Order = 4,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "SuperAdmin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -899,6 +1150,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = toolsMenu.Id,
                         Order = 5,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -911,6 +1163,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = toolsMenu.Id,
                         Order = 6,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     }
@@ -930,6 +1183,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = contentMenu.Id,
                         Order = 1,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -942,6 +1196,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = contentMenu.Id,
                         Order = 2,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -954,6 +1209,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = contentMenu.Id,
                         Order = 3,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -966,6 +1222,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = contentMenu.Id,
                         Order = 4,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     },
@@ -978,6 +1235,7 @@ namespace MRCMS.Core.Infrastructure
                         ParentId = contentMenu.Id,
                         Order = 5,
                         IsVisible = true,
+                    IsActive = true,
                         ClaimType = "Admin",
                         CreatedAt = DateTime.UtcNow
                     }

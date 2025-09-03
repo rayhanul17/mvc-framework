@@ -21,7 +21,31 @@
     
     // Group menus by parent
     var rootMenus = userMenus.Where(m => m.ParentId == null).OrderBy(m => m.Order).ToList();
-    var menuGroups = userMenus.Where(m => m.ParentId != null).GroupBy(m => m.ParentId).ToDictionary(g => g.Key!.Value, g => g.OrderBy(m => m.Order).ToList());
+    
+    // Track visited menus to prevent circular references
+    var visitedMenus = new HashSet<Guid>();
+    
+    // Helper function to get children with circular reference check
+    Func<Guid, IEnumerable<Menu>> getChildren = (parentId) => 
+    {
+        if (visitedMenus.Contains(parentId))
+        {
+            return Enumerable.Empty<Menu>();
+        }
+        visitedMenus.Add(parentId);
+        return userMenus.Where(m => m.ParentId == parentId && !visitedMenus.Contains(m.Id)).OrderBy(m => m.Order);
+    };
+    
+    // Separate function for getting children without modifying visitedMenus (for active checking)
+    Func<Guid, IEnumerable<Menu>> getChildrenForActiveCheck = (parentId) => 
+    {
+        return userMenus.Where(m => m.ParentId == parentId).OrderBy(m => m.Order);
+    };
+    
+    // Store in ViewData so functions can access it
+    ViewData["GetChildren"] = getChildren;
+    ViewData["GetChildrenForActiveCheck"] = getChildrenForActiveCheck;
+    ViewData["UserMenus"] = userMenus;
 }
 
 @if (isAuthenticated && userMenus.Any())
@@ -38,33 +62,49 @@
         
         @foreach (var menu in rootMenus.Where(m => m.Title != "Dashboard"))
         {
-            @if (menuGroups.ContainsKey(menu.Id))
+            var children = getChildren(menu.Id);
+            
+            @if (children.Any())
             {
-                <!-- Parent menu with children -->
-                <li class="pt-4">
-                    <div class="px-3 mb-2">
-                        <p class="text-xs font-semibold text-gray-400 uppercase">@menu.Title</p>
+                <!-- Parent menu with children - never active, just has parent-menu class -->
+                var shouldExpand = false;
+                <li class="pt-4 menu-parent" data-menu-id="@menu.Id">
+                    <div data-tooltip="@menu.Title">
+                        <a href="javascript:void(0)" 
+                           onclick="toggleSubmenu('@menu.Id')" 
+                           class="parent-menu-link flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <i class="@menu.Icon w-5"></i>
+                            <span class="ml-3 sidebar-text">@menu.Title</span>
+                            <i class="fas fa-chevron-down ml-auto transition-transform duration-200 submenu-chevron" data-menu-id="@menu.Id"></i>
+                        </a>
                     </div>
-                    <ul class="space-y-1">
-                        @foreach (var child in menuGroups[menu.Id])
-                        {
-                            <li data-tooltip="@child.Title">
-                                <a href="@child.Url" 
-                                   class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(IsActiveMenu(child) ? "bg-gray-100 dark:bg-gray-700" : "")">
-                                    <i class="@child.Icon w-5"></i>
-                                    <span class="ml-3 sidebar-text">@child.Title</span>
-                                </a>
-                            </li>
-                        }
-                    </ul>
+                    
+                    <!-- Render children recursively -->
+                    @{
+                        var menuViewData = new ViewDataDictionary(Html.ViewData);
+                        menuViewData["Level"] = 1;
+                        menuViewData["GetChildren"] = getChildren;
+                        menuViewData["GetChildrenForActiveCheck"] = getChildrenForActiveCheck;
+                        menuViewData["UserMenus"] = userMenus;
+                    }
+                    <div class="submenu-container" data-parent-id="@menu.Id" style="@(shouldExpand ? "display: block;" : "display: none;")">
+                        @await Html.PartialAsync("_MenuItemsRecursive", children, menuViewData)
+                    </div>
                 </li>
             }
             else
             {
-                <!-- Single menu item -->
+                <!-- Single menu item without children -->
+                var isActive = false;
+                var menuUrl = !string.IsNullOrWhiteSpace(menu.ActiveUrl) ? menu.ActiveUrl : menu.Url;
+                if (!string.IsNullOrEmpty(menuUrl) && menuUrl != "#")
+                {
+                    var currentPath = Context.Request.Path.Value ?? "";
+                    isActive = string.Equals(currentPath, menuUrl, StringComparison.OrdinalIgnoreCase);
+                }
                 <li data-tooltip="@menu.Title">
                     <a href="@menu.Url" 
-                       class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(IsActiveMenu(menu) ? "bg-gray-100 dark:bg-gray-700" : "")">
+                       class="flex items-center px-3 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 @(isActive ? "bg-gray-100 dark:bg-gray-700 active-menu" : "")">
                         <i class="@menu.Icon w-5"></i>
                         <span class="ml-3 sidebar-text">@menu.Title</span>
                     </a>
@@ -114,39 +154,3 @@ else
     </ul>
 }
 
-@functions {
-    private bool IsActiveMenu(Menu menu)
-    {
-        // Use ActiveUrl if provided, otherwise use Url
-        var url = !string.IsNullOrWhiteSpace(menu.ActiveUrl) ? menu.ActiveUrl : menu.Url;
-        
-        if (string.IsNullOrEmpty(url))
-            return false;
-            
-        var currentPath = Context.Request.Path.Value?.ToLower() ?? "";
-        var menuUrl = url.ToLower().TrimEnd('/');
-        
-        // Handle area routes
-        if (url.Contains("/Blog/") && currentPath.Contains("/blog/"))
-            return true;
-            
-        // Exact match or starts with
-        return currentPath == menuUrl || currentPath.StartsWith(menuUrl + "/");
-    }
-    
-    private bool IsActiveMenu(string? url)
-    {
-        if (string.IsNullOrEmpty(url))
-            return false;
-            
-        var currentPath = Context.Request.Path.Value?.ToLower() ?? "";
-        var menuUrl = url.ToLower().TrimEnd('/');
-        
-        // Handle area routes
-        if (url.Contains("/Blog/") && currentPath.Contains("/blog/"))
-            return true;
-            
-        // Exact match or starts with
-        return currentPath == menuUrl || currentPath.StartsWith(menuUrl + "/");
-    }
-}
