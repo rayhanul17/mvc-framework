@@ -29,6 +29,18 @@ namespace MRCMS.Modules.Blog.Controllers
 
         protected override string EntityName => "Tag";
 
+        // Override CreateNewEntity to properly initialize required properties
+        protected override Tag CreateNewEntity()
+        {
+            return new Tag
+            {
+                Name = string.Empty,
+                Slug = string.Empty,
+                Description = string.Empty,
+                IsActive = true
+            };
+        }
+
         // Override Index to show tags with post count
         public override async Task<IActionResult> Index(int page = 1, string search = null)
         {

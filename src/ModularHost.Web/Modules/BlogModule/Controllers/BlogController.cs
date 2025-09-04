@@ -29,6 +29,7 @@ namespace MRCMS.Modules.Blog.Controllers
         protected override string ViewPrefix => "";
         protected override int PageSize => 10;
 
+
         public BlogController(
             IRepository<BlogPost> repository,
             IUnitOfWork unitOfWork,
@@ -255,6 +256,19 @@ namespace MRCMS.Modules.Blog.Controllers
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
         
+        protected override CreateBlogPostDto CreateNewViewModel()
+        {
+            return new CreateBlogPostDto
+            {
+                Title = string.Empty,
+                Slug = string.Empty,
+                Summary = string.Empty,
+                Content = string.Empty,
+                IsPublished = false,
+                TagIds = new List<Guid>()
+            };
+        }
+        
         protected override async Task PopulateViewBagForCreate()
         {
             ViewBag.Categories = await _categoryRepository.GetAllAsync();
@@ -268,13 +282,29 @@ namespace MRCMS.Modules.Blog.Controllers
         
         protected override async Task ConfigureEntityForCreate(BlogPost entity, CreateBlogPostDto model)
         {
-            entity.Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Title);
+            // Ensure all required properties are set
+            if (string.IsNullOrEmpty(entity.Title))
+                entity.Title = model.Title ?? string.Empty;
+            
+            if (string.IsNullOrEmpty(entity.Content))
+                entity.Content = model.Content ?? string.Empty;
+            
+            if (string.IsNullOrEmpty(entity.Summary))
+                entity.Summary = model.Summary ?? string.Empty;
+            
+            // Generate or use provided slug
+            entity.Slug = !string.IsNullOrEmpty(model.Slug) ? model.Slug : GenerateSlug(model.Title ?? "untitled");
+            
+            // Set author
             entity.AuthorId = CurrentUserId ?? Guid.Empty;
             
+            // Handle publication status
             if (model.IsPublished && !entity.PublishedAt.HasValue)
             {
                 entity.PublishedAt = DateTime.UtcNow;
             }
+            
+            await base.ConfigureEntityForCreate(entity, model);
         }
         
         protected override async Task ConfigureEntityForEdit(BlogPost entity, UpdateBlogPostDto model)

@@ -59,7 +59,20 @@
       "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Controllers/**)",
       "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Views\\RolePermission/**)",
       "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Views/**)",
-      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Controllers/**)"
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Core\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Core\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Core\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Models\\Entities/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Models\\Entities/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Models\\Entities/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Core\\Controllers/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Models\\DTOs/**)"
     ],
     "deny": [],
     "ask": []

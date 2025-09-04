@@ -29,6 +29,19 @@ namespace MRCMS.Modules.Blog.Controllers
 
         protected override string EntityName => "Category";
 
+        // Override CreateNewEntity to properly initialize required properties
+        protected override Category CreateNewEntity()
+        {
+            return new Category
+            {
+                Name = string.Empty,
+                Slug = string.Empty,
+                Description = string.Empty,
+                DisplayOrder = 0,
+                IsActive = true
+            };
+        }
+
         // Override Index to show category hierarchy
         public override async Task<IActionResult> Index(int page = 1, string search = null)
         {
