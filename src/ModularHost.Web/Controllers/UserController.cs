@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MRCMS.Core.Models.Entities;
+using MRCMS.Core.Models;
+using MRCMS.Core.Services;
 using MRCMS.Models.ViewModels;
 using MRCMS.Services.Interfaces;
 using AutoMapper;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,6 +21,7 @@ namespace MRCMS.Controllers
         private readonly RoleManager<Role> _roleManager;
         private readonly ILoggerService _logger;
         private readonly IMapper _mapper;
+        private readonly IDataTableService _dataTableService;
         
         protected virtual string EntityName => "User";
         protected virtual int PageSize => 10;
@@ -26,12 +30,14 @@ namespace MRCMS.Controllers
             UserManager<User> userManager, 
             RoleManager<Role> roleManager,
             ILoggerService logger,
-            IMapper mapper)
+            IMapper mapper,
+            IDataTableService dataTableService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
             _mapper = mapper;
+            _dataTableService = dataTableService;
         }
 
         public async Task<IActionResult> Index(int page = 1, string search = null, string sortBy = null, bool sortDesc = false)
@@ -470,6 +476,170 @@ namespace MRCMS.Controllers
 
             return Json(new { success = false, message = string.Join(", ", result.Errors.Select(e => e.Description)) });
         }
+        
+        #region DataTable Methods
+        
+        [HttpPost]
+        public async Task<IActionResult> GetUsersData([FromBody] DataTableRequest request)
+        {
+            try
+            {
+                _logger.LogInformation("Fetching users data for DataTable");
+                
+                var query = _userManager.Users.AsQueryable();
+                
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(request.Search?.Value))
+                {
+                    var searchValue = request.Search.Value.ToLower();
+                    query = query.Where(u => 
+                        u.UserName.ToLower().Contains(searchValue) ||
+                        u.Email.ToLower().Contains(searchValue) ||
+                        u.FirstName.ToLower().Contains(searchValue) ||
+                        u.LastName.ToLower().Contains(searchValue) ||
+                        (u.PhoneNumber != null && u.PhoneNumber.ToLower().Contains(searchValue)));
+                }
+                
+                // Get total count before filtering
+                var totalRecords = await _userManager.Users.CountAsync();
+                
+                // Get filtered count
+                var filteredRecords = await query.CountAsync();
+                
+                // Apply sorting
+                query = ApplySorting(query, request.OrderBy, request.IsAscending);
+                
+                // Apply paging
+                var users = await query
+                    .Skip(request.Start)
+                    .Take(request.Length)
+                    .ToListAsync();
+                
+                // Prepare data for DataTable
+                var data = new List<object>();
+                foreach (var user in users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    data.Add(new
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName ?? "",
+                        Email = user.Email ?? "",
+                        FullName = $"{user.FirstName} {user.LastName}",
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        PhoneNumber = user.PhoneNumber ?? "",
+                        IsActive = user.IsActive,
+                        IsSuperAdmin = user.IsSuperAdmin,
+                        EmailConfirmed = user.EmailConfirmed,
+                        Roles = string.Join(", ", roles),
+                        RolesList = roles.ToList(),
+                        CreatedAt = user.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
+                        LastLoginAt = user.LastLoginAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never",
+                        Actions = user.Id // Used for action buttons
+                    });
+                }
+                
+                return Json(new
+                {
+                    draw = request.Draw,
+                    recordsTotal = totalRecords,
+                    recordsFiltered = filteredRecords,
+                    data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error fetching users data for DataTable", ex);
+                return Json(new
+                {
+                    draw = request.Draw,
+                    error = "An error occurred while loading user data."
+                });
+            }
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> ExportUsers(string format)
+        {
+            try
+            {
+                var users = await _userManager.Users.ToListAsync();
+                var exportData = new List<Dictionary<string, object>>();
+                
+                foreach (var user in users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    exportData.Add(new Dictionary<string, object>
+                    {
+                        ["UserName"] = user.UserName ?? "",
+                        ["Email"] = user.Email ?? "",
+                        ["FirstName"] = user.FirstName,
+                        ["LastName"] = user.LastName,
+                        ["PhoneNumber"] = user.PhoneNumber ?? "",
+                        ["Roles"] = string.Join(", ", roles),
+                        ["IsActive"] = user.IsActive ? "Yes" : "No",
+                        ["EmailConfirmed"] = user.EmailConfirmed ? "Yes" : "No",
+                        ["CreatedAt"] = user.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
+                        ["LastLogin"] = user.LastLoginAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never"
+                    });
+                }
+                
+                // Based on format, generate appropriate file
+                // This is simplified - you'd use a proper export library in production
+                switch (format?.ToLower())
+                {
+                    case "csv":
+                        var csv = GenerateCsv(exportData);
+                        return File(System.Text.Encoding.UTF8.GetBytes(csv), "text/csv", $"users_{DateTime.Now:yyyyMMddHHmmss}.csv");
+                    
+                    case "excel":
+                        // Use a library like EPPlus or ClosedXML for Excel export
+                        var excel = GenerateExcel(exportData);
+                        return File(excel, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+                            $"users_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+                    
+                    default:
+                        return BadRequest("Invalid export format");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error exporting users", ex);
+                return StatusCode(500, "An error occurred while exporting users");
+            }
+        }
+        
+        private string GenerateCsv(List<Dictionary<string, object>> data)
+        {
+            if (data == null || !data.Any())
+                return string.Empty;
+            
+            var csv = new System.Text.StringBuilder();
+            
+            // Headers
+            csv.AppendLine(string.Join(",", data.First().Keys));
+            
+            // Data
+            foreach (var row in data)
+            {
+                var values = row.Values.Select(v => 
+                    v?.ToString()?.Contains(",") == true ? $"\"{v}\"" : v?.ToString() ?? "");
+                csv.AppendLine(string.Join(",", values));
+            }
+            
+            return csv.ToString();
+        }
+        
+        private byte[] GenerateExcel(List<Dictionary<string, object>> data)
+        {
+            // Simplified - in production, use EPPlus or similar
+            // For now, return CSV as Excel can open it
+            var csv = GenerateCsv(data);
+            return System.Text.Encoding.UTF8.GetBytes(csv);
+        }
+        
+        #endregion
         
         #region Protected Helper Methods
         

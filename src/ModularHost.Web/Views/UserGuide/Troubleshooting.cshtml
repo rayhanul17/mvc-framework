@@ -1,0 +1,119 @@
+@{
+    ViewData["Title"] = "Troubleshooting Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active">Troubleshooting</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-purple text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-tools"></i> Troubleshooting Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h2>Common Issues</h2>
+                    
+                    <div class="accordion" id="troubleshootingAccordion">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#login">
+                                        Cannot Login
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="login" class="collapse" data-parent="#troubleshootingAccordion">
+                                <div class="card-body">
+                                    <ul>
+                                        <li>Check username/email and password</li>
+                                        <li>Ensure account is active</li>
+                                        <li>Clear browser cache</li>
+                                        <li>Check if account is locked</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#permissions">
+                                        Permission Denied
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="permissions" class="collapse" data-parent="#troubleshootingAccordion">
+                                <div class="card-body">
+                                    <ul>
+                                        <li>Verify role assignments</li>
+                                        <li>Check URL permissions</li>
+                                        <li>Review role hierarchy</li>
+                                        <li>Contact administrator</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#performance">
+                                        Slow Performance
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="performance" class="collapse" data-parent="#troubleshootingAccordion">
+                                <div class="card-body">
+                                    <ul>
+                                        <li>Check network connection</li>
+                                        <li>Clear browser cache</li>
+                                        <li>Reduce data per page</li>
+                                        <li>Contact IT support</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="mt-4">Error Codes</h3>
+                    <table class="table">
+                        <tr><td>401</td><td>Authentication required</td></tr>
+                        <tr><td>403</td><td>Access forbidden</td></tr>
+                        <tr><td>404</td><td>Page not found</td></tr>
+                        <tr><td>500</td><td>Server error - contact support</td></tr>
+                    </table>
+                    
+                    <h3>Getting Help</h3>
+                    <ul>
+                        <li>Check this troubleshooting guide</li>
+                        <li>Review system logs</li>
+                        <li>Contact your administrator</li>
+                        <li>Email: support@mrcms.com</li>
+                    </ul>
+                    
+                    <div class="mt-5">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Guide
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-purple {
+            background-color: #6f42c1;
+        }
+    </style>
+}

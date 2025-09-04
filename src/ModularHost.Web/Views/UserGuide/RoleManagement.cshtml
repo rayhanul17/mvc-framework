@@ -1,0 +1,96 @@
+@{
+    ViewData["Title"] = "Role Management Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Role Management</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-tag"></i> Role Management Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h2>Understanding Roles</h2>
+                    <p>Roles are collections of permissions that define what users can do within the system. MRCMS uses a hierarchical role-based access control (RBAC) system.</p>
+                    
+                    <h3>Creating Roles</h3>
+                    <ol>
+                        <li>Navigate to <strong>Roles</strong> from the admin menu</li>
+                        <li>Click <strong>Create New Role</strong></li>
+                        <li>Enter role details:
+                            <ul>
+                                <li><strong>Name:</strong> Unique role identifier</li>
+                                <li><strong>Description:</strong> Purpose of the role</li>
+                                <li><strong>Level:</strong> Hierarchical position (1-100)</li>
+                            </ul>
+                        </li>
+                        <li>Configure permissions</li>
+                        <li>Save the role</li>
+                    </ol>
+                    
+                    <h3>Role Hierarchy</h3>
+                    <div class="alert alert-info">
+                        <p>Roles with higher levels inherit permissions from lower-level roles. For example:</p>
+                        <ul>
+                            <li>Super Admin (Level 100) - Full system access</li>
+                            <li>Admin (Level 50) - Administrative functions</li>
+                            <li>Manager (Level 30) - Department management</li>
+                            <li>User (Level 10) - Basic access</li>
+                        </ul>
+                    </div>
+                    
+                    <h3>Assigning Permissions</h3>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Permission Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>URL-based</td>
+                                <td>Control access to specific pages and actions</td>
+                            </tr>
+                            <tr>
+                                <td>Feature-based</td>
+                                <td>Enable/disable specific features</td>
+                            </tr>
+                            <tr>
+                                <td>Data-based</td>
+                                <td>Control what data users can view/edit</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Best Practices</h3>
+                    <ul>
+                        <li>Follow the principle of least privilege</li>
+                        <li>Create roles based on job functions</li>
+                        <li>Regularly audit role permissions</li>
+                        <li>Document role purposes and permissions</li>
+                        <li>Use hierarchical levels effectively</li>
+                    </ul>
+                    
+                    <div class="mt-5">
+                        <a asp-action="UserManagement" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Previous: User Management
+                        </a>
+                        <a asp-action="PermissionManagement" class="btn btn-primary float-right">
+                            Next: Permission Management <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

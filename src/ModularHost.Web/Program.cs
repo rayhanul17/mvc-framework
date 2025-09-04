@@ -94,6 +94,9 @@ services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// Register DataTable service
+services.AddScoped<IDataTableService, DataTableService>();
+
 // Add hosted service for log archiving (before dynamic registration to avoid conflicts)
 services.AddHostedService<HourlyLogArchiverHostedService>();
 

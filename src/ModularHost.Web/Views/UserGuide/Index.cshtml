@@ -1,0 +1,185 @@
+@{
+    ViewData["Title"] = "User Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-book"></i> User Guide Documentation
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Welcome to MRCMS User Guide</h4>
+                            <p class="lead">This comprehensive guide will help you understand and use all features of the MRCMS system effectively.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <!-- User Management -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-users text-primary"></i> User Management
+                                    </h5>
+                                    <p class="card-text">Learn how to create, edit, and manage user accounts, including password resets and role assignments.</p>
+                                    <a asp-action="UserManagement" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Role Management -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-user-tag text-success"></i> Role Management
+                                    </h5>
+                                    <p class="card-text">Understand how to create and configure roles, set up hierarchies, and manage role-based access.</p>
+                                    <a asp-action="RoleManagement" class="btn btn-success btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Permission Management -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-shield-alt text-warning"></i> Permission Management
+                                    </h5>
+                                    <p class="card-text">Configure detailed permissions for roles, including URL-based access control and feature restrictions.</p>
+                                    <a asp-action="PermissionManagement" class="btn btn-warning btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Menu Configuration -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-bars text-info"></i> Menu Configuration
+                                    </h5>
+                                    <p class="card-text">Learn how to create dynamic menus, configure navigation items, and set up role-based menu visibility.</p>
+                                    <a asp-action="MenuConfiguration" class="btn btn-info btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- System Settings -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-cog text-secondary"></i> Settings
+                                    </h5>
+                                    <p class="card-text">Configure system-wide settings including email, security, appearance, and notification preferences.</p>
+                                    <a asp-action="Settings" class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- System Setup -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-server text-dark"></i> System Setup
+                                    </h5>
+                                    <p class="card-text">Initial system configuration, database setup, and deployment guidelines for administrators.</p>
+                                    <a asp-action="SystemSetup" class="btn btn-dark btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- API Documentation -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-code text-danger"></i> API Documentation
+                                    </h5>
+                                    <p class="card-text">Complete API reference with endpoints, authentication, and integration examples.</p>
+                                    <a asp-action="ApiDocumentation" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Troubleshooting -->
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <i class="fas fa-tools text-purple"></i> Troubleshooting
+                                    </h5>
+                                    <p class="card-text">Common issues and their solutions, error messages, and debugging techniques.</p>
+                                    <a asp-action="Troubleshooting" class="btn btn-purple btn-sm">
+                                        <i class="fas fa-arrow-right"></i> View Guide
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h5><i class="fas fa-info-circle"></i> Quick Tips</h5>
+                                <ul class="mb-0">
+                                    <li>Use <kbd>Ctrl+K</kbd> to quickly search for any feature</li>
+                                    <li>Click on the <i class="fas fa-question-circle"></i> help icon on any page for context-specific help</li>
+                                    <li>Check the <a asp-action="Troubleshooting">Troubleshooting</a> section if you encounter any issues</li>
+                                    <li>Contact support at support@mrcms.com for additional assistance</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .btn-purple {
+            color: #fff;
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        .btn-purple:hover {
+            color: #fff;
+            background-color: #5a32a3;
+            border-color: #5a32a3;
+        }
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+}

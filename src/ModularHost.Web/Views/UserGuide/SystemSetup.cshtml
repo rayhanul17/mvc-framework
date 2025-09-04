@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "System Setup Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active">System Setup</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-server"></i> System Setup Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h2>Initial Configuration</h2>
+                    
+                    <h3>Database Setup</h3>
+                    <ol>
+                        <li>Configure connection string in appsettings.json</li>
+                        <li>Run database migrations: <code>dotnet ef database update</code></li>
+                        <li>Seed initial data if needed</li>
+                    </ol>
+                    
+                    <h3>Email Configuration</h3>
+                    <ul>
+                        <li>SMTP server settings</li>
+                        <li>Email templates</li>
+                        <li>Notification preferences</li>
+                    </ul>
+                    
+                    <h3>Security Settings</h3>
+                    <ul>
+                        <li>Password policies</li>
+                        <li>Session timeout</li>
+                        <li>Two-factor authentication</li>
+                        <li>SSL/TLS configuration</li>
+                    </ul>
+                    
+                    <h3>Performance Optimization</h3>
+                    <ul>
+                        <li>Enable caching</li>
+                        <li>Configure CDN</li>
+                        <li>Database indexing</li>
+                        <li>Load balancing</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> Always backup your database before making system changes.
+                    </div>
+                    
+                    <div class="mt-5">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Guide
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,285 @@
+@{
+    ViewData["Title"] = "User Management Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">User Management</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-users"></i> User Management Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <!-- Table of Contents -->
+                            <div class="list-group sticky-top" style="top: 20px;">
+                                <a href="#overview" class="list-group-item list-group-item-action">Overview</a>
+                                <a href="#creating-users" class="list-group-item list-group-item-action">Creating Users</a>
+                                <a href="#editing-users" class="list-group-item list-group-item-action">Editing Users</a>
+                                <a href="#managing-roles" class="list-group-item list-group-item-action">Managing User Roles</a>
+                                <a href="#password-management" class="list-group-item list-group-item-action">Password Management</a>
+                                <a href="#bulk-operations" class="list-group-item list-group-item-action">Bulk Operations</a>
+                                <a href="#searching-filtering" class="list-group-item list-group-item-action">Searching & Filtering</a>
+                                <a href="#best-practices" class="list-group-item list-group-item-action">Best Practices</a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-9">
+                            <!-- Overview -->
+                            <section id="overview" class="mb-5">
+                                <h2>Overview</h2>
+                                <p>The User Management module allows administrators to create, modify, and manage user accounts within the MRCMS system. This guide covers all aspects of user administration.</p>
+                                
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> <strong>Required Permissions:</strong> You need Administrator or Super Admin role to access user management features.
+                                </div>
+                            </section>
+                            
+                            <!-- Creating Users -->
+                            <section id="creating-users" class="mb-5">
+                                <h2>Creating Users</h2>
+                                <p>To create a new user account:</p>
+                                
+                                <ol>
+                                    <li>Navigate to <strong>Users</strong> from the main menu</li>
+                                    <li>Click the <button class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Add New User</button> button</li>
+                                    <li>Fill in the required information:
+                                        <ul>
+                                            <li><strong>Username:</strong> Unique identifier for login</li>
+                                            <li><strong>Email:</strong> User's email address (must be unique)</li>
+                                            <li><strong>Password:</strong> Must meet complexity requirements</li>
+                                            <li><strong>First Name & Last Name:</strong> User's full name</li>
+                                            <li><strong>Phone Number:</strong> Contact number (optional)</li>
+                                        </ul>
+                                    </li>
+                                    <li>Select appropriate roles for the user</li>
+                                    <li>Set the account status (Active/Inactive)</li>
+                                    <li>Click <strong>Create User</strong></li>
+                                </ol>
+                                
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h5>Password Requirements:</h5>
+                                        <ul>
+                                            <li>Minimum 6 characters</li>
+                                            <li>At least one uppercase letter</li>
+                                            <li>At least one lowercase letter</li>
+                                            <li>At least one digit</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <!-- Editing Users -->
+                            <section id="editing-users" class="mb-5">
+                                <h2>Editing Users</h2>
+                                <p>To modify existing user information:</p>
+                                
+                                <ol>
+                                    <li>Go to the Users list</li>
+                                    <li>Click the <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></button> Edit button for the desired user</li>
+                                    <li>Update the necessary fields</li>
+                                    <li>Click <strong>Save Changes</strong></li>
+                                </ol>
+                                
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong> Changing a user's email address will require them to re-verify their email if email confirmation is enabled.
+                                </div>
+                            </section>
+                            
+                            <!-- Managing User Roles -->
+                            <section id="managing-roles" class="mb-5">
+                                <h2>Managing User Roles</h2>
+                                <p>Roles determine what permissions and access levels users have within the system.</p>
+                                
+                                <h4>To assign roles:</h4>
+                                <ol>
+                                    <li>Edit the user profile</li>
+                                    <li>In the Roles section, check the boxes for desired roles</li>
+                                    <li>Save the changes</li>
+                                </ol>
+                                
+                                <h4>Available Default Roles:</h4>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Role</th>
+                                            <th>Description</th>
+                                            <th>Typical Permissions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="badge badge-danger">Super Admin</span></td>
+                                            <td>Full system access</td>
+                                            <td>All permissions including system configuration</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge badge-warning">Admin</span></td>
+                                            <td>Administrative access</td>
+                                            <td>User management, content management, reports</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge badge-info">User</span></td>
+                                            <td>Standard user access</td>
+                                            <td>Basic features, own profile management</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </section>
+                            
+                            <!-- Password Management -->
+                            <section id="password-management" class="mb-5">
+                                <h2>Password Management</h2>
+                                
+                                <h4>Resetting User Passwords:</h4>
+                                <ol>
+                                    <li>Find the user in the Users list</li>
+                                    <li>Click the <button class="btn btn-warning btn-sm"><i class="fas fa-key"></i></button> Reset Password button</li>
+                                    <li>Enter the new password twice for confirmation</li>
+                                    <li>Click <strong>Reset Password</strong></li>
+                                </ol>
+                                
+                                <h4>Password Recovery:</h4>
+                                <p>Users can reset their own passwords using the "Forgot Password" link on the login page. This will send a password reset link to their registered email address.</p>
+                                
+                                <div class="alert alert-info">
+                                    <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Enable two-factor authentication for enhanced security on sensitive accounts.
+                                </div>
+                            </section>
+                            
+                            <!-- Bulk Operations -->
+                            <section id="bulk-operations" class="mb-5">
+                                <h2>Bulk Operations</h2>
+                                <p>Perform actions on multiple users simultaneously:</p>
+                                
+                                <ul>
+                                    <li><strong>Bulk Activate/Deactivate:</strong> Select multiple users and change their status</li>
+                                    <li><strong>Bulk Role Assignment:</strong> Assign roles to multiple users at once</li>
+                                    <li><strong>Export Users:</strong> Export user data to CSV, Excel, or PDF formats</li>
+                                    <li><strong>Import Users:</strong> Import users from CSV files</li>
+                                </ul>
+                                
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h5>Export Options:</h5>
+                                        <button class="btn btn-sm btn-secondary"><i class="fas fa-file-csv"></i> CSV</button>
+                                        <button class="btn btn-sm btn-secondary"><i class="fas fa-file-excel"></i> Excel</button>
+                                        <button class="btn btn-sm btn-secondary"><i class="fas fa-file-pdf"></i> PDF</button>
+                                        <button class="btn btn-sm btn-secondary"><i class="fas fa-print"></i> Print</button>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <!-- Searching & Filtering -->
+                            <section id="searching-filtering" class="mb-5">
+                                <h2>Searching & Filtering</h2>
+                                <p>Find users quickly using various search and filter options:</p>
+                                
+                                <ul>
+                                    <li><strong>Quick Search:</strong> Type in the search box to filter by name, email, or username</li>
+                                    <li><strong>Role Filter:</strong> Show only users with specific roles</li>
+                                    <li><strong>Status Filter:</strong> Filter by Active/Inactive status</li>
+                                    <li><strong>Date Range:</strong> Filter by registration or last login date</li>
+                                    <li><strong>Advanced Search:</strong> Combine multiple criteria for precise results</li>
+                                </ul>
+                                
+                                <div class="alert alert-success">
+                                    <i class="fas fa-keyboard"></i> <strong>Keyboard Shortcut:</strong> Press <kbd>Ctrl+F</kbd> to focus on the search box.
+                                </div>
+                            </section>
+                            
+                            <!-- Best Practices -->
+                            <section id="best-practices" class="mb-5">
+                                <h2>Best Practices</h2>
+                                
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">Security Recommendations</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul>
+                                            <li>Enforce strong password policies</li>
+                                            <li>Enable two-factor authentication for admin accounts</li>
+                                            <li>Regularly review and audit user access</li>
+                                            <li>Deactivate accounts immediately when employees leave</li>
+                                            <li>Use role-based access control (RBAC) effectively</li>
+                                            <li>Monitor failed login attempts</li>
+                                            <li>Keep audit logs of all user modifications</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="card border-warning mt-3">
+                                    <div class="card-header bg-warning">
+                                        <h5 class="mb-0">Common Pitfalls to Avoid</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul>
+                                            <li>Sharing user accounts between multiple people</li>
+                                            <li>Using weak or default passwords</li>
+                                            <li>Granting excessive permissions</li>
+                                            <li>Not removing access for inactive users</li>
+                                            <li>Ignoring security alerts and warnings</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <div class="mt-5">
+                                <a asp-action="Index" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Back to User Guide
+                                </a>
+                                <a asp-action="RoleManagement" class="btn btn-primary float-right">
+                                    Next: Role Management <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Smooth scrolling for navigation links
+        $(document).ready(function() {
+            $('.list-group-item').click(function(e) {
+                e.preventDefault();
+                var target = $(this).attr('href');
+                $('html, body').animate({
+                    scrollTop: $(target).offset().top - 70
+                }, 500);
+                
+                // Update active state
+                $('.list-group-item').removeClass('active');
+                $(this).addClass('active');
+            });
+            
+            // Highlight current section on scroll
+            $(window).scroll(function() {
+                var scrollPos = $(document).scrollTop() + 100;
+                $('.list-group-item').each(function() {
+                    var currLink = $(this);
+                    var refElement = $(currLink.attr("href"));
+                    if (refElement.position() && refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+                        $('.list-group-item').removeClass("active");
+                        currLink.addClass("active");
+                    }
+                });
+            });
+        });
+    </script>
+}

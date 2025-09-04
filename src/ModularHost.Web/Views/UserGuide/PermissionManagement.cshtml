@@ -1,0 +1,54 @@
+@{
+    ViewData["Title"] = "Permission Management Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active">Permission Management</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">
+                        <i class="fas fa-shield-alt"></i> Permission Management Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h2>URL-Based Permissions</h2>
+                    <p>MRCMS uses URL-based permissions to control access to specific pages and actions.</p>
+                    
+                    <h3>Setting Up Permissions</h3>
+                    <ol>
+                        <li>Go to <strong>Role Permissions</strong></li>
+                        <li>Select a role to configure</li>
+                        <li>Add URL patterns (e.g., /User/*, /Admin/Settings)</li>
+                        <li>Specify HTTP methods (GET, POST, PUT, DELETE)</li>
+                        <li>Set permission type (Allow/Deny)</li>
+                    </ol>
+                    
+                    <h3>Permission Patterns</h3>
+                    <table class="table">
+                        <tr><td>/User/*</td><td>All user pages</td></tr>
+                        <tr><td>/Admin/Settings</td><td>Specific settings page</td></tr>
+                        <tr><td>/Blog/*/Edit</td><td>All blog edit pages</td></tr>
+                    </table>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Deny rules override Allow rules. Be careful with wildcard patterns.
+                    </div>
+                    
+                    <div class="mt-5">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Guide
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

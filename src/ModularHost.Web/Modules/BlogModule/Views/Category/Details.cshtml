@@ -1,0 +1,245 @@
+@model MRCMS.Modules.Blog.Models.Entities.Category
+@{
+    ViewBag.Title = "Category Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-folder"></i> Category Details
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <dl class="row">
+                                <dt class="col-sm-3">Name</dt>
+                                <dd class="col-sm-9">
+                                    <h4>@Model.Name</h4>
+                                </dd>
+                                
+                                <dt class="col-sm-3">Slug</dt>
+                                <dd class="col-sm-9">
+                                    <code>@Model.Slug</code>
+                                </dd>
+                                
+                                <dt class="col-sm-3">Description</dt>
+                                <dd class="col-sm-9">
+                                    @if (!string.IsNullOrEmpty(Model.Description))
+                                    {
+                                        @Model.Description
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No description provided</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Parent Category</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.Parent != null)
+                                    {
+                                        <a asp-action="Details" asp-route-id="@Model.Parent.Id" class="badge badge-secondary">
+                                            <i class="fas fa-folder"></i> @Model.Parent.Name
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-info">Root Category</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Display Order</dt>
+                                <dd class="col-sm-9">@Model.DisplayOrder</dd>
+                                
+                                <dt class="col-sm-3">Status</dt>
+                                <dd class="col-sm-9">
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge badge-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">Inactive</span>
+                                    }
+                                </dd>
+                                
+                                <dt class="col-sm-3">Created</dt>
+                                <dd class="col-sm-9">@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</dd>
+                                
+                                @if (Model.UpdatedAt.HasValue)
+                                {
+                                    <dt class="col-sm-3">Last Updated</dt>
+                                    <dd class="col-sm-9">@Model.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</dd>
+                                }
+                            </dl>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Statistics</h5>
+                                    
+                                    <div class="mb-3">
+                                        <i class="fas fa-newspaper text-primary"></i>
+                                        <strong>Blog Posts:</strong>
+                                        <span class="badge badge-primary float-right">
+                                            @(Model.BlogPosts?.Count ?? 0)
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <i class="fas fa-sitemap text-info"></i>
+                                        <strong>Child Categories:</strong>
+                                        <span class="badge badge-info float-right">
+                                            @(Model.Children?.Count ?? 0)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (Model.Children != null && Model.Children.Any())
+                            {
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Child Categories</h6>
+                                    </div>
+                                    <div class="list-group list-group-flush">
+                                        @foreach (var child in Model.Children.Where(c => !c.IsDeleted).OrderBy(c => c.DisplayOrder))
+                                        {
+                                            <a asp-action="Details" asp-route-id="@child.Id" class="list-group-item list-group-item-action">
+                                                <i class="fas fa-folder-open"></i> @child.Name
+                                                @if (!child.IsActive)
+                                                {
+                                                    <span class="badge badge-warning float-right">Inactive</span>
+                                                }
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    @if (Model.BlogPosts != null && Model.BlogPosts.Any())
+                    {
+                        <div class="mt-4">
+                            <h5>Recent Blog Posts in this Category</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Author</th>
+                                            <th>Published</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var post in Model.BlogPosts.Where(p => !p.IsDeleted).Take(10))
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <a asp-area="Blog" asp-controller="Blog" asp-action="Details" asp-route-id="@post.Id">
+                                                        @post.Title
+                                                    </a>
+                                                </td>
+                                                <td>@post.Author?.UserName</td>
+                                                <td>
+                                                    @if (post.PublishedAt.HasValue)
+                                                    {
+                                                        @post.PublishedAt.Value.ToString("MMM dd, yyyy")
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Not published</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (post.IsPublished)
+                                                    {
+                                                        <span class="badge badge-success">Published</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-warning">Draft</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                @if (Model.BlogPosts.Count > 10)
+                                {
+                                    <p class="text-muted">Showing 10 of @Model.BlogPosts.Count posts</p>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <div class="card-footer">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-info">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the category "<strong>@Model.Name</strong>"?</p>
+                @if (Model.Children != null && Model.Children.Any())
+                {
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> This category has @Model.Children.Count child categories. You must delete or reassign them first.
+                    </div>
+                }
+                @if (Model.BlogPosts != null && Model.BlogPosts.Any())
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> This category contains @Model.BlogPosts.Count blog posts. You must remove or reassign them first.
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                @if ((Model.Children == null || !Model.Children.Any()) && (Model.BlogPosts == null || !Model.BlogPosts.Any()))
+                {
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete Category
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-danger" disabled>
+                        <i class="fas fa-trash"></i> Cannot Delete
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>

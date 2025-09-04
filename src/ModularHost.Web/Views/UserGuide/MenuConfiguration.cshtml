@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Menu Configuration Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active">Menu Configuration</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-bars"></i> Menu Configuration Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h2>Dynamic Menu System</h2>
+                    <p>Create and manage navigation menus with role-based visibility.</p>
+                    
+                    <h3>Creating Menu Items</h3>
+                    <ol>
+                        <li>Go to Menu Management</li>
+                        <li>Click Add Menu Item</li>
+                        <li>Configure: Name, URL, Icon, Order, Parent</li>
+                        <li>Set role visibility</li>
+                        <li>Save menu item</li>
+                    </ol>
+                    
+                    <h3>Menu Hierarchy</h3>
+                    <p>Create multi-level menus by setting parent-child relationships.</p>
+                    
+                    <h3>Role-Based Visibility</h3>
+                    <p>Control which roles can see specific menu items.</p>
+                    
+                    <div class="mt-5">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Guide
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

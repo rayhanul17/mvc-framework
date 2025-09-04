@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Settings Guide";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active">Settings</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-cog"></i> Settings Guide
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h2>System Settings</h2>
+                    
+                    <h3>General Settings</h3>
+                    <ul>
+                        <li>Site name and description</li>
+                        <li>Contact information</li>
+                        <li>Time zone and locale</li>
+                    </ul>
+                    
+                    <h3>Email Settings</h3>
+                    <ul>
+                        <li>SMTP configuration</li>
+                        <li>Email templates</li>
+                        <li>Notification settings</li>
+                    </ul>
+                    
+                    <h3>Security Settings</h3>
+                    <ul>
+                        <li>Password requirements</li>
+                        <li>Login attempts</li>
+                        <li>Session timeout</li>
+                    </ul>
+                    
+                    <h3>Appearance</h3>
+                    <ul>
+                        <li>Theme selection</li>
+                        <li>Logo upload</li>
+                        <li>Color schemes</li>
+                    </ul>
+                    
+                    <div class="mt-5">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Guide
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

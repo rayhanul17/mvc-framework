@@ -1,0 +1,152 @@
+@model MRCMS.Modules.Blog.Models.Entities.Category
+@{
+    ViewBag.Title = "Edit Category";
+    var parentCategories = ViewBag.ParentCategories as dynamic;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-edit"></i> Edit Category
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="Id" type="hidden" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Name" class="control-label">Name <span class="text-danger">*</span></label>
+                                    <input asp-for="Name" class="form-control" placeholder="Enter category name" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="Slug" class="control-label">Slug</label>
+                                    <input asp-for="Slug" class="form-control" placeholder="URL-friendly name" />
+                                    <span asp-validation-for="Slug" class="text-danger"></span>
+                                    <small class="form-text text-muted">URL-friendly version of the name.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label asp-for="Description" class="control-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter category description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label asp-for="ParentId" class="control-label">Parent Category</label>
+                                    <select asp-for="ParentId" class="form-control">
+                                        <option value="">-- No Parent (Root Category) --</option>
+                                        @if (parentCategories != null)
+                                        {
+                                            @foreach (var parent in parentCategories)
+                                            {
+                                                if (parent.Id != Model.Id)
+                                                {
+                                                    <option value="@parent.Id">@parent.Name</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="ParentId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label asp-for="DisplayOrder" class="control-label">Display Order</label>
+                                    <input asp-for="DisplayOrder" type="number" class="form-control" />
+                                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="control-label">Status</label>
+                                    <div class="custom-control custom-switch mt-2">
+                                        <input asp-for="IsActive" type="checkbox" class="custom-control-input" id="isActiveSwitch" />
+                                        <label class="custom-control-label" for="isActiveSwitch">Active</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if (Model.Children != null && Model.Children.Any())
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> This category has @Model.Children.Count child categories.
+                            </div>
+                        }
+                        
+                        @if (Model.BlogPosts != null && Model.BlogPosts.Any())
+                        {
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i> This category contains @Model.BlogPosts.Count blog posts.
+                            </div>
+                        }
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Update Category
+                            </button>
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer text-muted">
+                    <small>
+                        Created: @Model.CreatedAt.ToString("MM/dd/yyyy HH:mm")
+                        @if (Model.UpdatedAt.HasValue)
+                        {
+                            <span> | Updated: @Model.UpdatedAt.Value.ToString("MM/dd/yyyy HH:mm")</span>
+                        }
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Auto-generate slug from name if slug is empty
+        $(document).ready(function() {
+            var originalSlug = $('#Slug').val();
+            
+            $('#Name').on('blur', function() {
+                var name = $(this).val();
+                var currentSlug = $('#Slug').val();
+                
+                // Only auto-generate if slug is empty or matches the original
+                if (name && (!currentSlug || currentSlug === originalSlug)) {
+                    var slug = name.toLowerCase()
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-')
+                        .trim('-');
+                    
+                    $('#Slug').val(slug);
+                }
+            });
+        });
+    </script>
+}

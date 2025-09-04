@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "API Documentation";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">User Guide</a></li>
+                    <li class="breadcrumb-item active">API Documentation</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-code"></i> API Documentation
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <h2>RESTful API</h2>
+                    
+                    <h3>Authentication</h3>
+                    <p>Use JWT Bearer tokens for API authentication.</p>
+                    <pre><code>Authorization: Bearer {token}</code></pre>
+                    
+                    <h3>Common Endpoints</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Endpoint</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>GET</td>
+                                <td>/api/users</td>
+                                <td>Get all users</td>
+                            </tr>
+                            <tr>
+                                <td>POST</td>
+                                <td>/api/users</td>
+                                <td>Create user</td>
+                            </tr>
+                            <tr>
+                                <td>GET</td>
+                                <td>/api/roles</td>
+                                <td>Get all roles</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h3>Response Codes</h3>
+                    <ul>
+                        <li>200 - Success</li>
+                        <li>400 - Bad Request</li>
+                        <li>401 - Unauthorized</li>
+                        <li>403 - Forbidden</li>
+                        <li>404 - Not Found</li>
+                        <li>500 - Server Error</li>
+                    </ul>
+                    
+                    <div class="mt-5">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Guide
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
