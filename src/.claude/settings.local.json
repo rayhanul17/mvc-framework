@@ -72,7 +72,8 @@
       "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Controllers/**)",
       "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Core\\Controllers/**)",
       "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule/**)",
-      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Models\\DTOs/**)"
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Modules\\BlogModule\\Models\\DTOs/**)",
+      "Read(/D:\\mvc-framework\\src\\ModularHost.Web\\Views\\Shared/**)"
     ],
     "deny": [],
     "ask": []
