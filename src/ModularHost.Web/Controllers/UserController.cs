@@ -22,6 +22,7 @@ namespace MRCMS.Controllers
         private readonly ILoggerService _logger;
         private readonly IMapper _mapper;
         private readonly IDataTableService _dataTableService;
+        private readonly ISettingsService _settingsService;
         
         protected virtual string EntityName => "User";
         protected virtual int PageSize => 10;
@@ -31,13 +32,15 @@ namespace MRCMS.Controllers
             RoleManager<Role> roleManager,
             ILoggerService logger,
             IMapper mapper,
-            IDataTableService dataTableService)
+            IDataTableService dataTableService,
+            ISettingsService settingsService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
             _mapper = mapper;
             _dataTableService = dataTableService;
+            _settingsService = settingsService;
         }
 
         public async Task<IActionResult> Index(int page = 1, string search = null, string sortBy = null, bool sortDesc = false)
@@ -534,8 +537,8 @@ namespace MRCMS.Controllers
                         EmailConfirmed = user.EmailConfirmed,
                         Roles = string.Join(", ", roles),
                         RolesList = roles.ToList(),
-                        CreatedAt = user.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
-                        LastLoginAt = user.LastLoginAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never",
+                        CreatedAt = _settingsService.FormatDateTime(user.CreatedAt),
+                        LastLoginAt = user.LastLoginAt.HasValue ? _settingsService.FormatDateTime(user.LastLoginAt.Value) : "Never",
                         Actions = user.Id // Used for action buttons
                     });
                 }
@@ -580,8 +583,8 @@ namespace MRCMS.Controllers
                         ["Roles"] = string.Join(", ", roles),
                         ["IsActive"] = user.IsActive ? "Yes" : "No",
                         ["EmailConfirmed"] = user.EmailConfirmed ? "Yes" : "No",
-                        ["CreatedAt"] = user.CreatedAt.ToString("yyyy-MM-dd HH:mm"),
-                        ["LastLogin"] = user.LastLoginAt?.ToString("yyyy-MM-dd HH:mm") ?? "Never"
+                        ["CreatedAt"] = _settingsService.FormatDateTime(user.CreatedAt),
+                        ["LastLogin"] = user.LastLoginAt.HasValue ? _settingsService.FormatDateTime(user.LastLoginAt.Value) : "Never"
                     });
                 }
                 

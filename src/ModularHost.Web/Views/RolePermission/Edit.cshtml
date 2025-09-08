@@ -1,4 +1,5 @@
 @model MRCMS.Core.Models.Entities.RolePermission
+@using MRCMS.Core.Enums
 @{
     ViewData["Title"] = "Edit Permission";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -25,8 +26,25 @@
                         <input asp-for="Id" type="hidden" />
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <!-- Role Selection -->
+                        <!-- Access Type Selection -->
                         <div class="form-group">
+                            <label asp-for="AccessType" class="form-label font-weight-bold">
+                                <i class="fas fa-shield-alt text-danger"></i> Access Type *
+                            </label>
+                            <select asp-for="AccessType" class="form-control" required onchange="toggleRoleSelection(this.value)">
+                                <option value="@((int)AccessType.Authorized)">Authorized (Role-based)</option>
+                                <option value="@((int)AccessType.Authenticated)">Authenticated (Any logged-in user)</option>
+                                <option value="@((int)AccessType.Anonymous)">Anonymous (Public access)</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                <strong>Anonymous:</strong> Anyone can access without login<br>
+                                <strong>Authenticated:</strong> Any logged-in user can access<br>
+                                <strong>Authorized:</strong> Only users with specific roles can access
+                            </small>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="form-group" id="roleSelectionDiv">
                             <label class="form-label font-weight-bold">
                                 <i class="fas fa-users text-primary"></i> Role *
                             </label>
@@ -154,6 +172,15 @@
 
 @section Scripts {
     <script>
+        function toggleRoleSelection(accessType) {
+            var roleDiv = document.getElementById('roleSelectionDiv');
+            if (accessType == '2') { // Authorized
+                roleDiv.style.display = 'block';
+            } else { // Anonymous or Authenticated
+                roleDiv.style.display = 'none';
+            }
+        }
+
         $(document).ready(function() {
             // Pre-select the current role
             @if (ViewBag.SelectedRoleId != null)
@@ -162,6 +189,9 @@
                 $('#RoleId').val('@ViewBag.SelectedRoleId');
                 </text>
             }
+
+            // Initialize based on current selection
+            toggleRoleSelection(document.getElementById('AccessType').value);
         });
     </script>
 }

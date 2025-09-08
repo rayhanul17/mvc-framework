@@ -1,4 +1,6 @@
 @model List<MRCMS.Core.Models.Entities.RolePermission>
+@using MRCMS.Core.Enums
+@using MRCMS.Core.Extensions
 @{
     ViewData["Title"] = "Role Permissions";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -62,13 +64,13 @@
                     <table class="table table-bordered" id="permissionsTable">
                         <thead>
                             <tr>
+                                <th>Access Type</th>
                                 <th>Role</th>
                                 <th>Permission Name</th>
                                 <th>URL</th>
                                 <th>HTTP Method</th>
                                 <th>Description</th>
                                 <th>Status</th>
-                                <th>Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -77,9 +79,36 @@
                             {
                                 <tr>
                                     <td>
-                                        <span class="badge badge-primary">
-                                            <i class="fas fa-users"></i> @permission.Role.Name
-                                        </span>
+                                        @switch(permission.AccessType)
+                                        {
+                                            case AccessType.Anonymous:
+                                                <span class="badge badge-info">
+                                                    <i class="fas fa-globe"></i> Anonymous
+                                                </span>
+                                                break;
+                                            case AccessType.Authenticated:
+                                                <span class="badge badge-warning">
+                                                    <i class="fas fa-user-check"></i> Authenticated
+                                                </span>
+                                                break;
+                                            case AccessType.Authorized:
+                                                <span class="badge badge-danger">
+                                                    <i class="fas fa-shield-alt"></i> Authorized
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        @if(permission.AccessType == AccessType.Authorized)
+                                        {
+                                            <span class="badge badge-primary">
+                                                <i class="fas fa-users"></i> @permission.Role.Name
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">N/A</span>
+                                        }
                                     </td>
                                     <td>@permission.PermissionName</td>
                                     <td>
@@ -106,8 +135,8 @@
                                         }
                                     </td>
                                     <td>
-                                        <small class="text-muted">
-                                            @permission.CreatedAt.ToString("MM/dd/yyyy")
+                                        <small class="text-muted" title="@Html.FormatDateTime(permission.CreatedAt)">
+                                            @Html.FormatDate(permission.CreatedAt)
                                         </small>
                                     </td>
                                     <td>

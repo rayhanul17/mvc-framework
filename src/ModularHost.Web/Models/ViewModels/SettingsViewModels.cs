@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
 
 namespace MRCMS.Models.ViewModels
 {
@@ -250,6 +252,35 @@ namespace MRCMS.Models.ViewModels
 
         [Display(Name = "Show Footer")]
         public bool ShowFooter { get; set; } = true;
+    }
+
+    public class DateTimeSettingsViewModel
+    {
+        [Required]
+        [Display(Name = "Timezone")]
+        public string Timezone { get; set; } = "UTC";
+
+        [Required]
+        [Display(Name = "Short Date Format")]
+        public string ShortDateFormat { get; set; } = "MM/dd/yyyy";
+
+        [Required]
+        [Display(Name = "Long Date Format")]
+        public string LongDateFormat { get; set; } = "MMMM dd, yyyy";
+
+        [Required]
+        [Display(Name = "Short Time Format")]
+        public string ShortTimeFormat { get; set; } = "h:mm tt";
+
+        [Required]
+        [Display(Name = "Long Time Format")]
+        public string LongTimeFormat { get; set; } = "h:mm:ss tt";
+
+        [Required]
+        [Display(Name = "Date Time Format")]
+        public string DateTimeFormat { get; set; } = "MM/dd/yyyy h:mm tt";
+
+        public List<SelectListItem> AvailableTimezones { get; set; } = new List<SelectListItem>();
     }
 
     public class NotificationSettingsViewModel

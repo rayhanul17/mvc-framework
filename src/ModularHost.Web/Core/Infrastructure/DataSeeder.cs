@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MRCMS.Core.Models.Entities;
+using MRCMS.Core.Enums;
 using MRCMS.Modules.Blog.Models.Entities;
 using MRCMS.Core.Extensions;
+using MRCMS.Services.Interfaces;
 
 namespace MRCMS.Core.Infrastructure
 {
@@ -42,6 +44,9 @@ namespace MRCMS.Core.Infrastructure
 
             // Seed Blog Posts
             await SeedBlogPostsAsync(context, userManager);
+
+            // Seed Settings (Timezone and Date/Time formats)
+            await SeedSettingsAsync(serviceProvider);
 
             await context.SaveChangesAsync();
         }
@@ -153,6 +158,53 @@ namespace MRCMS.Core.Infrastructure
                 var adminRole = await roleManager.FindByNameAsync("Admin");
                 var userRole = await roleManager.FindByNameAsync("User");
                 
+                // Add some Anonymous (public) permissions
+                var anonymousPermissions = new[]
+                {
+                    new RolePermission
+                    {
+                        Id = Guid.NewGuid(),
+                        RoleId = adminRole?.Id ?? Guid.Empty, // RoleId is required but ignored for Anonymous
+                        Url = "/",
+                        HttpMethod = "GET",
+                        Description = "Home page - public access",
+                        AccessType = AccessType.Anonymous,
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new RolePermission
+                    {
+                        Id = Guid.NewGuid(),
+                        RoleId = adminRole?.Id ?? Guid.Empty,
+                        Url = "/Home",
+                        HttpMethod = "GET",
+                        Description = "Home page - public access",
+                        AccessType = AccessType.Anonymous,
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new RolePermission
+                    {
+                        Id = Guid.NewGuid(),
+                        RoleId = adminRole?.Id ?? Guid.Empty,
+                        Url = "/Account/Login",
+                        HttpMethod = "*",
+                        Description = "Login page - public access",
+                        AccessType = AccessType.Anonymous,
+                        CreatedAt = DateTime.UtcNow
+                    },
+                    new RolePermission
+                    {
+                        Id = Guid.NewGuid(),
+                        RoleId = adminRole?.Id ?? Guid.Empty,
+                        Url = "/Account/Register",
+                        HttpMethod = "*",
+                        Description = "Registration page - public access",
+                        AccessType = AccessType.Anonymous,
+                        CreatedAt = DateTime.UtcNow
+                    }
+                };
+                
+                context.RolePermissions.AddRange(anonymousPermissions);
+                
                 if (adminRole != null)
                 {
                     var adminPermissions = new[]
@@ -165,6 +217,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -174,6 +227,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Create",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -183,6 +237,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Create",
                             HttpMethod = "POST",
                             Description = "Manage blog content",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -192,6 +247,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Edit/*",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -201,6 +257,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Edit/*",
                             HttpMethod = "POST",
                             Description = "Manage blog content",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -210,6 +267,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Delete/*",
                             HttpMethod = "POST",
                             Description = "Manage blog content",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -219,6 +277,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Categories",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -228,6 +287,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/category/*",
                             HttpMethod = "POST",
                             Description = "Manage blog content",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -237,6 +297,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Tags",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -246,6 +307,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/tag/*",
                             HttpMethod = "POST",
                             Description = "Manage blog content",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -255,6 +317,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Comments",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -264,6 +327,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/comment/*",
                             HttpMethod = "POST",
                             Description = "Manage blog content",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         // User Management Permissions
@@ -273,7 +337,8 @@ namespace MRCMS.Core.Infrastructure
                             RoleId = adminRole.Id,
                             Url = "/User",
                             HttpMethod = "GET",
-                            Description = "Access blog posts",
+                            Description = "Access user management",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -282,7 +347,8 @@ namespace MRCMS.Core.Infrastructure
                             RoleId = adminRole.Id,
                             Url = "/User/*",
                             HttpMethod = "*",
-                            Description = "Full access",
+                            Description = "Full user management access",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         // Role Management Permissions
@@ -292,7 +358,8 @@ namespace MRCMS.Core.Infrastructure
                             RoleId = adminRole.Id,
                             Url = "/Role",
                             HttpMethod = "GET",
-                            Description = "Access blog posts",
+                            Description = "Access role management",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -301,7 +368,28 @@ namespace MRCMS.Core.Infrastructure
                             RoleId = adminRole.Id,
                             Url = "/Role/*",
                             HttpMethod = "*",
-                            Description = "Full access",
+                            Description = "Full role management access",
+                            AccessType = AccessType.Authorized,
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new RolePermission
+                        {
+                            Id = Guid.NewGuid(),
+                            RoleId = adminRole.Id,
+                            Url = "/RolePermission",
+                            HttpMethod = "GET",
+                            Description = "Access permission management",
+                            AccessType = AccessType.Authorized,
+                            CreatedAt = DateTime.UtcNow
+                        },
+                        new RolePermission
+                        {
+                            Id = Guid.NewGuid(),
+                            RoleId = adminRole.Id,
+                            Url = "/RolePermission/*",
+                            HttpMethod = "*",
+                            Description = "Full permission management access",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         }
                     };
@@ -321,6 +409,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         new RolePermission
@@ -330,6 +419,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/Details/*",
                             HttpMethod = "GET",
                             Description = "Access blog posts",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         },
                         // User can post comments
@@ -340,6 +430,7 @@ namespace MRCMS.Core.Infrastructure
                             Url = "/Blog/comment/add",
                             HttpMethod = "POST",
                             Description = "Manage blog content",
+                            AccessType = AccessType.Authorized,
                             CreatedAt = DateTime.UtcNow
                         }
                     };
@@ -1460,6 +1551,14 @@ namespace MRCMS.Core.Infrastructure
                 context.Set<BlogPostTag>().AddRange(postTags);
                 await context.SaveChangesAsync();
             }
+        }
+
+        private static async Task SeedSettingsAsync(IServiceProvider serviceProvider)
+        {
+            var settingsService = serviceProvider.GetRequiredService<ISettingsService>();
+            
+            // Initialize default settings if they don't exist
+            await settingsService.InitializeDefaultSettingsAsync();
         }
     }
 }

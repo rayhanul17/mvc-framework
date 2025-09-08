@@ -1,0 +1,177 @@
+@model MRCMS.Models.ViewModels.DateTimeSettingsViewModel
+@{
+    ViewData["Title"] = "Date & Time Settings";
+}
+
+<div class="container mx-auto max-w-4xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Date & Time Settings</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Configure timezone and date/time display formats</p>
+            </div>
+            <a asp-action="Index" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+        </div>
+    }
+
+    <!-- Current Time Display -->
+    <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Current UTC Time:</span>
+                <span class="text-blue-900 dark:text-blue-100 ml-2">@ViewBag.CurrentUtcTime</span>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-blue-700 dark:text-blue-300">Current Local Time:</span>
+                <span class="text-blue-900 dark:text-blue-100 ml-2">@ViewBag.CurrentLocalTime</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Form -->
+    <form asp-action="DateTimeSettings" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-red-600 mb-4"></div>
+        
+        <!-- Timezone Settings -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-globe mr-2 text-blue-600"></i>Timezone Settings
+            </h2>
+            
+            <div>
+                <label asp-for="Timezone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Select your preferred timezone"></label>
+                <select asp-for="Timezone" asp-items="Model.AvailableTimezones" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">-- Select Timezone --</option>
+                </select>
+                <span asp-validation-for="Timezone" class="text-red-600 text-sm"></span>
+                <p class="text-sm text-gray-500 mt-1">All dates and times will be displayed in this timezone</p>
+            </div>
+        </div>
+        
+        <!-- Date Format Settings -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-calendar mr-2 text-green-600"></i>Date Format Settings
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label asp-for="ShortDateFormat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Format for short date display"></label>
+                    <input asp-for="ShortDateFormat" title="e.g., MM/dd/yyyy or dd/MM/yyyy" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="ShortDateFormat" class="text-red-600 text-sm"></span>
+                    <p class="text-sm text-gray-500 mt-1">Example: @ViewBag.ShortDateExample</p>
+                </div>
+                
+                <div>
+                    <label asp-for="LongDateFormat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Format for long date display"></label>
+                    <input asp-for="LongDateFormat" title="e.g., MMMM dd, yyyy or dd MMMM yyyy" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="LongDateFormat" class="text-red-600 text-sm"></span>
+                    <p class="text-sm text-gray-500 mt-1">Example: @ViewBag.LongDateExample</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Time Format Settings -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-clock mr-2 text-purple-600"></i>Time Format Settings
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label asp-for="ShortTimeFormat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Format for short time display"></label>
+                    <input asp-for="ShortTimeFormat" title="e.g., h:mm tt or HH:mm" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="ShortTimeFormat" class="text-red-600 text-sm"></span>
+                    <p class="text-sm text-gray-500 mt-1">Example: @ViewBag.ShortTimeExample</p>
+                </div>
+                
+                <div>
+                    <label asp-for="LongTimeFormat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Format for long time display"></label>
+                    <input asp-for="LongTimeFormat" title="e.g., h:mm:ss tt or HH:mm:ss" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                    <span asp-validation-for="LongTimeFormat" class="text-red-600 text-sm"></span>
+                    <p class="text-sm text-gray-500 mt-1">Example: @ViewBag.LongTimeExample</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Combined DateTime Format -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <i class="fas fa-calendar-alt mr-2 text-orange-600"></i>Combined Date & Time Format
+            </h2>
+            
+            <div>
+                <label asp-for="DateTimeFormat" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" title="Format for combined date and time display"></label>
+                <input asp-for="DateTimeFormat" title="e.g., MM/dd/yyyy h:mm tt" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+                <span asp-validation-for="DateTimeFormat" class="text-red-600 text-sm"></span>
+                <p class="text-sm text-gray-500 mt-1">Example: @ViewBag.DateTimeExample</p>
+            </div>
+        </div>
+        
+        <!-- Format Reference -->
+        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                <i class="fas fa-info-circle mr-2 text-blue-600"></i>Format Reference
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Date Formats:</h4>
+                    <ul class="space-y-1 text-gray-600 dark:text-gray-400">
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">yyyy</code> - 4-digit year (2024)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">yy</code> - 2-digit year (24)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">MMMM</code> - Full month name (January)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">MMM</code> - Abbreviated month (Jan)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">MM</code> - 2-digit month (01)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">dd</code> - 2-digit day (01)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">d</code> - Day without leading zero (1)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Time Formats:</h4>
+                    <ul class="space-y-1 text-gray-600 dark:text-gray-400">
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">HH</code> - 24-hour format hour (14)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">hh</code> - 12-hour format hour (02)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">h</code> - 12-hour without leading zero (2)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">mm</code> - Minutes (30)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">ss</code> - Seconds (45)</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">tt</code> - AM/PM indicator</li>
+                        <li><code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">t</code> - A/P indicator</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="flex justify-end">
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <i class="fas fa-save mr-2"></i>Save Settings
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Live preview of format changes (optional enhancement)
+        document.addEventListener('DOMContentLoaded', function() {
+            const formatInputs = document.querySelectorAll('input[id$="Format"]');
+            formatInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // You could add live preview functionality here
+                    console.log('Format changed:', this.id, this.value);
+                });
+            });
+        });
+    </script>
+}

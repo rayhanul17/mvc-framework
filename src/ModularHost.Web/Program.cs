@@ -21,7 +21,9 @@ Serilog.Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Information) // Log SQL commands
     .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+    .MinimumLevel.Override("MRCMS.Middleware", LogEventLevel.Debug) // Log middleware activities
     .Enrich.FromLogContext()
     .Enrich.WithProperty("MachineName", Environment.MachineName)
     .Enrich.WithProperty("ProcessId", Environment.ProcessId)
@@ -30,19 +32,33 @@ Serilog.Log.Logger = new LoggerConfiguration()
         path: "logs/log-.txt",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 30,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
+        fileSizeLimitBytes: 10485760, // 10MB per file
+        rollOnFileSizeLimit: true)
     .WriteTo.File(
         path: "logs/error-.txt",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 30,
         restrictedToMinimumLevel: LogEventLevel.Error,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{MachineName}] [{ProcessId}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{MachineName}] [{ProcessId}] [{SourceContext}] {Message:lj}{NewLine}{Exception}",
+        fileSizeLimitBytes: 10485760,
+        rollOnFileSizeLimit: true)
     .WriteTo.File(
         path: "logs/crash-.txt",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 30,
         restrictedToMinimumLevel: LogEventLevel.Fatal,
-        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{MachineName}] [{ProcessId}] [{SourceContext}] {Message:lj}{NewLine}{Exception}{NewLine}")
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{MachineName}] [{ProcessId}] [{SourceContext}] {Message:lj}{NewLine}{Exception}{NewLine}",
+        fileSizeLimitBytes: 10485760,
+        rollOnFileSizeLimit: true)
+    .WriteTo.File(
+        path: "logs/database-.txt",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7,
+        restrictedToMinimumLevel: LogEventLevel.Debug,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+        fileSizeLimitBytes: 10485760,
+        rollOnFileSizeLimit: true)
     .CreateLogger();
 
 try
@@ -79,7 +95,13 @@ services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
     var auditInterceptor = serviceProvider.GetService<AuditInterceptor>();
     
-    options.UseMySql(connectionString, serverVersion)
+    options.UseMySql(connectionString, serverVersion, mySqlOptions =>
+        {
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        })
         .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors();
@@ -96,6 +118,12 @@ services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register DataTable service
 services.AddScoped<IDataTableService, DataTableService>();
+
+// Register Settings service
+services.AddScoped<ISettingsService, SettingsService>();
+
+// Add Memory Cache for settings caching
+services.AddMemoryCache();
 
 // Add hosted service for log archiving (before dynamic registration to avoid conflicts)
 services.AddHostedService<HourlyLogArchiverHostedService>();

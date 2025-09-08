@@ -23,8 +23,25 @@
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                        <!-- Role Selection -->
+                        <!-- Access Type Selection -->
                         <div class="form-group">
+                            <label for="AccessType" class="form-label font-weight-bold">
+                                <i class="fas fa-shield-alt text-danger"></i> Access Type *
+                            </label>
+                            <select name="AccessType" id="AccessType" class="form-control" required onchange="toggleRoleSelection(this.value)">
+                                <option value="2">Authorized (Role-based)</option>
+                                <option value="1">Authenticated (Any logged-in user)</option>
+                                <option value="0">Anonymous (Public access)</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                <strong>Anonymous:</strong> Anyone can access without login<br>
+                                <strong>Authenticated:</strong> Any logged-in user can access<br>
+                                <strong>Authorized:</strong> Only users with specific roles can access
+                            </small>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="form-group" id="roleSelectionDiv">
                             <label class="form-label font-weight-bold">
                                 <i class="fas fa-users text-primary"></i> Select Roles *
                             </label>
@@ -43,7 +60,7 @@
                                     }
                                 }
                             </div>
-                            <small class="form-text text-muted">Select one or more roles to assign this permission to.</small>
+                            <small class="form-text text-muted">Select one or more roles to assign this permission to (only for Authorized access type).</small>
                         </div>
 
                         <!-- Permission Name -->
@@ -182,14 +199,31 @@
             document.getElementById('Description').value = description;
         }
 
+        function toggleRoleSelection(accessType) {
+            var roleDiv = document.getElementById('roleSelectionDiv');
+            if (accessType == '2') { // Authorized
+                roleDiv.style.display = 'block';
+            } else { // Anonymous or Authenticated
+                roleDiv.style.display = 'none';
+                // Uncheck all role checkboxes when not needed
+                $('input[name="selectedRoles"]').prop('checked', false);
+            }
+        }
+
         $(document).ready(function() {
+            // Initialize based on default selection
+            toggleRoleSelection(document.getElementById('AccessType').value);
+            
             // Form validation
             $('form').submit(function(e) {
-                var selectedRoles = $('input[name="selectedRoles"]:checked').length;
-                if (selectedRoles === 0) {
-                    e.preventDefault();
-                    alert('Please select at least one role.');
-                    return false;
+                var accessType = $('#AccessType').val();
+                if (accessType == '2') { // Authorized
+                    var selectedRoles = $('input[name="selectedRoles"]:checked').length;
+                    if (selectedRoles === 0) {
+                        e.preventDefault();
+                        alert('Please select at least one role for Authorized access type.');
+                        return false;
+                    }
                 }
             });
         });

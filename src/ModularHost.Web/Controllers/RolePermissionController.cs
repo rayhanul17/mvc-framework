@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using MRCMS.Core.Controllers;
 using MRCMS.Core.Models.Entities;
+using MRCMS.Core.Enums;
 using MRCMS.Core.Services.Interfaces;
 using MRCMS.Services.Interfaces;
 using MRCMS.Core.Infrastructure;
+using MRCMS.Filters;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +17,7 @@ using System.Collections.Generic;
 
 namespace MRCMS.Controllers
 {
+    [RequireAuthentication]
     public class RolePermissionController : Controller
     {
         private readonly AppDbContext _context;
@@ -79,6 +83,7 @@ namespace MRCMS.Controllers
                             Url = model.Url ?? "",
                             HttpMethod = model.HttpMethod ?? "",
                             Description = model.Description ?? "",
+                            AccessType = model.AccessType,
                             CreatedAt = DateTime.UtcNow,
                             IsActive = true
                         };
@@ -156,6 +161,7 @@ namespace MRCMS.Controllers
                 existingPermission.Url = model.Url;
                 existingPermission.HttpMethod = model.HttpMethod;
                 existingPermission.Description = model.Description;
+                existingPermission.AccessType = model.AccessType;
                 existingPermission.UpdatedAt = DateTime.UtcNow;
 
                 _repository.Update(existingPermission);
@@ -289,6 +295,7 @@ namespace MRCMS.Controllers
                                         Url = url,
                                         HttpMethod = method,
                                         Description = description ?? "",
+                                        AccessType = AccessType.Authorized, // Default for bulk assign
                                         CreatedAt = DateTime.UtcNow,
                                         IsActive = true
                                     };
@@ -354,7 +361,7 @@ namespace MRCMS.Controllers
 
         private async Task PopulateViewBag()
         {
-            var roles = await _roleRepository.Query()
+            var roles = await _context.Roles
                 .Where(r => r.IsActive)
                 .OrderBy(r => r.Name)
                 .Select(r => new SelectListItem

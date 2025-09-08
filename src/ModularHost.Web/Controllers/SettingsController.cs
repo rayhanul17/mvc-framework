@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MRCMS.Core.Infrastructure;
 using MRCMS.Core.Models.Entities;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Net.Mail;
 using MRCMS.Services;
+using TimeZoneConverter;
 
 namespace MRCMS.Controllers
 {
@@ -20,17 +22,23 @@ namespace MRCMS.Controllers
         private readonly IConfiguration _configuration;
         private readonly IAuditLogger _auditLogger;
         private readonly IEmailService _emailService;
+        private readonly ISettingsService _settingsService;
+        private readonly ILoggerService _logger;
 
         public SettingsController(
             AppDbContext context,
             IConfiguration configuration,
             IAuditLogger auditLogger,
-            IEmailService emailService)
+            IEmailService emailService,
+            ISettingsService settingsService,
+            ILoggerService logger)
         {
             _context = context;
             _configuration = configuration;
             _auditLogger = auditLogger;
             _emailService = emailService;
+            _settingsService = settingsService;
+            _logger = logger;
         }
 
         public IActionResult Index()
@@ -40,21 +48,20 @@ namespace MRCMS.Controllers
 
         public async Task<IActionResult> General()
         {
-            var settings = await GetSettingsByCategoryAsync("General");
             var viewModel = new GeneralSettingsViewModel
             {
-                SiteName = GetSettingValue(settings, "Site.Name", "ModularHost"),
-                SiteDescription = GetSettingValue(settings, "Site.Description", "A modular web application"),
-                SiteUrl = GetSettingValue(settings, "Site.Url", "https://localhost"),
-                SiteTimezone = GetSettingValue(settings, "Site.Timezone", "UTC"),
-                DefaultLanguage = GetSettingValue(settings, "Site.Language", "en-US"),
-                DateFormat = GetSettingValue(settings, "Site.DateFormat", "MM/dd/yyyy"),
-                TimeFormat = GetSettingValue(settings, "Site.TimeFormat", "hh:mm tt"),
-                PageSize = int.Parse(GetSettingValue(settings, "Site.PageSize", "10")),
-                EnableRegistration = bool.Parse(GetSettingValue(settings, "Site.EnableRegistration", "true")),
-                RequireEmailConfirmation = bool.Parse(GetSettingValue(settings, "Site.RequireEmailConfirmation", "false")),
-                MaintenanceMode = bool.Parse(GetSettingValue(settings, "Site.MaintenanceMode", "false")),
-                MaintenanceMessage = GetSettingValue(settings, "Site.MaintenanceMessage", "Site is under maintenance")
+                SiteName = await _settingsService.GetSettingAsync("System.SiteName") ?? "ModularHost",
+                SiteDescription = await _settingsService.GetSettingAsync("Site.Description") ?? "A modular web application",
+                SiteUrl = await _settingsService.GetSettingAsync("Site.Url") ?? "https://localhost",
+                SiteTimezone = await _settingsService.GetTimezoneAsync(),
+                DefaultLanguage = await _settingsService.GetSettingAsync("Site.Language") ?? "en-US",
+                DateFormat = await _settingsService.GetShortDateFormatAsync(),
+                TimeFormat = await _settingsService.GetShortTimeFormatAsync(),
+                PageSize = int.Parse(await _settingsService.GetSettingAsync("System.PageSize") ?? "10"),
+                EnableRegistration = bool.Parse(await _settingsService.GetSettingAsync("Site.EnableRegistration") ?? "true"),
+                RequireEmailConfirmation = bool.Parse(await _settingsService.GetSettingAsync("Site.RequireEmailConfirmation") ?? "false"),
+                MaintenanceMode = bool.Parse(await _settingsService.GetSettingAsync("Site.MaintenanceMode") ?? "false"),
+                MaintenanceMessage = await _settingsService.GetSettingAsync("Site.MaintenanceMessage") ?? "Site is under maintenance"
             };
 
             return View(viewModel);
@@ -247,15 +254,15 @@ namespace MRCMS.Controllers
                     Category = category,
                     Description = "",
                     IsPublic = false,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    CreatedAt = System.DateTime.UtcNow,
+                    UpdatedAt = System.DateTime.UtcNow
                 };
                 _context.Set<Setting>().Add(setting);
             }
             else
             {
                 setting.Value = value;
-                setting.UpdatedAt = DateTime.UtcNow;
+                setting.UpdatedAt = System.DateTime.UtcNow;
                 _context.Set<Setting>().Update(setting);
             }
         }
@@ -304,6 +311,90 @@ namespace MRCMS.Controllers
                 return RedirectToAction(nameof(Appearance));
             }
 
+            return View(model);
+        }
+
+        public async Task<IActionResult> DateTimeSettings()
+        {
+            var timeZones = TZConvert.KnownWindowsTimeZoneIds
+                .Select(tz => {
+                    var tzInfo = TZConvert.GetTimeZoneInfo(tz);
+                    return new SelectListItem
+                    {
+                        Value = tz,
+                        Text = $"{tzInfo.DisplayName} ({tz})"
+                    };
+                })
+                .OrderBy(x => x.Text)
+                .ToList();
+
+            var model = new DateTimeSettingsViewModel
+            {
+                Timezone = await _settingsService.GetTimezoneAsync(),
+                ShortDateFormat = await _settingsService.GetShortDateFormatAsync(),
+                LongDateFormat = await _settingsService.GetLongDateFormatAsync(),
+                ShortTimeFormat = await _settingsService.GetShortTimeFormatAsync(),
+                LongTimeFormat = await _settingsService.GetLongTimeFormatAsync(),
+                DateTimeFormat = await _settingsService.GetDateTimeFormatAsync(),
+                AvailableTimezones = timeZones
+            };
+            
+            // Add current time examples
+            var now = System.DateTime.UtcNow;
+            var localNow = _settingsService.ConvertFromUtc(now);
+            
+            ViewBag.CurrentUtcTime = now.ToString("yyyy-MM-dd HH:mm:ss");
+            ViewBag.CurrentLocalTime = localNow.ToString("yyyy-MM-dd HH:mm:ss");
+            ViewBag.ShortDateExample = _settingsService.FormatDate(now, false);
+            ViewBag.LongDateExample = _settingsService.FormatDate(now, true);
+            ViewBag.ShortTimeExample = _settingsService.FormatTime(now, false);
+            ViewBag.LongTimeExample = _settingsService.FormatTime(now, true);
+            ViewBag.DateTimeExample = _settingsService.FormatDateTime(now);
+            
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DateTimeSettings(DateTimeSettingsViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _settingsService.SetTimezoneAsync(model.Timezone);
+                    await _settingsService.SetSettingAsync(SettingsService.ShortDateFormatKey, model.ShortDateFormat, "Short date format", "DateTime");
+                    await _settingsService.SetSettingAsync(SettingsService.LongDateFormatKey, model.LongDateFormat, "Long date format", "DateTime");
+                    await _settingsService.SetSettingAsync(SettingsService.ShortTimeFormatKey, model.ShortTimeFormat, "Short time format", "DateTime");
+                    await _settingsService.SetSettingAsync(SettingsService.LongTimeFormatKey, model.LongTimeFormat, "Long time format", "DateTime");
+                    await _settingsService.SetSettingAsync(SettingsService.DateTimeFormatKey, model.DateTimeFormat, "Date and time format", "DateTime");
+                    
+                    TempData["Success"] = "Date and time settings updated successfully.";
+                    _logger.LogInformation("Date/time settings updated by user {UserId}", User.Identity?.Name);
+                    
+                    return RedirectToAction(nameof(DateTimeSettings));
+                }
+                catch (ArgumentException ex)
+                {
+                    ModelState.AddModelError("Timezone", ex.Message);
+                }
+            }
+            
+            // Reload timezones for the view
+            var timeZones = TZConvert.KnownWindowsTimeZoneIds
+                .Select(tz => {
+                    var tzInfo = TZConvert.GetTimeZoneInfo(tz);
+                    return new SelectListItem
+                    {
+                        Value = tz,
+                        Text = $"{tzInfo.DisplayName} ({tz})"
+                    };
+                })
+                .OrderBy(x => x.Text)
+                .ToList();
+            
+            model.AvailableTimezones = timeZones;
+            
             return View(model);
         }
 

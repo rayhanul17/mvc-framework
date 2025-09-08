@@ -87,49 +87,55 @@ namespace MRCMS.Services
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            using var transaction = await context.Database.BeginTransactionAsync();
-            try
+            // Use execution strategy to handle retries properly
+            var strategy = context.Database.CreateExecutionStrategy();
+            
+            await strategy.ExecuteAsync(async () =>
             {
-                var logsToArchive = await context.Logs
-                    .Where(l => l.CreatedAt < threshold)
-                    .ToListAsync();
-
-                if (logsToArchive.Any())
+                using var transaction = await context.Database.BeginTransactionAsync();
+                try
                 {
-                    var archives = logsToArchive.Select(log => new LogArchive
-                    {
-                        Id = log.Id,
-                        Level = log.Level,
-                        Message = log.Message,
-                        Exception = log.Exception,
-                        Properties = log.Properties,
-                        UserId = log.UserId,
-                        UserName = log.UserName,
-                        Url = log.Url,
-                        HttpMethod = log.HttpMethod,
-                        IpAddress = log.IpAddress,
-                        UserAgent = log.UserAgent,
-                        CreatedAt = log.CreatedAt,
-                        MachineName = log.MachineName,
-                        Application = log.Application,
-                        ArchivedAt = DateTime.UtcNow
-                    }).ToList();
+                    var logsToArchive = await context.Logs
+                        .Where(l => l.CreatedAt < threshold)
+                        .ToListAsync();
 
-                    await context.LogArchives.AddRangeAsync(archives);
-                    context.Logs.RemoveRange(logsToArchive);
-                    
-                    await context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                    
-                    _logger.LogInformation($"Archived {logsToArchive.Count} logs");
+                    if (logsToArchive.Any())
+                    {
+                        var archives = logsToArchive.Select(log => new LogArchive
+                        {
+                            Id = log.Id,
+                            Level = log.Level,
+                            Message = log.Message,
+                            Exception = log.Exception,
+                            Properties = log.Properties,
+                            UserId = log.UserId,
+                            UserName = log.UserName,
+                            Url = log.Url,
+                            HttpMethod = log.HttpMethod,
+                            IpAddress = log.IpAddress,
+                            UserAgent = log.UserAgent,
+                            CreatedAt = log.CreatedAt,
+                            MachineName = log.MachineName,
+                            Application = log.Application,
+                            ArchivedAt = DateTime.UtcNow
+                        }).ToList();
+
+                        await context.LogArchives.AddRangeAsync(archives);
+                        context.Logs.RemoveRange(logsToArchive);
+                        
+                        await context.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                        
+                        _logger.LogInformation($"Archived {logsToArchive.Count} logs");
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                _logger.LogError(ex, "Error during MySQL log archiving");
-                throw;
-            }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    _logger.LogError(ex, "Error during MySQL log archiving");
+                    throw;
+                }
+            });
         }
 
         private async Task ArchiveMongoLogs(DateTime threshold)
